@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edison Ochieng | Design Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- 1. ADDED EXTERNAL LIBRARIES FOR PDF AND FLIPBOOK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+</head>
+<body>
+
+    <!-- HEADER & NAVIGATION -->
+    <header>
+        <h1 class="logo" onclick="resetToHome()">EDISON.CREATE</h1>
+        
+        <nav class="top-nav">
+            <button class="nav-link active" onclick="filterCategory('all', event)">All Work</button>
+            <button class="nav-link" onclick="filterCategory('engineering', event)">Engineering</button>
+            <button class="nav-link" onclick="filterCategory('graphic', event)">Graphic Design</button>
+            <button class="nav-link" onclick="showPdfWorks(event)">PDF Works</button>
+            <a href="mailto:edisonochieng@example.com" class="nav-link contact-link">Contact</a>
+        </nav>
+
+        <nav class="software-nav hidden" id="nav-engineering">
+            <button class="software-link active" onclick="filterSoftware('engineering', 'all', event)">All Engineering</button>
+            <button class="software-link" onclick="filterSoftware('engineering', 'solidworks', event)">SolidWorks</button>
+            <button class="software-link" onclick="filterSoftware('engineering', 'inventor', event)">Inventor</button>
+            <button class="software-link" onclick="filterSoftware('engineering', 'autocad', event)">AutoCAD</button>
+            <button class="software-link" onclick="filterSoftware('engineering', 'revit', event)">Revit</button>
+        </nav>
+
+        <nav class="software-nav hidden" id="nav-graphic">
+            <button class="software-link active" onclick="filterSoftware('graphic', 'all', event)">All Graphics</button>
+            <button class="software-link" onclick="filterSoftware('graphic', 'photoshop', event)">Photoshop</button>
+            <button class="software-link" onclick="filterSoftware('graphic', 'illustrator', event)">Illustrator</button>
+            <button class="software-link" onclick="filterSoftware('graphic', 'indesign', event)">InDesign</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- MAIN ALBUM GRID -->
+        <section id="album-grid" class="view-state active">
+            <div class="album-card graphic illustrator" onclick="openHero('Camp Meeting Appreciation', 'OCTOBER 2026', 'APPRECIATION-02.png', 'camp-meeting-gallery', true, '#3a2024')">
+                <div class="album-img" style="background-image: url('APPRECIATION-02.png');"></div>
+                <div class="album-title">Camp Meeting Appreciation</div>
+            </div>
+
+            <div class="album-card engineering solidworks" onclick="openHero('Dummy CAD Project', 'SEPT 2026', 'https://images.unsplash.com/photo-1581092334651-ddf26d9a09d0?q=80&w=1000', 'dummy-cad-gallery', false, '#1b2a33')">
+                <div class="album-img" style="background-image: url('https://images.unsplash.com/photo-1581092334651-ddf26d9a09d0?q=80&w=1000');"></div>
+                <div class="album-title">Dummy CAD Project</div>
+            </div>
+        </section>
+
+        <!-- 2. ADDED PDF WORKS SECTION -->
+        <section id="pdf-works" class="view-state">
+            <div class="pdf-works-head">
+                <h2>Publications & Documents</h2>
+                <p>Technical guides and project documentation.</p>
+            </div>
+            <div id="pdf-grid">
+                <!-- PDF cards will be injected here by JS -->
+            </div>
+        </section>
+
+        <!-- HERO COVER OVERLAY -->
+        <section id="hero-cover" class="view-state">
+            <div class="hero-background" id="hero-bg">
+                <div class="hero-content">
+                    <h2 id="hero-title">Project Title</h2>
+                    <p id="hero-date">DATE / SUBTITLE</p>
+                    <button class="view-gallery-btn" onclick="openGallery()">VIEW GALLERY</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTERNAL GALLERY -->
+        <section id="internal-gallery" class="view-state">
+            <nav class="gallery-sub-nav" id="cad-views-nav">
+                <button class="sub-link active" onclick="filterGallery('isometric', event)">Isometric</button>
+                <button class="sub-link" onclick="filterGallery('front', event)">Front View</button>
+                <button class="sub-link" onclick="filterGallery('side', event)">Side View</button>
+                <button class="sub-link" onclick="filterGallery('top', event)">Top Plan</button>
+            </nav>
+
+            <div id="camp-meeting-gallery" class="project-images">
+                <div class="masonry-grid">
+                    <!-- Images here -->
+                </div>
+            </div>
+
+            <div id="dummy-cad-gallery" class="project-images">
+                <div class="masonry-grid">
+                    <!-- Images here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. ADDED PDF VIEWER OVERLAY -->
+        <div id="pdf-viewer" class="pdf-viewer">
+            <div class="pdf-toolbar">
+                <button class="pdf-btn" id="pdf-close" title="Close">✕</button>
+                <div class="pdf-title" id="pdf-title">Document</div>
+            </div>
+            
+            <button class="pdf-nav prev" id="pdf-prev">❮</button>
+            <div class="pdf-stage" id="pdf-stage"></div>
+            <button class="pdf-nav next" id="pdf-next">❯</button>
+
+            <div class="pdf-bottom">
+                <div class="pdf-counter" id="pdf-counter">0 / 0</div>
+                <input type="range" id="pdf-slider" min="1" value="1">
+            </div>
+
+            <div id="pdf-loading" class="pdf-loading">
+                <div class="pdf-spinner"></div>
+                <div id="pdf-loading-text">Loading...</div>
+            </div>
+        </div>
+
+        <!-- LIGHTBOX -->
+        <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+            <div class="lightbox-top-bar">
+                <button class="lightbox-close" onclick="closeLightbox()">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </button>
+            </div>
+            <button class="lightbox-nav prev" onclick="changeImage(-1, event)">❮</button>
+            <div class="lightbox-content" onclick="event.stopPropagation()">
+                <img id="lightbox-img" src="" alt="Fullscreen Image">
+            </div>
+            <button class="lightbox-nav next" onclick="changeImage(1, event)">❯</button>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <h3>EDISON.CREATE</h3>
+            <p>© 2026 Edison Ochieng.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="pdf-viewer.js"></script>
+</body>
+</html>
