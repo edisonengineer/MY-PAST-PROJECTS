@@ -1,0 +1,377 @@
+:root {
+    --bg-color: #1a1a1a; 
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    --accent: #ffffff;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.8s ease; 
+}
+
+/* Header */
+header {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 20px 20px 20px;
+    background: linear-gradient(135deg, #1e2233 0%, #3a2024 100%);
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+.logo { font-family: var(--font-serif); font-size: 1.8rem; letter-spacing: 3px; margin: 0 0 30px 0; cursor: pointer; }
+
+/* Navigation */
+.top-nav { display: flex; gap: 30px; }
+.nav-link { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 0.85rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; padding-bottom: 5px; transition: color 0.3s; }
+.nav-link:hover, .nav-link.active { color: var(--text-main); }
+.contact-link { text-decoration: none; }
+
+.software-nav { display: flex; gap: 25px; margin-top: 25px; animation: fadeIn 0.4s ease; }
+.software-link { background: none; border: none; color: rgba(255,255,255,0.6); font-family: var(--font-serif); font-style: italic; font-size: 1rem; cursor: pointer; transition: color 0.3s; }
+.software-link:hover, .software-link.active { color: var(--text-main); }
+
+/* Visibility */
+.view-state { display: none; }
+.view-state.active { display: block; animation: fadeIn 0.8s ease; }
+.hidden { display: none !important; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Main Grid */
+#album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 40px; padding: 40px 5% 50px 5%; max-width: 1400px; margin: 0 auto; }
+.album-card { cursor: pointer; transition: opacity 0.3s; }
+.album-card:hover { opacity: 0.7; }
+.album-img { height: 350px; background-color: #222; background-size: cover; background-position: center; margin-bottom: 15px; }
+.album-title { font-family: var(--font-serif); font-size: 1.2rem; text-align: center; letter-spacing: 1px; }
+
+/* Hero Cover */
+.hero-background { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; z-index: 100; }
+.hero-background::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1; }
+.hero-content { position: relative; z-index: 2; text-align: center; }
+.hero-content h2 { font-family: var(--font-serif); font-size: 4rem; margin: 0 0 10px 0; font-weight: normal; }
+.hero-content p { font-size: 0.9rem; letter-spacing: 3px; margin-bottom: 40px; }
+.view-gallery-btn { background: transparent; color: #fff; border: 1px solid #fff; padding: 15px 40px; font-size: 0.85rem; letter-spacing: 2px; cursor: pointer; transition: background 0.4s, color 0.4s; }
+.view-gallery-btn:hover { background: #fff; color: #000; }
+
+/* Internal Gallery */
+#internal-gallery { padding: 40px 5% 50px 5%; max-width: 1400px; margin: 0 auto; }
+.gallery-sub-nav { display: flex; justify-content: center; gap: 40px; margin-bottom: 50px; }
+.sub-link { background: none; border: none; color: rgba(255,255,255,0.6); font-family: var(--font-serif); font-size: 1.1rem; font-style: italic; cursor: pointer; transition: color 0.3s; }
+.sub-link:hover, .sub-link.active { color: var(--text-main); }
+.project-images { display: none; }
+.masonry-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.gallery-item { cursor: zoom-in; } 
+.gallery-item img { width: 100%; height: auto; display: block; pointer-events: none; user-select: none; }
+
+/* --- NEW: Fullscreen Lightbox Styles (Pixieset Aesthetic) --- */
+.lightbox {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+    background: #181818; /* Deep solid color like the screenshot */
+    z-index: 2000;
+    display: flex; align-items: center; justify-content: center;
+    visibility: hidden; opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.lightbox.active { visibility: visible; opacity: 1; }
+
+/* Top bar holding the back arrow */
+.lightbox-top-bar {
+    position: absolute; top: 0; left: 0; width: 100%;
+    padding: 25px; box-sizing: border-box;
+    z-index: 2002; display: flex; justify-content: flex-start;
+}
+
+/* Back Arrow (Top Left) */
+.lightbox-close {
+    background: transparent; border: none;
+    color: #a0a0a0; padding: 10px; cursor: pointer;
+    transition: color 0.3s; display: flex; align-items: center;
+}
+.lightbox-close:hover { color: #fff; }
+
+/* Center Image Container */
+.lightbox-content {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    padding: 80px; box-sizing: border-box;
+}
+.lightbox-content img {
+    max-width: 100%; max-height: 100%;
+    object-fit: contain; /* Ensures the image fits the screen beautifully */
+    pointer-events: none; user-select: none; /* Anti-download */
+}
+
+/* Side Navigation Arrows */
+.lightbox-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: transparent; border: none;
+    color: rgba(255,255,255,0.3); padding: 20px;
+    cursor: pointer; z-index: 2001; transition: color 0.3s;
+}
+.lightbox-nav:hover { color: #fff; }
+.lightbox-nav.prev { left: 20px; }
+.lightbox-nav.next { right: 20px; }
+
+/* Footer */
+.site-footer { background: linear-gradient(135deg, #3a2024 0%, #1e2233 100%); border-top: 2px solid rgba(255,255,255,0.1); padding: 60px 20px; text-align: center; margin-top: 60px; }
+.footer-content h3 { font-family: var(--font-serif); font-size: 1.5rem; letter-spacing: 3px; margin: 0 0 10px 0; }
+.footer-content p { color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 20px; }
+.footer-links { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; }
+.footer-links a { color: #fff; text-decoration: none; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+.footer-links a:hover { border-color: #fff; }
+.copyright { font-size: 0.8rem; color: rgba(255,255,255,0.4) !important; }
+
+
+/* =====================================================================
+   POLISH LAYER (additive only: no existing selectors renamed or removed)
+   ===================================================================== */
+
+html { -webkit-text-size-adjust: 100%; }
+* { -webkit-tap-highlight-color: transparent; }
+img { max-width: 100%; }
+
+/* 1. Elegant print-style drop shadow ---------------------------------- */
+.gallery-item img {
+    border-radius: 2px;
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.30),
+        0 12px 28px rgba(0, 0, 0, 0.45),
+        0 28px 60px rgba(0, 0, 0, 0.25);
+}
+
+/* 4. 60fps: transforms + opacity only --------------------------------- */
+.album-card,
+.gallery-item {
+    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+    backface-visibility: hidden;
+}
+.lightbox { will-change: opacity; transform: translateZ(0); }
+.lightbox-nav { transition: color 0.3s ease, transform 0.3s ease; }
+.hero-background { will-change: opacity; transform: translateZ(0); }
+
+/* Hover effects only on devices that truly hover (no sticky hover on touch) */
+@media (hover: hover) {
+    .album-card:hover { transform: translateY(-4px); }
+    .gallery-item:hover { transform: translateY(-4px); }
+}
+@media (hover: none) {
+    .album-card:hover { opacity: 1; }
+}
+
+/* Safe viewport height on mobile browsers (address bar aware) */
+@supports (height: 100dvh) {
+    .hero-background, .lightbox { height: 100dvh; }
+}
+
+/* Comfortable touch targets & wrapping on all sizes */
+.top-nav { flex-wrap: wrap; justify-content: center; }
+.software-nav { flex-wrap: wrap; justify-content: center; }
+.gallery-sub-nav { flex-wrap: wrap; }
+.footer-links { flex-wrap: wrap; }
+#album-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 350px), 1fr)); }
+.masonry-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.lightbox-close, .lightbox-nav { touch-action: manipulation; }
+
+/* 2. Mobile responsiveness ------------------------------------------- */
+@media (max-width: 768px) {
+    header { padding: 28px 16px 16px; }
+    .logo { font-size: 1.4rem; letter-spacing: 2px; margin-bottom: 20px; }
+
+    .top-nav { gap: 4px 18px; }
+    .nav-link { min-height: 44px; padding: 10px 2px; font-size: 0.78rem; letter-spacing: 1.2px; display: inline-flex; align-items: center; }
+
+    .software-nav { gap: 2px 18px; margin-top: 12px; }
+    .software-link { min-height: 40px; padding: 6px 2px; font-size: 0.95rem; }
+
+    #album-grid { gap: 28px; padding: 28px 20px 36px; }
+    .album-img { height: 260px; margin-bottom: 12px; }
+    .album-title { font-size: 1.05rem; }
+
+    #internal-gallery { padding: 28px 16px 36px; }
+    .gallery-sub-nav { gap: 4px 22px; margin-bottom: 32px; }
+    .sub-link { min-height: 44px; padding: 8px 2px; font-size: 1rem; }
+    .masonry-grid { gap: 18px; }
+
+    /* Hero typography */
+    .hero-content { padding: 0 24px; }
+    #hero-title { font-size: clamp(2rem, 9vw, 2.6rem); line-height: 1.15; margin-bottom: 8px; }
+    #hero-date { font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 28px; }
+    .view-gallery-btn { padding: 14px 32px; font-size: 0.78rem; min-height: 48px; }
+
+    .site-footer { padding: 44px 20px calc(44px + env(safe-area-inset-bottom)); margin-top: 36px; }
+    .footer-content h3 { font-size: 1.25rem; letter-spacing: 2px; }
+    .footer-links { gap: 12px 24px; }
+}
+
+@media (max-width: 480px) {
+    .album-img { height: 220px; }
+    .masonry-grid { grid-template-columns: 1fr; }
+    .top-nav { gap: 2px 14px; }
+}
+
+/* 3. Mobile lightbox: close at top, arrows in a bottom bar, image clear of both */
+@media (max-width: 768px) {
+    .lightbox-top-bar {
+        padding: calc(8px + env(safe-area-inset-top)) 8px 8px calc(8px + env(safe-area-inset-left));
+    }
+    .lightbox-close { width: 48px; height: 48px; padding: 0; justify-content: center; }
+
+    .lightbox-content {
+        padding:
+            calc(64px + env(safe-area-inset-top))
+            12px
+            calc(84px + env(safe-area-inset-bottom))
+            12px;
+    }
+
+    .lightbox-nav {
+        top: auto; transform: none;
+        bottom: calc(14px + env(safe-area-inset-bottom));
+        width: 56px; height: 56px; padding: 0;
+        display: flex; align-items: center; justify-content: center;
+        color: rgba(255, 255, 255, 0.75);
+    }
+    .lightbox-nav.prev { left: calc(50% - 76px); right: auto; }
+    .lightbox-nav.next { right: calc(50% - 76px); left: auto; }
+    .lightbox-nav:active { color: #fff; transform: scale(0.92); }
+}
+
+/* Phones in landscape: not enough height for a bottom bar, use side arrows */
+@media (max-height: 500px) and (orientation: landscape) {
+    .lightbox-content {
+        padding:
+            calc(12px + env(safe-area-inset-top))
+            calc(72px + env(safe-area-inset-right))
+            calc(12px + env(safe-area-inset-bottom))
+            calc(72px + env(safe-area-inset-left));
+    }
+    .lightbox-nav {
+        top: 50%; bottom: auto; transform: translateY(-50%);
+        width: 56px; height: 56px;
+    }
+    .lightbox-nav.prev { left: calc(8px + env(safe-area-inset-left)); right: auto; }
+    .lightbox-nav.next { right: calc(8px + env(safe-area-inset-right)); left: auto; }
+    .lightbox-nav:active { transform: translateY(-50%) scale(0.92); }
+    .lightbox-top-bar { padding: 6px; }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+
+/* =====================================================================
+   PDF WORKS + FLIPBOOK VIEWER
+   ===================================================================== */
+#pdf-works { padding: 40px 5% 50px; max-width: 1400px; margin: 0 auto; }
+.pdf-works-head { text-align: center; margin-bottom: 40px; }
+.pdf-works-head h2 { font-family: var(--font-serif); font-weight: normal; font-size: 1.6rem; letter-spacing: 2px; margin: 0 0 8px; }
+.pdf-works-head p { color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px; margin: 0; }
+#pdf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 40px 32px; }
+.pdf-empty { grid-column: 1 / -1; text-align: center; color: var(--text-muted); }
+
+.pdf-card { cursor: pointer; text-align: center; transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1); outline-offset: 6px; }
+@media (hover: hover) { .pdf-card:hover { transform: translateY(-4px); } }
+.pdf-thumb { aspect-ratio: 3 / 4; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; background: #222; color: var(--text-muted); font-size: 0.8rem; }
+.pdf-thumb.loaded { background: none; }
+.pdf-thumb canvas, .pdf-thumb img {
+    max-width: 100%; max-height: 100%; display: block;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.30), 0 12px 28px rgba(0,0,0,0.45), 0 28px 60px rgba(0,0,0,0.25);
+}
+.pdf-card-title { font-family: var(--font-serif); font-size: 1.1rem; letter-spacing: 1px; }
+.pdf-card-sub { color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; }
+
+/* Viewer overlay */
+.pdf-viewer {
+    position: fixed; inset: 0; height: 100vh; z-index: 2100;
+    background: #181818; display: flex; flex-direction: column;
+    visibility: hidden; opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    will-change: opacity; transform: translateZ(0);
+}
+@supports (height: 100dvh) { .pdf-viewer { height: 100dvh; } }
+.pdf-viewer.active { visibility: visible; opacity: 1; }
+
+.pdf-toolbar {
+    display: flex; align-items: center; gap: 4px; flex: 0 0 auto;
+    padding: calc(8px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 8px calc(12px + env(safe-area-inset-left));
+}
+.pdf-title { flex: 1; text-align: center; font-family: var(--font-serif); font-size: 1rem; letter-spacing: 1px; color: rgba(255,255,255,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 8px; }
+.pdf-btn { background: transparent; border: 0; color: #a0a0a0; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: color 0.3s; touch-action: manipulation; }
+.pdf-btn:hover, .pdf-btn:active { color: #fff; }
+.pdf-btn[hidden] { display: none; }
+
+.pdf-stage { position: relative; flex: 1 1 auto; min-height: 0; margin: 0 76px; }
+.pdf-book { position: absolute; inset: 0; }
+.pdf-page { background: #fff; overflow: hidden; }
+.pdf-page canvas { width: 100%; height: 100%; display: block; }
+
+.pdf-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 56px; height: 56px; padding: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 0; color: rgba(255,255,255,0.3); cursor: pointer; transition: color 0.3s; z-index: 2; touch-action: manipulation; }
+.pdf-nav:hover { color: #fff; }
+.pdf-nav.prev { left: calc(8px + env(safe-area-inset-left)); }
+.pdf-nav.next { right: calc(8px + env(safe-area-inset-right)); }
+
+.pdf-bottom { flex: 0 0 auto; display: flex; align-items: center; gap: 16px; justify-content: center; padding: 10px 20px calc(14px + env(safe-area-inset-bottom)); }
+.pdf-counter { min-width: 84px; text-align: right; font-size: 0.8rem; letter-spacing: 1px; color: rgba(255,255,255,0.7); font-variant-numeric: tabular-nums; }
+#pdf-slider { flex: 1; max-width: 900px; accent-color: #fff; height: 32px; cursor: pointer; }
+
+.pdf-loading { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: rgba(255,255,255,0.7); font-size: 0.85rem; letter-spacing: 1px; pointer-events: none; }
+.pdf-loading.show { display: flex; }
+.pdf-spinner { width: 34px; height: 34px; border: 2px solid rgba(255,255,255,0.15); border-top-color: #fff; border-radius: 50%; animation: pdfSpin 0.9s linear infinite; }
+.pdf-loading.error .pdf-spinner { display: none; }
+@keyframes pdfSpin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+    .pdf-nav { display: none; }              /* swipe or use the slider on touch screens */
+    .pdf-stage { margin: 0 8px; }
+    .pdf-title { font-size: 0.9rem; }
+    .pdf-bottom { gap: 10px; padding-left: 14px; padding-right: 14px; }
+    .pdf-counter { min-width: 70px; }
+    #pdf-works { padding: 28px 20px 36px; }
+    #pdf-grid { gap: 28px 20px; grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 400px) { #pdf-grid { grid-template-columns: 1fr; } }
+
+
+/* =====================================================================
+   PDF VIEWER: flipbook look (grey > white > grey), focus mode
+   ===================================================================== */
+.pdf-back-nav { display: none; }
+body.pdf-mode .top-nav .nav-link { display: none; }
+body.pdf-mode .top-nav .pdf-back-nav { display: inline-flex; align-items: center; }
+body.pdf-mode .software-nav { display: none; }
+
+.pdf-viewer { background: linear-gradient(to bottom, #858585 0%, #ffffff 22%, #ffffff 72%, #858585 100%); }
+.pdf-toolbar { position: relative; justify-content: center; gap: 6px; }
+.pdf-title { display: none; }
+.pdf-back { position: absolute; left: calc(12px + env(safe-area-inset-left)); top: calc(8px + env(safe-area-inset-top)); }
+.pdf-btn { color: #fff; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35)); }
+.pdf-btn:hover, .pdf-btn:active { color: #e8e8e8; transform: scale(1.08); }
+.pdf-nav { color: #b5b5b5; }
+.pdf-nav:hover { color: #555; }
+.pdf-counter { color: #fff; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+#pdf-slider { accent-color: #fff; }
+.pdf-loading { color: #444; text-align: center; padding: 0 24px; }
+.pdf-spinner { border-color: rgba(0,0,0,0.12); border-top-color: #444; }
+.pdf-page { box-shadow: 0 0 18px rgba(0,0,0,0.15); }
+
+.pdf-thumbs { position: absolute; left: 0; right: 0; top: 64px; bottom: 0; z-index: 5; background: rgba(24,24,24,0.96); overflow-y: auto; padding: 24px 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 18px; align-content: start; }
+.pdf-thumbs[hidden] { display: none; }
+.pdf-thumb-item { background: none; border: 0; padding: 0; cursor: pointer; color: #bbb; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 140px; }
+.pdf-thumb-item canvas { width: 100%; height: auto; box-shadow: 0 6px 16px rgba(0,0,0,0.5); transition: transform 0.25s ease; }
+.pdf-thumb-item:hover canvas { transform: translateY(-3px); }
+.pdf-thumb-item span { order: 2; }
+
+@media (max-width: 768px) {
+    .pdf-btn { width: 44px; height: 44px; }
+    .pdf-back { left: 4px; }
+    .pdf-toolbar { padding-left: 52px; padding-right: 8px; justify-content: flex-end; }
+}
