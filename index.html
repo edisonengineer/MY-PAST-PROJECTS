@@ -16,8 +16,8 @@
             <button class="nav-link active" onclick="filterCategory('all', event)">All Work</button>
             <button class="nav-link" onclick="filterCategory('engineering', event)">Engineering</button>
             <button class="nav-link" onclick="filterCategory('graphic', event)">Graphic Design</button>
-            <button class="nav-link" onclick="showPdfWorks(event)">PDF Works</button>
-            <button class="nav-link pdf-back-nav" onclick="document.querySelector('.top-nav .nav-link').click()">&larr; Back to Portfolio</button>
+            <button class="nav-link" onclick="pdfs/showPdfWorks(event)">PDF Works</button>
+            <button class="pdfs/nav-pdfs/link pdf-back-nav" onclick="document.querySelector('.top-nav .nav-link').click()">&larr; Back to Portfolio</button>
             <button class="nav-link" onclick="filterCategory('graduation', event)">Graduation</button>
             <a href="mailto:edisonochieng@example.com" class="nav-link contact-link">Contact</a>
         </nav>
@@ -52,8 +52,8 @@
                 <div class="album-title">Dummy CAD Project</div>
             </div>
             <div class="album-card graduation"
-     onclick="openHero('Graduation', 'SEPTEMBER 2026', 'images/grad-1.jpg', 'graduation-gallery', true, '#1e2233')">
-    <div class="album-img" style="background-image: url('images/grad-1.jpg');"></div>
+     onclick="openHero('Graduation', 'SEPTEMBER 2026', 'images/graduation/grad-1.jpg', 'graduation-gallery', true, '#1e2233')">
+    <div class="album-img" style="background-image: url('images/graduation/grad-1.jpg');"></div>
     <div class="album-title">Graduation</div>
 </div>
             
@@ -120,28 +120,28 @@
             <div id="graduation-gallery" class="project-images">
     <div class="masonry-grid">
         <div class="gallery-item all-views" oncontextmenu="return false;" onclick="openLightbox(this)">
-            <img loading="lazy" decoding="async" src="images/grad-1.jpg" alt="Graduation 1">
+            <img loading="lazy" decoding="async" src="images/graduation/grad-1.jpg" alt="Graduation 1">
         </div>
         <div class="gallery-item all-views" oncontextmenu="return false;" onclick="openLightbox(this)">
-            <img loading="lazy" decoding="async" src="images/grad-2.jpg" alt="Graduation 2">
+            <img loading="lazy" decoding="async" src="images/graduation/grad-2.jpg" alt="Graduation 2">
         </div>
         <div class="gallery-item all-views" oncontextmenu="return false;" onclick="openLightbox(this)">
-            <img loading="lazy" decoding="async" src="images/grad-3.jpg" alt="Graduation 3">
+            <img loading="lazy" decoding="async" src="images/graduation/grad-3.jpg" alt="Graduation 3">
         </div>
         <div class="gallery-item all-views" oncontextmenu="return false;" onclick="openLightbox(this)">
-            <img loading="lazy" decoding="async" src="images/grad-4.jpg" alt="Graduation 4">
+            <img loading="lazy" decoding="async" src="images/graduation/grad-4.jpg" alt="Graduation 4">
         </div>
         <div class="gallery-item all-views" oncontextmenu="return false;" onclick="openLightbox(this)">
-            <img loading="lazy" decoding="async" src="images/grad-5.jpg" alt="Graduation 5">
+            <img loading="lazy" decoding="async" src="images/graduation/grad-5.jpg" alt="Graduation 5">
         </div>
     </div>
 </div>
         </section>
 
-        <!-- PDF WORKS -->
+        <!pdfs/-pdfs/- PDF WORKS -->
         <section id="pdf-works" class="view-state">
             <div class="pdf-works-head">
-                <h2>PDF Works</h2>
+                <pdfs/h2>PDF Works</h2>
                 <p>Select a document to read it like a book</p>
             </div>
             <div id="pdf-grid"></div>
@@ -182,14 +182,14 @@
 
     </main>
 
-    <!-- PDF FLIPBOOK VIEWER -->
+    <!pdfs/-pdfs/- PDF FLIPBOOK VIEWER -->
     <div id="pdf-viewer" class="pdf-viewer" role="dialog" aria-modal="true" aria-label="PDF viewer" aria-hidden="true">
         <div class="pdf-toolbar">
-            <button class="pdf-btn pdf-back" id="pdf-close" title="Back" aria-label="Close viewer"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+            <button class="pdfs/pdfs/pdfs/pdfs/pdf-pdfs/btn pdf-back" id="pdf-close" title="Back" aria-label="Close viewer"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
             <div class="pdf-title" id="pdf-title"></div>
             <button class="pdf-btn" id="pdf-grid-btn" title="Thumbnails" aria-label="Thumbnails"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6"></rect><rect x="14" y="4" width="6" height="6"></rect><rect x="4" y="14" width="6" height="6"></rect><rect x="14" y="14" width="6" height="6"></rect></svg></button>
             <button class="pdf-btn" id="pdf-print" title="Print" aria-label="Print"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V4h10v5"></path><rect x="4" y="9" width="16" height="8" rx="1"></rect><rect x="7" y="14" width="10" height="6"></rect></svg></button>
-            <button class="pdf-btn" id="pdf-download" title="Download PDF" aria-label="Download PDF"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><polyline points="7 11 12 16 17 11"></polyline><path d="M4 20h16"></path></svg></button>
+            <button class="pdf-btn" id="pdf-download" title="pdfs/Download PDF" aria-label="pdfs/Download PDF"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><polyline points="7 11 12 16 17 11"></polyline><path d="M4 20h16"></path></svg></button>
             <button class="pdf-btn" id="pdf-share" title="Share" aria-label="Share"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"></circle><circle cx="18" cy="6" r="2.5"></circle><circle cx="18" cy="18" r="2.5"></circle><line x1="8.3" y1="10.8" x2="15.7" y2="7.2"></line><line x1="8.3" y1="13.2" x2="15.7" y2="16.8"></line></svg></button>
             <button class="pdf-btn" id="pdf-fullscreen" title="Fullscreen" aria-label="Toggle fullscreen"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 9 4 4 9 4"></polyline><polyline points="15 4 20 4 20 9"></polyline><polyline points="20 15 20 20 15 20"></polyline><polyline points="9 20 4 20 4 15"></polyline></svg></button>
         </div>
@@ -226,7 +226,7 @@
     </footer>
 
     <script src="script.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.pdfs/11.pdfs/174/pdf.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
     <script defer src="pdf-viewer.js?v=3"></script>
 </body>
