@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://edisonengineer.github.io/MY-PAST-PROJECTS/sitemap.xml
