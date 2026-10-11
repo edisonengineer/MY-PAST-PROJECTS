@@ -526,6 +526,25 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .btn-ghost { border: 1px solid rgba(243, 239, 231, 0.28); color: var(--on-ink); }
 .btn-ghost:hover { border-color: var(--accent-soft); color: var(--accent-soft); }
 @media (hover: hover) { .btn:hover { transform: translateY(-2px); } }
+.social {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 44px 0 0;
+    padding: 0;
+    list-style: none;
+}
+.social a {
+    width: 46px; height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(243, 239, 231, 0.18);
+    color: var(--on-ink-muted);
+    transition: color 0.4s var(--ease), border-color 0.4s var(--ease), transform 0.5s var(--ease-out);
+}
+.social svg { width: 18px; height: 18px; }
+.social a:hover { color: var(--accent-soft); border-color: var(--accent-soft); }
+@media (hover: hover) { .social a:hover { transform: translateY(-2px); } }
 .contact :focus-visible { outline-color: var(--accent-soft); }
 
 /* ---------- Footer ---------- */
