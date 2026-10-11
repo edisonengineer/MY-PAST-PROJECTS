@@ -33,7 +33,7 @@
 
     /* ---------- Smooth scrolling for in-page links ---------- */
     document.addEventListener('click', (e) => {
-        const link = e.target.closest('a[href^="#"]');
+        const link = e.target.closest('a[href^="#"]:not(.js-email)');
         if (!link) return;
         const id = link.getAttribute('href');
         const target = id === '#top' ? document.body : $(id);
@@ -206,6 +206,15 @@
         btn.addEventListener('click', () => {
             if (typeof window.openPdfWork === 'function') window.openPdfWork({ title, file });
             else window.open(file, '_blank', 'noopener');
+        });
+    });
+
+    /* ---------- Email links: address is assembled on click, never shown ---------- */
+    $$('.js-email').forEach((link) => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const subject = encodeURIComponent('Project enquiry via your portfolio');
+            window.location.href = 'mailto:' + link.dataset.user + '@' + link.dataset.domain + '?subject=' + subject;
         });
     });
 
