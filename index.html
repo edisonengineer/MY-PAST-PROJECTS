@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Montserrat:wght@400;500&display=swap">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
     <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -303,7 +303,17 @@
             <div class="container contact-inner">
                 <p class="eyebrow" data-reveal>Contact</p>
                 <h2 class="contact-title" id="contact-title" data-reveal style="--delay: 80ms">Let's build something precise.</h2>
-                <a class="contact-link" href="mailto:edisonochieng@example.com" data-reveal style="--delay: 160ms">edisonochieng@example.com</a>
+                <p class="contact-lede" data-reveal style="--delay: 140ms">Have a design to model, a part to validate or a visual to create? Send a message and I'll get back to you shortly.</p>
+                <div class="contact-actions" data-reveal style="--delay: 200ms">
+                    <a class="btn btn-primary" href="https://wa.me/254708639473?text=Hi%20Edison%2C%20I%20found%20your%20portfolio%20and%20would%20like%20to%20discuss%20a%20project." target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.22 8.22 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.16.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28Z"/></svg>
+                        Chat on WhatsApp
+                    </a>
+                    <a class="btn btn-ghost js-email" href="#contact" data-user="edisonochieng24" data-domain="gmail.com">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h17v11h-17z M3.5 7l8.5 6.5L20.5 7" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/></svg>
+                        Email me
+                    </a>
+                </div>
             </div>
         </section>
 
@@ -314,7 +324,8 @@
         <div class="container footer-inner">
             <p>&copy; <span id="year">2026</span> Edison Ochieng &middot; Nexus CAD Studio</p>
             <nav class="footer-links" aria-label="Social">
-                <a href="mailto:edisonochieng@example.com">Email</a>
+                <a href="#contact" class="js-email" data-user="edisonochieng24" data-domain="gmail.com">Email</a>
+                <a href="https://wa.me/254708639473" target="_blank" rel="noopener">WhatsApp</a>
                 <a href="https://github.com/edisonochieng" target="_blank" rel="noopener">GitHub</a>
                 <a href="#top">Back to top</a>
             </nav>
@@ -371,9 +382,9 @@
         <div class="pdf-loading" id="pdf-loading"><div class="pdf-spinner"></div><span id="pdf-loading-text">Loading...</span></div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
-    <script defer src="pdf-viewer.js?v=4"></script>
+    <script defer src="pdf-viewer.js?v=5"></script>
 </body>
 </html>
