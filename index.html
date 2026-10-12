@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 
-    <link rel="stylesheet" href="css/style.css?v=1">
+    <link rel="stylesheet" href="css/style.css?v=2">
     <script>document.documentElement.classList.add('js');</script>
 
     <!-- Search engines: who this site is about -->
@@ -95,6 +95,7 @@
             <symbol id="i-whatsapp" viewBox="0 0 24 24"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.22 8.22 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.16.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28Z"/></symbol>
             <symbol id="i-linkedin" viewBox="0 0 24 24"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4V21H3V9.75Zm6.5 0h3.83v1.54h.06c.53-1.01 1.84-2.07 3.79-2.07 4.05 0 4.8 2.67 4.8 6.13V21h-4v-4.98c0-1.19-.02-2.72-1.66-2.72-1.66 0-1.91 1.3-1.91 2.63V21h-4V9.75Z"/></symbol>
             <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></symbol>
+            <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.8l2.83 5.73 6.32.92-4.58 4.46 1.08 6.3L12 17.24l-5.65 2.97 1.08-6.3L2.85 9.45l6.32-.92z"/></symbol>
         </defs>
     </svg>
 
@@ -113,9 +114,10 @@
                 <a href="#services">Services</a>
                 <a href="#work">Work</a>
                 <a href="#experience">Experience</a>
-                <a href="#reports">Reports</a>
+                <a href="#reviews">Reviews</a>
+                <a href="#faq">FAQ</a>
                 <a href="#contact">Contact</a>
-                <a href="#contact" class="btn btn-sun nav-cta">Hire me</a>
+                <a href="#brief" class="btn btn-sun nav-cta">Start a project</a>
             </nav>
 
             <button class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
@@ -245,7 +247,7 @@
                                 <div><h4>CAD Training</h4><p>Hands-on courses and a free weekly AutoCAD webinar. 100+ professionals trained so far.</p></div>
                             </li>
                         </ul>
-                        <a href="#contact" class="pillar-link" data-service="Engineering Design">Start an engineering project <svg><use href="#i-arrow"/></svg></a>
+                        <a href="#brief" class="pillar-link" data-brief="Engineering Design">Start an engineering project <svg><use href="#i-arrow"/></svg></a>
                     </article>
 
                     <article class="pillar pillar-gfx" data-reveal style="--d: 120ms">
@@ -274,7 +276,7 @@
                                 <div><h4>Product Renders</h4><p>Clean, realistic renders that present engineering work beautifully.</p></div>
                             </li>
                         </ul>
-                        <a href="#contact" class="pillar-link" data-service="Graphic Design">Start a design project <svg><use href="#i-arrow"/></svg></a>
+                        <a href="#brief" class="pillar-link" data-brief="Graphic Design">Start a design project <svg><use href="#i-arrow"/></svg></a>
                     </article>
                 </div>
             </div>
@@ -397,6 +399,28 @@
             </div>
         </section>
 
+        <!-- ===================== REVIEWS ===================== -->
+        <section class="section reviews" id="reviews" aria-labelledby="reviews-title">
+            <div class="container">
+                <header class="section-head center">
+                    <p class="kicker" data-reveal>Kind words</p>
+                    <h2 class="section-title" id="reviews-title" data-reveal style="--d: 80ms">What clients <em>say</em>.</h2>
+                    <p class="section-lede" data-reveal style="--d: 140ms">Feedback from clients, trainees and collaborators.</p>
+                </header>
+
+                <!-- Reviews are generated from js/reviews.js -->
+                <div class="review-grid" id="review-grid"></div>
+
+                <div class="review-cta" data-reveal>
+                    <div>
+                        <h3>Worked with me or joined a training?</h3>
+                        <p>I'd love to hear how it went. Your review helps others decide.</p>
+                    </div>
+                    <button class="btn btn-sun btn-lg" id="open-review" type="button"><svg><use href="#i-star"/></svg> Leave a review</button>
+                </div>
+            </div>
+        </section>
+
         <!-- ===================== REPORTS ===================== -->
         <section class="section reports" id="reports" aria-labelledby="reports-title">
             <div class="container">
@@ -411,6 +435,437 @@
                 <!-- id="pdf-works" and id="pdf-grid" are used by js/pdf-viewer.js -->
                 <div id="pdf-works" data-reveal>
                     <div id="pdf-grid"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== PROJECT BRIEF (assessment) ===================== -->
+        <section class="section brief" id="brief" aria-labelledby="brief-title">
+            <div class="container">
+                <header class="section-head center">
+                    <p class="kicker" data-reveal>Start a project</p>
+                    <h2 class="section-title" id="brief-title" data-reveal style="--d: 80ms">Tell me about your <em>project</em>.</h2>
+                    <p class="section-lede" data-reveal style="--d: 140ms">Answer a few quick questions (about 2 minutes) so I understand exactly what you need. I'll come back with a tailored quote and timeline.</p>
+                </header>
+
+                <div class="wizard-wrap" data-reveal>
+                    <form class="wizard" id="brief-form" novalidate>
+                        <!-- Spam trap: real visitors never see or tick this -->
+                        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+                        <ol class="wizard-steps" aria-hidden="true">
+                            <li class="is-active"><span>1</span>Service</li>
+                            <li><span>2</span>Requirements</li>
+                            <li><span>3</span>Timeline &amp; budget</li>
+                            <li><span>4</span>Your details</li>
+                        </ol>
+                        <div class="wizard-bar" aria-hidden="true"><i id="wizard-bar"></i></div>
+                        <p class="sr-only" id="wizard-progress" aria-live="polite">Step 1 of 4</p>
+
+                        <!-- STEP 1: service type -->
+                        <fieldset class="step is-active" data-step="1">
+                            <legend>What kind of project is it?</legend>
+                            <p class="step-hint">Choose one to see the right questions.</p>
+                            <div class="type-grid">
+                                <label class="type-card type-eng">
+                                    <input type="radio" name="Service type" value="Engineering Design" required>
+                                    <span class="type-icon"><svg><use href="#i-gear"/></svg></span>
+                                    <span class="type-title">Engineering Design</span>
+                                    <span class="type-text">3D CAD, drawings, simulation, fabrication design or CAD training.</span>
+                                    <span class="type-check"><svg><use href="#i-check"/></svg></span>
+                                </label>
+                                <label class="type-card type-gfx">
+                                    <input type="radio" name="Service type" value="Graphic Design" required>
+                                    <span class="type-icon"><svg><use href="#i-pen"/></svg></span>
+                                    <span class="type-title">Graphic Design</span>
+                                    <span class="type-text">Posters, branding, certificates, social media, print or motion graphics.</span>
+                                    <span class="type-check"><svg><use href="#i-check"/></svg></span>
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <!-- STEP 2a: graphic design -->
+                        <fieldset class="step" data-step="2" data-branch="Graphic Design">
+                            <legend>Graphic design requirements</legend>
+
+                            <div class="q" data-required="group">
+                                <p class="q-label">What do you need designed? <small>Select all that apply</small></p>
+                                <div class="opts">
+                                    <label class="opt"><input type="checkbox" name="Design type" value="Poster / Flyer"><span>Poster / Flyer</span></label>
+                                    <label class="opt"><input type="checkbox" name="Design type" value="Logo & brand identity"><span>Logo &amp; brand identity</span></label>
+                                    <label class="opt"><input type="checkbox" name="Design type" value="Certificate"><span>Certificate</span></label>
+                                    <label class="opt"><input type="checkbox" name="Design type" value="Social media graphics"><span>Social media graphics</span></label>
+                                    <label class="opt"><input type="checkbox" name="Design type" value="Brochure / Magazine / Company profile"><span>Brochure / Magazine / Profile</span></label>
+                                    <label class="opt"><input type="checkbox" name="Design type" value="Banner / Roll-up"><span>Banner / Roll-up</span></label>
+                                    <label class="opt"><input type="checkbox" name="Design type" value="Business card / Stationery"><span>Business card / Stationery</span></label>
+                                    <label class="opt"><input type="checkbox" name="Design type" value="Motion graphics / Video"><span>Motion graphics / Video</span></label>
+                                    <label class="opt"><input type="checkbox" name="Design type" value="Other"><span>Other</span></label>
+                                </div>
+                            </div>
+
+                            <div class="q" data-required="group">
+                                <p class="q-label">Which software should it be designed in?</p>
+                                <div class="opts">
+                                    <label class="opt"><input type="radio" name="Design software" value="Adobe Illustrator"><span>Adobe Illustrator</span></label>
+                                    <label class="opt"><input type="radio" name="Design software" value="Adobe Photoshop"><span>Adobe Photoshop</span></label>
+                                    <label class="opt"><input type="radio" name="Design software" value="Adobe InDesign"><span>Adobe InDesign</span></label>
+                                    <label class="opt"><input type="radio" name="Design software" value="Adobe Premiere Pro"><span>Adobe Premiere Pro</span></label>
+                                    <label class="opt"><input type="radio" name="Design software" value="Canva"><span>Canva</span></label>
+                                    <label class="opt"><input type="radio" name="Design software" value="No preference"><span>No preference</span></label>
+                                </div>
+                            </div>
+
+                            <div class="q" data-required="group">
+                                <p class="q-label">Where will the design be used?</p>
+                                <div class="opts">
+                                    <label class="opt"><input type="radio" name="Usage" value="Screens / Digital"><span>Screens / Digital</span></label>
+                                    <label class="opt"><input type="radio" name="Usage" value="Printing"><span>Printing</span></label>
+                                    <label class="opt"><input type="radio" name="Usage" value="Both screens and print"><span>Both</span></label>
+                                </div>
+                            </div>
+
+                            <div class="q" data-when-name="Usage" data-when-values="Screens / Digital,Both screens and print">
+                                <p class="q-label">Screen size / platform <small>Select all that apply</small></p>
+                                <div class="opts">
+                                    <label class="opt"><input type="checkbox" name="Screen format" value="Instagram / Facebook post (1080×1080)"><span>Square post 1080×1080</span></label>
+                                    <label class="opt"><input type="checkbox" name="Screen format" value="Story / WhatsApp status (1080×1920)"><span>Story / Status 1080×1920</span></label>
+                                    <label class="opt"><input type="checkbox" name="Screen format" value="Portrait post (1080×1350)"><span>Portrait 1080×1350</span></label>
+                                    <label class="opt"><input type="checkbox" name="Screen format" value="LinkedIn / X post"><span>LinkedIn / X post</span></label>
+                                    <label class="opt"><input type="checkbox" name="Screen format" value="Website / Email banner"><span>Website / Email banner</span></label>
+                                    <label class="opt"><input type="checkbox" name="Screen format" value="Presentation / Screen (16:9)"><span>Presentation 16:9</span></label>
+                                </div>
+                            </div>
+
+                            <div class="q" data-when-name="Usage" data-when-values="Printing,Both screens and print">
+                                <p class="q-label">Print size <small>Select all that apply</small></p>
+                                <div class="opts">
+                                    <label class="opt"><input type="checkbox" name="Print size" value="A5"><span>A5</span></label>
+                                    <label class="opt"><input type="checkbox" name="Print size" value="A4"><span>A4</span></label>
+                                    <label class="opt"><input type="checkbox" name="Print size" value="A3"><span>A3</span></label>
+                                    <label class="opt"><input type="checkbox" name="Print size" value="A2"><span>A2</span></label>
+                                    <label class="opt"><input type="checkbox" name="Print size" value="A1"><span>A1</span></label>
+                                    <label class="opt"><input type="checkbox" name="Print size" value="Roll-up banner (85×200 cm)"><span>Roll-up 85×200 cm</span></label>
+                                    <label class="opt"><input type="checkbox" name="Print size" value="Business card"><span>Business card</span></label>
+                                </div>
+                            </div>
+
+                            <div class="grid-2">
+                                <div class="field">
+                                    <label for="g-custom-size">Custom size <small>(optional)</small></label>
+                                    <input id="g-custom-size" name="Custom size" type="text" placeholder="e.g. 60 × 90 cm, 1920 × 600 px">
+                                </div>
+                                <div class="field">
+                                    <label for="g-count">How many designs / variations?</label>
+                                    <input id="g-count" name="Number of designs" type="number" min="1" value="1" inputmode="numeric">
+                                </div>
+                            </div>
+
+                            <div class="q" data-when-name="Usage" data-when-values="Printing,Both screens and print">
+                                <p class="q-label">Do you also need help with printing?</p>
+                                <div class="opts">
+                                    <label class="opt"><input type="radio" name="Printing help" value="Yes, handle printing"><span>Yes, handle printing</span></label>
+                                    <label class="opt"><input type="radio" name="Printing help" value="No, print-ready files only"><span>No, print-ready files only</span></label>
+                                </div>
+                            </div>
+
+                            <div class="q">
+                                <p class="q-label">What brand materials do you already have? <small>Select all that apply</small></p>
+                                <div class="opts">
+                                    <label class="opt"><input type="checkbox" name="Brand assets" value="Logo"><span>Logo</span></label>
+                                    <label class="opt"><input type="checkbox" name="Brand assets" value="Brand colours / fonts"><span>Brand colours / fonts</span></label>
+                                    <label class="opt"><input type="checkbox" name="Brand assets" value="Photos / images"><span>Photos / images</span></label>
+                                    <label class="opt"><input type="checkbox" name="Brand assets" value="Final text / content"><span>Final text / content</span></label>
+                                    <label class="opt"><input type="checkbox" name="Brand assets" value="None yet"><span>None yet</span></label>
+                                </div>
+                            </div>
+
+                            <div class="q">
+                                <p class="q-label">Preferred style <small>(optional)</small></p>
+                                <div class="opts">
+                                    <label class="opt"><input type="radio" name="Style" value="Modern & minimal"><span>Modern &amp; minimal</span></label>
+                                    <label class="opt"><input type="radio" name="Style" value="Bold & colourful"><span>Bold &amp; colourful</span></label>
+                                    <label class="opt"><input type="radio" name="Style" value="Classic & elegant"><span>Classic &amp; elegant</span></label>
+                                    <label class="opt"><input type="radio" name="Style" value="Corporate"><span>Corporate</span></label>
+                                    <label class="opt"><input type="radio" name="Style" value="Not sure"><span>Not sure</span></label>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- STEP 2b: engineering design -->
+                        <fieldset class="step" data-step="2" data-branch="Engineering Design">
+                            <legend>Engineering design requirements</legend>
+
+                            <div class="q" data-required="group">
+                                <p class="q-label">What service do you need? <small>Select all that apply</small></p>
+                                <div class="opts">
+                                    <label class="opt"><input type="checkbox" name="Engineering service" value="3D CAD modelling"><span>3D CAD modelling</span></label>
+                                    <label class="opt"><input type="checkbox" name="Engineering service" value="2D drafting / manufacturing drawings"><span>2D drafting / drawings</span></label>
+                                    <label class="opt"><input type="checkbox" name="Engineering service" value="FEA / structural simulation"><span>FEA / structural simulation</span></label>
+                                    <label class="opt"><input type="checkbox" name="Engineering service" value="CFD / thermal analysis"><span>CFD / thermal analysis</span></label>
+                                    <label class="opt"><input type="checkbox" name="Engineering service" value="Sheet metal / fabrication design"><span>Sheet metal / fabrication</span></label>
+                                    <label class="opt"><input type="checkbox" name="Engineering service" value="Product renders / animation"><span>Renders / animation</span></label>
+                                    <label class="opt"><input type="checkbox" name="Engineering service" value="Reverse engineering"><span>Reverse engineering</span></label>
+                                    <label class="opt"><input type="checkbox" name="Engineering service" value="CAD training"><span>CAD training</span></label>
+                                    <label class="opt"><input type="checkbox" name="Engineering service" value="Other"><span>Other</span></label>
+                                </div>
+                            </div>
+
+                            <div class="q" data-required="group">
+                                <p class="q-label">Which software should it be done in?</p>
+                                <div class="opts">
+                                    <label class="opt"><input type="radio" name="Engineering software" value="SolidWorks"><span>SolidWorks</span></label>
+                                    <label class="opt"><input type="radio" name="Engineering software" value="Autodesk Inventor"><span>Autodesk Inventor</span></label>
+                                    <label class="opt"><input type="radio" name="Engineering software" value="AutoCAD"><span>AutoCAD</span></label>
+                                    <label class="opt"><input type="radio" name="Engineering software" value="Fusion 360"><span>Fusion 360</span></label>
+                                    <label class="opt"><input type="radio" name="Engineering software" value="Revit"><span>Revit</span></label>
+                                    <label class="opt"><input type="radio" name="Engineering software" value="Abaqus"><span>Abaqus</span></label>
+                                    <label class="opt"><input type="radio" name="Engineering software" value="No preference"><span>No preference</span></label>
+                                </div>
+                            </div>
+
+                            <div class="q" data-when-name="Engineering service" data-when-values="CAD training">
+                                <p class="q-label">Training details</p>
+                                <div class="grid-3">
+                                    <div class="field">
+                                        <label for="t-count">Number of trainees</label>
+                                        <input id="t-count" name="Trainees" type="number" min="1" placeholder="e.g. 5" inputmode="numeric">
+                                    </div>
+                                    <div class="field">
+                                        <label for="t-level">Current level</label>
+                                        <select id="t-level" name="Trainee level">
+                                            <option value="">Select…</option>
+                                            <option>Beginner</option>
+                                            <option>Intermediate</option>
+                                            <option>Advanced</option>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label for="t-mode">Mode</label>
+                                        <select id="t-mode" name="Training mode">
+                                            <option value="">Select…</option>
+                                            <option>Online</option>
+                                            <option>In person (Nairobi)</option>
+                                            <option>Either</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="q">
+                                <p class="q-label">Where is the project now?</p>
+                                <div class="opts">
+                                    <label class="opt"><input type="radio" name="Project stage" value="Just an idea"><span>Just an idea</span></label>
+                                    <label class="opt"><input type="radio" name="Project stage" value="Sketches / concept ready"><span>Sketches / concept</span></label>
+                                    <label class="opt"><input type="radio" name="Project stage" value="Existing CAD to modify"><span>Existing CAD to modify</span></label>
+                                    <label class="opt"><input type="radio" name="Project stage" value="Design done, needs analysis / drawings"><span>Needs analysis / drawings</span></label>
+                                </div>
+                            </div>
+
+                            <div class="q">
+                                <p class="q-label">What can you provide? <small>Select all that apply</small></p>
+                                <div class="opts">
+                                    <label class="opt"><input type="checkbox" name="Inputs available" value="Hand sketches"><span>Hand sketches</span></label>
+                                    <label class="opt"><input type="checkbox" name="Inputs available" value="Dimensions / specifications"><span>Dimensions / specs</span></label>
+                                    <label class="opt"><input type="checkbox" name="Inputs available" value="Existing CAD files"><span>Existing CAD files</span></label>
+                                    <label class="opt"><input type="checkbox" name="Inputs available" value="Photos"><span>Photos</span></label>
+                                    <label class="opt"><input type="checkbox" name="Inputs available" value="Physical sample"><span>Physical sample</span></label>
+                                    <label class="opt"><input type="checkbox" name="Inputs available" value="Loads / material data"><span>Loads / material data</span></label>
+                                </div>
+                            </div>
+
+                            <div class="q">
+                                <p class="q-label">Files you'd like to receive <small>Select all that apply</small></p>
+                                <div class="opts">
+                                    <label class="opt"><input type="checkbox" name="Deliverables" value="Native CAD files"><span>Native CAD files</span></label>
+                                    <label class="opt"><input type="checkbox" name="Deliverables" value="STEP / IGES"><span>STEP / IGES</span></label>
+                                    <label class="opt"><input type="checkbox" name="Deliverables" value="STL (3D printing)"><span>STL (3D printing)</span></label>
+                                    <label class="opt"><input type="checkbox" name="Deliverables" value="DWG / DXF"><span>DWG / DXF</span></label>
+                                    <label class="opt"><input type="checkbox" name="Deliverables" value="PDF drawings"><span>PDF drawings</span></label>
+                                    <label class="opt"><input type="checkbox" name="Deliverables" value="Renders / images"><span>Renders / images</span></label>
+                                    <label class="opt"><input type="checkbox" name="Deliverables" value="Simulation report"><span>Simulation report</span></label>
+                                </div>
+                            </div>
+
+                            <div class="grid-2">
+                                <div class="field">
+                                    <label for="e-units">Units</label>
+                                    <select id="e-units" name="Units">
+                                        <option>Metric (mm)</option>
+                                        <option>Imperial (inch)</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="e-industry">Industry / application <small>(optional)</small></label>
+                                    <input id="e-industry" name="Industry / application" type="text" placeholder="e.g. agro-processing machine">
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- STEP 3: timeline & budget -->
+                        <fieldset class="step" data-step="3">
+                            <legend>Project, timeline &amp; budget</legend>
+                            <div class="field">
+                                <label for="b-title">Project name <small>(optional)</small></label>
+                                <input id="b-title" name="Project name" type="text" placeholder="e.g. Company launch poster, Gearbox housing">
+                            </div>
+                            <div class="field">
+                                <label for="b-desc">Describe the project <span class="req">*</span></label>
+                                <textarea id="b-desc" name="Project description" rows="5" required placeholder="What should it do or say? Who is it for? Any must-haves?"></textarea>
+                            </div>
+                            <div class="field">
+                                <label for="b-links">Reference links <small>(optional)</small></label>
+                                <input id="b-links" name="Reference links" type="text" placeholder="Google Drive folder, inspiration, existing files...">
+                            </div>
+                            <div class="grid-2">
+                                <div class="field">
+                                    <label for="b-due">Due date <span class="req">*</span></label>
+                                    <input id="b-due" name="Due date" type="date" required>
+                                </div>
+                                <div class="field">
+                                    <label for="b-budget">Budget (KES) <span class="req">*</span></label>
+                                    <select id="b-budget" name="Budget" required>
+                                        <option value="">Select a range…</option>
+                                        <option>Under KES 5,000</option>
+                                        <option>KES 5,000 – 15,000</option>
+                                        <option>KES 15,000 – 50,000</option>
+                                        <option>KES 50,000 – 100,000</option>
+                                        <option>Above KES 100,000</option>
+                                        <option>Not sure, I need a quote</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="q">
+                                <p class="q-label">How flexible is the deadline?</p>
+                                <div class="opts">
+                                    <label class="opt"><input type="radio" name="Deadline flexibility" value="Fixed, cannot move"><span>Fixed</span></label>
+                                    <label class="opt"><input type="radio" name="Deadline flexibility" value="Somewhat flexible"><span>Somewhat flexible</span></label>
+                                    <label class="opt"><input type="radio" name="Deadline flexibility" value="Very flexible"><span>Very flexible</span></label>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- STEP 4: contact + summary -->
+                        <fieldset class="step" data-step="4">
+                            <legend>Where should I send the quote?</legend>
+                            <div class="grid-2">
+                                <div class="field">
+                                    <label for="c-name">Full name <span class="req">*</span></label>
+                                    <input id="c-name" name="name" type="text" autocomplete="name" required>
+                                </div>
+                                <div class="field">
+                                    <label for="c-email">Email <span class="req">*</span></label>
+                                    <input id="c-email" name="email" type="email" autocomplete="email" required>
+                                </div>
+                                <div class="field">
+                                    <label for="c-phone">Phone / WhatsApp <small>(optional)</small></label>
+                                    <input id="c-phone" name="Phone / WhatsApp" type="tel" autocomplete="tel" placeholder="e.g. 07XX XXX XXX">
+                                </div>
+                                <div class="field">
+                                    <label for="c-org">Organisation <small>(optional)</small></label>
+                                    <input id="c-org" name="Organisation" type="text" autocomplete="organization">
+                                </div>
+                            </div>
+                            <div class="q">
+                                <p class="q-label">Best way to reach you</p>
+                                <div class="opts">
+                                    <label class="opt"><input type="radio" name="Preferred contact" value="WhatsApp" checked><span>WhatsApp</span></label>
+                                    <label class="opt"><input type="radio" name="Preferred contact" value="Email"><span>Email</span></label>
+                                    <label class="opt"><input type="radio" name="Preferred contact" value="Phone call"><span>Phone call</span></label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label for="c-source">How did you hear about me? <small>(optional)</small></label>
+                                <select id="c-source" name="Heard about me via">
+                                    <option value="">Select…</option>
+                                    <option>LinkedIn</option>
+                                    <option>Instagram</option>
+                                    <option>WhatsApp</option>
+                                    <option>AutoCAD webinar</option>
+                                    <option>Referral / friend</option>
+                                    <option>Google search</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+
+                            <div class="summary" id="brief-summary" aria-live="polite"></div>
+                        </fieldset>
+
+                        <p class="form-error" id="brief-error" role="alert" hidden></p>
+
+                        <div class="wizard-nav">
+                            <button type="button" class="btn btn-outline" id="brief-back" hidden><svg class="flip"><use href="#i-arrow"/></svg> Back</button>
+                            <button type="button" class="btn btn-navy" id="brief-next">Continue <svg><use href="#i-arrow"/></svg></button>
+                            <button type="submit" class="btn btn-sun" id="brief-submit" hidden>Submit project brief <svg><use href="#i-arrow"/></svg></button>
+                        </div>
+                    </form>
+
+                    <div class="wizard-done" id="brief-done" hidden tabindex="-1">
+                        <span class="done-icon"><svg><use href="#i-check"/></svg></span>
+                        <h3>Thank you! Your brief is on its way.</h3>
+                        <p>I'll review the details and get back to you with a quote and timeline, as soon as possible.</p>
+                        <div class="done-actions">
+                            <a class="btn btn-green" id="brief-wa" href="https://wa.me/254708639473" target="_blank" rel="noopener"><svg><use href="#i-whatsapp"/></svg> Follow up on WhatsApp</a>
+                            <button class="btn btn-outline" type="button" id="brief-again">Start another brief</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== FAQ ===================== -->
+        <section class="section faq" id="faq" aria-labelledby="faq-title">
+            <div class="container faq-grid">
+                <div class="faq-intro">
+                    <p class="kicker" data-reveal>FAQ</p>
+                    <h2 class="section-title" id="faq-title" data-reveal style="--d: 80ms">Questions, <em>answered</em>.</h2>
+                    <p class="section-lede" data-reveal style="--d: 140ms">Can't find what you're looking for? Send me a message and I'll reply personally.</p>
+                    <div class="faq-actions" data-reveal style="--d: 200ms">
+                        <a class="btn btn-green" href="https://wa.me/254708639473?text=Hi%20Edison%2C%20I%20have%20a%20question." target="_blank" rel="noopener"><svg><use href="#i-whatsapp"/></svg> Ask on WhatsApp</a>
+                        <a class="btn btn-outline" href="#brief">Start a project</a>
+                    </div>
+                </div>
+
+                <div class="faq-list" data-reveal style="--d: 120ms">
+                    <details class="faq-item" open>
+                        <summary>What services do you offer?</summary>
+                        <div class="faq-body"><p>Two kinds of work through Nexus CAD Studio. <strong>Engineering design:</strong> 3D CAD modelling, 2D manufacturing drawings, FEA/CFD simulation, sheet metal and fabrication design, product renders and CAD training. <strong>Graphic design:</strong> posters, branding, certificates, social media graphics, print layouts and motion graphics.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Which software do you work with?</summary>
+                        <div class="faq-body"><p>For engineering: SolidWorks (I'm a Certified SOLIDWORKS Associate), Autodesk Inventor, AutoCAD, Fusion 360, Revit and Abaqus. For graphics: Adobe Illustrator, Photoshop, InDesign and Premiere Pro. If you need files in a specific program, just tell me in the project brief.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>How do I start a project?</summary>
+                        <div class="faq-body"><p>Fill in the <a href="#brief">project brief</a> above. It takes about two minutes and covers everything I need to understand your project. You can also message me directly on WhatsApp.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>How much will my project cost?</summary>
+                        <div class="faq-body"><p>Pricing depends on complexity, the files you need and how soon you need them. Once I have your brief, I'll send a clear quote before any work starts, so there are no surprises.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>How long does a project take?</summary>
+                        <div class="faq-body"><p>It depends on the scope. A single poster is much quicker than a full assembly with simulation. We agree on a timeline together when I send your quote, and I'll keep you updated along the way.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Can you work from my sketches, photos or existing files?</summary>
+                        <div class="faq-body"><p>Yes. Hand sketches with dimensions, photos, physical samples or existing CAD files are all great starting points. The more detail you share, the faster and more accurate the result.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>What files will I receive?</summary>
+                        <div class="faq-body"><p>Whatever suits your project. For engineering: native CAD files, STEP/IGES, STL for 3D printing, DWG/DXF and PDF drawings. For graphics: print-ready PDFs and high-resolution PNG/JPG, with source files available on request.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Do you include revisions?</summary>
+                        <div class="faq-body"><p>Yes. Revisions are agreed as part of your quote, so we can refine the design until it's right for you.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Do you work with clients outside Nairobi?</summary>
+                        <div class="faq-body"><p>Yes. I work with clients remotely: briefs, files and reviews are shared online, and training can be delivered online or in person in Nairobi.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary>How do I join the free AutoCAD webinar?</summary>
+                        <div class="faq-body"><p>Tap <a href="https://wa.me/254708639473?text=Hi%20Edison%2C%20I%27d%20like%20to%20join%20your%20free%20weekly%20AutoCAD%20webinar." target="_blank" rel="noopener">Reserve a seat</a> and I'll send you the details for the next weekly session.</p></div>
+                    </details>
                 </div>
             </div>
         </section>
@@ -502,7 +957,10 @@
                 <a href="#services">Services</a>
                 <a href="#work">Work</a>
                 <a href="#experience">Experience</a>
+                <a href="#reviews">Reviews</a>
                 <a href="#reports">Reports</a>
+                <a href="#brief">Start a project</a>
+                <a href="#faq">FAQ</a>
             </nav>
             <div class="footer-col">
                 <h4>Connect</h4>
@@ -522,6 +980,68 @@
     <a href="#home" class="fab-top" id="fab-top" aria-label="Back to top">
         <svg viewBox="0 0 24 24"><path d="M12 19V5 M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
+
+    <!-- ===================== REVIEW FORM (popup) ===================== -->
+    <div class="modal review-modal" id="review-modal" role="dialog" aria-modal="true" aria-labelledby="rv-title" aria-hidden="true">
+        <div class="modal-backdrop" data-close></div>
+        <div class="modal-panel review-panel">
+            <button class="modal-close" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
+            <form id="review-form" novalidate>
+                <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <p class="kicker">Leave a review</p>
+                <h2 id="rv-title">How was your experience?</h2>
+
+                <div class="q">
+                    <p class="q-label">Your rating <span class="req">*</span></p>
+                    <div class="stars" role="radiogroup" aria-label="Rating">
+                        <input type="radio" id="rs5" name="Rating" value="5"><label for="rs5" title="5 stars"><svg><use href="#i-star"/></svg><span class="sr-only">5 stars</span></label>
+                        <input type="radio" id="rs4" name="Rating" value="4"><label for="rs4" title="4 stars"><svg><use href="#i-star"/></svg><span class="sr-only">4 stars</span></label>
+                        <input type="radio" id="rs3" name="Rating" value="3"><label for="rs3" title="3 stars"><svg><use href="#i-star"/></svg><span class="sr-only">3 stars</span></label>
+                        <input type="radio" id="rs2" name="Rating" value="2"><label for="rs2" title="2 stars"><svg><use href="#i-star"/></svg><span class="sr-only">2 stars</span></label>
+                        <input type="radio" id="rs1" name="Rating" value="1"><label for="rs1" title="1 star"><svg><use href="#i-star"/></svg><span class="sr-only">1 star</span></label>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="field">
+                        <label for="rv-name">Your name <span class="req">*</span></label>
+                        <input id="rv-name" name="name" type="text" autocomplete="name" required>
+                    </div>
+                    <div class="field">
+                        <label for="rv-email">Email <small>(not published)</small></label>
+                        <input id="rv-email" name="email" type="email" autocomplete="email">
+                    </div>
+                    <div class="field">
+                        <label for="rv-role">Role / organisation <small>(optional)</small></label>
+                        <input id="rv-role" name="Role / organisation" type="text" placeholder="e.g. Project Manager, ABC Ltd">
+                    </div>
+                    <div class="field">
+                        <label for="rv-service">Service received</label>
+                        <select id="rv-service" name="Service received">
+                            <option>Engineering Design</option>
+                            <option>Graphic Design</option>
+                            <option>CAD Training / Webinar</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="rv-text">Your review <span class="req">*</span></label>
+                    <textarea id="rv-text" name="Review" rows="4" required placeholder="What did you like? How did the project turn out?"></textarea>
+                </div>
+                <label class="consent"><input type="checkbox" name="Permission to publish" value="Yes" checked> You may publish my review and name on this website.</label>
+
+                <p class="form-error" id="review-error" role="alert" hidden></p>
+                <button type="submit" class="btn btn-sun btn-lg btn-block" id="review-submit">Submit review</button>
+            </form>
+            <div class="review-done" id="review-done" hidden tabindex="-1">
+                <span class="done-icon"><svg><use href="#i-check"/></svg></span>
+                <h2>Thank you for your review!</h2>
+                <p>It has been sent to Edison and will appear on the site once approved.</p>
+                <button class="btn btn-navy" type="button" data-close>Close</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ===================== PROJECT MODAL ===================== -->
     <div class="modal" id="project-modal" role="dialog" aria-modal="true" aria-labelledby="pm-title" aria-hidden="true">
@@ -576,8 +1096,10 @@
         <div class="pdf-loading" id="pdf-loading"><div class="pdf-spinner"></div><span id="pdf-loading-text">Loading...</span></div>
     </div>
 
-    <script src="js/projects.js?v=1"></script>
-    <script src="js/main.js?v=1"></script>
+    <script src="js/projects.js?v=2"></script>
+    <script src="js/reviews.js?v=1"></script>
+    <script src="js/main.js?v=2"></script>
+    <script src="js/forms.js?v=1"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
     <script defer src="js/pdf-viewer.js?v=1"></script>
