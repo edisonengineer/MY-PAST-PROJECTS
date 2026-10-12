@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page not found | Edison Ochieng</title>
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="/MY-PAST-PROJECTS/favicon.ico" sizes="any">
+    <link rel="icon" href="/MY-PAST-PROJECTS/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,500&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap">
+    <style>
+        :root { --navy: #0e1a3a; --sun: #ffb627; --coral: #ff6b4a; --violet: #7457f2; --teal: #13a89e; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh; min-height: 100dvh;
+            display: grid; place-items: center; padding: 24px;
+            background: var(--navy); color: #fff; text-align: center;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif; overflow: hidden; position: relative;
+        }
+        .blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5; z-index: 0; }
+        .b1 { width: 420px; height: 420px; background: var(--violet); top: -140px; left: -120px; }
+        .b2 { width: 380px; height: 380px; background: var(--coral); bottom: -160px; right: -120px; }
+        .b3 { width: 260px; height: 260px; background: var(--teal); top: 40%; left: 60%; opacity: 0.35; }
+        main { position: relative; z-index: 1; max-width: 560px; }
+        .code { font-family: 'Fraunces', Georgia, serif; font-size: clamp(5rem, 22vw, 9rem); line-height: 1; background: linear-gradient(90deg, var(--sun), var(--coral)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: clamp(1.6rem, 5vw, 2.4rem); margin: 8px 0 12px; }
+        h1 em { color: var(--sun); }
+        p { color: rgba(255, 255, 255, 0.75); margin: 0 0 32px; line-height: 1.6; }
+        a { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 28px; border-radius: 999px; background: var(--sun); color: var(--navy); font-weight: 700; text-decoration: none; box-shadow: 0 10px 26px rgba(255, 182, 39, 0.35); }
+        a:hover { background: #ffc24d; }
+    </style>
+</head>
+<body>
+    <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+    <main>
+        <div class="code">404</div>
+        <h1>This part isn't in the <em>assembly</em>.</h1>
+        <p>The page you're looking for doesn't exist or has moved. Let's get you back to the portfolio.</p>
+        <a href="/MY-PAST-PROJECTS/">Back to the portfolio &rarr;</a>
+    </main>
+</body>
+</html>
