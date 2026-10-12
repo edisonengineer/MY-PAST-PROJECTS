@@ -37,8 +37,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 
-    <link rel="stylesheet" href="css/style.css?v=2">
-    <script>document.documentElement.classList.add('js');</script>
+    <link rel="stylesheet" href="css/style.css?v=3">
+    <script>
+        document.documentElement.classList.add('js');
+        (function () {
+            var t = null;
+            try { t = localStorage.getItem('theme'); } catch (e) {}
+            if (!t) t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
 
     <!-- Search engines: who this site is about -->
     <script type="application/ld+json">
@@ -114,11 +122,23 @@
                 <a href="#services">Services</a>
                 <a href="#work">Work</a>
                 <a href="#experience">Experience</a>
+                <a href="#pricing">Pricing</a>
                 <a href="#reviews">Reviews</a>
                 <a href="#faq">FAQ</a>
                 <a href="#contact">Contact</a>
                 <a href="#brief" class="btn btn-sun nav-cta">Start a project</a>
             </nav>
+
+            <div class="header-tools">
+                <div class="lang-switch" role="group" aria-label="Language">
+                    <button type="button" data-lang="en" aria-pressed="true">EN</button>
+                    <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+                </div>
+                <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode">
+                    <svg class="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+                    <svg class="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </button>
+            </div>
 
             <button class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
                 <span></span><span></span><span></span>
@@ -156,6 +176,9 @@
                         <a href="#work" class="btn btn-sun btn-lg">View my work <svg><use href="#i-arrow"/></svg></a>
                         <a href="https://wa.me/254708639473?text=Hi%20Edison%2C%20I%20found%20your%20portfolio%20and%20would%20like%20to%20discuss%20a%20project." target="_blank" rel="noopener" class="btn btn-glass btn-lg">
                             <svg><use href="#i-whatsapp"/></svg> Chat on WhatsApp
+                        </a>
+                        <a href="pdfs/edison-ochieng-cv.pdf" class="btn btn-ghost-light btn-lg" data-needs-file download hidden>
+                            <svg><use href="#i-doc"/></svg> Download CV
                         </a>
                     </div>
                 </div>
@@ -207,6 +230,20 @@
                 </ul>
                 <ul aria-hidden="true">
                     <li>SolidWorks</li><li>AutoCAD Mechanical</li><li>Autodesk Inventor</li><li>Fusion 360</li><li>Revit</li><li>Abaqus</li><li>CNC Machining</li><li>Photoshop</li><li>Illustrator</li><li>InDesign</li><li>Premiere Pro</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ===================== ORGANISATIONS ===================== -->
+        <section class="orgs" aria-labelledby="orgs-title">
+            <div class="container">
+                <p class="orgs-title" id="orgs-title" data-reveal>Experience with</p>
+                <ul class="orgs-list" data-reveal style="--d: 80ms">
+                    <li><strong>KIRDI</strong><span>Industrial attachment</span></li>
+                    <li><strong>University of Nairobi</strong><span>BSc Mechanical Engineering</span></li>
+                    <li><strong>KnowledgePoint Ltd</strong><span>Autodesk Fusion design</span></li>
+                    <li><strong>Autodesk Designathon</strong><span>2025 Honorable Mention</span></li>
+                    <li><strong>UNSA</strong><span>Academic committee</span></li>
                 </ul>
             </div>
         </section>
@@ -282,6 +319,46 @@
             </div>
         </section>
 
+        <!-- ===================== PROCESS ===================== -->
+        <section class="section process" id="process" aria-labelledby="process-title">
+            <div class="container">
+                <header class="section-head center">
+                    <p class="kicker" data-reveal>How I work</p>
+                    <h2 class="section-title" id="process-title" data-reveal style="--d: 80ms">From idea to <em>finished files</em>.</h2>
+                    <p class="section-lede" data-reveal style="--d: 140ms">A simple, transparent process, so you always know what happens next.</p>
+                </header>
+                <ol class="process-steps">
+                    <li class="p-step" data-reveal>
+                        <span class="p-num bg-sun">01</span>
+                        <span class="p-icon"><svg><use href="#i-doc"/></svg></span>
+                        <h3>Share your brief</h3>
+                        <p>Fill in the project form or message me on WhatsApp with what you need.</p>
+                    </li>
+                    <li class="p-step" data-reveal style="--d: 100ms">
+                        <span class="p-num bg-coral">02</span>
+                        <span class="p-icon"><svg><use href="#i-chart"/></svg></span>
+                        <h3>Get a clear quote</h3>
+                        <p>I review your needs and send the scope, price and timeline before any work starts.</p>
+                    </li>
+                    <li class="p-step" data-reveal style="--d: 200ms">
+                        <span class="p-num bg-violet">03</span>
+                        <span class="p-icon"><svg><use href="#i-pen"/></svg></span>
+                        <h3>Design &amp; refine</h3>
+                        <p>I keep you updated with progress and refine the work based on your feedback.</p>
+                    </li>
+                    <li class="p-step" data-reveal style="--d: 300ms">
+                        <span class="p-num bg-teal">04</span>
+                        <span class="p-icon"><svg><use href="#i-check"/></svg></span>
+                        <h3>Receive your files</h3>
+                        <p>Final files in the formats you need, ready to manufacture, print or share.</p>
+                    </li>
+                </ol>
+                <div class="process-cta" data-reveal>
+                    <a href="#brief" class="btn btn-sun btn-lg">Start with step 1 <svg><use href="#i-arrow"/></svg></a>
+                </div>
+            </div>
+        </section>
+
         <!-- ===================== WORK ===================== -->
         <section class="section work" id="work" aria-labelledby="work-title">
             <div class="container">
@@ -310,7 +387,7 @@
                     <h2>Join my free weekly AutoCAD webinar</h2>
                     <p>Master CAD workflows and productivity best practices, live, every week.</p>
                 </div>
-                <a class="btn btn-navy btn-lg" href="https://wa.me/254708639473?text=Hi%20Edison%2C%20I%27d%20like%20to%20join%20your%20free%20weekly%20AutoCAD%20webinar." target="_blank" rel="noopener">Reserve a seat <svg><use href="#i-arrow"/></svg></a>
+                <button class="btn btn-navy btn-lg" type="button" data-open-modal="webinar-modal">Reserve a seat <svg><use href="#i-arrow"/></svg></button>
             </div>
         </section>
 
@@ -320,6 +397,7 @@
                 <header class="section-head center">
                     <p class="kicker" data-reveal>Journey</p>
                     <h2 class="section-title" id="exp-title" data-reveal style="--d: 80ms">Experience &amp; <em>education</em>.</h2>
+                    <p class="exp-cv" data-needs-file-wrap hidden><a href="pdfs/edison-ochieng-cv.pdf" class="btn btn-outline" data-needs-file download><svg><use href="#i-doc"/></svg> Download full CV</a></p>
                 </header>
 
                 <div class="exp-grid">
@@ -399,6 +477,27 @@
             </div>
         </section>
 
+        <!-- ===================== PRICING / PACKAGES ===================== -->
+        <section class="section pricing" id="pricing" aria-labelledby="pricing-title">
+            <div class="container">
+                <header class="section-head split">
+                    <div>
+                        <p class="kicker" data-reveal>Packages</p>
+                        <h2 class="section-title" id="pricing-title" data-reveal style="--d: 80ms">Services &amp; <em>pricing</em>.</h2>
+                    </div>
+                    <div class="filters" role="group" aria-label="Filter packages" data-reveal style="--d: 140ms">
+                        <button class="filter is-active" data-pkg="all" aria-pressed="true">All</button>
+                        <button class="filter" data-pkg="engineering" aria-pressed="false">Engineering</button>
+                        <button class="filter" data-pkg="graphic" aria-pressed="false">Graphic</button>
+                        <button class="filter" data-pkg="training" aria-pressed="false">Training</button>
+                    </div>
+                </header>
+                <!-- Cards are generated from js/packages.js -->
+                <div class="package-grid" id="package-grid"></div>
+                <p class="pricing-note" data-reveal>Every project is different. Prices are a starting point and your final quote depends on scope and deadline.</p>
+            </div>
+        </section>
+
         <!-- ===================== REVIEWS ===================== -->
         <section class="section reviews" id="reviews" aria-labelledby="reviews-title">
             <div class="container">
@@ -417,6 +516,26 @@
                         <p>I'd love to hear how it went. Your review helps others decide.</p>
                     </div>
                     <button class="btn btn-sun btn-lg" id="open-review" type="button"><svg><use href="#i-star"/></svg> Leave a review</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== FREE DOWNLOAD ===================== -->
+        <section class="freebie" aria-labelledby="freebie-title">
+            <div class="container freebie-inner" data-reveal>
+                <div class="freebie-art" aria-hidden="true">
+                    <img src="images/freebie/autocad-cheat-sheet-preview.jpg" alt="" width="600" height="849" loading="lazy">
+                </div>
+                <div class="freebie-copy">
+                    <p class="kicker kicker-light">Free download</p>
+                    <h2 id="freebie-title">AutoCAD Shortcuts <em>Cheat Sheet</em></h2>
+                    <p>The essential AutoCAD command aliases and keyboard shortcuts on one printable page. Work faster from day one.</p>
+                    <ul class="freebie-points">
+                        <li><svg><use href="#i-check"/></svg> 100+ command aliases &amp; shortcuts</li>
+                        <li><svg><use href="#i-check"/></svg> Drawing, editing, dimensions &amp; layers</li>
+                        <li><svg><use href="#i-check"/></svg> Printable A4 PDF</li>
+                    </ul>
+                    <button class="btn btn-sun btn-lg" type="button" data-open-modal="freebie-modal">Get the free cheat sheet <svg><use href="#i-arrow"/></svg></button>
                 </div>
             </div>
         </section>
@@ -634,18 +753,18 @@
                                         <label for="t-level">Current level</label>
                                         <select id="t-level" name="Trainee level">
                                             <option value="">Select…</option>
-                                            <option>Beginner</option>
-                                            <option>Intermediate</option>
-                                            <option>Advanced</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
                                         </select>
                                     </div>
                                     <div class="field">
                                         <label for="t-mode">Mode</label>
                                         <select id="t-mode" name="Training mode">
                                             <option value="">Select…</option>
-                                            <option>Online</option>
-                                            <option>In person (Nairobi)</option>
-                                            <option>Either</option>
+                                            <option value="Online">Online</option>
+                                            <option value="In person (Nairobi)">In person (Nairobi)</option>
+                                            <option value="Either">Either</option>
                                         </select>
                                     </div>
                                 </div>
@@ -690,8 +809,8 @@
                                 <div class="field">
                                     <label for="e-units">Units</label>
                                     <select id="e-units" name="Units">
-                                        <option>Metric (mm)</option>
-                                        <option>Imperial (inch)</option>
+                                        <option value="Metric (mm)">Metric (mm)</option>
+                                        <option value="Imperial (inch)">Imperial (inch)</option>
                                     </select>
                                 </div>
                                 <div class="field">
@@ -725,12 +844,12 @@
                                     <label for="b-budget">Budget (KES) <span class="req">*</span></label>
                                     <select id="b-budget" name="Budget" required>
                                         <option value="">Select a range…</option>
-                                        <option>Under KES 5,000</option>
-                                        <option>KES 5,000 – 15,000</option>
-                                        <option>KES 15,000 – 50,000</option>
-                                        <option>KES 50,000 – 100,000</option>
-                                        <option>Above KES 100,000</option>
-                                        <option>Not sure, I need a quote</option>
+                                        <option value="Under KES 5,000">Under KES 5,000</option>
+                                        <option value="KES 5,000 – 15,000">KES 5,000 – 15,000</option>
+                                        <option value="KES 15,000 – 50,000">KES 15,000 – 50,000</option>
+                                        <option value="KES 50,000 – 100,000">KES 50,000 – 100,000</option>
+                                        <option value="Above KES 100,000">Above KES 100,000</option>
+                                        <option value="Not sure, I need a quote">Not sure, I need a quote</option>
                                     </select>
                                 </div>
                             </div>
@@ -777,13 +896,13 @@
                                 <label for="c-source">How did you hear about me? <small>(optional)</small></label>
                                 <select id="c-source" name="Heard about me via">
                                     <option value="">Select…</option>
-                                    <option>LinkedIn</option>
-                                    <option>Instagram</option>
-                                    <option>WhatsApp</option>
-                                    <option>AutoCAD webinar</option>
-                                    <option>Referral / friend</option>
-                                    <option>Google search</option>
-                                    <option>Other</option>
+                                    <option value="LinkedIn">LinkedIn</option>
+                                    <option value="Instagram">Instagram</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="AutoCAD webinar">AutoCAD webinar</option>
+                                    <option value="Referral / friend">Referral / friend</option>
+                                    <option value="Google search">Google search</option>
+                                    <option value="Other">Other</option>
                                 </select>
                             </div>
 
@@ -864,7 +983,7 @@
                     </details>
                     <details class="faq-item">
                         <summary>How do I join the free AutoCAD webinar?</summary>
-                        <div class="faq-body"><p>Tap <a href="https://wa.me/254708639473?text=Hi%20Edison%2C%20I%27d%20like%20to%20join%20your%20free%20weekly%20AutoCAD%20webinar." target="_blank" rel="noopener">Reserve a seat</a> and I'll send you the details for the next weekly session.</p></div>
+                        <div class="faq-body"><p>Tap <button type="button" class="inline-link" data-open-modal="webinar-modal">Reserve a seat</button>, fill in the short form, and I'll send you the details for the next weekly session.</p></div>
                     </details>
                 </div>
             </div>
@@ -919,13 +1038,13 @@
                     <div class="field">
                         <label for="cf-service">I'm interested in</label>
                         <select id="cf-service" name="service">
-                            <option>Engineering Design</option>
-                            <option>3D CAD Modeling</option>
-                            <option>FEA / CFD Simulation</option>
-                            <option>CAD Training</option>
-                            <option>Graphic Design</option>
-                            <option>Motion Graphics &amp; Video</option>
-                            <option>Something else</option>
+                            <option value="Engineering Design">Engineering Design</option>
+                            <option value="3D CAD Modeling">3D CAD Modeling</option>
+                            <option value="FEA / CFD Simulation">FEA / CFD Simulation</option>
+                            <option value="CAD Training">CAD Training</option>
+                            <option value="Graphic Design">Graphic Design</option>
+                            <option value="Motion Graphics &amp; Video">Motion Graphics &amp; Video</option>
+                            <option value="Something else">Something else</option>
                         </select>
                     </div>
                     <div class="field">
@@ -957,6 +1076,8 @@
                 <a href="#services">Services</a>
                 <a href="#work">Work</a>
                 <a href="#experience">Experience</a>
+                <a href="#process">How I work</a>
+                <a href="#pricing">Pricing</a>
                 <a href="#reviews">Reviews</a>
                 <a href="#reports">Reports</a>
                 <a href="#brief">Start a project</a>
@@ -979,6 +1100,116 @@
     <!-- Floating back-to-top -->
     <a href="#home" class="fab-top" id="fab-top" aria-label="Back to top">
         <svg viewBox="0 0 24 24"><path d="M12 19V5 M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+
+    <!-- ===================== WEBINAR REGISTRATION (popup) ===================== -->
+    <div class="modal form-modal" id="webinar-modal" role="dialog" aria-modal="true" aria-labelledby="wb-title" aria-hidden="true">
+        <div class="modal-backdrop" data-close></div>
+        <div class="modal-panel form-panel">
+            <button class="modal-close" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
+            <form id="webinar-form" class="web3-form" novalidate
+                  data-subject="Webinar registration: {name}" data-from="Portfolio: Webinar" data-track="webinar-registered">
+                <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <p class="kicker">Free weekly webinar</p>
+                <h2 id="wb-title">Reserve your seat</h2>
+                <p class="form-intro">Register for the free weekly AutoCAD webinar and I'll send you the details for the next session.</p>
+                <div class="grid-2">
+                    <div class="field">
+                        <label for="wb-name">Full name <span class="req">*</span></label>
+                        <input id="wb-name" name="name" type="text" autocomplete="name" required>
+                    </div>
+                    <div class="field">
+                        <label for="wb-email">Email <span class="req">*</span></label>
+                        <input id="wb-email" name="email" type="email" autocomplete="email" required>
+                    </div>
+                    <div class="field">
+                        <label for="wb-phone">WhatsApp number <small>(optional)</small></label>
+                        <input id="wb-phone" name="WhatsApp number" type="tel" autocomplete="tel" placeholder="e.g. 07XX XXX XXX">
+                    </div>
+                    <div class="field">
+                        <label for="wb-occ">I am a</label>
+                        <select id="wb-occ" name="Occupation">
+                            <option value="Student">Student</option>
+                            <option value="Working professional">Working professional</option>
+                            <option value="Freelancer / business owner">Freelancer / business owner</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="q" data-required="group">
+                    <p class="q-label">Your AutoCAD level <span class="req">*</span></p>
+                    <div class="opts">
+                        <label class="opt"><input type="radio" name="AutoCAD level" value="Complete beginner"><span>Complete beginner</span></label>
+                        <label class="opt"><input type="radio" name="AutoCAD level" value="Beginner"><span>Beginner</span></label>
+                        <label class="opt"><input type="radio" name="AutoCAD level" value="Intermediate"><span>Intermediate</span></label>
+                        <label class="opt"><input type="radio" name="AutoCAD level" value="Advanced"><span>Advanced</span></label>
+                    </div>
+                </div>
+                <div class="q">
+                    <p class="q-label">Topics you'd like covered <small>Select all that apply</small></p>
+                    <div class="opts">
+                        <label class="opt"><input type="checkbox" name="Topics" value="2D drafting basics"><span>2D drafting basics</span></label>
+                        <label class="opt"><input type="checkbox" name="Topics" value="Dimensioning & annotation"><span>Dimensioning &amp; annotation</span></label>
+                        <label class="opt"><input type="checkbox" name="Topics" value="Layers & blocks"><span>Layers &amp; blocks</span></label>
+                        <label class="opt"><input type="checkbox" name="Topics" value="Layouts & plotting"><span>Layouts &amp; plotting</span></label>
+                        <label class="opt"><input type="checkbox" name="Topics" value="3D modelling"><span>3D modelling</span></label>
+                        <label class="opt"><input type="checkbox" name="Topics" value="Productivity tips"><span>Productivity tips</span></label>
+                    </div>
+                </div>
+                <p class="form-error" role="alert" hidden></p>
+                <button type="submit" class="btn btn-sun btn-lg btn-block">Reserve my seat</button>
+            </form>
+            <div class="form-done" hidden tabindex="-1">
+                <span class="done-icon"><svg><use href="#i-check"/></svg></span>
+                <h2>You're registered!</h2>
+                <p>I'll send you the details for the next session. Want them faster? Say hi on WhatsApp.</p>
+                <div class="done-actions">
+                    <a class="btn btn-green" href="https://wa.me/254708639473?text=Hi%20Edison%2C%20I%20just%20registered%20for%20your%20free%20weekly%20AutoCAD%20webinar." target="_blank" rel="noopener"><svg><use href="#i-whatsapp"/></svg> Message on WhatsApp</a>
+                    <button class="btn btn-outline" type="button" data-close>Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== CHEAT SHEET DOWNLOAD (popup) ===================== -->
+    <div class="modal form-modal" id="freebie-modal" role="dialog" aria-modal="true" aria-labelledby="fb-title" aria-hidden="true">
+        <div class="modal-backdrop" data-close></div>
+        <div class="modal-panel form-panel">
+            <button class="modal-close" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
+            <form id="freebie-form" class="web3-form" novalidate
+                  data-subject="Cheat sheet download: {name}" data-from="Portfolio: Free Download" data-track="cheatsheet-downloaded">
+                <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <input type="hidden" name="Download" value="AutoCAD Shortcuts Cheat Sheet">
+                <p class="kicker">Free download</p>
+                <h2 id="fb-title">Get the AutoCAD cheat sheet</h2>
+                <p class="form-intro">Enter your details and the PDF is yours. I'll occasionally share CAD tips and webinar dates. No spam.</p>
+                <div class="field">
+                    <label for="fb-name">First name <span class="req">*</span></label>
+                    <input id="fb-name" name="name" type="text" autocomplete="given-name" required>
+                </div>
+                <div class="field">
+                    <label for="fb-email">Email <span class="req">*</span></label>
+                    <input id="fb-email" name="email" type="email" autocomplete="email" required>
+                </div>
+                <label class="consent"><input type="checkbox" name="Webinar updates" value="Yes" checked> Also tell me about upcoming free webinars.</label>
+                <p class="form-error" role="alert" hidden></p>
+                <button type="submit" class="btn btn-sun btn-lg btn-block">Get my free PDF</button>
+            </form>
+            <div class="form-done" hidden tabindex="-1">
+                <span class="done-icon"><svg><use href="#i-check"/></svg></span>
+                <h2>Your cheat sheet is ready!</h2>
+                <p>Click below to download it. Happy drafting!</p>
+                <div class="done-actions">
+                    <a class="btn btn-sun btn-lg" href="pdfs/autocad-shortcuts-cheat-sheet.pdf" download data-autodownload><svg><use href="#i-doc"/></svg> Download PDF</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating WhatsApp -->
+    <a class="fab-wa" id="fab-wa" href="https://wa.me/254708639473?text=Hi%20Edison%2C%20I%20found%20your%20portfolio%20and%20would%20like%20to%20chat." target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+        <svg><use href="#i-whatsapp"/></svg>
+        <span class="fab-wa-label">Chat with me</span>
     </a>
 
     <!-- ===================== REVIEW FORM (popup) ===================== -->
@@ -1018,10 +1249,10 @@
                     <div class="field">
                         <label for="rv-service">Service received</label>
                         <select id="rv-service" name="Service received">
-                            <option>Engineering Design</option>
-                            <option>Graphic Design</option>
-                            <option>CAD Training / Webinar</option>
-                            <option>Other</option>
+                            <option value="Engineering Design">Engineering Design</option>
+                            <option value="Graphic Design">Graphic Design</option>
+                            <option value="CAD Training / Webinar">CAD Training / Webinar</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
                 </div>
@@ -1096,10 +1327,15 @@
         <div class="pdf-loading" id="pdf-loading"><div class="pdf-spinner"></div><span id="pdf-loading-text">Loading...</span></div>
     </div>
 
-    <script src="js/projects.js?v=2"></script>
-    <script src="js/reviews.js?v=1"></script>
-    <script src="js/main.js?v=2"></script>
-    <script src="js/forms.js?v=1"></script>
+    <script src="js/config.js?v=1"></script>
+    <script src="js/projects.js?v=3"></script>
+    <script src="js/reviews.js?v=2"></script>
+    <script src="js/packages.js?v=1"></script>
+    <script src="js/i18n-fr.js?v=1"></script>
+    <script src="js/i18n.js?v=1"></script>
+    <script src="js/main.js?v=3"></script>
+    <script src="js/forms.js?v=2"></script>
+    <script src="js/analytics.js?v=1"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
     <script defer src="js/pdf-viewer.js?v=1"></script>

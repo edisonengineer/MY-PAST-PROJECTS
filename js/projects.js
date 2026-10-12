@@ -21,6 +21,10 @@
      pdf       report in pdfs/ (optional). The "Read report" button only
                appears once the file actually exists.
      featured  true = larger card on desktop
+     model     3D model (.glb) in models/ (optional). Visitors can spin and
+               zoom it in the browser. The "View in 3D" button only appears
+               once the file exists. Export .glb from Fusion 360 / SolidWorks
+               (via a GLTF exporter) / Inventor, or convert a STEP/STL online.
    ========================================================================= */
 window.PROJECTS = [
     {
@@ -51,6 +55,7 @@ window.PROJECTS = [
             ['Software', 'Autodesk Fusion 360']
         ],
         tags: ['Fusion 360', 'Sustainable design', 'Structural simulation'],
+        model: 'models/designathon-hub.glb',
         pdf: null
     },
     {
@@ -132,6 +137,7 @@ window.PROJECTS = [
             ['Focus', 'Thermal management']
         ],
         tags: ['3D CAD', 'Thermal design', 'EV'],
+        model: 'models/ev-battery-cooling.glb',
         pdf: 'pdfs/ev-battery-cooling-report.pdf'
     },
     {

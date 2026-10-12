@@ -5,10 +5,13 @@
 (function () {
     'use strict';
 
-    // Web3Forms access key (public by design: it only allows sending to the inbox it was created for)
-    const WEB3FORMS_KEY = '94c28a31-66ac-44bd-9097-f69eb0507f85';
+    // Settings live in js/config.js. The Web3Forms key is public by design:
+    // it can only send to the inbox it was created for.
+    const CONFIG = window.SITE_CONFIG || {};
+    const WEB3FORMS_KEY = CONFIG.web3formsKey;
     const WEB3FORMS_URL = 'https://api.web3forms.com/submit';
-    const WHATSAPP = '254708639473';
+    const WHATSAPP = CONFIG.whatsapp || '254708639473';
+    const track = (name) => { if (typeof window.track === 'function') window.track(name); };
 
     const $ = (sel, root = document) => root.querySelector(sel);
     const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -238,6 +241,7 @@
                 done.hidden = false;
                 done.focus({ preventScroll: true });
                 scrollToForm();
+                track('brief-submitted');
                 form.reset();
                 updateConditionals();
             } catch (err) {
@@ -394,6 +398,7 @@
                 if (email) { fields.email = email; fields.replyto = email; }
                 Object.keys(fields).forEach((k) => { if (fields[k] === '') delete fields[k]; });
                 await sendToWeb3Forms(fields);
+                track('review-submitted');
                 rForm.reset();
                 rForm.hidden = true;
                 rDone.hidden = false;
@@ -406,4 +411,100 @@
             }
         });
     }
+
+    /* ======================================================================
+       POPUP FORMS: webinar registration, cheat sheet download
+       Any <form class="web3-form"> inside a .form-modal is handled here.
+       ====================================================================== */
+    let openFormModal = null;
+    let formReturn = null;
+
+    function openModal(id) {
+        const m = document.getElementById(id);
+        if (!m) return;
+        formReturn = document.activeElement;
+        const f = $('form', m), d = $('.form-done', m);
+        if (f) { f.hidden = false; $('.form-error', f).hidden = true; }
+        if (d) d.hidden = true;
+        m.classList.add('is-open');
+        m.setAttribute('aria-hidden', 'false');
+        lock();
+        openFormModal = m;
+        setTimeout(() => { const first = $('input:not([type=hidden]):not(.hp), select', m); if (first) first.focus({ preventScroll: true }); }, 60);
+    }
+    function closeModal() {
+        if (!openFormModal) return;
+        openFormModal.classList.remove('is-open');
+        openFormModal.setAttribute('aria-hidden', 'true');
+        openFormModal = null;
+        unlock();
+        if (formReturn) formReturn.focus({ preventScroll: true });
+    }
+    document.addEventListener('click', (e) => {
+        const opener = e.target.closest('[data-open-modal]');
+        if (opener) { e.preventDefault(); openModal(opener.dataset.openModal); return; }
+        if (openFormModal && e.target.closest('[data-close]') && openFormModal.contains(e.target)) closeModal();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && openFormModal) closeModal(); });
+
+    $$('form.web3-form').forEach((f) => {
+        const err = $('.form-error', f);
+        const done = f.parentElement.querySelector('.form-done');
+        const submit = $('button[type="submit"]', f);
+        const clear = (e) => {
+            const box = e.target.closest('.field, .q');
+            if (box) box.classList.remove('is-invalid');
+            if (!$('.is-invalid', f)) err.hidden = true;
+        };
+        f.addEventListener('input', clear);
+        f.addEventListener('change', clear);
+
+        f.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            $$('.is-invalid', f).forEach((el) => el.classList.remove('is-invalid'));
+            const bad = [];
+            $$('input[required], select[required], textarea[required]', f).forEach((el) => {
+                const v = el.value.trim();
+                if (!v || (el.type === 'email' && !isEmail(v))) bad.push(el.closest('.field'));
+            });
+            $$('.q[data-required="group"]', f).forEach((q) => { if (!$$('input', q).some((i) => i.checked)) bad.push(q); });
+            if (bad.length) {
+                bad.forEach((b) => b.classList.add('is-invalid'));
+                err.textContent = 'Please fill in the highlighted fields.';
+                err.hidden = false;
+                const first = $('input, select, textarea', bad[0]);
+                if (first) first.focus();
+                return;
+            }
+            if (f.botcheck && f.botcheck.checked) return;
+
+            const data = {};
+            $$('input, select, textarea', f).forEach((el) => {
+                if (!el.name || el.name === 'botcheck') return;
+                if (el.type === 'checkbox' || el.type === 'radio') {
+                    if (el.checked) data[el.name] = data[el.name] ? data[el.name] + ', ' + el.value : el.value;
+                } else if (el.value.trim()) data[el.name] = el.value.trim();
+            });
+            const subject = (f.dataset.subject || 'New message from {name}').replace('{name}', data.name || 'website visitor');
+
+            setLoading(submit, true);
+            try {
+                await sendToWeb3Forms(Object.assign({ subject, from_name: f.dataset.from || 'Portfolio', replyto: data.email }, data));
+                track(f.dataset.track || 'form-submitted');
+                f.reset();
+                f.hidden = true;
+                if (done) {
+                    done.hidden = false;
+                    done.focus({ preventScroll: true });
+                    const auto = $('[data-autodownload]', done);
+                    if (auto) setTimeout(() => auto.click(), 400);
+                }
+            } catch (ex) {
+                err.textContent = 'Sorry, that didn\'t go through (' + ex.message + '). Please try again in a moment.';
+                err.hidden = false;
+            } finally {
+                setLoading(submit, false);
+            }
+        });
+    });
 })();
