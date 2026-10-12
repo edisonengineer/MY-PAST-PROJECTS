@@ -19,6 +19,7 @@
     let locks = 0;
     const lock = () => { if (locks++ === 0) document.body.classList.add('no-scroll'); };
     const unlock = () => { locks = Math.max(0, locks - 1); if (!locks) document.body.classList.remove('no-scroll'); };
+    window.Site = { lock, unlock };
 
     /* ---------- Header, progress bar, back-to-top ---------- */
     const header = $('#site-header');
@@ -72,7 +73,7 @@
                 navLinks.forEach((a) => a.classList.toggle('is-current', a.getAttribute('href') === '#' + en.target.id));
             });
         }, { rootMargin: '-45% 0px -50% 0px' });
-        ['home', 'services', 'work', 'experience', 'reports', 'contact'].forEach((id) => {
+        ['home', 'services', 'work', 'experience', 'reviews', 'reports', 'brief', 'faq', 'contact'].forEach((id) => {
             const el = document.getElementById(id);
             if (el) spy.observe(el);
         });
