@@ -32,3 +32,51 @@ at the top of `js/pdf-viewer.js`.
 
 Open `js/projects.js`, copy one of the existing blocks, and change the
 details. Use `category: 'engineering'` or `category: 'graphic'`.
+
+---
+
+# Other things you can add or change
+
+## Your CV
+Upload it as **`pdfs/edison-ochieng-cv.pdf`**. "Download CV" buttons then
+appear automatically in the hero and the Experience section.
+
+## 3D models ("View in 3D")
+Create a folder called `models/` and upload `.glb` files:
+
+- `models/designathon-hub.glb` (Sustainable Outdoor Hub)
+- `models/ev-battery-cooling.glb` (EV Battery Pack Cooling)
+
+A **View in 3D** button appears in that project's window once the file
+exists. To add a model to another project, put `model: 'models/your-file.glb'`
+in its block in `js/projects.js`.
+
+How to get a `.glb`: Fusion 360 can export it directly. From SolidWorks or
+Inventor, export STEP or STL and convert it with a free online converter.
+Keep files under about 10 MB so they load quickly on phones.
+
+## Prices
+Open `js/packages.js` and type your price, e.g. `price: 'KES 3,500'`.
+Leave it as `''` to show "Custom quote".
+
+## Reviews
+When a review arrives in your email, copy it into `js/reviews.js`
+(an example is at the top of that file).
+
+## Visitor analytics
+1. Create a free account at https://www.goatcounter.com and pick a code
+   (e.g. `edisonochieng`).
+2. Put that code in `js/config.js` → `goatcounter: 'edisonochieng'`.
+Your dashboard at `https://edisonochieng.goatcounter.com` then shows visits,
+plus clicks on WhatsApp, email, CV downloads, briefs, reviews, webinar
+sign-ups and cheat sheet downloads.
+
+## French translation
+Translations live in `js/i18n-fr.js`. The left side is the exact English text
+on the page and the right side is the French. Anything new you add stays in
+English until you add a line for it.
+Share a French link directly with `?lang=fr`, e.g.
+`https://edisonengineer.github.io/MY-PAST-PROJECTS/?lang=fr`
+
+## Settings
+`js/config.js` holds the Web3Forms key, WhatsApp number and analytics code.

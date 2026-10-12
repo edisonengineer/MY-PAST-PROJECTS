@@ -10,7 +10,8 @@
     const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    const WHATSAPP = '254708639473';
+    const CONFIG = window.SITE_CONFIG || {};
+    const WHATSAPP = CONFIG.whatsapp || '254708639473';
 
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const icon = (name) => '<svg aria-hidden="true"><use href="#i-' + name + '"/></svg>';
@@ -36,6 +37,21 @@
     }
     window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
     onScroll();
+
+    /* ---------- Light / dark theme ---------- */
+    const themeBtn = $('#theme-toggle');
+    const themeMeta = $('meta[name="theme-color"]');
+    function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        if (themeBtn) themeBtn.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+        if (themeMeta) themeMeta.content = t === 'dark' ? '#0a1128' : '#0e1a3a';
+    }
+    applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
+    if (themeBtn) themeBtn.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        try { localStorage.setItem('theme', next); } catch (e) { /* storage blocked */ }
+    });
 
     /* ---------- Mobile menu ---------- */
     const menuBtn = $('#menu-toggle');
@@ -150,7 +166,7 @@
     }
 
     /* ---------- Filters ---------- */
-    const filters = $$('.filter');
+    const filters = $$('.filter[data-filter]');
     filters.forEach((btn) => btn.addEventListener('click', () => {
         const cat = btn.dataset.filter;
         filters.forEach((b) => {
@@ -167,6 +183,41 @@
             }
         });
     }));
+
+    /* ---------- Packages & pricing (data from js/packages.js) ---------- */
+    const pkgGrid = $('#package-grid');
+    const PACKAGES = Array.isArray(window.PACKAGES) ? window.PACKAGES : [];
+    const pkgLabel = { engineering: 'Engineering', graphic: 'Graphic Design', training: 'Training' };
+    if (pkgGrid) {
+        pkgGrid.innerHTML = PACKAGES.map((k, i) =>
+            '<article class="package theme-' + esc(k.theme || 'blue') + '" data-category="' + esc(k.category) + '" data-reveal style="--d:' + (i % 3) * 90 + 'ms">' +
+                '<div class="package-head">' +
+                    '<span class="package-icon">' + icon(k.icon || 'cube') + '</span>' +
+                    '<span class="package-cat">' + esc(pkgLabel[k.category] || k.category) + '</span>' +
+                '</div>' +
+                '<h3>' + esc(k.name) + '</h3>' +
+                '<p class="package-desc">' + esc(k.description) + '</p>' +
+                '<div class="package-price">' +
+                    (k.price
+                        ? (k.from ? '<small>Starting from</small>' : '') + '<strong>' + esc(k.price) + '</strong>'
+                        : '<small>Pricing</small><strong>Custom quote</strong>') +
+                '</div>' +
+                '<ul class="package-list">' + (k.includes || []).map((t) => '<li>' + icon('check') + '<span>' + esc(t) + '</span></li>').join('') + '</ul>' +
+                '<a href="#brief" class="btn btn-outline package-cta" data-brief="' + esc(k.brief || 'Engineering Design') + '">Get a quote ' + icon('arrow') + '</a>' +
+            '</article>'
+        ).join('');
+
+        const pkgFilters = $$('[data-pkg]');
+        pkgFilters.forEach((btn) => btn.addEventListener('click', () => {
+            const cat = btn.dataset.pkg;
+            pkgFilters.forEach((b) => { b.classList.toggle('is-active', b === btn); b.setAttribute('aria-pressed', String(b === btn)); });
+            $$('.package', pkgGrid).forEach((card) => {
+                const show = cat === 'all' || card.dataset.category === cat;
+                card.classList.toggle('is-hidden', !show);
+                if (show) { card.classList.remove('is-visible'); requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('is-visible'))); }
+            });
+        }));
+    }
 
     /* ---------- Reveal on scroll + number counters ---------- */
     function countUp(el) {
@@ -196,7 +247,7 @@
         revealEls.forEach((el) => el.classList.add('is-visible'));
     }
 
-    /* ---------- Report availability (button only shows if the PDF exists) ---------- */
+    /* ---------- File availability (buttons only show once the file exists) ---------- */
     const pdfChecks = new Map();
     function pdfExists(file) {
         if (!file || location.protocol === 'file:') return Promise.resolve(false);
@@ -204,6 +255,48 @@
             pdfChecks.set(file, fetch(file, { method: 'HEAD' }).then((r) => r.ok).catch(() => false));
         }
         return pdfChecks.get(file);
+    }
+
+    window.Site.fileExists = pdfExists;
+
+    // e.g. "Download CV" appears automatically once pdfs/edison-ochieng-cv.pdf is uploaded
+    $$('[data-needs-file]').forEach((el) => {
+        pdfExists(el.getAttribute('href')).then((ok) => {
+            if (!ok) return;
+            el.hidden = false;
+            const wrap = el.closest('[data-needs-file-wrap]');
+            if (wrap) wrap.hidden = false;
+        });
+    });
+
+    /* ---------- 3D model viewer (loads <model-viewer> only when needed) ---------- */
+    let viewerLib = null;
+    function loadModelViewer() {
+        if (customElements.get('model-viewer')) return Promise.resolve();
+        if (!viewerLib) {
+            viewerLib = new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.type = 'module';
+                s.src = CONFIG.modelViewerSrc || 'https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js';
+                s.onload = () => customElements.whenDefined('model-viewer').then(resolve);
+                s.onerror = () => { viewerLib = null; reject(new Error('3D viewer failed to load')); };
+                document.head.appendChild(s);
+            });
+        }
+        return viewerLib;
+    }
+    function show3D(p) {
+        pm.media.className = 'pm-media has-3d';
+        pm.media.onclick = null;
+        pm.media.innerHTML = '<div class="pm-3d-loading"><span class="spinner"></span> Loading 3D model…</div>';
+        loadModelViewer().then(() => {
+            pm.media.innerHTML =
+                '<model-viewer src="' + esc(p.model) + '" alt="3D model of ' + esc(p.title) + '" camera-controls auto-rotate ' +
+                'shadow-intensity="1" exposure="1" touch-action="pan-y" interaction-prompt="auto"></model-viewer>' +
+                '<p class="pm-3d-hint">Drag to rotate · Scroll or pinch to zoom</p>';
+        }).catch(() => {
+            pm.media.innerHTML = '<div class="pm-3d-loading">The 3D viewer couldn\'t load. Please check your connection.</div>';
+        });
     }
 
     function imageLoads(src) {
@@ -288,6 +381,13 @@
             };
             pm.actions.insertAdjacentHTML('beforeend', '<button class="btn btn-outline" data-act="images">' + icon('image') + ' View images</button>');
             $('[data-act="images"]', pm.actions).addEventListener('click', () => openLightbox(imgs, 0, p.title));
+        });
+
+        // 3D model button
+        pdfExists(p.model).then((ok) => {
+            if (!ok || token !== modalToken) return;
+            pm.actions.insertAdjacentHTML('afterbegin', '<button class="btn btn-sun" data-act="3d">' + icon('cube') + ' View in 3D</button>');
+            $('[data-act="3d"]', pm.actions).addEventListener('click', () => show3D(p));
         });
 
         // Report button
@@ -402,7 +502,7 @@
     const serviceSelect = $('#cf-service');
     function presetService(name) {
         if (!serviceSelect) return;
-        const opt = Array.from(serviceSelect.options).find((o) => o.text === name);
+        const opt = Array.from(serviceSelect.options).find((o) => o.value === name);
         if (opt) serviceSelect.value = opt.value;
     }
     if (form) {
