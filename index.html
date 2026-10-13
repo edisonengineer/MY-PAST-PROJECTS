@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=5">
     <script>
         document.documentElement.classList.add('js');
         (function () {
@@ -386,15 +386,36 @@
             </div>
         </section>
 
-        <!-- ===================== WEBINAR BAND ===================== -->
-        <section class="band" aria-label="Free AutoCAD webinar">
-            <div class="container band-inner" data-reveal>
-                <span class="band-icon"><svg><use href="#i-play"/></svg></span>
-                <div class="band-copy">
-                    <h2>Join my free weekly AutoCAD webinar</h2>
-                    <p>Master CAD workflows and productivity best practices, live, every week.</p>
+        <!-- ===================== WEBINAR HUB (schedule + recordings in js/config.js) ===================== -->
+        <section class="webinar" id="webinar" aria-labelledby="webinar-title">
+            <div class="container">
+                <div class="webinar-top" data-reveal>
+                    <div class="webinar-copy">
+                        <p class="kicker kicker-dark">Free weekly webinar</p>
+                        <h2 id="webinar-title">Join my free weekly AutoCAD webinar</h2>
+                        <p>Master CAD workflows and productivity best practices, live, every week.</p>
+                        <div class="webinar-actions">
+                            <button class="btn btn-navy btn-lg" type="button" data-open-modal="webinar-modal">Reserve a seat <svg><use href="#i-arrow"/></svg></button>
+                            <a class="btn btn-ghost-navy btn-lg" href="#webinar-recordings" data-recordings-link hidden><svg><use href="#i-play"/></svg> Watch past sessions</a>
+                        </div>
+                    </div>
+                    <div class="countdown" id="countdown" hidden>
+                        <p class="countdown-label">Next session</p>
+                        <p class="countdown-when" id="countdown-when"></p>
+                        <div class="countdown-grid" role="timer" aria-live="off">
+                            <div><strong id="cd-days">0</strong><span>Days</span></div>
+                            <div><strong id="cd-hours">0</strong><span>Hours</span></div>
+                            <div><strong id="cd-mins">0</strong><span>Minutes</span></div>
+                            <div><strong id="cd-secs">0</strong><span>Seconds</span></div>
+                        </div>
+                        <p class="countdown-live" id="countdown-live" hidden>We're live now! Join the session.</p>
+                    </div>
                 </div>
-                <button class="btn btn-navy btn-lg" type="button" data-open-modal="webinar-modal">Reserve a seat <svg><use href="#i-arrow"/></svg></button>
+
+                <div class="recordings" id="webinar-recordings" hidden>
+                    <h3>Past sessions</h3>
+                    <div class="recordings-grid" id="recordings-grid"></div>
+                </div>
             </div>
         </section>
 
@@ -482,24 +503,18 @@
                         </div>
 
                         <div class="side-card" data-reveal style="--d: 100ms">
-                            <h3><span class="side-icon bg-sun"><svg><use href="#i-award"/></svg></span> Certifications &amp; honours</h3>
-                            <ul class="cert-list">
-                                <li><svg><use href="#i-check"/></svg> Certified SOLIDWORKS Associate (CSWA)</li>
-                                <li><svg><use href="#i-check"/></svg> Autodesk Inventor Design Certification</li>
-                                <li><svg><use href="#i-check"/></svg> Autodesk Designathon 2025, Honorable Mention</li>
-                                <li><svg><use href="#i-check"/></svg> Autodesk Designathon 2026, Participant</li>
-                                <li><svg><use href="#i-check"/></svg> SOLIDWORKS 2024 Essential Training</li>
-                                <li><svg><use href="#i-check"/></svg> Premiere Pro Essential Training</li>
-                            </ul>
-                        </div>
-
-                        <div class="side-card" data-reveal style="--d: 200ms">
                             <h3><span class="side-icon bg-teal"><svg><use href="#i-globe"/></svg></span> Languages</h3>
                             <div class="lang"><span>English</span><small>Full professional</small></div>
                             <div class="lang"><span>French</span><small>Native / bilingual</small></div>
                             <div class="lang"><span>Kiswahili</span><small>Fluent</small></div>
                         </div>
                     </aside>
+                </div>
+
+                <!-- Certificates (data in js/certificates.js) -->
+                <div class="certs" data-reveal>
+                    <h3 class="certs-title"><span class="side-icon bg-sun"><svg><use href="#i-award"/></svg></span> Certifications &amp; honours</h3>
+                    <div class="certs-grid" id="certs-grid"></div>
                 </div>
             </div>
         </section>
@@ -1187,13 +1202,17 @@
                 <h4>Connect</h4>
                 <a href="https://wa.me/254708639473" target="_blank" rel="noopener">WhatsApp</a>
                 <a href="#contact" class="js-email" data-user="edisonochieng24" data-domain="gmail.com">Email</a>
+                <a href="#pay" data-open-modal="pay-modal" data-payment hidden>Make a payment</a>
                 <a href="https://www.linkedin.com/in/edison-ochieng-870a37229/" target="_blank" rel="noopener">LinkedIn</a>
                 <a href="https://www.instagram.com/e_d_i_s_o_n_engineer/" target="_blank" rel="noopener">Instagram</a>
             </div>
         </div>
         <div class="container footer-bottom">
             <p>&copy; <span id="year">2026</span> Edison Ochieng &middot; Nexus CAD Studio</p>
-            <a href="#home">Back to top &uarr;</a>
+            <div class="footer-bottom-links">
+                <button type="button" class="install-btn" id="install-app" hidden><svg><use href="#i-cube"/></svg> Install the app</button>
+                <a href="#home">Back to top &uarr;</a>
+            </div>
         </div>
     </footer>
 
@@ -1360,6 +1379,7 @@
                     <span class="done-icon"><svg><use href="#i-check"/></svg></span>
                     <h3>Quote request sent!</h3>
                     <p>Thanks! I'll review everything and reply with a detailed quote as soon as possible.</p>
+                    <p class="pay-hint" data-payment hidden>Already agreed on a quote? <button type="button" class="inline-link" data-open-modal="pay-modal">Pay your deposit</button></p>
                     <button type="button" class="btn btn-outline" data-cart-close>Close</button>
                 </div>
             </div>
@@ -1385,6 +1405,36 @@
         <span class="toast-icon"><svg><use href="#i-check"/></svg></span>
         <span class="toast-text" id="toast-text"></span>
         <button type="button" class="toast-action" id="toast-action">View quote</button>
+    </div>
+
+    <!-- ===================== PAY A DEPOSIT (popup, details in js/config.js) ===================== -->
+    <div class="modal form-modal" id="pay-modal" role="dialog" aria-modal="true" aria-labelledby="pay-title" aria-hidden="true">
+        <div class="modal-backdrop" data-close></div>
+        <div class="modal-panel form-panel pay-panel">
+            <button class="modal-close" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
+            <p class="kicker">Secure payment</p>
+            <h2 id="pay-title">Pay a deposit</h2>
+            <p class="form-intro">Pay the deposit shown on your quote to confirm your project. Your project starts once the payment is confirmed.</p>
+
+            <div class="pay-tabs" role="tablist" id="pay-tabs">
+                <button type="button" role="tab" class="pay-tab is-active" data-pay-tab="mpesa" aria-selected="true">M-Pesa</button>
+                <button type="button" role="tab" class="pay-tab" data-pay-tab="card" aria-selected="false">Card / online</button>
+            </div>
+
+            <div class="pay-pane" data-pay-pane="mpesa">
+                <ol class="pay-steps" id="mpesa-steps"></ol>
+                <div class="pay-number" id="mpesa-number"></div>
+            </div>
+            <div class="pay-pane" data-pay-pane="card" hidden>
+                <p class="pay-card-text">Pay securely online with M-Pesa, card or bank via Paystack.</p>
+                <a class="btn btn-sun btn-lg btn-block" id="paystack-link" href="#" target="_blank" rel="noopener"><svg><use href="#i-arrow"/></svg> Continue to secure checkout</a>
+            </div>
+
+            <div class="pay-confirm">
+                <p>After paying, send me your confirmation message so I can start right away.</p>
+                <a class="btn btn-green btn-block" id="pay-wa" href="#" target="_blank" rel="noopener"><svg><use href="#i-whatsapp"/></svg> Send payment confirmation</a>
+            </div>
+        </div>
     </div>
 
     <!-- ===================== REVIEW FORM (popup) ===================== -->
@@ -1502,17 +1552,19 @@
         <div class="pdf-loading" id="pdf-loading"><div class="pdf-spinner"></div><span id="pdf-loading-text">Loading...</span></div>
     </div>
 
-    <script src="js/config.js?v=4"></script>
+    <script src="js/config.js?v=5"></script>
     <script src="js/projects.js?v=4"></script>
     <script src="js/reviews.js?v=2"></script>
     <script src="js/packages.js?v=3"></script>
     <script src="js/rates.js?v=2"></script>
     <script src="js/i18n-fr.js?v=3"></script>
     <script src="js/i18n.js?v=1"></script>
-    <script src="js/main.js?v=4"></script>
+    <script src="js/main.js?v=5"></script>
     <script src="js/forms.js?v=3"></script>
     <script src="js/instagram-snapshot.js?v=1"></script>
     <script src="js/shop.js?v=2"></script>
+    <script src="js/certificates.js?v=1"></script>
+    <script src="js/extras.js?v=1"></script>
     <script src="js/analytics.js?v=1"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>

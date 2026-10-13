@@ -1367,6 +1367,82 @@ body.no-scroll .fab-wa, body.no-scroll .fab-top { opacity: 0; visibility: hidden
     .header-tools { gap: 6px; }
 }
 
+/* ---------- Webinar hub ---------- */
+.webinar { background: linear-gradient(110deg, var(--sun), #ff9a3c 45%, var(--coral)); color: var(--navy); padding: clamp(56px, 7vw, 88px) 0; }
+.webinar-top { display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px 48px; align-items: center; }
+.kicker-dark { color: var(--navy); }
+.webinar-copy h2 { font-family: var(--serif); font-weight: 600; font-size: clamp(1.8rem, 3.6vw, 2.8rem); line-height: 1.1; letter-spacing: -0.015em; }
+.webinar-copy > p:not(.kicker) { margin-top: 10px; font-weight: 500; font-size: 1.05rem; opacity: 0.88; max-width: 48ch; }
+.webinar-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.btn-ghost-navy { border-color: rgba(14, 26, 58, 0.35); color: var(--navy); }
+.btn-ghost-navy:hover { border-color: var(--navy); background: rgba(14, 26, 58, 0.06); transform: translateY(-2px); }
+.countdown { padding: 26px; border-radius: var(--radius); background: var(--navy); color: #fff; box-shadow: var(--shadow-lg); }
+.countdown-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sun); }
+.countdown-when { margin: 6px 0 18px; font-weight: 600; }
+.countdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; }
+.countdown-grid div { padding: 12px 6px; border-radius: 14px; background: rgba(255, 255, 255, 0.08); }
+.countdown-grid strong { display: block; font-family: var(--serif); font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.countdown-grid span { font-size: 0.72rem; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 0.08em; }
+.countdown-live { font-family: var(--serif); font-size: 1.4rem; color: var(--sun); }
+.recordings { margin-top: 44px; }
+.recordings h3 { font-family: var(--serif); font-weight: 600; font-size: 1.5rem; margin-bottom: 16px; }
+.recordings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 18px; }
+.recording { display: flex; flex-direction: column; text-align: left; gap: 10px; border-radius: 18px; padding: 10px; background: rgba(255, 255, 255, 0.9); color: var(--navy); box-shadow: var(--shadow-sm); transition: transform 0.4s var(--ease-out); }
+.recording:hover { transform: translateY(-4px); }
+.recording-thumb { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: var(--navy); display: block; }
+.recording-thumb img, .recording-thumb iframe { width: 100%; height: 100%; object-fit: cover; border: 0; display: block; }
+.recording-play { position: absolute; inset: 0; display: grid; place-items: center; }
+.recording-play svg { width: 54px; height: 54px; padding: 14px; border-radius: 50%; background: rgba(255, 0, 0, 0.9); color: #fff; }
+.recording-title { font-weight: 700; padding: 0 4px 4px; }
+
+/* ---------- Certificates ---------- */
+.certs { margin-top: clamp(40px, 5vw, 64px); }
+.certs-title { display: flex; align-items: center; gap: 12px; font-family: var(--serif); font-weight: 600; font-size: 1.5rem; color: var(--heading); margin-bottom: 20px; }
+.certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.cert-card { display: flex; gap: 14px; align-items: flex-start; padding: 18px; border-radius: 18px; background: var(--paper); box-shadow: var(--shadow-sm); transition: transform 0.4s var(--ease-out), box-shadow 0.4s; }
+.cert-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.cert-icon { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex-shrink: 0; }
+.cert-icon svg { width: 22px; height: 22px; }
+.cert-body h4 { font-weight: 700; color: var(--heading); line-height: 1.35; }
+.cert-body p { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+.cert-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; }
+.cert-actions:empty { display: none; }
+.cert-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; color: var(--blue); }
+.cert-link svg { width: 14px; height: 14px; }
+
+/* ---------- Payments ---------- */
+.pay-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; border-radius: 14px; background: var(--cream); margin-bottom: 18px; }
+.pay-tabs.is-single { display: none; }
+.pay-tab { padding: 10px; border-radius: 10px; font-weight: 700; color: var(--text-soft); }
+.pay-tab.is-active { background: var(--paper); color: var(--heading); box-shadow: var(--shadow-sm); }
+.pay-tab[hidden] { display: none; }
+.pay-steps { counter-reset: s; display: grid; gap: 10px; margin-bottom: 16px; }
+.pay-steps li { counter-increment: s; display: flex; gap: 12px; align-items: flex-start; font-size: 0.95rem; }
+.pay-steps li::before { content: counter(s); width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center; background: #1fae6a; color: #fff; font-size: 0.8rem; font-weight: 700; }
+.pay-number { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; align-items: baseline; padding: 16px 18px; border-radius: 16px; background: rgba(31, 174, 106, 0.1); }
+.pay-number span { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.pay-number strong { font-family: var(--serif); font-size: 1.6rem; color: var(--heading); letter-spacing: 0.04em; }
+.pay-number:empty { display: none; }
+.pay-card-text { color: var(--text-soft); margin-bottom: 16px; }
+.pay-confirm { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.pay-confirm p { font-size: 0.9rem; color: var(--text-soft); margin-bottom: 12px; }
+.pay-hint { margin-top: 14px; font-size: 0.9rem; }
+
+/* ---------- Install app ---------- */
+.footer-bottom-links { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.install-btn { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-size: 0.82rem; font-weight: 600; }
+.install-btn:hover { border-color: var(--sun); color: var(--sun); }
+.install-btn svg { width: 16px; height: 16px; }
+.install-btn[hidden] { display: none; }
+
+[data-theme="dark"] .webinar { background: linear-gradient(110deg, #e8a41f, #e8852e 45%, #e05a3d); }
+[data-theme="dark"] .recording { background: rgba(18, 27, 56, 0.92); color: var(--heading); }
+[data-theme="dark"] .pay-number strong { color: var(--heading); }
+
+@media (max-width: 960px) {
+    .webinar-top { grid-template-columns: 1fr; }
+}
+
 /* ---------- Dark theme ---------- */
 [data-theme="dark"] {
     --cream: #0b1228;

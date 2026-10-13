@@ -456,7 +456,8 @@
         lb.setAttribute('aria-hidden', 'false');
         lock();
         $('#lightbox-close').focus({ preventScroll: true });
-    }
+    }    window.Site.openLightbox = openLightbox;
+
     function closeLightbox() {
         if (!lb.classList.contains('is-open')) return;
         lb.classList.remove('is-open');

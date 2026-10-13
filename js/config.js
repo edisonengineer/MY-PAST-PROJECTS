@@ -22,6 +22,26 @@ window.SITE_CONFIG = {
     instagramFeedUrl: 'https://feeds.behold.so/fHxS9fvbggyjvBUKiQMn',
     instagramHandle: 'e_d_i_s_o_n_engineer',
 
+    // Deposit payments. Fill in ONE of the M-Pesa options to show "Pay a deposit".
+    payments: {
+        mpesaTill: '',            // Buy Goods till number, e.g. '1234567'
+        mpesaPaybill: '',         // or Paybill business number, e.g. '247247'
+        mpesaAccount: '',         // Paybill account number (leave '' to ask for the client's name)
+        mpesaName: 'Nexus CAD Studio', // name the client should see on M-Pesa
+        paystackUrl: ''           // optional Paystack payment page link for card / online payment
+    },
+
+    // Weekly webinar. Set the day and time (Nairobi time) to show a live countdown.
+    webinar: {
+        day: '',                  // e.g. 'Saturday'
+        time: '',                 // 24-hour time, e.g. '18:00'
+        durationMinutes: 60,
+        // Past sessions on YouTube: paste the video ID (the part after watch?v=)
+        recordings: [
+            // { id: 'dQw4w9WgXcQ', title: 'Session 1: AutoCAD interface tour' }
+        ]
+    },
+
     // 3D viewer library, only downloaded when someone opens a project's 3D model
     modelViewerSrc: 'https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js'
 };

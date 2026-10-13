@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You're offline | Edison Ochieng</title>
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <style>
+        :root { --navy: #0e1a3a; --sun: #ffb627; --coral: #ff6b4a; }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 24px; background: var(--navy); color: #fff; text-align: center; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        main { max-width: 480px; }
+        .mark { width: 64px; height: 64px; margin: 0 auto 24px; border-radius: 18px; display: grid; place-items: center; background: linear-gradient(135deg, var(--sun), var(--coral)); color: var(--navy); font: 700 1.5rem Georgia, serif; }
+        h1 { font: 500 clamp(1.6rem, 5vw, 2.2rem)/1.2 Georgia, serif; margin: 0 0 12px; }
+        p { color: rgba(255, 255, 255, 0.75); line-height: 1.6; margin: 0 0 28px; }
+        button, a { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0 26px; border-radius: 999px; border: 0; background: var(--sun); color: var(--navy); font-weight: 700; font-size: 1rem; cursor: pointer; text-decoration: none; margin: 4px; }
+        a { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.3); }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="mark">EO</div>
+        <h1>You're offline</h1>
+        <p>This page isn't saved for offline viewing yet. Check your connection and try again, or reach me on WhatsApp: +254 708 639 473.</p>
+        <button onclick="location.reload()">Try again</button>
+        <a href="./">Go to homepage</a>
+    </main>
+</body>
+</html>
