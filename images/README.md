@@ -115,6 +115,12 @@ file name listed in `js/certificates.js` (e.g. `cswa.jpg`). The "View
 certificate" button appears automatically. Add a `verify` link if the
 issuer gives you one.
 
+## Site search
+The magnifier in the header (or `/` / Ctrl+K) searches projects, articles,
+services, FAQ and page sections. Its list is rebuilt by
+`node tools/build-pages.js`, so run that after adding projects, articles,
+packages or FAQ questions.
+
 ## Installable app
 The site can be installed on phones and computers ("Install the app" in the
 footer, or "Add to Home screen") and works offline. If you change a lot of

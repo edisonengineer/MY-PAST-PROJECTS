@@ -55,6 +55,8 @@
         $('#pay-wa').href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('Hi Edison, I have paid my project deposit. My name is ... and the M-Pesa confirmation code is ...');
         $('#pay-wa').addEventListener('click', () => track('payment-confirmation'));
         document.addEventListener('click', (e) => { if (e.target.closest('[data-open-modal="pay-modal"]')) track('payment-opened'); });
+        // Links to index.html#pay open the payment window
+        if (location.hash === '#pay') window.addEventListener('load', () => { const l = $('[data-open-modal="pay-modal"]'); if (l) l.click(); });
     }
 
     /* ======================================================================

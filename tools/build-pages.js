@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=8';
+const CSS_V = 'css/style.css?v=9';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
@@ -127,10 +127,14 @@ function header(current) {
                 ${a('../index.html#pricing', 'Pricing')}
                 ${a('../index.html#faq', 'FAQ')}
                 ${a('../index.html#contact', 'Contact')}
+                <button type="button" class="nav-search" data-search-open><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Search</button>
                 <a href="../index.html#brief" class="btn btn-sun nav-cta">Start a project</a>
             </nav>
 
             <div class="header-tools">
+                <button type="button" class="search-btn" data-search-open aria-label="Search the site" aria-keyshortcuts="Control+K /">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </button>
                 <div class="lang-switch" role="group" aria-label="Language">
                     <button type="button" data-lang="en" aria-pressed="true">EN</button>
                     <button type="button" data-lang="fr" aria-pressed="false">FR</button>
@@ -188,10 +192,11 @@ function footer() {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-    <script defer src="../js/i18n-fr.js?v=5"></script>
-    <script defer src="../js/i18n-sw.js?v=2"></script>
+    <script defer src="../js/i18n-fr.js?v=6"></script>
+    <script defer src="../js/i18n-sw.js?v=3"></script>
     <script defer src="../js/i18n.js?v=2"></script>
     <script defer src="../js/pages.js?v=1"></script>
+    <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
 `;
@@ -433,6 +438,43 @@ ${[
 `;
 }
 
+/* ---------- Site search index (js/search-index.js) ---------- */
+const SECTIONS = [
+    ['Services', 'Engineering design, CAD modelling, simulation, technical drawings, graphic design and CAD training.', '#services', 'services cad engineering graphic design training'],
+    ['How I work', 'From brief to delivery: the steps of a project.', '#process', 'process steps brief delivery revisions'],
+    ['Work', 'Engineering and graphic design projects.', '#work', 'portfolio projects case studies'],
+    ['Free weekly webinar', 'Learn AutoCAD and CAD skills live, plus past session recordings.', '#webinar', 'webinar training youtube recordings autocad class'],
+    ['Experience', 'Nexus CAD Studio, KIRDI, WIESS, KnowledgePoint and UNSA. Education at the University of Nairobi.', '#experience', 'cv resume career education university nairobi kirdi internship attachment languages'],
+    ['Certifications & honours', 'CSWA, Autodesk Inventor, Designathon and more.', '#certifications', 'certificates cswa solidworks inventor autodesk designathon linkedin learning'],
+    ['Services & pricing', 'Packages and starting prices in KES.', '#pricing', 'prices cost packages rates kes rate card pdf'],
+    ['Cost estimator', 'Get an instant starting price for your project.', '#estimator', 'estimate calculator price quote cost'],
+    ['Reviews', 'What clients say, and leave your own review.', '#reviews', 'testimonials feedback rating stars'],
+    ['Free AutoCAD cheat sheet', 'Download the AutoCAD shortcuts cheat sheet.', '#freebie', 'download free autocad shortcuts cheat sheet pdf'],
+    ['Reports', 'Technical reports and documents to read online.', '#reports', 'pdf reports documents read cv'],
+    ['Start a project', 'Send a project brief in about two minutes.', '#brief', 'brief form quote hire order request'],
+    ['FAQ', 'Answers to common questions.', '#faq', 'questions help answers'],
+    ['Instagram', 'Latest posts from Instagram.', '#instagram', 'social media posts photos'],
+    ['Contact', 'WhatsApp, email, LinkedIn and Instagram.', '#contact', 'whatsapp email phone call message linkedin instagram facebook'],
+    ['Make a payment', 'Pay a deposit by M-Pesa.', '#pay', 'mpesa m-pesa till pay deposit lipa payment']
+];
+
+function searchIndex(projects, posts) {
+    const ctxP = { window: {} };
+    vm.runInNewContext(read('js/packages.js'), ctxP);
+    const strip = (h) => h.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&#39;|&rsquo;/g, "'").replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+    const faqs = [...index.matchAll(/<summary>([\s\S]*?)<\/summary>\s*<div class="faq-body">([\s\S]*?)<\/div>/g)]
+        .map((m) => ({ k: 'faq', t: strip(m[1]), d: '', u: 'index.html#faq', x: strip(m[2]) }));
+    const items = [
+        ...SECTIONS.map(([t, d, h, x]) => ({ k: 'page', t, d, u: 'index.html' + h, x })),
+        ...projects.map((p) => ({ k: 'project', t: p.title, d: p.subtitle || '', u: 'projects/' + p.id + '.html', x: [p.summary, (p.tags || []).join(' '), (p.points || []).join(' '), (p.meta || []).map((m) => m[1]).join(' '), p.category].join(' ') })),
+        { k: 'page', t: 'CAD Tips', d: 'All articles on CAD software, DFM and working with a designer.', u: 'blog/index.html', x: 'blog articles tips tutorials' },
+        ...posts.map((p) => ({ k: 'article', t: p.title, d: p.description, u: 'blog/' + p.slug + '.html', x: (p.tags || []).join(' ') + ' ' + strip(p.body).slice(0, 1200) })),
+        ...ctxP.window.PACKAGES.map((p) => ({ k: 'service', t: p.name, d: p.description, p: p.price ? 'From ' + p.price : '', u: 'index.html#pricing', x: (p.includes || []).join(' ') + ' ' + p.category })),
+        ...faqs
+    ];
+    return '/* Generated by tools/build-pages.js: do not edit by hand. */\nwindow.SEARCH_INDEX = ' + JSON.stringify(items, null, 1) + ';\n';
+}
+
 /* ---------- Build ---------- */
 const projects = loadProjects();
 const posts = loadPosts();
@@ -441,6 +483,7 @@ projects.forEach((p, i) => write('projects/' + p.id + '.html', projectPage(p, i,
 posts.forEach((p, i) => write('blog/' + p.slug + '.html', postPage(p, i, posts)));
 write('blog/index.html', blogIndex(posts));
 write('sitemap.xml', sitemap(projects, posts));
+write('js/search-index.js', searchIndex(projects, posts));
 
 const START = '<!-- BLOG-CARDS:START -->', END = '<!-- BLOG-CARDS:END -->';
 if (index.includes(START)) {
