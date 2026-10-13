@@ -67,7 +67,7 @@
 
     /* ---------- Smooth scrolling for in-page links ---------- */
     document.addEventListener('click', (e) => {
-        const link = e.target.closest('a[href^="#"]:not(.js-email)');
+        const link = e.target.closest('a[href^="#"]:not(.js-email):not([data-booking])');
         if (!link) return;
         const id = link.getAttribute('href');
         const target = id.length > 1 && document.getElementById(id.slice(1));
@@ -203,7 +203,10 @@
                         : '<small>Pricing</small><strong>Custom quote</strong>') +
                 '</div>' +
                 '<ul class="package-list">' + (k.includes || []).map((t) => '<li>' + icon('check') + '<span>' + esc(t) + '</span></li>').join('') + '</ul>' +
-                '<a href="#brief" class="btn btn-outline package-cta" data-brief="' + esc(k.brief || 'Engineering Design') + '">Get a quote ' + icon('arrow') + '</a>' +
+                '<div class="package-actions">' +
+                    '<button type="button" class="btn btn-sun package-add" data-add-pkg="' + i + '">' + icon('cart') + ' Add to quote</button>' +
+                    '<a href="#brief" class="btn btn-outline package-cta" data-brief="' + esc(k.brief || 'Engineering Design') + '">Get a quote ' + icon('arrow') + '</a>' +
+                '</div>' +
             '</article>'
         ).join('');
 
