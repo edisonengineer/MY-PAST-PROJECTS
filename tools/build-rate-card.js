@@ -20,6 +20,9 @@ try { playwright = require('playwright'); } catch (e) {
 const ctx = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'js/packages.js'), 'utf8'), ctx);
 const PACKAGES = ctx.window.PACKAGES;
+const cfg = { window: {} };
+vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'js/config.js'), 'utf8'), cfg);
+const TILL = ((cfg.window.SITE_CONFIG || {}).payments || {}).mpesaTill || '';
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const GROUPS = [['engineering', 'Engineering design'], ['graphic', 'Graphic design'], ['training', 'Training']];
@@ -76,7 +79,7 @@ ${GROUPS.map(([cat, title]) => `    <h2>${title}</h2>\n    <table>${rows(cat)}\n
         <ul>
             <li>Prices are starting points. Your final quote depends on complexity, scope and deadline.</li>
             <li>Poster printing is charged per square metre. Training is priced per trainee.</li>
-            <li>Larger projects may need a deposit before work starts, payable by M-Pesa.</li>
+            <li>Larger projects may need a deposit before work starts${TILL ? `. Pay by M-Pesa: Buy Goods Till <strong>${esc(TILL)}</strong> (Edison Ochieng)` : ', payable by M-Pesa'}.</li>
         </ul>
     </div>
 </main>

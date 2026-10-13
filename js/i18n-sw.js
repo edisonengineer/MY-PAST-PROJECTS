@@ -778,7 +778,9 @@ window.I18N_SW = {
     "Layout & Design": "Mpangilio na usanifu",
     "Company Profile": "Wasifu wa kampuni",
     "Brochure": "Brosha",
-    "Open the live website (GitHub Pages), not the file on your computer.": "Fungua tovuti iliyo mtandaoni (GitHub Pages), si faili iliyo kwenye kompyuta yako."
+    "Open the live website (GitHub Pages), not the file on your computer.": "Fungua tovuti iliyo mtandaoni (GitHub Pages), si faili iliyo kwenye kompyuta yako.",
+    "Lipa na M-Pesa QR code": "Msimbo wa QR wa Lipa na M-Pesa",
+    "On a computer? Scan this code with the M-Pesa app on your phone (Lipa na M-PESA, then Scan QR).": "Uko kwenye kompyuta? Changanua msimbo huu kwa programu ya M-Pesa kwenye simu yako (Lipa na M-PESA, kisha Scan QR)."
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

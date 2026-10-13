@@ -38,6 +38,10 @@
             $('#mpesa-steps').innerHTML = steps.map((s) => '<li><span>' + s + '</span></li>').join('');
             $('#mpesa-number').innerHTML = number;
         }
+        const qr = $('#mpesa-qr');
+        if (till && pay.mpesaQr && qr && window.Site && window.Site.fileExists) {
+            window.Site.fileExists(pay.mpesaQr).then((ok) => { if (!ok) return; $('img', qr).src = pay.mpesaQr; qr.hidden = false; });
+        }
         const tabs = $$('[data-pay-tab]');
         const panes = $$('[data-pay-pane]');
         const show = (id) => {
