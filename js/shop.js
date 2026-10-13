@@ -402,7 +402,7 @@
             const caption = (p.prunedCaption || p.caption || '').slice(0, 120);
             const video = p.mediaType === 'VIDEO' || p.isReel;
             return '<a class="insta-post" href="' + esc(p.permalink || profile) + '" target="_blank" rel="noopener">' +
-                '<img src="' + esc(img) + '" alt="' + esc(p.altText || caption || 'Instagram post') + '" loading="lazy">' +
+                '<img src="' + esc(img) + '" alt="' + esc(caption ? '' : (p.altText || 'Instagram post')) + '" loading="lazy">' +
                 (video ? '<span class="insta-badge">' + icon('play') + '</span>' : '') +
                 '<span class="insta-overlay">' + icon('instagram') + (caption ? '<span>' + esc(caption) + '</span>' : '') + '</span>' +
             '</a>';

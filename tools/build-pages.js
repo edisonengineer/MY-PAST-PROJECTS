@@ -162,7 +162,7 @@ function footer() {
                 <p>Mechanical design engineer and graphic designer based in Nairobi, Kenya.</p>
             </div>
             <nav class="footer-col" aria-label="Footer">
-                <h4>Explore</h4>
+                <h2>Explore</h2>
                 <a href="../index.html#services">Services</a>
                 <a href="../index.html#work">Work</a>
                 <a href="../blog/index.html">CAD Tips</a>
@@ -171,7 +171,7 @@ function footer() {
                 <a href="../index.html#faq">FAQ</a>
             </nav>
             <div class="footer-col">
-                <h4>Connect</h4>
+                <h2>Connect</h2>
                 <a href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener">WhatsApp</a>
                 <a href="../index.html#contact" class="js-email" data-user="edisonochieng24" data-domain="gmail.com">Email</a>
                 <a href="https://www.linkedin.com/in/edison-ochieng-870a37229/" target="_blank" rel="noopener">LinkedIn</a>
@@ -188,10 +188,10 @@ function footer() {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-    <script src="../js/i18n-fr.js?v=4"></script>
-    <script src="../js/i18n-sw.js?v=1"></script>
-    <script src="../js/i18n.js?v=2"></script>
-    <script src="../js/pages.js?v=1"></script>
+    <script defer src="../js/i18n-fr.js?v=4"></script>
+    <script defer src="../js/i18n-sw.js?v=1"></script>
+    <script defer src="../js/i18n.js?v=2"></script>
+    <script defer src="../js/pages.js?v=1"></script>
 </body>
 </html>
 `;
@@ -297,13 +297,13 @@ ${(p.tags || []).map((t) => `                        <li class="chip">${esc(t)}<
 }
 
 /* ---------- Blog ---------- */
-function postCard(post, prefix) {
+function postCard(post, prefix, h = 'h3') {
     return `<article class="post-card">
                     <a href="${prefix}${esc(post.slug)}.html" class="post-link">
                         ${cover(post, 'post-cover')}
                         <div class="post-body" data-no-i18n>
                             <p class="post-meta"><time datetime="${esc(post.date)}">${esc(fmtDate(post.date))}</time> · ${post.minutes} min read</p>
-                            <h3>${esc(post.title)}</h3>
+                            <${h}>${esc(post.title)}</${h}>
                             <p>${esc(post.description)}</p>
                         </div>
                     </a>
@@ -404,7 +404,7 @@ function blogIndex(posts) {
         <section class="section">
             <div class="container">
                 <div class="post-grid">
-                ${posts.map((x) => postCard(x, '')).join('\n                ')}
+                ${posts.map((x) => postCard(x, '', 'h2')).join('\n                ')}
                 </div>
             </div>
         </section>

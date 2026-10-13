@@ -288,7 +288,7 @@
     const grid = $('#review-grid');
     const reviews = Array.isArray(window.REVIEWS) ? window.REVIEWS : [];
     const tones = ['sun', 'teal', 'coral', 'violet', 'blue'];
-    const starRow = (n) => '<span class="review-stars" aria-label="' + n + ' out of 5 stars">' +
+    const starRow = (n) => '<span class="review-stars" role="img" aria-label="' + n + ' out of 5 stars">' +
         [1, 2, 3, 4, 5].map((i) => '<svg class="' + (i <= n ? 'on' : '') + '" aria-hidden="true"><use href="#i-star"/></svg>').join('') + '</span>';
 
     if (grid) {
