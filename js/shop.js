@@ -53,14 +53,16 @@
     }
 
     function totals() {
-        const priced = cart.filter((i) => typeof i.min === 'number' && typeof i.max === 'number');
+        const priced = cart.filter((i) => typeof i.min === 'number');
         if (!priced.length) return null;
+        const open = priced.some((i) => typeof i.max !== 'number');
         return {
             min: priced.reduce((a, i) => a + i.min, 0),
-            max: priced.reduce((a, i) => a + i.max, 0),
+            max: open ? null : priced.reduce((a, i) => a + i.max, 0),
             partial: priced.length < cart.length
         };
     }
+    const totalText = (t) => (t.max == null ? 'From ' + money(t.min) : money(t.min) + ' – ' + Math.round(t.max).toLocaleString('en-US'));
 
     function render() {
         const n = cart.length;
@@ -83,7 +85,7 @@
         const t = totals();
         const totalEl = $('#cart-total');
         totalEl.hidden = !t;
-        if (t) totalEl.innerHTML = '<span>Estimated total</span><strong>' + money(t.min) + ' – ' + money(t.max).replace(/^\D+\s/, '') + '</strong>' +
+        if (t) totalEl.innerHTML = '<span>Estimated total</span><strong>' + totalText(t) + '</strong>' +
             (t.partial ? '<small>Plus items priced on request</small>' : '');
     }
 
@@ -134,13 +136,20 @@
             const k = (window.PACKAGES || [])[+b.dataset.addPkg];
             if (!k) return;
             const label = { engineering: 'Engineering', graphic: 'Graphic Design', training: 'Training' }[k.category] || k.category;
-            addItem({ title: k.name, detail: label + ' package', estimate: k.price ? (k.from ? 'From ' : '') + k.price : 'Custom quote', icon: k.icon, tone: 'sun' });
+            const amount = k.price ? parseInt(String(k.price).replace(/[^\d]/g, ''), 10) : NaN;
+            addItem({
+                title: k.name, detail: label + ' package',
+                estimate: k.price ? (k.from ? 'From ' : '') + k.price : 'Custom quote',
+                min: isNaN(amount) ? undefined : amount,
+                max: isNaN(amount) || k.from ? undefined : amount,
+                icon: k.icon, tone: 'sun'
+            });
         });
 
         function summaryText() {
             const lines = cart.map((i, n) => (n + 1) + '. ' + i.title + (i.detail ? ' (' + i.detail + ')' : '') + (i.estimate ? ': ' + i.estimate : ''));
             const t = totals();
-            if (t) lines.push('', 'Estimated total: ' + money(t.min) + ' – ' + money(t.max).replace(/^\D+\s/, '') + (t.partial ? ' + items priced on request' : ''));
+            if (t) lines.push('', 'Estimated total: ' + totalText(t) + (t.partial ? ' + items priced on request' : ''));
             return lines.join('\n');
         }
 
@@ -231,7 +240,14 @@
                 '<p class="est-preview" role="note">Preview mode: these are sample prices and this section is hidden from visitors until real rates are set in js/rates.js.</p>');
         }
 
-        const state = { cat: E.categories[0].id, service: null, qty: 1, complexity: 'standard', urgency: 'standard' };
+        const complexity = E.complexity || [], urgency = E.urgency || [];
+        const state = {
+            cat: E.categories[0].id, service: null, qty: 1,
+            complexity: (complexity.find((x) => x.factor === 1) || complexity[0] || {}).id,
+            urgency: (urgency.find((x) => x.factor === 1) || urgency[0] || {}).id
+        };
+        if (!complexity.length) $('#est-complexity').closest('.q').hidden = true;
+        if (!urgency.length) $('#est-urgency').closest('.q').hidden = true;
         const svcSelect = $('#est-service');
         const qty = $('#est-qty');
         const pct = (f) => (f === 1 ? '' : ' (' + (f > 1 ? '+' : '−') + Math.round(Math.abs(f - 1) * 100) + '%)');
@@ -239,8 +255,8 @@
             '<label class="opt"><input type="radio" name="' + name + '" value="' + esc(it.id) + '"' + (it.id === current ? ' checked' : '') + '><span>' + esc(it.label) + '</span></label>').join('');
 
         $('#est-cats').innerHTML = radios('est-cat', E.categories, state.cat);
-        $('#est-complexity').innerHTML = radios('est-complexity', E.complexity, state.complexity);
-        $('#est-urgency').innerHTML = E.urgency.map((it) =>
+        $('#est-complexity').innerHTML = radios('est-complexity', complexity, state.complexity);
+        $('#est-urgency').innerHTML = urgency.map((it) =>
             '<label class="opt"><input type="radio" name="est-urgency" value="' + esc(it.id) + '"' + (it.id === state.urgency ? ' checked' : '') + '><span>' + esc(it.label) + '</span>' +
             (it.factor !== 1 ? '<small class="opt-tag">' + esc(pct(it.factor).trim()) + '</small>' : '') + '</label>').join('');
 
@@ -252,24 +268,29 @@
 
         function current() {
             const s = E.services.find((x) => x.id === state.service);
-            const c = E.complexity.find((x) => x.id === state.complexity) || { factor: 1, label: '' };
-            const u = E.urgency.find((x) => x.id === state.urgency) || { factor: 1, label: '' };
+            const c = complexity.find((x) => x.id === state.complexity) || { factor: 1, label: '' };
+            const u = urgency.find((x) => x.id === state.urgency) || { factor: 1, label: '' };
             if (!s) return null;
             const n = Math.max(1, Math.min(999, parseInt(state.qty, 10) || 1));
-            const round = (v) => Math.round(v / 100) * 100;
-            return { s, c, u, n, min: round(s.min * n * c.factor * u.factor), max: round(s.max * n * c.factor * u.factor) };
+            const round = (v) => Math.round(v / 50) * 50;
+            const f = c.factor * u.factor;
+            const min = round(s.min * n * f);
+            const max = typeof s.max === 'number' ? round(s.max * n * f) : null;
+            const text = max == null ? 'From ' + money(min, E.currency) : money(min, E.currency) + ' – ' + max.toLocaleString('en-US');
+            return { s, c, u, n, min, max, text };
         }
 
         function update() {
             const r = current();
             if (!r) return;
             $('#est-qty-label').textContent = r.s.unit || 'Quantity';
-            $('#est-price').textContent = money(r.min, E.currency) + ' – ' + Math.round(r.max).toLocaleString('en-US');
+            $('#est-price').textContent = r.text;
             $('#est-breakdown').innerHTML =
                 '<div><dt>Service</dt><dd>' + esc(r.s.label) + '</dd></div>' +
+                '<div><dt>Starting price</dt><dd>' + money(r.s.min, E.currency) + '</dd></div>' +
                 '<div><dt>Quantity</dt><dd>' + r.n + '</dd></div>' +
-                '<div><dt>Complexity</dt><dd>' + esc(r.c.label) + '</dd></div>' +
-                '<div><dt>Deadline</dt><dd>' + esc(r.u.label) + '</dd></div>';
+                (r.c.label ? '<div><dt>Complexity</dt><dd>' + esc(r.c.label) + '</dd></div>' : '') +
+                (r.u.label ? '<div><dt>Deadline</dt><dd>' + esc(r.u.label) + '</dd></div>' : '');
             $('#est-brief').dataset.brief = state.cat === 'graphic' ? 'Graphic Design' : 'Engineering Design';
         }
 
@@ -295,8 +316,9 @@
             const cat = E.categories.find((x) => x.id === state.cat);
             addItem({
                 title: r.s.label,
-                detail: r.n + ' × ' + (r.s.unit || 'unit').replace(/^Number of /i, '') + ' · ' + r.c.label + ' · ' + r.u.label + ' deadline',
-                estimate: money(r.min, E.currency) + ' – ' + Math.round(r.max).toLocaleString('en-US'),
+                detail: [r.n + ' × ' + (r.s.unit || 'unit').replace(/^Number of /i, '').replace(/^Area \(square metres\)$/, 'm²'),
+                    r.c.label, r.u.label ? r.u.label + ' deadline' : ''].filter(Boolean).join(' · '),
+                estimate: r.text,
                 min: r.min, max: r.max,
                 icon: state.cat === 'graphic' ? 'brush' : state.cat === 'training' ? 'cap' : 'cube',
                 tone: state.cat === 'graphic' ? 'coral' : state.cat === 'training' ? 'teal' : 'blue',
@@ -317,12 +339,20 @@
     if (bookingUrl && bModal) {
         $$('[data-booking], [data-booking-item]').forEach((el) => { el.hidden = false; });
         $('#booking-open').href = bookingUrl;
+        // Calendly and Google "embed" links (with gv=true) can be shown inside the site;
+        // other links (e.g. calendar.app.google short links) open in a new tab.
+        const embeddable = /calendly\.com|[?&]gv=true/.test(bookingUrl);
         let src = bookingUrl;
         if (/calendly\.com/.test(bookingUrl)) {
             src += (bookingUrl.indexOf('?') > -1 ? '&' : '?') + 'embed_type=Inline&hide_gdpr_banner=1&embed_domain=' + encodeURIComponent(location.hostname);
         }
         let bReturn = null;
         const openBooking = () => {
+            if (!embeddable) {
+                track('booking-opened');
+                window.open(bookingUrl, '_blank', 'noopener');
+                return;
+            }
             bReturn = document.activeElement;
             const frame = $('#booking-frame');
             if (!frame.firstChild) frame.innerHTML = '<iframe src="' + esc(src) + '" title="Booking calendar" loading="lazy"></iframe>';
@@ -363,30 +393,36 @@
             '</a>';
     }
 
+    function renderPosts(list) {
+        const posts = (list || []).slice(0, 6);
+        if (!posts.length) return false;
+        igGrid.classList.remove('is-follow');
+        igGrid.innerHTML = posts.map((p) => {
+            const img = (p.sizes && p.sizes.medium && p.sizes.medium.mediaUrl) || p.thumbnailUrl || p.mediaUrl;
+            const caption = (p.prunedCaption || p.caption || '').slice(0, 120);
+            const video = p.mediaType === 'VIDEO' || p.isReel;
+            return '<a class="insta-post" href="' + esc(p.permalink || profile) + '" target="_blank" rel="noopener">' +
+                '<img src="' + esc(img) + '" alt="' + esc(p.altText || caption || 'Instagram post') + '" loading="lazy">' +
+                (video ? '<span class="insta-badge">' + icon('play') + '</span>' : '') +
+                '<span class="insta-overlay">' + icon('instagram') + (caption ? '<span>' + esc(caption) + '</span>' : '') + '</span>' +
+            '</a>';
+        }).join('');
+        return true;
+    }
+    const fallback = () => { if (!renderPosts(window.INSTAGRAM_SNAPSHOT)) followCard(); };
+
     if (igGrid) {
         const feed = (CONFIG.instagramFeedUrl || '').trim();
         if (!feed) {
-            followCard();
+            fallback();
         } else {
             const ctrl = 'AbortController' in window ? new AbortController() : null;
             const timer = setTimeout(() => ctrl && ctrl.abort(), 8000);
             fetch(feed, ctrl ? { signal: ctrl.signal } : {})
                 .then((r) => r.json())
-                .then((data) => {
-                    const posts = (Array.isArray(data) ? data : data.posts || []).slice(0, 6);
-                    if (!posts.length) return followCard();
-                    igGrid.innerHTML = posts.map((p) => {
-                        const img = (p.sizes && p.sizes.medium && p.sizes.medium.mediaUrl) || p.thumbnailUrl || p.mediaUrl;
-                        const caption = (p.prunedCaption || p.caption || '').slice(0, 120);
-                        const video = p.mediaType === 'VIDEO' || p.isReel;
-                        return '<a class="insta-post" href="' + esc(p.permalink || profile) + '" target="_blank" rel="noopener">' +
-                            '<img src="' + esc(img) + '" alt="' + esc(caption || 'Instagram post') + '" loading="lazy">' +
-                            (video ? '<span class="insta-badge">' + icon('play') + '</span>' : '') +
-                            '<span class="insta-overlay">' + icon('instagram') + (caption ? '<span>' + esc(caption) + '</span>' : '') + '</span>' +
-                        '</a>';
-                    }).join('');
-                })
-                .catch(followCard)
+                .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+                .then((data) => { if (!renderPosts(Array.isArray(data) ? data : data.posts)) fallback(); })
+                .catch(fallback)
                 .finally(() => clearTimeout(timer));
         }
     }

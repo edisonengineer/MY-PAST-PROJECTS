@@ -14,7 +14,7 @@ window.PACKAGES = [
         icon: 'cube',
         theme: 'blue',
         description: 'A single part modelled from your sketch, dimensions or physical sample.',
-        price: '',
+        price: 'KES 1,000',
         from: true,
         includes: ['Parametric 3D model', 'Native CAD file + STEP', 'Clean product renders'],
         brief: 'Engineering Design'
@@ -25,7 +25,7 @@ window.PACKAGES = [
         icon: 'gear',
         theme: 'teal',
         description: 'Multi-part assemblies with manufacturing-ready drawings.',
-        price: '',
+        price: 'KES 4,500',
         from: true,
         includes: ['Full 3D assembly', 'Dimensioned 2D drawings (PDF / DWG)', 'Bill of materials', 'Exploded views'],
         brief: 'Engineering Design'
@@ -36,7 +36,7 @@ window.PACKAGES = [
         icon: 'chart',
         theme: 'violet',
         description: 'FEA or thermal analysis to validate a design before it is built.',
-        price: '',
+        price: 'KES 4,500',
         from: true,
         includes: ['Model preparation & meshing', 'Loads & boundary conditions', 'Result plots', 'Short technical report'],
         brief: 'Engineering Design'
@@ -47,7 +47,7 @@ window.PACKAGES = [
         icon: 'image',
         theme: 'coral',
         description: 'A set of on-brand posts and stories for your campaign or event.',
-        price: '',
+        price: 'KES 3,500',
         from: true,
         includes: ['Designs sized for your platforms', 'PNG / JPG exports', 'Editable source on request'],
         brief: 'Graphic Design'
@@ -58,9 +58,9 @@ window.PACKAGES = [
         icon: 'layout',
         theme: 'sun',
         description: 'Posters, flyers, certificates and banners that stand out.',
-        price: '',
+        price: 'KES 500',
         from: true,
-        includes: ['Print-ready PDF', 'Digital version for sharing', 'Printing coordination on request'],
+        includes: ['Price per design', 'Print-ready PDF', 'Digital version for sharing', 'Printing from KES 1,000 per m²'],
         brief: 'Graphic Design'
     },
     {
@@ -69,7 +69,7 @@ window.PACKAGES = [
         icon: 'brush',
         theme: 'rose',
         description: 'A logo and visual identity that makes your business recognisable.',
-        price: '',
+        price: 'KES 7,500',
         from: true,
         includes: ['Logo concepts', 'Colour palette & fonts', 'Logo files for print & web', 'Mini brand guide'],
         brief: 'Graphic Design'
@@ -80,7 +80,7 @@ window.PACKAGES = [
         icon: 'cap',
         theme: 'green',
         description: 'One-on-one or group training, online or in person in Nairobi.',
-        price: '',
+        price: 'KES 4,500',
         from: true,
         includes: ['AutoCAD, SolidWorks, Inventor or Fusion 360', 'Beginner to advanced', 'Practical, project-based exercises', 'Practice files to keep'],
         brief: 'Engineering Design'
