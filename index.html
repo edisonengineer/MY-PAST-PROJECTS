@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 
-    <link rel="stylesheet" href="css/style.css?v=8">
+    <link rel="stylesheet" href="css/style.css?v=9">
     <script>
         document.documentElement.classList.add('js');
         (function () {
@@ -128,10 +128,14 @@
                 <a href="#reviews">Reviews</a>
                 <a href="#faq">FAQ</a>
                 <a href="#contact">Contact</a>
+                <button type="button" class="nav-search" data-search-open><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Search</button>
                 <a href="#brief" class="btn btn-sun nav-cta">Start a project</a>
             </nav>
 
             <div class="header-tools">
+                <button type="button" class="search-btn" data-search-open aria-label="Search the site" aria-keyshortcuts="Control+K /">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </button>
                 <div class="lang-switch" role="group" aria-label="Language">
                     <button type="button" data-lang="en" aria-pressed="true">EN</button>
                     <button type="button" data-lang="fr" aria-pressed="false">FR</button>
@@ -513,7 +517,7 @@
                 </div>
 
                 <!-- Certificates (data in js/certificates.js) -->
-                <div class="certs" data-reveal>
+                <div class="certs" id="certifications" data-reveal>
                     <h3 class="certs-title"><span class="side-icon bg-sun"><svg><use href="#i-award"/></svg></span> Certifications &amp; honours</h3>
                     <div class="certs-grid" id="certs-grid"></div>
                 </div>
@@ -618,7 +622,7 @@
         </section>
 
         <!-- ===================== FREE DOWNLOAD ===================== -->
-        <section class="freebie" aria-labelledby="freebie-title">
+        <section class="freebie" id="freebie" aria-labelledby="freebie-title">
             <div class="container freebie-inner" data-reveal>
                 <div class="freebie-art" aria-hidden="true">
                     <img src="images/freebie/autocad-cheat-sheet-preview.jpg" alt="" width="600" height="849" loading="lazy">
@@ -1619,16 +1623,17 @@
     <script defer src="js/reviews.js?v=2"></script>
     <script defer src="js/packages.js?v=3"></script>
     <script defer src="js/rates.js?v=2"></script>
-    <script defer src="js/i18n-fr.js?v=5"></script>
-    <script defer src="js/i18n-sw.js?v=2"></script>
+    <script defer src="js/i18n-fr.js?v=6"></script>
+    <script defer src="js/i18n-sw.js?v=3"></script>
     <script defer src="js/i18n.js?v=2"></script>
     <script defer src="js/main.js?v=6"></script>
     <script defer src="js/forms.js?v=4"></script>
     <script defer src="js/instagram-snapshot.js?v=1"></script>
     <script defer src="js/shop.js?v=3"></script>
     <script defer src="js/certificates.js?v=1"></script>
-    <script defer src="js/extras.js?v=3"></script>
+    <script defer src="js/extras.js?v=4"></script>
     <script defer src="js/analytics.js?v=1"></script>
+    <script defer src="js/search.js?v=1"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
     <script defer src="js/pdf-viewer.js?v=1"></script>
