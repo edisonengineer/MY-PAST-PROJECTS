@@ -24,10 +24,11 @@ window.SITE_CONFIG = {
 
     // Deposit payments. Fill in ONE of the M-Pesa options to show "Pay a deposit".
     payments: {
-        mpesaTill: '',            // Buy Goods till number, e.g. '1234567'
+        mpesaTill: '8438334',     // Buy Goods till number, e.g. '1234567'
         mpesaPaybill: '',         // or Paybill business number, e.g. '247247'
         mpesaAccount: '',         // Paybill account number (leave '' to ask for the client's name)
-        mpesaName: 'Nexus CAD Studio', // name the client should see on M-Pesa
+        mpesaName: 'EDISON OCHIENG', // name the client should see on M-Pesa
+        mpesaQr: 'images/payments/mpesa-till-qr.png', // QR from your Lipa na M-Pesa sticker (scan to pay)
         paystackUrl: ''           // optional Paystack payment page link for card / online payment
     },
 
@@ -39,6 +40,7 @@ window.SITE_CONFIG = {
         // Past sessions on YouTube: paste the video ID (the part after watch?v=)
         recordings: [
             // { id: 'dQw4w9WgXcQ', title: 'Session 1: AutoCAD interface tour' }
+            { id: 'MrBvUttpKN4', title: 'Webinar recording' }
         ]
     },
 

@@ -778,7 +778,9 @@ window.I18N_FR = {
     "Layout & Design": "Mise en page et design",
     "Company Profile": "Profil d'entreprise",
     "Brochure": "Brochure",
-    "Open the live website (GitHub Pages), not the file on your computer.": "Ouvrez le site en ligne (GitHub Pages), et non le fichier sur votre ordinateur."
+    "Open the live website (GitHub Pages), not the file on your computer.": "Ouvrez le site en ligne (GitHub Pages), et non le fichier sur votre ordinateur.",
+    "Lipa na M-Pesa QR code": "Code QR Lipa na M-Pesa",
+    "On a computer? Scan this code with the M-Pesa app on your phone (Lipa na M-PESA, then Scan QR).": "Sur un ordinateur ? Scannez ce code avec l'application M-Pesa de votre téléphone (Lipa na M-PESA, puis Scan QR)."
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

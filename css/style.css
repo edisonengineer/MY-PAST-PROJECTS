@@ -1432,6 +1432,11 @@ body.no-scroll .fab-wa, body.no-scroll .fab-top { opacity: 0; visibility: hidden
 .pay-number span { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .pay-number strong { font-family: var(--serif); font-size: 1.6rem; color: var(--heading); letter-spacing: 0.04em; }
 .pay-number:empty { display: none; }
+.pay-qr { margin-top: 14px; display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 16px; border: 1px dashed var(--line); }
+.pay-qr[hidden] { display: none; }
+.pay-qr img { flex: 0 0 120px; width: 120px; height: 120px; border-radius: 10px; background: #fff; padding: 4px; }
+.pay-qr figcaption { font-size: 0.86rem; color: var(--text-soft); }
+@media (hover: none) and (pointer: coarse) { .pay-qr { display: none; } }
 .pay-card-text { color: var(--text-soft); margin-bottom: 16px; }
 .pay-confirm { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
 .pay-confirm p { font-size: 0.9rem; color: var(--text-soft); margin-bottom: 12px; }
