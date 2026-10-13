@@ -348,7 +348,8 @@
 
         const msg = encodeURIComponent('Hi Edison, I saw your "' + p.title + '" project on your portfolio and would like to discuss a similar project.');
         pm.actions.innerHTML =
-            '<a class="btn btn-green" href="https://wa.me/' + WHATSAPP + '?text=' + msg + '" target="_blank" rel="noopener">' + icon('whatsapp') + ' Discuss a similar project</a>';
+            '<a class="btn btn-green" href="https://wa.me/' + WHATSAPP + '?text=' + msg + '" target="_blank" rel="noopener">' + icon('whatsapp') + ' Discuss a similar project</a>' +
+            '<a class="btn btn-outline" href="projects/' + encodeURIComponent(p.id) + '.html">Full case study ' + icon('arrow') + '</a>';
 
         modal.classList.add('is-open');
         modal.setAttribute('aria-hidden', 'false');
@@ -456,7 +457,8 @@
         lb.setAttribute('aria-hidden', 'false');
         lock();
         $('#lightbox-close').focus({ preventScroll: true });
-    }    window.Site.openLightbox = openLightbox;
+    }
+    window.Site.openLightbox = openLightbox;
 
     function closeLightbox() {
         if (!lb.classList.contains('is-open')) return;
