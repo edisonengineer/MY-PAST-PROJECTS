@@ -1,0 +1,393 @@
+/* =========================================================================
+   Cost estimator, quote cart, booking calendar and Instagram feed.
+   Settings: js/rates.js (estimator prices) and js/config.js (booking link,
+   Instagram feed). Quote requests are emailed through Web3Forms.
+   ========================================================================= */
+(function () {
+    'use strict';
+
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const icon = (name) => '<svg aria-hidden="true"><use href="#i-' + name + '"/></svg>';
+    const CONFIG = window.SITE_CONFIG || {};
+    const WHATSAPP = CONFIG.whatsapp || '254708639473';
+    const lock = () => (window.Site ? window.Site.lock() : document.body.classList.add('no-scroll'));
+    const unlock = () => (window.Site ? window.Site.unlock() : document.body.classList.remove('no-scroll'));
+    const track = (name) => { if (typeof window.track === 'function') window.track(name); };
+    const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+    const money = (n, cur) => (cur || 'KES') + ' ' + Math.round(n).toLocaleString('en-US');
+
+    /* ======================================================================
+       TOAST
+       ====================================================================== */
+    const toastEl = $('#toast');
+    let toastTimer = null;
+    function toast(text, showAction) {
+        if (!toastEl) return;
+        $('#toast-text').textContent = text;
+        $('#toast-action').hidden = !showAction;
+        toastEl.hidden = false;
+        requestAnimationFrame(() => toastEl.classList.add('is-visible'));
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toastEl.classList.remove('is-visible');
+            setTimeout(() => { toastEl.hidden = true; }, 300);
+        }, 3800);
+    }
+
+    /* ======================================================================
+       QUOTE CART
+       ====================================================================== */
+    const KEY = 'quoteCart';
+    const drawer = $('#cart');
+    const list = $('#cart-list');
+    const countEl = $('#cart-count');
+    const form = $('#cart-form');
+    let cart = [];
+    try { cart = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { cart = []; }
+
+    function save() {
+        try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch (e) { /* storage blocked: cart lasts for this visit */ }
+        render();
+    }
+
+    function totals() {
+        const priced = cart.filter((i) => typeof i.min === 'number' && typeof i.max === 'number');
+        if (!priced.length) return null;
+        return {
+            min: priced.reduce((a, i) => a + i.min, 0),
+            max: priced.reduce((a, i) => a + i.max, 0),
+            partial: priced.length < cart.length
+        };
+    }
+
+    function render() {
+        const n = cart.length;
+        countEl.textContent = n;
+        countEl.hidden = n === 0;
+        $('#cart-btn').setAttribute('aria-label', n ? 'Open your quote (' + n + ' items)' : 'Open your quote');
+        list.innerHTML = cart.map((i) =>
+            '<li class="cart-item">' +
+                '<span class="cart-item-icon bg-' + esc(i.tone || 'blue') + '">' + icon(i.icon || 'cube') + '</span>' +
+                '<div class="cart-item-body">' +
+                    '<strong>' + esc(i.title) + '</strong>' +
+                    (i.detail ? '<span>' + esc(i.detail) + '</span>' : '') +
+                    (i.estimate ? '<em>' + esc(i.estimate) + '</em>' : '') +
+                '</div>' +
+                '<button type="button" class="cart-remove" data-remove="' + esc(i.uid) + '" aria-label="Remove ' + esc(i.title) + '">' + icon('close') + '</button>' +
+            '</li>'
+        ).join('');
+        $('#cart-empty').hidden = n > 0;
+        form.hidden = n === 0 || !$('#cart-done').hidden;
+        const t = totals();
+        const totalEl = $('#cart-total');
+        totalEl.hidden = !t;
+        if (t) totalEl.innerHTML = '<span>Estimated total</span><strong>' + money(t.min) + ' – ' + money(t.max).replace(/^\D+\s/, '') + '</strong>' +
+            (t.partial ? '<small>Plus items priced on request</small>' : '');
+    }
+
+    function addItem(item) {
+        item.uid = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        cart.push(item);
+        save();
+        countEl.classList.remove('bump');
+        void countEl.offsetWidth;
+        countEl.classList.add('bump');
+        toast('Added to your quote', true);
+        track('quote-item-added');
+    }
+
+    let cartReturn = null;
+    function openCart() {
+        cartReturn = document.activeElement;
+        $('#cart-done').hidden = true;
+        render();
+        drawer.classList.add('is-open');
+        drawer.setAttribute('aria-hidden', 'false');
+        lock();
+        setTimeout(() => $('.modal-close', drawer).focus({ preventScroll: true }), 50);
+    }
+    function closeCart() {
+        if (!drawer.classList.contains('is-open')) return;
+        drawer.classList.remove('is-open');
+        drawer.setAttribute('aria-hidden', 'true');
+        unlock();
+        if (cartReturn) cartReturn.focus({ preventScroll: true });
+    }
+
+    if (drawer) {
+        render();
+        $('#cart-btn').addEventListener('click', openCart);
+        $('#toast-action').addEventListener('click', openCart);
+        drawer.addEventListener('click', (e) => {
+            const rm = e.target.closest('[data-remove]');
+            if (rm) { cart = cart.filter((i) => i.uid !== rm.dataset.remove); save(); return; }
+            if (e.target.closest('[data-cart-close]')) closeCart();
+        });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeCart(); });
+
+        // "Add to quote" on package cards
+        document.addEventListener('click', (e) => {
+            const b = e.target.closest('[data-add-pkg]');
+            if (!b) return;
+            const k = (window.PACKAGES || [])[+b.dataset.addPkg];
+            if (!k) return;
+            const label = { engineering: 'Engineering', graphic: 'Graphic Design', training: 'Training' }[k.category] || k.category;
+            addItem({ title: k.name, detail: label + ' package', estimate: k.price ? (k.from ? 'From ' : '') + k.price : 'Custom quote', icon: k.icon, tone: 'sun' });
+        });
+
+        function summaryText() {
+            const lines = cart.map((i, n) => (n + 1) + '. ' + i.title + (i.detail ? ' (' + i.detail + ')' : '') + (i.estimate ? ': ' + i.estimate : ''));
+            const t = totals();
+            if (t) lines.push('', 'Estimated total: ' + money(t.min) + ' – ' + money(t.max).replace(/^\D+\s/, '') + (t.partial ? ' + items priced on request' : ''));
+            return lines.join('\n');
+        }
+
+        const err = $('#cart-error');
+        form.addEventListener('input', (e) => {
+            const f = e.target.closest('.field');
+            if (f) f.classList.remove('is-invalid');
+            if (!$('.is-invalid', form)) err.hidden = true;
+        });
+
+        function validate() {
+            $$('.is-invalid', form).forEach((el) => el.classList.remove('is-invalid'));
+            const bad = [];
+            if (!form.name.value.trim()) bad.push(form.name);
+            if (!isEmail(form.email.value.trim())) bad.push(form.email);
+            if (bad.length) {
+                bad.forEach((el) => el.closest('.field').classList.add('is-invalid'));
+                err.textContent = 'Please add your name and a valid email.';
+                err.hidden = false;
+                bad[0].focus();
+                return false;
+            }
+            return true;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!validate() || form.botcheck.checked) return;
+            const btn = $('#cart-send');
+            const label = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Sending…';
+            const name = form.name.value.trim(), email = form.email.value.trim();
+            const fields = {
+                access_key: CONFIG.web3formsKey,
+                subject: 'Quote request: ' + cart.length + (cart.length === 1 ? ' item' : ' items') + ' from ' + name,
+                from_name: 'Portfolio: Quote Cart',
+                name: name, email: email, replyto: email,
+                'Phone / WhatsApp': form['Phone / WhatsApp'].value.trim(),
+                'Requested items': summaryText(),
+                Notes: form.Notes.value.trim()
+            };
+            Object.keys(fields).forEach((k) => { if (fields[k] === '') delete fields[k]; });
+            try {
+                const res = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify(fields)
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || !data.success) throw new Error(data.message || 'Request failed (' + res.status + ')');
+                track('quote-sent');
+                cart = [];
+                save();
+                form.reset();
+                form.hidden = true;
+                $('#cart-done').hidden = false;
+                $('#cart-done').focus({ preventScroll: true });
+            } catch (ex) {
+                err.textContent = 'Sorry, that didn\'t go through (' + ex.message + '). Please try again or send it on WhatsApp.';
+                err.hidden = false;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = label;
+            }
+        });
+
+        $('#cart-wa').addEventListener('click', () => {
+            const name = form.name.value.trim();
+            const text = 'Hi Edison' + (name ? ', my name is ' + name : '') + '. I\'d like a quote for:\n\n' + summaryText() +
+                (form.Notes.value.trim() ? '\n\nNotes: ' + form.Notes.value.trim() : '');
+            track('quote-whatsapp');
+            window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
+        });
+    }
+
+    /* ======================================================================
+       COST ESTIMATOR
+       ====================================================================== */
+    const E = window.ESTIMATOR;
+    const estSection = $('#estimator');
+    const preview = new URLSearchParams(location.search).get('preview') === 'estimator';
+    if (E && estSection && (E.ready || preview)) {
+        estSection.hidden = false;
+        $$('[data-estimator-link]').forEach((a) => { a.hidden = false; });
+        if (!E.ready) {
+            $('.section-head', estSection).insertAdjacentHTML('beforeend',
+                '<p class="est-preview" role="note">Preview mode: these are sample prices and this section is hidden from visitors until real rates are set in js/rates.js.</p>');
+        }
+
+        const state = { cat: E.categories[0].id, service: null, qty: 1, complexity: 'standard', urgency: 'standard' };
+        const svcSelect = $('#est-service');
+        const qty = $('#est-qty');
+        const pct = (f) => (f === 1 ? '' : ' (' + (f > 1 ? '+' : '−') + Math.round(Math.abs(f - 1) * 100) + '%)');
+        const radios = (name, items, current) => items.map((it) =>
+            '<label class="opt"><input type="radio" name="' + name + '" value="' + esc(it.id) + '"' + (it.id === current ? ' checked' : '') + '><span>' + esc(it.label) + '</span></label>').join('');
+
+        $('#est-cats').innerHTML = radios('est-cat', E.categories, state.cat);
+        $('#est-complexity').innerHTML = radios('est-complexity', E.complexity, state.complexity);
+        $('#est-urgency').innerHTML = E.urgency.map((it) =>
+            '<label class="opt"><input type="radio" name="est-urgency" value="' + esc(it.id) + '"' + (it.id === state.urgency ? ' checked' : '') + '><span>' + esc(it.label) + '</span>' +
+            (it.factor !== 1 ? '<small class="opt-tag">' + esc(pct(it.factor).trim()) + '</small>' : '') + '</label>').join('');
+
+        function fillServices() {
+            const items = E.services.filter((s) => s.category === state.cat);
+            svcSelect.innerHTML = items.map((s) => '<option value="' + esc(s.id) + '">' + esc(s.label) + '</option>').join('');
+            state.service = items[0] && items[0].id;
+        }
+
+        function current() {
+            const s = E.services.find((x) => x.id === state.service);
+            const c = E.complexity.find((x) => x.id === state.complexity) || { factor: 1, label: '' };
+            const u = E.urgency.find((x) => x.id === state.urgency) || { factor: 1, label: '' };
+            if (!s) return null;
+            const n = Math.max(1, Math.min(999, parseInt(state.qty, 10) || 1));
+            const round = (v) => Math.round(v / 100) * 100;
+            return { s, c, u, n, min: round(s.min * n * c.factor * u.factor), max: round(s.max * n * c.factor * u.factor) };
+        }
+
+        function update() {
+            const r = current();
+            if (!r) return;
+            $('#est-qty-label').textContent = r.s.unit || 'Quantity';
+            $('#est-price').textContent = money(r.min, E.currency) + ' – ' + Math.round(r.max).toLocaleString('en-US');
+            $('#est-breakdown').innerHTML =
+                '<div><dt>Service</dt><dd>' + esc(r.s.label) + '</dd></div>' +
+                '<div><dt>Quantity</dt><dd>' + r.n + '</dd></div>' +
+                '<div><dt>Complexity</dt><dd>' + esc(r.c.label) + '</dd></div>' +
+                '<div><dt>Deadline</dt><dd>' + esc(r.u.label) + '</dd></div>';
+            $('#est-brief').dataset.brief = state.cat === 'graphic' ? 'Graphic Design' : 'Engineering Design';
+        }
+
+        estSection.addEventListener('change', (e) => {
+            const t = e.target;
+            if (t.name === 'est-cat') { state.cat = t.value; fillServices(); }
+            else if (t === svcSelect) state.service = t.value;
+            else if (t.name === 'est-complexity') state.complexity = t.value;
+            else if (t.name === 'est-urgency') state.urgency = t.value;
+            update();
+        });
+        qty.addEventListener('input', () => { state.qty = qty.value; update(); });
+        estSection.addEventListener('click', (e) => {
+            const b = e.target.closest('.stepper-btn');
+            if (!b) return;
+            qty.value = Math.max(1, Math.min(999, (parseInt(qty.value, 10) || 1) + +b.dataset.step));
+            state.qty = qty.value;
+            update();
+        });
+        $('#est-add').addEventListener('click', () => {
+            const r = current();
+            if (!r) return;
+            const cat = E.categories.find((x) => x.id === state.cat);
+            addItem({
+                title: r.s.label,
+                detail: r.n + ' × ' + (r.s.unit || 'unit').replace(/^Number of /i, '') + ' · ' + r.c.label + ' · ' + r.u.label + ' deadline',
+                estimate: money(r.min, E.currency) + ' – ' + Math.round(r.max).toLocaleString('en-US'),
+                min: r.min, max: r.max,
+                icon: state.cat === 'graphic' ? 'brush' : state.cat === 'training' ? 'cap' : 'cube',
+                tone: state.cat === 'graphic' ? 'coral' : state.cat === 'training' ? 'teal' : 'blue',
+                category: cat ? cat.label : ''
+            });
+            track('estimate-added');
+        });
+
+        fillServices();
+        update();
+    }
+
+    /* ======================================================================
+       BOOKING CALENDAR (Calendly / Google appointment page)
+       ====================================================================== */
+    const bookingUrl = (CONFIG.bookingUrl || '').trim();
+    const bModal = $('#booking-modal');
+    if (bookingUrl && bModal) {
+        $$('[data-booking], [data-booking-item]').forEach((el) => { el.hidden = false; });
+        $('#booking-open').href = bookingUrl;
+        let src = bookingUrl;
+        if (/calendly\.com/.test(bookingUrl)) {
+            src += (bookingUrl.indexOf('?') > -1 ? '&' : '?') + 'embed_type=Inline&hide_gdpr_banner=1&embed_domain=' + encodeURIComponent(location.hostname);
+        }
+        let bReturn = null;
+        const openBooking = () => {
+            bReturn = document.activeElement;
+            const frame = $('#booking-frame');
+            if (!frame.firstChild) frame.innerHTML = '<iframe src="' + esc(src) + '" title="Booking calendar" loading="lazy"></iframe>';
+            bModal.classList.add('is-open');
+            bModal.setAttribute('aria-hidden', 'false');
+            lock();
+            track('booking-opened');
+        };
+        const closeBooking = () => {
+            if (!bModal.classList.contains('is-open')) return;
+            bModal.classList.remove('is-open');
+            bModal.setAttribute('aria-hidden', 'true');
+            unlock();
+            if (bReturn) bReturn.focus({ preventScroll: true });
+        };
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('[data-booking]')) { e.preventDefault(); openBooking(); }
+            else if (e.target.closest('[data-booking-close]')) closeBooking();
+        });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeBooking(); });
+    }
+
+    /* ======================================================================
+       INSTAGRAM FEED (Behold.so JSON feed)
+       ====================================================================== */
+    const igGrid = $('#insta-grid');
+    const handle = CONFIG.instagramHandle || 'e_d_i_s_o_n_engineer';
+    const profile = 'https://www.instagram.com/' + handle + '/';
+
+    function followCard() {
+        igGrid.classList.add('is-follow');
+        igGrid.innerHTML =
+            '<a class="insta-follow" href="' + profile + '" target="_blank" rel="noopener">' +
+                '<span class="insta-follow-icon">' + icon('instagram') + '</span>' +
+                '<span class="insta-follow-copy"><strong>Follow @' + esc(handle) + '</strong>' +
+                '<span>Behind-the-scenes CAD work, new designs and webinar updates.</span></span>' +
+                '<span class="btn btn-sun">Follow on Instagram ' + icon('arrow') + '</span>' +
+            '</a>';
+    }
+
+    if (igGrid) {
+        const feed = (CONFIG.instagramFeedUrl || '').trim();
+        if (!feed) {
+            followCard();
+        } else {
+            const ctrl = 'AbortController' in window ? new AbortController() : null;
+            const timer = setTimeout(() => ctrl && ctrl.abort(), 8000);
+            fetch(feed, ctrl ? { signal: ctrl.signal } : {})
+                .then((r) => r.json())
+                .then((data) => {
+                    const posts = (Array.isArray(data) ? data : data.posts || []).slice(0, 6);
+                    if (!posts.length) return followCard();
+                    igGrid.innerHTML = posts.map((p) => {
+                        const img = (p.sizes && p.sizes.medium && p.sizes.medium.mediaUrl) || p.thumbnailUrl || p.mediaUrl;
+                        const caption = (p.prunedCaption || p.caption || '').slice(0, 120);
+                        const video = p.mediaType === 'VIDEO' || p.isReel;
+                        return '<a class="insta-post" href="' + esc(p.permalink || profile) + '" target="_blank" rel="noopener">' +
+                            '<img src="' + esc(img) + '" alt="' + esc(caption || 'Instagram post') + '" loading="lazy">' +
+                            (video ? '<span class="insta-badge">' + icon('play') + '</span>' : '') +
+                            '<span class="insta-overlay">' + icon('instagram') + (caption ? '<span>' + esc(caption) + '</span>' : '') + '</span>' +
+                        '</a>';
+                    }).join('');
+                })
+                .catch(followCard)
+                .finally(() => clearTimeout(timer));
+        }
+    }
+})();

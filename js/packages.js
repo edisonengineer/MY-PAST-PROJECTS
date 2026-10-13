@@ -5,6 +5,7 @@
    from      true  = shows "Starting from" above the price
    category  'engineering' | 'graphic' | 'training'  (drives the filter)
    brief     which project type the "Get a quote" button pre-selects
+   The "Add to quote" button puts the package in the visitor's quote cart.
    ========================================================================= */
 window.PACKAGES = [
     {

@@ -72,51 +72,55 @@ window.PROJECTS = [
             'images/engineering/kirdi/kirdi-sheet-metal-02.jpg',
             'images/engineering/kirdi/kirdi-sheet-metal-03.jpg'
         ],
-        summary: 'A 12-week attachment at the Kenya Industrial Research and Development Institute’s Engineering Research and ICT Department, fabricating real components for projects that support Kenyan MSMEs.',
+        summary: 'A 12-week attachment at the Kenya Industrial Research and Development Institute’s Engineering Research and ICT Department, designing and fabricating real components for projects that support Kenyan MSMEs.',
         points: [
-            'CNC laser cutting and bending of L-beams, car bumpers and peanut-butter machine casings',
-            'Arc and TIG welding of gas stove jikos and air exchangers',
-            'Lathe machining of shafts and bushings',
-            'Pump testing and machinery assembly with V-belts and bearings'
+            'Designed and fabricated jiko stove components from sheet metal, applying DFM principles and manufacturing tolerances',
+            'Helped design and build a poultry de-feathering machine, from concept to component iteration and assembly',
+            '3D models, assemblies and 2D technical drawings in SolidWorks, Inventor and Fusion 360',
+            'CNC laser cutting and bending of L-beams, car bumpers and machine casings to precise tolerances',
+            'Arc and TIG welding, shaft milling and lathe work'
         ],
         meta: [
             ['Organisation', 'KIRDI, Nairobi'],
             ['Duration', '12 weeks'],
             ['Focus', 'Fabrication & machining']
         ],
-        tags: ['CNC laser cutting', 'Sheet metal', 'TIG welding', 'Machining'],
+        tags: ['DFM', 'Sheet metal', 'CNC laser cutting', 'SolidWorks'],
         pdf: 'pdfs/kirdi-sheet-metal-report.pdf'
     },
     {
-        id: 'abaqus-fea',
-        title: 'Structural FEA in Abaqus',
-        subtitle: 'Finite element analysis',
+        id: 'final-year-project',
+        title: 'Forming Limit Prediction for AM AlSi10Mg',
+        subtitle: 'Final-year project · 2025 – 2026',
         category: 'engineering',
         theme: 'violet',
         icon: 'chart',
-        year: '',
-        cover: 'images/engineering/abaqus/abaqus-fea-01.jpg',
+        year: '2026',
+        cover: 'images/engineering/final-year-project/fyp-01.jpg',
         gallery: [
-            'images/engineering/abaqus/abaqus-fea-01.jpg',
-            'images/engineering/abaqus/abaqus-fea-02.jpg',
-            'images/engineering/abaqus/abaqus-fea-03.jpg'
+            'images/engineering/final-year-project/fyp-01.jpg',
+            'images/engineering/final-year-project/fyp-02.jpg',
+            'images/engineering/final-year-project/fyp-03.jpg'
         ],
-        summary: 'Finite element simulation of mechanical components in Abaqus to study stress and deformation and identify weak points before manufacture.',
+        summary: 'Predicting the forming limit curve of additively manufactured AlSi10Mg sheet through a coupled GTN–Hill’48 simulation of the Nakajima test, so that sheet-metal parts can be checked for failure before they are made.',
         points: [
-            'Geometry preparation, meshing and boundary conditions',
-            'Stress and displacement results reviewed against design limits'
+            'Coupled damage mechanics (GTN) with Hill’48 anisotropic plasticity',
+            'Simulated the Nakajima stretch-forming test to build the forming limit curve',
+            'Practical failure prediction for sheet-metal parts before manufacture',
+            'Insight into material behaviour under forming, failure and process optimisation'
         ],
         meta: [
-            ['Software', 'Abaqus'],
-            ['Type', 'Structural analysis']
+            ['Type', 'Final-year project'],
+            ['Material', 'AM AlSi10Mg'],
+            ['Method', 'FE simulation']
         ],
-        tags: ['Abaqus', 'FEA', 'Simulation'],
-        pdf: 'pdfs/abaqus-fea-report.pdf'
+        tags: ['FEA', 'Damage mechanics', 'Sheet metal forming'],
+        pdf: 'pdfs/final-year-project-report.pdf'
     },
     {
         id: 'ev-battery-cooling',
         title: 'EV Battery Pack Cooling',
-        subtitle: '3D CAD · Thermal management',
+        subtitle: 'Freelance client project · Design & thermal simulation',
         category: 'engineering',
         theme: 'green',
         icon: 'battery',
@@ -127,16 +131,19 @@ window.PROJECTS = [
             'images/engineering/ev-battery/ev-battery-cooling-02.jpg',
             'images/engineering/ev-battery/ev-battery-cooling-03.jpg'
         ],
-        summary: 'CAD design of a cooling system for an electric-vehicle battery pack, focused on thermal management and compact packaging.',
+        summary: 'Designed and simulated a complete electric-vehicle battery cooling pack for a private client, covering 3D modelling, assembly and thermal performance analysis.',
         points: [
-            'Detailed 3D model of the battery pack and cooling layout',
-            'Designed for heat removal and ease of assembly'
+            'Full 3D model and assembly of the battery cooling pack',
+            'Thermal simulation to keep the battery cells within their required operating temperature range',
+            'Iterated the cooling geometry and layout based on the results',
+            'Delivered a complete design package: 3D models, assemblies and simulation results'
         ],
         meta: [
-            ['Type', '3D CAD design'],
+            ['Client', 'Private client'],
+            ['Software', 'SolidWorks & Inventor'],
             ['Focus', 'Thermal management']
         ],
-        tags: ['3D CAD', 'Thermal design', 'EV'],
+        tags: ['SolidWorks', 'Inventor', 'Thermal simulation'],
         model: 'models/ev-battery-cooling.glb',
         pdf: 'pdfs/ev-battery-cooling-report.pdf'
     },

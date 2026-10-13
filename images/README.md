@@ -10,7 +10,7 @@ Tip: export as JPG, about 2000–2400 px wide and under ~500 KB each.
 | Your photo (hero card) | `images/profile/edison.jpg` (square works best) |
 | Sustainable Outdoor Hub (Designathon) | `images/engineering/designathon/designathon-hub-01.jpg`, `-02.jpg`, `-03.jpg` |
 | Sheet Metal Fabrication, KIRDI | `images/engineering/kirdi/kirdi-sheet-metal-01.jpg`, `-02.jpg`, `-03.jpg` |
-| Structural FEA in Abaqus | `images/engineering/abaqus/abaqus-fea-01.jpg`, `-02.jpg`, `-03.jpg` |
+| Final-year project (Forming Limit Prediction) | `images/engineering/final-year-project/fyp-01.jpg`, `-02.jpg`, `-03.jpg` |
 | EV Battery Pack Cooling | `images/engineering/ev-battery/ev-battery-cooling-01.jpg`, `-02.jpg`, `-03.jpg` |
 | Mazingira Day Posters | `images/graphic/mazingira/mazingira-day-01.jpg`, `-02.jpg` |
 
@@ -22,7 +22,7 @@ Put PDFs in `pdfs/` with these names and a **Read report** button appears
 inside the project automatically:
 
 - `pdfs/kirdi-sheet-metal-report.pdf`
-- `pdfs/abaqus-fea-report.pdf`
+- `pdfs/final-year-project-report.pdf`
 - `pdfs/ev-battery-cooling-report.pdf`
 
 To also list a PDF in the **Reports** section, add it to `PDF_WORKS`
@@ -38,8 +38,8 @@ details. Use `category: 'engineering'` or `category: 'graphic'`.
 # Other things you can add or change
 
 ## Your CV
-Upload it as **`pdfs/edison-ochieng-cv.pdf`**. "Download CV" buttons then
-appear automatically in the hero and the Experience section.
+The CV is at **`pdfs/edison-ochieng-cv.pdf`** (the web copy with your email
+removed). To update it, upload a new file with the same name.
 
 ## 3D models ("View in 3D")
 Create a folder called `models/` and upload `.glb` files:
@@ -80,3 +80,23 @@ Share a French link directly with `?lang=fr`, e.g.
 
 ## Settings
 `js/config.js` holds the Web3Forms key, WhatsApp number and analytics code.
+
+## Cost estimator
+Open `js/rates.js`, replace the SAMPLE `min` / `max` prices with your real
+rates (KES per unit), then change `ready: false` to `ready: true`.
+Until then the estimator is hidden from visitors. Preview it any time by
+adding `?preview=estimator` to the site address.
+
+## Booking calendar
+Create a free booking page (Calendly, or Google Calendar "Appointment
+schedules") and paste its link into `js/config.js` → `bookingUrl`.
+"Book a call" buttons then appear in How I work, FAQ and Contact.
+
+## Instagram feed
+Create a free feed at https://behold.so, connect your Instagram, choose the
+JSON format and paste the feed URL into `js/config.js` → `instagramFeedUrl`.
+Until then the section shows a "Follow on Instagram" card.
+
+## Quote cart
+Works on its own: visitors add packages and estimates, then send one quote
+request to your email (Web3Forms) or WhatsApp.

@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=4">
     <script>
         document.documentElement.classList.add('js');
         (function () {
@@ -61,7 +61,7 @@
         "address": { "@type": "PostalAddress", "addressLocality": "Nairobi", "addressCountry": "KE" },
         "alumniOf": { "@type": "CollegeOrUniversity", "name": "University of Nairobi" },
         "worksFor": { "@type": "Organization", "name": "Nexus CAD Studio" },
-        "knowsLanguage": ["English", "French"],
+        "knowsLanguage": ["English", "Swahili", "French"],
         "knowsAbout": ["SolidWorks", "AutoCAD", "Autodesk Inventor", "Fusion 360", "Revit", "Finite Element Analysis", "CNC Machining", "Sheet Metal Fabrication", "Graphic Design", "CAD Training"],
         "hasCredential": [
             { "@type": "EducationalOccupationalCredential", "name": "Certified SOLIDWORKS Associate (CSWA)" },
@@ -104,6 +104,8 @@
             <symbol id="i-linkedin" viewBox="0 0 24 24"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4V21H3V9.75Zm6.5 0h3.83v1.54h.06c.53-1.01 1.84-2.07 3.79-2.07 4.05 0 4.8 2.67 4.8 6.13V21h-4v-4.98c0-1.19-.02-2.72-1.66-2.72-1.66 0-1.91 1.3-1.91 2.63V21h-4V9.75Z"/></symbol>
             <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></symbol>
             <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.8l2.83 5.73 6.32.92-4.58 4.46 1.08 6.3L12 17.24l-5.65 2.97 1.08-6.3L2.85 9.45l6.32-.92z"/></symbol>
+            <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2.2l2.1 10.2a1.5 1.5 0 0 0 1.5 1.2h8.4a1.5 1.5 0 0 0 1.5-1.1L20.5 8H6.1 M9.5 20a1 1 0 1 0 0 .1 M17 20a1 1 0 1 0 0 .1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M4 6.5h16V20H4z M4 10.5h16 M8.5 4v4 M15.5 4v4 M8 14h2.5 M13.5 14H16 M8 17h2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
         </defs>
     </svg>
 
@@ -134,6 +136,10 @@
                     <button type="button" data-lang="en" aria-pressed="true">EN</button>
                     <button type="button" data-lang="fr" aria-pressed="false">FR</button>
                 </div>
+                <button type="button" class="cart-btn" id="cart-btn" aria-label="Open your quote" aria-controls="cart">
+                    <svg><use href="#i-cart"/></svg>
+                    <span class="cart-count" id="cart-count" hidden>0</span>
+                </button>
                 <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode">
                     <svg class="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
                     <svg class="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
@@ -215,7 +221,7 @@
             <div class="container">
                 <ul class="stats" data-reveal style="--d: 360ms">
                     <li><strong><span data-count="100">100</span>+</strong><span>Professionals trained in CAD</span></li>
-                    <li><strong><span data-count="6">6</span></strong><span>CAD &amp; design tools mastered</span></li>
+                    <li><strong><span data-count="3">3</span>+</strong><span>Years of hands-on CAD experience</span></li>
                     <li><strong>2025</strong><span>Autodesk Designathon honoree</span></li>
                     <li><strong>Weekly</strong><span>Free AutoCAD webinars</span></li>
                 </ul>
@@ -226,10 +232,10 @@
         <section class="marquee" aria-label="Software I use">
             <div class="marquee-track">
                 <ul>
-                    <li>SolidWorks</li><li>AutoCAD Mechanical</li><li>Autodesk Inventor</li><li>Fusion 360</li><li>Revit</li><li>Abaqus</li><li>CNC Machining</li><li>Photoshop</li><li>Illustrator</li><li>InDesign</li><li>Premiere Pro</li>
+                    <li>SolidWorks</li><li>AutoCAD Mechanical</li><li>Autodesk Inventor</li><li>Fusion 360</li><li>Revit</li><li>Abaqus</li><li>SolidWorks Simulation</li><li>DFM</li><li>CNC Machining</li><li>Photoshop</li><li>Illustrator</li><li>InDesign</li><li>Premiere Pro</li>
                 </ul>
                 <ul aria-hidden="true">
-                    <li>SolidWorks</li><li>AutoCAD Mechanical</li><li>Autodesk Inventor</li><li>Fusion 360</li><li>Revit</li><li>Abaqus</li><li>CNC Machining</li><li>Photoshop</li><li>Illustrator</li><li>InDesign</li><li>Premiere Pro</li>
+                    <li>SolidWorks</li><li>AutoCAD Mechanical</li><li>Autodesk Inventor</li><li>Fusion 360</li><li>Revit</li><li>Abaqus</li><li>SolidWorks Simulation</li><li>DFM</li><li>CNC Machining</li><li>Photoshop</li><li>Illustrator</li><li>InDesign</li><li>Premiere Pro</li>
                 </ul>
             </div>
         </section>
@@ -355,6 +361,7 @@
                 </ol>
                 <div class="process-cta" data-reveal>
                     <a href="#brief" class="btn btn-sun btn-lg">Start with step 1 <svg><use href="#i-arrow"/></svg></a>
+                    <button type="button" class="btn btn-outline btn-lg" data-booking hidden><svg><use href="#i-calendar"/></svg> Book a free call</button>
                 </div>
             </div>
         </section>
@@ -413,13 +420,20 @@
                             </ul>
                         </li>
                         <li class="t-item" data-reveal>
+                            <span class="t-dot bg-blue"></span>
+                            <p class="t-date">2025 &ndash; 2026</p>
+                            <h3>Leader, Workshop &amp; Exhibition Planning <span>&middot; WIESS 4.0</span></h3>
+                            <ul>
+                                <li>Led workshop and exhibition planning for the Women in Engineering Students Summit 4.0 at the University of Nairobi.</li>
+                        <li class="t-item" data-reveal>
                             <span class="t-dot bg-teal"></span>
                             <p class="t-date">Jun &ndash; Aug 2025</p>
                             <h3>Industrial Attachment Trainee <span>&middot; KIRDI</span></h3>
                             <ul>
-                                <li>Operated CNC laser cutting and bending machines to fabricate L-beams, car bumpers and machine casings.</li>
-                                <li>Arc and TIG welding of gas stove jikos and air exchangers; lathe machining of shafts and bushings.</li>
-                                <li>Pump testing and assembly of machinery with V-belts and bearings.</li>
+                                <li>Designed and fabricated jiko stove components from sheet metal, applying DFM principles and manufacturing tolerances.</li>
+                                <li>Contributed to the design and fabrication of a poultry de-feathering machine, from concept to final assembly.</li>
+                                <li>Created 3D models, assemblies and 2D technical drawings in SolidWorks, Inventor and Fusion 360.</li>
+                                <li>Operated CNC laser cutting and bending machines; arc and TIG welding, shaft milling and lathe work.</li>
                             </ul>
                         </li>
                         <li class="t-item" data-reveal>
@@ -429,6 +443,8 @@
                             <ul>
                                 <li>Autodesk Designathon 2025, Honorable Mention: designed a solar-powered sustainable outdoor hub for a university campus.</li>
                                 <li>Validated the design through 3D modelling and structural simulation in Fusion 360.</li>
+                            </ul>
+                        </li>
                             </ul>
                         </li>
                         <li class="t-item" data-reveal>
@@ -448,11 +464,20 @@
                                 <p class="t-date">2021 &ndash; 2026</p>
                                 <h4>BSc Mechanical Engineering</h4>
                                 <p>University of Nairobi</p>
+                                <ul class="chip-row edu-courses">
+                                    <li class="chip">Engineering Design</li>
+                                    <li class="chip">CAD/CAM</li>
+                                    <li class="chip">Manufacturing Processes</li>
+                                    <li class="chip">Strength of Materials</li>
+                                    <li class="chip">Thermodynamics</li>
+                                    <li class="chip">Fluid Mechanics</li>
+                                </ul>
+                                <p class="edu-note">Member, MESA &amp; ESA (2022 &ndash; 2026)</p>
                             </div>
                             <div class="edu">
                                 <p class="t-date">2017 &ndash; 2020</p>
-                                <h4>Kenya Certificate of Secondary Education</h4>
-                                <p>St. Paul's Aoch Muga</p>
+                                <h4>KCSE, Mean Grade A</h4>
+                                <p>Aoch Muga Secondary School, Homa Bay</p>
                             </div>
                         </div>
 
@@ -462,6 +487,7 @@
                                 <li><svg><use href="#i-check"/></svg> Certified SOLIDWORKS Associate (CSWA)</li>
                                 <li><svg><use href="#i-check"/></svg> Autodesk Inventor Design Certification</li>
                                 <li><svg><use href="#i-check"/></svg> Autodesk Designathon 2025, Honorable Mention</li>
+                                <li><svg><use href="#i-check"/></svg> Autodesk Designathon 2026, Participant</li>
                                 <li><svg><use href="#i-check"/></svg> SOLIDWORKS 2024 Essential Training</li>
                                 <li><svg><use href="#i-check"/></svg> Premiere Pro Essential Training</li>
                             </ul>
@@ -471,6 +497,7 @@
                             <h3><span class="side-icon bg-teal"><svg><use href="#i-globe"/></svg></span> Languages</h3>
                             <div class="lang"><span>English</span><small>Full professional</small></div>
                             <div class="lang"><span>French</span><small>Native / bilingual</small></div>
+                            <div class="lang"><span>Kiswahili</span><small>Fluent</small></div>
                         </div>
                     </aside>
                 </div>
@@ -495,6 +522,57 @@
                 <!-- Cards are generated from js/packages.js -->
                 <div class="package-grid" id="package-grid"></div>
                 <p class="pricing-note" data-reveal>Every project is different. Prices are a starting point and your final quote depends on scope and deadline.</p>
+            </div>
+        </section>
+
+        <!-- ===================== COST ESTIMATOR (rates in js/rates.js) ===================== -->
+        <section class="section estimator" id="estimator" aria-labelledby="est-title" hidden>
+            <div class="container">
+                <header class="section-head center">
+                    <p class="kicker" data-reveal>Cost estimator</p>
+                    <h2 class="section-title" id="est-title" data-reveal style="--d: 80ms">Get an <em>instant</em> estimate.</h2>
+                    <p class="section-lede" data-reveal style="--d: 140ms">Pick what you need and see a price range straight away. Add it to your quote when you're ready.</p>
+                </header>
+
+                <div class="est-wrap" data-reveal>
+                    <form class="est-form" id="est-form" onsubmit="return false">
+                        <div class="q">
+                            <p class="q-label">Type of work</p>
+                            <div class="opts" id="est-cats"></div>
+                        </div>
+                        <div class="field">
+                            <label for="est-service">Service</label>
+                            <select id="est-service"></select>
+                        </div>
+                        <div class="field">
+                            <label for="est-qty" id="est-qty-label">Quantity</label>
+                            <div class="stepper">
+                                <button type="button" class="stepper-btn" data-step="-1" aria-label="Decrease">−</button>
+                                <input id="est-qty" type="number" min="1" max="999" value="1" inputmode="numeric">
+                                <button type="button" class="stepper-btn" data-step="1" aria-label="Increase">+</button>
+                            </div>
+                        </div>
+                        <div class="q">
+                            <p class="q-label">Complexity</p>
+                            <div class="opts" id="est-complexity"></div>
+                        </div>
+                        <div class="q">
+                            <p class="q-label">Deadline</p>
+                            <div class="opts" id="est-urgency"></div>
+                        </div>
+                    </form>
+
+                    <aside class="est-result" aria-live="polite">
+                        <p class="est-label">Estimated cost</p>
+                        <p class="est-price" id="est-price">–</p>
+                        <dl class="est-breakdown" id="est-breakdown"></dl>
+                        <p class="est-note">This is an estimate only. Your final quote depends on the exact scope and files.</p>
+                        <div class="est-actions">
+                            <button type="button" class="btn btn-sun btn-block" id="est-add"><svg><use href="#i-cart"/></svg> Add to quote</button>
+                            <a href="#brief" class="btn btn-ghost-dark btn-block" id="est-brief">Request an exact quote <svg><use href="#i-arrow"/></svg></a>
+                        </div>
+                    </aside>
+                </div>
             </div>
         </section>
 
@@ -941,6 +1019,7 @@
                     <div class="faq-actions" data-reveal style="--d: 200ms">
                         <a class="btn btn-green" href="https://wa.me/254708639473?text=Hi%20Edison%2C%20I%20have%20a%20question." target="_blank" rel="noopener"><svg><use href="#i-whatsapp"/></svg> Ask on WhatsApp</a>
                         <a class="btn btn-outline" href="#brief">Start a project</a>
+                        <button type="button" class="btn btn-outline" data-booking hidden><svg><use href="#i-calendar"/></svg> Book a call</button>
                     </div>
                 </div>
 
@@ -989,6 +1068,20 @@
             </div>
         </section>
 
+        <!-- ===================== INSTAGRAM (feed URL in js/config.js) ===================== -->
+        <section class="section insta" id="instagram" aria-labelledby="insta-title">
+            <div class="container">
+                <header class="section-head split">
+                    <div>
+                        <p class="kicker" data-reveal>Instagram</p>
+                        <h2 class="section-title" id="insta-title" data-reveal style="--d: 80ms">Fresh from the <em>studio</em>.</h2>
+                    </div>
+                    <a class="btn btn-insta" href="https://www.instagram.com/e_d_i_s_o_n_engineer/" target="_blank" rel="noopener" data-reveal style="--d: 140ms"><svg><use href="#i-instagram"/></svg> @e_d_i_s_o_n_engineer</a>
+                </header>
+                <div class="insta-grid" id="insta-grid" data-reveal></div>
+            </div>
+        </section>
+
         <!-- ===================== CONTACT ===================== -->
         <section class="section contact" id="contact" aria-labelledby="contact-title">
             <div class="contact-bg" aria-hidden="true">
@@ -1012,6 +1105,12 @@
                             <a href="#contact" class="js-email" data-user="edisonochieng24" data-domain="gmail.com">
                                 <span class="c-icon bg-coral"><svg><use href="#i-mail"/></svg></span>
                                 <span><strong>Email</strong>Send me a message</span>
+                            </a>
+                        </li>
+                        <li data-booking-item hidden>
+                            <a href="#contact" data-booking>
+                                <span class="c-icon bg-sun"><svg><use href="#i-calendar"/></svg></span>
+                                <span><strong>Book a call</strong>Pick a time that suits you</span>
                             </a>
                         </li>
                         <li>
@@ -1078,6 +1177,7 @@
                 <a href="#experience">Experience</a>
                 <a href="#process">How I work</a>
                 <a href="#pricing">Pricing</a>
+                <a href="#estimator" data-estimator-link hidden>Cost estimator</a>
                 <a href="#reviews">Reviews</a>
                 <a href="#reports">Reports</a>
                 <a href="#brief">Start a project</a>
@@ -1212,6 +1312,81 @@
         <span class="fab-wa-label">Chat with me</span>
     </a>
 
+    <!-- ===================== QUOTE CART (drawer) ===================== -->
+    <div class="drawer" id="cart" role="dialog" aria-modal="true" aria-labelledby="cart-title" aria-hidden="true">
+        <div class="modal-backdrop" data-cart-close></div>
+        <aside class="drawer-panel">
+            <header class="drawer-head">
+                <h2 id="cart-title"><svg><use href="#i-cart"/></svg> Your quote</h2>
+                <button class="modal-close" data-cart-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
+            </header>
+            <div class="drawer-body">
+                <ul class="cart-list" id="cart-list"></ul>
+                <div class="cart-empty" id="cart-empty">
+                    <span class="done-icon"><svg><use href="#i-cart"/></svg></span>
+                    <h3>Your quote is empty</h3>
+                    <p>Add packages or estimates and send them all in one request.</p>
+                    <div class="done-actions">
+                        <a href="#pricing" class="btn btn-outline" data-cart-close>Browse packages</a>
+                    </div>
+                </div>
+                <p class="cart-total" id="cart-total" hidden></p>
+
+                <form class="cart-form" id="cart-form" novalidate hidden>
+                    <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                    <h3>Send your quote request</h3>
+                    <div class="field">
+                        <label for="cart-name">Full name <span class="req">*</span></label>
+                        <input id="cart-name" name="name" type="text" autocomplete="name" required>
+                    </div>
+                    <div class="field">
+                        <label for="cart-email">Email <span class="req">*</span></label>
+                        <input id="cart-email" name="email" type="email" autocomplete="email" required>
+                    </div>
+                    <div class="field">
+                        <label for="cart-phone">Phone / WhatsApp <small>(optional)</small></label>
+                        <input id="cart-phone" name="Phone / WhatsApp" type="tel" autocomplete="tel">
+                    </div>
+                    <div class="field">
+                        <label for="cart-notes">Notes <small>(optional)</small></label>
+                        <textarea id="cart-notes" name="Notes" rows="3" placeholder="Deadlines, references, anything I should know..."></textarea>
+                    </div>
+                    <p class="form-error" id="cart-error" role="alert" hidden></p>
+                    <button type="submit" class="btn btn-sun btn-lg btn-block" id="cart-send">Send quote request</button>
+                    <button type="button" class="btn btn-green btn-block" id="cart-wa"><svg><use href="#i-whatsapp"/></svg> Send on WhatsApp instead</button>
+                </form>
+
+                <div class="form-done" id="cart-done" hidden tabindex="-1">
+                    <span class="done-icon"><svg><use href="#i-check"/></svg></span>
+                    <h3>Quote request sent!</h3>
+                    <p>Thanks! I'll review everything and reply with a detailed quote as soon as possible.</p>
+                    <button type="button" class="btn btn-outline" data-cart-close>Close</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- ===================== BOOKING (popup, URL in js/config.js) ===================== -->
+    <div class="modal booking-modal" id="booking-modal" role="dialog" aria-modal="true" aria-label="Book a call" aria-hidden="true">
+        <div class="modal-backdrop" data-booking-close></div>
+        <div class="modal-panel booking-panel">
+            <button class="modal-close" data-booking-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
+            <div class="booking-head">
+                <p class="kicker">Free consultation</p>
+                <h2>Book a call with Edison</h2>
+            </div>
+            <div class="booking-frame" id="booking-frame"></div>
+            <p class="booking-alt">Booking page not loading? <a id="booking-open" href="#" target="_blank" rel="noopener">Open it in a new tab</a>.</p>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden>
+        <span class="toast-icon"><svg><use href="#i-check"/></svg></span>
+        <span class="toast-text" id="toast-text"></span>
+        <button type="button" class="toast-action" id="toast-action">View quote</button>
+    </div>
+
     <!-- ===================== REVIEW FORM (popup) ===================== -->
     <div class="modal review-modal" id="review-modal" role="dialog" aria-modal="true" aria-labelledby="rv-title" aria-hidden="true">
         <div class="modal-backdrop" data-close></div>
@@ -1327,14 +1502,16 @@
         <div class="pdf-loading" id="pdf-loading"><div class="pdf-spinner"></div><span id="pdf-loading-text">Loading...</span></div>
     </div>
 
-    <script src="js/config.js?v=1"></script>
-    <script src="js/projects.js?v=3"></script>
+    <script src="js/config.js?v=2"></script>
+    <script src="js/projects.js?v=4"></script>
     <script src="js/reviews.js?v=2"></script>
-    <script src="js/packages.js?v=1"></script>
-    <script src="js/i18n-fr.js?v=1"></script>
+    <script src="js/packages.js?v=2"></script>
+    <script src="js/rates.js?v=1"></script>
+    <script src="js/i18n-fr.js?v=2"></script>
     <script src="js/i18n.js?v=1"></script>
-    <script src="js/main.js?v=3"></script>
-    <script src="js/forms.js?v=2"></script>
+    <script src="js/main.js?v=4"></script>
+    <script src="js/forms.js?v=3"></script>
+    <script src="js/shop.js?v=1"></script>
     <script src="js/analytics.js?v=1"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
