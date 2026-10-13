@@ -1,19 +1,19 @@
 /* =========================================================================
-   Language switch (English / Français)
+   Language switch (English / Français / Kiswahili)
 
-   The page is written in English. When French is selected, every piece of
-   visible text found in the dictionary (js/i18n-fr.js) is swapped for its
-   French version, including text added later (project windows, form
-   messages...). Switching back restores the original English.
+   The page is written in English. When another language is selected, every
+   piece of visible text found in its dictionary (js/i18n-fr.js,
+   js/i18n-sw.js) is swapped for the translation, including text added later
+   (project windows, form messages...). Switching back restores the English.
 
-   To change a translation, edit js/i18n-fr.js. Missing entries simply stay
-   in English, so new content never breaks the page.
+   To change a translation, edit the dictionary file. Missing entries simply
+   stay in English, so new content never breaks the page.
    ========================================================================= */
 (function () {
     'use strict';
 
-    const DICT = { fr: window.I18N_FR || {} };
-    const PATTERNS = { fr: window.I18N_FR_PATTERNS || [] };
+    const DICT = { fr: window.I18N_FR || {}, sw: window.I18N_SW || {} };
+    const PATTERNS = { fr: window.I18N_FR_PATTERNS || [], sw: window.I18N_SW_PATTERNS || [] };
     const ATTRS = ['placeholder', 'aria-label', 'title', 'alt'];
     const SKIP = 'script, style, noscript, textarea, [data-no-i18n], .brand-text, .marquee, code';
     const textState = new WeakMap();   // text node -> { en, tr }
@@ -135,10 +135,11 @@
         if (b) setLang(b.dataset.lang, true);
     });
 
-    // Initial language: ?lang=fr in the link, then the visitor's last choice
+    // Initial language: ?lang=fr / ?lang=sw in the link, then the visitor's last choice
     let initial = 'en';
     const q = new URLSearchParams(location.search).get('lang');
     try { initial = localStorage.getItem('lang') || initial; } catch (e) { /* storage blocked */ }
-    if (q === 'fr' || q === 'en') initial = q;
+    if (q === 'fr' || q === 'sw' || q === 'en') initial = q;
+    if (!DICT[initial] && initial !== 'en') initial = 'en';
     document.addEventListener('DOMContentLoaded', () => setLang(initial, false));
 })();

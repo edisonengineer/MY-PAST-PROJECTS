@@ -1,12 +1,69 @@
 {
-    "name": "Edison Ochieng | Portfolio",
+    "name": "Edison Ochieng | Nexus CAD Studio",
     "short_name": "Edison Ochieng",
-    "start_url": "./",
+    "start_url": "./?source=app",
     "display": "standalone",
     "background_color": "#fbf6ee",
     "theme_color": "#0e1a3a",
     "icons": [
-        { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-        { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "id": "./",
+    "description": "Mechanical design engineer and graphic designer: CAD design, simulation, training and graphic design.",
+    "scope": "./",
+    "orientation": "portrait-primary",
+    "categories": [
+        "business",
+        "design",
+        "productivity"
+    ],
+    "shortcuts": [
+        {
+            "name": "Start a project",
+            "url": "./#brief",
+            "icons": [
+                {
+                    "src": "icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Cost estimator",
+            "url": "./#estimator",
+            "icons": [
+                {
+                    "src": "icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Book a call",
+            "url": "./#contact",
+            "icons": [
+                {
+                    "src": "icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
     ]
 }
