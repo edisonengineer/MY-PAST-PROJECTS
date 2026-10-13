@@ -14,12 +14,12 @@ window.SITE_CONFIG = {
 
     // Booking calendar: paste your free Calendly link (e.g. 'https://calendly.com/edisonochieng/30min')
     // or a Google Calendar appointment page link. Leave '' to hide the "Book a call" buttons.
-    bookingUrl: '',
+    bookingUrl: 'https://calendar.app.google/6gvrs3eFDVQXZv2g6',
 
     // Instagram feed: create a free feed at https://behold.so, connect your Instagram,
     // choose "JSON" and paste the feed URL here (e.g. 'https://feeds.behold.so/AbC123').
     // Leave '' to show a "Follow on Instagram" card instead.
-    instagramFeedUrl: '',
+    instagramFeedUrl: 'https://feeds.behold.so/fHxS9fvbggyjvBUKiQMn',
     instagramHandle: 'e_d_i_s_o_n_engineer',
 
     // 3D viewer library, only downloaded when someone opens a project's 3D model

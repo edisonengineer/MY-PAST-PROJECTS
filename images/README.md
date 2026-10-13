@@ -82,15 +82,16 @@ Share a French link directly with `?lang=fr`, e.g.
 `js/config.js` holds the Web3Forms key, WhatsApp number and analytics code.
 
 ## Cost estimator
-Open `js/rates.js`, replace the SAMPLE `min` / `max` prices with your real
-rates (KES per unit), then change `ready: false` to `ready: true`.
-Until then the estimator is hidden from visitors. Preview it any time by
-adding `?preview=estimator` to the site address.
+Rates live in `js/rates.js` (starting price per unit, in KES). To show a
+range instead of "From KES ...", fill in `max`. You can also add optional
+complexity or express-deadline surcharges there (instructions at the top).
 
 ## Booking calendar
-Create a free booking page (Calendly, or Google Calendar "Appointment
-schedules") and paste its link into `js/config.js` → `bookingUrl`.
-"Book a call" buttons then appear in How I work, FAQ and Contact.
+Set in `js/config.js` → `bookingUrl` (currently your Google booking link).
+Short `calendar.app.google` links open in a new tab. To show the calendar
+inside the site instead, open your booking page in Google Calendar, choose
+Share → Website embed, copy the link inside `src="..."` (it ends in
+`?gv=true`) and paste that as `bookingUrl`.
 
 ## Instagram feed
 Create a free feed at https://behold.so, connect your Instagram, choose the

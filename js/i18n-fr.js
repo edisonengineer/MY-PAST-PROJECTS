@@ -118,7 +118,7 @@ window.I18N_FR = {
     "Print": "Impression",
     "Mazingira Day Posters": "Affiches Mazingira Day",
     "Environmental awareness campaign": "Campagne de sensibilisation environnementale",
-    "Poster design": "Conception d'affiches",
+    "Poster design": "Conception d'affiche",
     "Campaign": "Campagne",
     "Evening Sermon": "Sermon du soir",
     "Event graphic": "Visuel d'événement",
@@ -647,7 +647,7 @@ window.I18N_FR = {
     "Get an": "Obtenez une",
     "instant": "estimation",
     "estimate.": "immédiate.",
-    "Pick what you need and see a price range straight away. Add it to your quote when you're ready.": "Choisissez ce dont vous avez besoin et voyez tout de suite une fourchette de prix. Ajoutez-la à votre devis quand vous êtes prêt.",
+    "Pick what you need and see a starting price straight away. Add it to your quote when you're ready.": "Choisissez ce dont vous avez besoin et voyez tout de suite un prix de départ. Ajoutez-le à votre devis quand vous êtes prêt.",
     "Type of work": "Type de travail",
     "Quantity": "Quantité",
     "Decrease": "Diminuer",
@@ -696,7 +696,17 @@ window.I18N_FR = {
     "studio": "studio",
     "Behind-the-scenes CAD work, new designs and webinar updates.": "Les coulisses de mes projets CAO, mes nouvelles créations et l'actualité des webinaires.",
     "Follow on Instagram": "Suivre sur Instagram",
-    "Instagram post": "Publication Instagram"
+    "Instagram post": "Publication Instagram",
+    "Starting price": "Prix de départ",
+    "Assembly & drawings": "Assemblage et plans",
+    "Simulation study": "Étude de simulation",
+    "Poster printing": "Impression d'affiche",
+    "Social media pack": "Pack réseaux sociaux",
+    "Brand identity": "Identité de marque",
+    "Area (square metres)": "Surface (mètres carrés)",
+    "Number of packs": "Nombre de packs",
+    "Price per design": "Prix par visuel",
+    "Printing from KES 1,000 per m²": "Impression à partir de 1 000 KES le m²"
 };
 
 window.I18N_FR_PATTERNS = [
@@ -714,5 +724,6 @@ window.I18N_FR_PATTERNS = [
     [/^Sorry, that didn't go through \((.*)\)\. Please try again in a moment\.$/, "Désolé, l'envoi a échoué ($1). Veuillez réessayer dans un instant."],
     [/^Loading (\d+)%$/, "Chargement $1 %"],
     [/^Open your quote \((\d+) items?\)$/, "Ouvrir votre devis ($1 éléments)"],
-    [/^Follow @(.+)$/, "Suivre @$1"]
+    [/^Follow @(.+)$/, "Suivre @$1"],
+    [/^From KES ([\d,]+)$/, "À partir de $1 KES"]
 ];
