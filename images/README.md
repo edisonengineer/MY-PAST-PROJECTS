@@ -87,7 +87,8 @@ range instead of "From KES ...", fill in `max`. You can also add optional
 complexity or express-deadline surcharges there (instructions at the top).
 
 ## Booking calendar
-Set in `js/config.js` → `bookingUrl` (currently your Google booking link).
+Set in `js/config.js` → `bookingUrl` (currently your Google booking page's
+embed link, which shows the calendar inside the site).
 Short `calendar.app.google` links open in a new tab. To show the calendar
 inside the site instead, open your booking page in Google Calendar, choose
 Share → Website embed, copy the link inside `src="..."` (it ends in

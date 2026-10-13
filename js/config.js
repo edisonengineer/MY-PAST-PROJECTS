@@ -14,7 +14,7 @@ window.SITE_CONFIG = {
 
     // Booking calendar: paste your free Calendly link (e.g. 'https://calendly.com/edisonochieng/30min')
     // or a Google Calendar appointment page link. Leave '' to hide the "Book a call" buttons.
-    bookingUrl: 'https://calendar.app.google/6gvrs3eFDVQXZv2g6',
+    bookingUrl: 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ3DPp3v2YcJ-2Jg-kt-_l8oWDqY2_2h1RZg0k0hgOih-VRzaBZTL6fiqArzJz3wKnNnUc2gD_Jx?gv=true',
 
     // Instagram feed: create a free feed at https://behold.so, connect your Instagram,
     // choose "JSON" and paste the feed URL here (e.g. 'https://feeds.behold.so/AbC123').
