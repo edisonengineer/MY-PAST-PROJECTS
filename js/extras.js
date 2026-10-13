@@ -148,6 +148,13 @@
     }
 
     /* ======================================================================
+       RATE CARD: the download button appears once the PDF exists
+       ====================================================================== */
+    $$('[data-if-pdf]').forEach((el) => {
+        if (window.Site && window.Site.fileExists) window.Site.fileExists(el.getAttribute('href')).then((ok) => { if (ok) el.hidden = false; });
+    });
+
+    /* ======================================================================
        INSTALLABLE APP (PWA)
        ====================================================================== */
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {

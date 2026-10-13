@@ -1151,6 +1151,8 @@ svg.flip { transform: scaleX(-1); }
 .package-cta { width: 100%; }
 .package-cta:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
 .pricing-note { margin-top: 28px; text-align: center; color: var(--muted); font-size: 0.9rem; }
+.pricing-download { margin-top: 18px; text-align: center; }
+.pricing-download .btn[hidden] { display: none; }
 
 /* ---------- Free download ---------- */
 .freebie { background: var(--navy); color: #fff; padding: clamp(64px, 9vw, 110px) 0; overflow: hidden; position: relative; isolation: isolate; }
