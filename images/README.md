@@ -33,6 +33,12 @@ at the top of `js/pdf-viewer.js`.
 Open `js/projects.js`, copy one of the existing blocks, and change the
 details. Use `category: 'engineering'` or `category: 'graphic'`.
 
+Every project also has its own page (`projects/<id>.html`) for sharing on
+LinkedIn or WhatsApp. After adding or editing a project, rebuild the pages
+(needs Node.js):
+
+    node tools/build-pages.js
+
 ---
 
 # Other things you can add or change
@@ -58,6 +64,10 @@ Keep files under about 10 MB so they load quickly on phones.
 ## Prices
 Open `js/packages.js` and type your price, e.g. `price: 'KES 3,500'`.
 Leave it as `''` to show "Custom quote".
+After changing prices, rebuild the downloadable rate card
+(`pdfs/nexus-cad-studio-rate-card.pdf`):
+
+    node tools/build-rate-card.js
 
 ## Reviews
 When a review arrives in your email, copy it into `js/reviews.js`
@@ -71,12 +81,44 @@ Your dashboard at `https://edisonochieng.goatcounter.com` then shows visits,
 plus clicks on WhatsApp, email, CV downloads, briefs, reviews, webinar
 sign-ups and cheat sheet downloads.
 
-## French translation
-Translations live in `js/i18n-fr.js`. The left side is the exact English text
-on the page and the right side is the French. Anything new you add stays in
-English until you add a line for it.
-Share a French link directly with `?lang=fr`, e.g.
-`https://edisonengineer.github.io/MY-PAST-PROJECTS/?lang=fr`
+## French and Kiswahili translations
+Translations live in `js/i18n-fr.js` and `js/i18n-sw.js`. The left side is
+the exact English text on the page and the right side is the translation.
+Anything new you add stays in English until you add a line for it.
+Share a link in a language directly with `?lang=fr` or `?lang=sw`, e.g.
+`https://edisonengineer.github.io/MY-PAST-PROJECTS/?lang=sw`
+
+## CAD Tips blog
+Articles live in `content/blog/`, one `.html` file each. Copy an existing
+one, change the details block at the top (title, description, date, tags,
+colour `theme` and `icon`), and write the article below it using `<p>`,
+`<h2>` and `<ul><li>`. Then run `node tools/build-pages.js`. It creates the
+page in `blog/`, updates the CAD Tips list, the 3 latest cards on the
+homepage and `sitemap.xml`. Articles are shown in English in every language.
+
+## Payments (M-Pesa / card)
+In `js/config.js` → `payments`, fill in your Till number (`mpesaTill`) or
+Paybill (`mpesaPaybill` + `mpesaAccount`), and optionally a Paystack payment
+page link (`paystackUrl`). The "Make a payment" link and window appear only
+once one of these is set.
+
+## Webinar countdown and recordings
+In `js/config.js` → `webinar`, set `day` (e.g. `'Saturday'`) and `time` in
+Nairobi time (e.g. `'18:00'`) to show a live countdown. To list past
+sessions, add YouTube videos to `recordings`:
+`{ id: 'dQw4w9WgXcQ', title: 'AutoCAD basics' }` (the id is the part after
+`v=` in the YouTube link).
+
+## Certificates
+Save a photo or scan of each certificate in `images/certificates/` with the
+file name listed in `js/certificates.js` (e.g. `cswa.jpg`). The "View
+certificate" button appears automatically. Add a `verify` link if the
+issuer gives you one.
+
+## Installable app
+The site can be installed on phones and computers ("Install the app" in the
+footer, or "Add to Home screen") and works offline. If you change a lot of
+files, bump `VERSION` at the top of `sw.js` so visitors get the update.
 
 ## Settings
 `js/config.js` holds the Web3Forms key, WhatsApp number and analytics code.
