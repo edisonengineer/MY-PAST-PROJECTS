@@ -1387,6 +1387,12 @@ body.no-scroll .fab-wa, body.no-scroll .fab-top { opacity: 0; visibility: hidden
 .countdown-grid strong { display: block; font-family: var(--serif); font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1; font-variant-numeric: tabular-nums; }
 .countdown-grid span { font-size: 0.72rem; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 0.08em; }
 .countdown-live { font-family: var(--serif); font-size: 1.4rem; color: var(--sun); }
+@media (max-width: 400px) {
+    .countdown { padding: 20px 16px; }
+    .countdown-grid { gap: 6px; }
+    .countdown-grid div { padding: 10px 2px; min-width: 0; }
+    .countdown-grid span { font-size: 0.62rem; letter-spacing: 0.02em; }
+}
 .recordings { margin-top: 44px; }
 .recordings h3 { font-family: var(--serif); font-weight: 600; font-size: 1.5rem; margin-bottom: 16px; }
 .recordings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 18px; }
