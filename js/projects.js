@@ -40,7 +40,8 @@ window.PROJECTS = [
         gallery: [
             'images/engineering/designathon/designathon-hub-01.jpg',
             'images/engineering/designathon/designathon-hub-02.jpg',
-            'images/engineering/designathon/designathon-hub-03.jpg'
+            'images/engineering/designathon/designathon-hub-03.jpg',
+            'images/engineering/designathon/designathon-hub-04.jpg'
         ],
         summary: 'A team design for an accessible, all-season outdoor workspace on a university campus, powered by renewable energy. The entry earned an Honorable Mention at the Autodesk Designathon 2025.',
         points: [
