@@ -170,6 +170,27 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "Bend allowance calculator",
+  "d": "Free sheet-metal bend allowance, bend deduction and flat length calculator.",
+  "u": "calculators/index.html#bend",
+  "x": "sheet metal bend allowance deduction k-factor flat pattern blank length calculator fabrication tool free"
+ },
+ {
+  "k": "page",
+  "t": "Print size & DPI calculator",
+  "d": "Pixels needed for A4, A3, A1, banners and business cards, and check if your image is big enough.",
+  "u": "calculators/index.html#print",
+  "x": "print size dpi pixels resolution a4 a3 a2 a1 a0 banner roll-up bleed poster image quality calculator tool free"
+ },
+ {
+  "k": "page",
+  "t": "Engineering unit converter",
+  "d": "Convert length, area, mass, force, pressure, torque and temperature units.",
+  "u": "calculators/index.html#units",
+  "x": "unit converter mm inch mpa psi newton lbf torque nm kg lb celsius fahrenheit conversion tool free"
+ },
+ {
+  "k": "page",
   "t": "Online CV",
   "d": "Experience, education, skills and certifications. Download as PDF.",
   "u": "cv/index.html",
