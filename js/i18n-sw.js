@@ -1107,7 +1107,10 @@ window.I18N_SW = {
     "Print size & DPI calculator": "Kikokotoo cha ukubwa wa kuchapisha na DPI",
     "Pixels needed for A4, A3, A1, banners and business cards, and check if your image is big enough.": "Pikseli zinazohitajika kwa A4, A3, A1, mabango na kadi za biashara, na ukague kama picha yako ni kubwa vya kutosha.",
     "Engineering unit converter": "Kibadilishaji vipimo vya kihandisi",
-    "Convert length, area, mass, force, pressure, torque and temperature units.": "Badilisha vipimo vya urefu, eneo, uzito, nguvu, shinikizo, msokoto na joto."
+    "Convert length, area, mass, force, pressure, torque and temperature units.": "Badilisha vipimo vya urefu, eneo, uzito, nguvu, shinikizo, msokoto na joto.",
+    "Heat-treated and tensile-tested AlSi10Mg specimens in the lab to calibrate the GTN–Hill’48 model": "Kutibu kwa joto na kupima kwa mvuto sampuli za AlSi10Mg maabara ili kurekebisha modeli ya GTN–Hill’48",
+    "FE simulation & lab testing": "Uigaji wa FE na majaribio ya maabara",
+    "Tensile testing": "Majaribio ya mvuto"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

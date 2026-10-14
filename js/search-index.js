@@ -131,7 +131,7 @@ window.SEARCH_INDEX = [
   "t": "Forming Limit Prediction for AM AlSi10Mg",
   "d": "Final-year project · 2025 – 2026",
   "u": "projects/final-year-project.html",
-  "x": "Predicting the forming limit curve of additively manufactured AlSi10Mg sheet through a coupled GTN–Hill’48 simulation of the Nakajima test, so that sheet-metal parts can be checked for failure before they are made. FEA Damage mechanics Sheet metal forming Coupled damage mechanics (GTN) with Hill’48 anisotropic plasticity Simulated the Nakajima stretch-forming test to build the forming limit curve Practical failure prediction for sheet-metal parts before manufacture Insight into material behaviour under forming, failure and process optimisation Final-year project AM AlSi10Mg FE simulation engineering"
+  "x": "Predicting the forming limit curve of additively manufactured AlSi10Mg sheet through a coupled GTN–Hill’48 simulation of the Nakajima test, so that sheet-metal parts can be checked for failure before they are made. FEA Damage mechanics Sheet metal forming Tensile testing Coupled damage mechanics (GTN) with Hill’48 anisotropic plasticity Heat-treated and tensile-tested AlSi10Mg specimens in the lab to calibrate the GTN–Hill’48 model Simulated the Nakajima stretch-forming test to build the forming limit curve Practical failure prediction for sheet-metal parts before manufacture Insight into material behaviour under forming, failure and process optimisation Final-year project AM AlSi10Mg FE simulation & lab testing engineering"
  },
  {
   "k": "project",
