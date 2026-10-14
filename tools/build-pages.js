@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=14';
+const CSS_V = 'css/style.css?v=16';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
@@ -158,6 +158,7 @@ function header(current) {
                 ${a('../blog/index.html', 'CAD Tips', 'blog')}
                 ${a('../index.html#pricing', 'Pricing')}
                 ${a('../training/index.html', 'Training', 'training')}
+                ${a('../calculators/index.html', 'Free tools', 'calculators')}
                 ${a('../index.html#contact', 'Contact')}
                 <button type="button" class="nav-search" data-search-open><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Search</button>
                 <a href="../index.html#brief" class="btn btn-sun nav-cta">Start a project</a>
@@ -203,6 +204,7 @@ function footer(extraScripts = '') {
                 <a href="../index.html#work">Work</a>
                 <a href="../blog/index.html">CAD Tips</a>
                 <a href="../training/index.html">CAD training</a>
+                <a href="../calculators/index.html">Free tools</a>
                 <a href="../index.html#pricing">Pricing</a>
                 <a href="../index.html#brief">Start a project</a>
                 <a href="../track/index.html">Track your project</a>
@@ -227,8 +229,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n-fr.js?v=12"></script>
-    <script defer src="../js/i18n-sw.js?v=9"></script>
+${extraScripts}    <script defer src="../js/i18n-fr.js?v=13"></script>
+    <script defer src="../js/i18n-sw.js?v=10"></script>
     <script defer src="../js/i18n.js?v=3"></script>
     <script defer src="../js/pages.js?v=3"></script>
     <script defer src="../js/search.js?v=1"></script>
@@ -606,6 +608,186 @@ ${newsletter()}    </main>
 ` + footer('    <script defer src="../js/config.js?v=8"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n');
 }
 
+/* ---------- Free tools (calculators) ---------- */
+function calculatorsPage() {
+    const url = SITE + 'calculators/';
+    const description = 'Free sheet-metal bend allowance calculator, print size & DPI calculator and engineering unit converter by Edison Ochieng, Nexus CAD Studio.';
+    const jsonld = {
+        '@context': 'https://schema.org',
+        '@graph': [
+            { '@type': 'WebApplication', name: 'Sheet metal bend allowance calculator', url: url + '#bend', applicationCategory: 'EngineeringApplication', operatingSystem: 'Any', offers: { '@type': 'Offer', price: 0, priceCurrency: 'KES' } },
+            { '@type': 'WebApplication', name: 'Print size and DPI calculator', url: url + '#print', applicationCategory: 'DesignApplication', operatingSystem: 'Any', offers: { '@type': 'Offer', price: 0, priceCurrency: 'KES' } },
+            { '@type': 'WebApplication', name: 'Engineering unit converter', url: url + '#units', applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any', offers: { '@type': 'Offer', price: 0, priceCurrency: 'KES' } }
+        ]
+    };
+    const num = (name, label, value, attrs = '') => `<div class="field"><label for="c-${name}">${label}</label><input id="c-${name}" name="${name}" type="number" inputmode="decimal" step="any" value="${value}" ${attrs}></div>`;
+    const cta = (text, href, brief) => `<p class="tool-cta"><span>${text}</span> <a class="btn btn-sun" href="${href}"${brief ? ` data-brief="${brief}"` : ''}>Start a project ${icon('arrow')}</a></p>`;
+    return head({ title: 'Free Tools: Bend Allowance, Print DPI & Unit Converter | Edison Ochieng', description, url, image: SITE + 'og-image.jpg', type: 'website', jsonld }) + '\n' + header('calculators') + `
+    <main id="main">
+        <section class="page-hero theme-teal">
+            <div class="container page-hero-inner">
+                <nav class="crumbs" aria-label="Breadcrumb">
+                    <a href="../index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">Free tools</span>
+                </nav>
+                <p class="page-kicker">Free tools</p>
+                <h1 class="page-title">Handy calculators for makers and designers.</h1>
+                <p class="page-lede">Quick answers for sheet-metal parts, print files and engineering units. Free, no sign-up, and everything runs in your browser.</p>
+                <nav class="tool-nav" aria-label="Tools">
+                    <a href="#bend">${icon('gear')} Bend allowance</a>
+                    <a href="#print">${icon('image')} Print size &amp; DPI</a>
+                    <a href="#units">${icon('chart')} Unit converter</a>
+                </nav>
+            </div>
+        </section>
+
+        <section class="section tool" id="bend">
+            <div class="container tool-grid">
+                <div class="tool-intro">
+                    <p class="kicker">Sheet metal</p>
+                    <h2 class="tool-title">Bend allowance &amp; flat length</h2>
+                    <p>Work out how long to cut a flat blank so it bends to the right size. Enter the outside lengths of the two flanges, the material thickness, the inside bend radius and the K-factor.</p>
+                    <details class="tool-help">
+                        <summary>How it's calculated</summary>
+                        <ul>
+                            <li><strong>Bend allowance</strong> BA = angle (radians) × (R + K × T)</li>
+                            <li><strong>Outside setback</strong> OSSB = tan(angle ÷ 2) × (R + T)</li>
+                            <li><strong>Bend deduction</strong> BD = 2 × OSSB − BA</li>
+                            <li><strong>Flat length</strong> = A + B − BD</li>
+                        </ul>
+                        <p>The K-factor is where the neutral axis sits through the thickness. It depends on the material, tooling and bending method, and is usually 0.3 to 0.5. Ask your fabricator for theirs.</p>
+                    </details>
+                </div>
+                <div class="tool-card">
+                    <form id="bend-form" class="tool-form" novalidate>
+                        <div class="field-grid">
+                            <div class="field"><label for="c-unit">Units</label><select id="c-unit" name="unit"><option value="mm">Millimetres (mm)</option><option value="in">Inches (in)</option></select></div>
+                            ${num('angle', 'Bend angle (°)', 90, 'min="1" max="179"')}
+                        </div>
+                        <div class="field-grid">
+                            ${num('thickness', 'Thickness T (<span class="unit-label">mm</span>)', 2, 'min="0"')}
+                            ${num('radius', 'Inside radius R (<span class="unit-label">mm</span>)', 2, 'min="0"')}
+                        </div>
+                        <div class="field">
+                            <label for="c-k">K-factor</label>
+                            <input id="c-k" name="k" type="number" inputmode="decimal" step="0.01" min="0" max="1" value="0.33">
+                            <div class="k-presets"><span>Common:</span> <button type="button" data-k="0.33">0.33</button><button type="button" data-k="0.40">0.40</button><button type="button" data-k="0.44">0.44</button><button type="button" data-k="0.50">0.50</button></div>
+                        </div>
+                        <div class="field-grid">
+                            ${num('flangeA', 'Flange A, outside (<span class="unit-label">mm</span>)', 50, 'min="0"')}
+                            ${num('flangeB', 'Flange B, outside (<span class="unit-label">mm</span>)', 30, 'min="0"')}
+                        </div>
+                        <p class="form-error" id="bend-error" role="alert" hidden></p>
+                    </form>
+                    <div class="tool-result" aria-live="polite">
+                        <svg id="bend-svg" class="bend-svg" viewBox="0 0 300 200" role="img" aria-label="Side view of the bent part"></svg>
+                        <dl class="tool-out">
+                            <div class="is-main"><dt>Flat length</dt><dd id="bend-flat">–</dd></div>
+                            <div><dt>Bend allowance</dt><dd id="bend-ba">–</dd></div>
+                            <div><dt>Bend deduction</dt><dd id="bend-bd">–</dd></div>
+                            <div><dt>Outside setback</dt><dd id="bend-ossb">–</dd></div>
+                        </dl>
+                        <p class="tool-note" id="bend-flat-note" hidden>A flange is shorter than the outside setback, so the part may not be possible to bend as drawn.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">${cta('Need the full part modelled with flat patterns and drawings?', '../index.html#brief', 'Engineering Design')}</div>
+        </section>
+
+        <section class="section tool tool-alt" id="print">
+            <div class="container tool-grid">
+                <div class="tool-intro">
+                    <p class="kicker">Print design</p>
+                    <h2 class="tool-title">Print size &amp; DPI</h2>
+                    <p>See how many pixels a design needs to print sharply, and check whether a photo or logo you already have is big enough.</p>
+                    <details class="tool-help">
+                        <summary>What DPI should I use?</summary>
+                        <ul>
+                            <li><strong>300 DPI</strong>: flyers, posters, certificates and anything seen up close.</li>
+                            <li><strong>150 DPI</strong>: large banners and roll-ups viewed from a few metres.</li>
+                            <li><strong>Bleed</strong>: an extra 3 mm around the edge so nothing white shows after trimming.</li>
+                        </ul>
+                    </details>
+                </div>
+                <div class="tool-card">
+                    <form id="print-form" class="tool-form" novalidate>
+                        <div class="field-grid">
+                            <div class="field"><label for="p-size">Print size</label>
+                                <select id="p-size" name="size">
+                                    <option value="A4">A4 (210 × 297 mm)</option><option value="A5">A5 (148 × 210 mm)</option><option value="A3">A3 (297 × 420 mm)</option>
+                                    <option value="A2">A2 (420 × 594 mm)</option><option value="A1">A1 (594 × 841 mm)</option><option value="A0">A0 (841 × 1189 mm)</option>
+                                    <option value="A6">A6 (105 × 148 mm)</option><option value="flyer">DL flyer (99 × 210 mm)</option><option value="card">Business card (85 × 55 mm)</option>
+                                    <option value="rollup">Roll-up banner (85 × 200 cm)</option><option value="custom">Custom size</option>
+                                </select>
+                            </div>
+                            <div class="field"><label for="p-dpi">Resolution</label>
+                                <select id="p-dpi" name="dpi"><option value="300">300 DPI (standard print)</option><option value="150">150 DPI (large banners)</option><option value="600">600 DPI (fine detail)</option><option value="72">72 DPI (screen preview)</option></select>
+                            </div>
+                        </div>
+                        <div class="field-grid" id="custom-size" hidden>
+                            <div class="field"><label for="p-cw">Width</label><input id="p-cw" name="cw" type="number" inputmode="decimal" step="any" min="0" value="600"></div>
+                            <div class="field"><label for="p-ch">Height</label><input id="p-ch" name="ch" type="number" inputmode="decimal" step="any" min="0" value="900"></div>
+                            <div class="field"><label for="p-cu">Unit</label><select id="p-cu" name="cunit"><option value="mm">mm</option><option value="cm">cm</option><option value="in">inches</option></select></div>
+                        </div>
+                        <div class="field-grid">
+                            <div class="field"><label for="p-or">Orientation</label><select id="p-or" name="orient"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div>
+                            <label class="consent tool-check"><input type="checkbox" name="bleed" checked> Add 3 mm bleed</label>
+                        </div>
+                        <fieldset class="img-check">
+                            <legend>Check an image you have <small>(optional)</small></legend>
+                            <div class="field-grid">
+                                <div class="field"><label for="p-iw">Image width (px)</label><input id="p-iw" name="iw" type="number" inputmode="numeric" min="0" placeholder="e.g. 3000"></div>
+                                <div class="field"><label for="p-ih">Image height (px)</label><input id="p-ih" name="ih" type="number" inputmode="numeric" min="0" placeholder="e.g. 4000"></div>
+                            </div>
+                            <label class="file-pick"><input type="file" name="photo" accept="image/*"> <span>${icon('image')} Or choose the image file</span></label>
+                            <p class="tool-note">Your image stays on your device. Nothing is uploaded.</p>
+                        </fieldset>
+                    </form>
+                    <div class="tool-result" aria-live="polite">
+                        <dl class="tool-out">
+                            <div class="is-main"><dt>Pixels needed</dt><dd id="print-px">–</dd></div>
+                            <div><dt>Megapixels</dt><dd id="print-mp">–</dd></div>
+                            <div><dt>Trim size</dt><dd id="print-mm">–</dd></div>
+                            <div><dt>Size in inches</dt><dd id="print-in">–</dd></div>
+                        </dl>
+                        <div class="img-result" id="img-result" hidden>
+                            <p><span>Your image prints at</span> <strong id="img-dpi">–</strong></p>
+                            <p id="img-verdict"></p>
+                            <p class="tool-note" id="img-crop" hidden>The image has a different shape from the print, so some cropping will be needed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container">${cta('Want a print-ready design in the right size and colours?', '../index.html#brief', 'Graphic Design')}</div>
+        </section>
+
+        <section class="section tool" id="units">
+            <div class="container tool-grid">
+                <div class="tool-intro">
+                    <p class="kicker">Engineering</p>
+                    <h2 class="tool-title">Unit converter</h2>
+                    <p>Convert between metric and imperial units for length, area, mass, force, pressure and stress, torque and temperature.</p>
+                </div>
+                <div class="tool-card">
+                    <form id="units-form" class="tool-form" novalidate>
+                        <div class="field-grid units-row">
+                            <div class="field"><label for="u-cat">Quantity</label>
+                                <select id="u-cat" name="cat"><option value="length">Length</option><option value="area">Area</option><option value="mass">Mass</option><option value="force">Force</option><option value="pressure">Pressure / stress</option><option value="torque">Torque</option><option value="temperature">Temperature</option></select>
+                            </div>
+                            <div class="field"><label for="u-val">Value</label><input id="u-val" name="value" type="number" inputmode="decimal" step="any" value="25.4"></div>
+                            <div class="field"><label for="u-from">From</label><select id="u-from" name="from" data-no-i18n></select></div>
+                        </div>
+                    </form>
+                    <div class="tool-result" aria-live="polite">
+                        <ul class="units-out" id="units-out"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="container">${cta('Need calculations done properly, with a full simulation report?', '../index.html#brief', 'Engineering Design')}</div>
+        </section>
+${newsletter()}    </main>
+` + footer('    <script defer src="../js/calculators.js?v=1"></script>\n');
+}
+
 /* ---------- Online CV ---------- */
 function loadCV() {
     const ctx = { window: {} };
@@ -804,6 +986,7 @@ ${[
         u('blog/', '0.8', 'weekly'),
         u('training/', '0.8', 'monthly'),
         u('cv/', '0.8', 'monthly'),
+        u('calculators/', '0.9', 'monthly'),
         ...posts.map((p) => u('blog/' + p.slug + '.html', '0.7', 'yearly', p.updated || p.date)),
         ...projects.map((p) => u('projects/' + p.id + '.html', '0.7', 'yearly'))
     ].join('\n')}
@@ -841,6 +1024,9 @@ function searchIndex(projects, posts) {
         ...SECTIONS.map(([t, d, h, x]) => ({ k: 'page', t, d, u: 'index.html' + h, x })),
         ...projects.map((p) => ({ k: 'project', t: p.title, d: p.subtitle || '', u: 'projects/' + p.id + '.html', x: [p.summary, (p.tags || []).join(' '), (p.points || []).join(' '), (p.meta || []).map((m) => m[1]).join(' '), p.category].join(' ') })),
         { k: 'page', t: 'CAD training courses', d: 'AutoCAD, SolidWorks, Inventor and Fusion 360 training. Reserve a seat.', u: 'training/index.html', x: 'training course class lessons learn autocad solidworks inventor fusion cswa tutor teacher student' },
+        { k: 'page', t: 'Bend allowance calculator', d: 'Free sheet-metal bend allowance, bend deduction and flat length calculator.', u: 'calculators/index.html#bend', x: 'sheet metal bend allowance deduction k-factor flat pattern blank length calculator fabrication tool free' },
+        { k: 'page', t: 'Print size & DPI calculator', d: 'Pixels needed for A4, A3, A1, banners and business cards, and check if your image is big enough.', u: 'calculators/index.html#print', x: 'print size dpi pixels resolution a4 a3 a2 a1 a0 banner roll-up bleed poster image quality calculator tool free' },
+        { k: 'page', t: 'Engineering unit converter', d: 'Convert length, area, mass, force, pressure, torque and temperature units.', u: 'calculators/index.html#units', x: 'unit converter mm inch mpa psi newton lbf torque nm kg lb celsius fahrenheit conversion tool free' },
         { k: 'page', t: 'Online CV', d: 'Experience, education, skills and certifications. Download as PDF.', u: 'cv/index.html', x: 'cv resume curriculum vitae hire job employment experience education skills portfolio pdf' },
         { k: 'page', t: 'Track your project', d: 'Check the status of your project with your reference.', u: 'track/index.html', x: 'status progress order client reference tracker delivery' },
         { k: 'page', t: 'CAD Tips', d: 'All articles on CAD software, DFM and working with a designer.', u: 'blog/index.html', x: 'blog articles tips tutorials' },
@@ -861,6 +1047,7 @@ write('blog/index.html', blogIndex(posts));
 write('training/index.html', trainingPage(loadTraining()));
 write('track/index.html', trackPage());
 write('cv/index.html', cvPage(loadCV()));
+write('calculators/index.html', calculatorsPage());
 write('request-review/index.html', reviewLinkPage());
 write('sitemap.xml', sitemap(projects, posts));
 write('js/search-index.js', searchIndex(projects, posts));
