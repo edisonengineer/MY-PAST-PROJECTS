@@ -46,7 +46,7 @@ window.TRAINING = {
                 'Manufacturing drawings with dimensions and BOMs',
                 'Sheet metal parts and flat patterns',
                 'Intro to simulation (FEA) studies',
-                'CSWA exam preparation, from a Certified SOLIDWORKS Associate'
+                'CSWA exam preparation and practice'
             ]
         },
         {
