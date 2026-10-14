@@ -951,7 +951,8 @@ window.I18N_SW = {
     "Latest update from Edison": "Taarifa mpya kutoka kwa Edison",
     "Download your files": "Pakua faili zako",
     "Ask about this project": "Uliza kuhusu mradi huu",
-    "Progress": "Maendeleo"
+    "Progress": "Maendeleo",
+    "View credential": "Tazama uthibitisho"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
