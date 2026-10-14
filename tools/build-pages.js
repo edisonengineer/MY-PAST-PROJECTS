@@ -229,8 +229,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n-fr.js?v=12"></script>
-    <script defer src="../js/i18n-sw.js?v=9"></script>
+${extraScripts}    <script defer src="../js/i18n-fr.js?v=13"></script>
+    <script defer src="../js/i18n-sw.js?v=10"></script>
     <script defer src="../js/i18n.js?v=3"></script>
     <script defer src="../js/pages.js?v=3"></script>
     <script defer src="../js/search.js?v=1"></script>
