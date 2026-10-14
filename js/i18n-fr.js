@@ -37,7 +37,7 @@ window.I18N_FR = {
     "Nairobi, Kenya": "Nairobi, Kenya",
     "Honorable Mention": "Mention honorable",
     "SOLIDWORKS Trained": "Formé sur SOLIDWORKS",
-    "CSWA exam prep · Udemy": "Préparation CSWA · Udemy",
+    "CSWA prep · LinkedIn & Udemy": "Préparation CSWA · LinkedIn et Udemy",
     "Professionals trained in CAD": "Professionnels formés à la CAO",
     "CAD & design tools mastered": "Logiciels de CAO et de design maîtrisés",
     "Autodesk Designathon honoree": "Distingué à l'Autodesk Designathon",
@@ -982,7 +982,31 @@ window.I18N_FR = {
     "Send on WhatsApp": "Envoyer sur WhatsApp",
     "Send by email": "Envoyer par e-mail",
     "Test the link": "Tester le lien",
-    "This page isn't linked anywhere on the site or shown in search engines. Bookmark it.": "Cette page n'est liée nulle part sur le site et n'apparaît pas dans les moteurs de recherche. Ajoutez-la à vos favoris."
+    "This page isn't linked anywhere on the site or shown in search engines. Bookmark it.": "Cette page n'est liée nulle part sur le site et n'apparaît pas dans les moteurs de recherche. Ajoutez-la à vos favoris.",
+    "Certified SOLIDWORKS Associate (CSWA) Cert Prep": "Préparation à la certification CSWA (Certified SOLIDWORKS Associate)",
+    "Colour picker": "Sélecteur de couleurs",
+    "Choose your colours": "Choisissez vos couleurs",
+    "Drag to pick a colour, or type exact RGB, CMYK or HEX values. Add up to 6 colours to your palette.": "Faites glisser pour choisir une couleur, ou saisissez des valeurs RVB, CMJN ou HEX exactes. Ajoutez jusqu'à 6 couleurs à votre palette.",
+    "Saturation and brightness": "Saturation et luminosité",
+    "Hue": "Teinte",
+    "Quick colours": "Couleurs rapides",
+    "Pick a colour from your screen": "Prendre une couleur à l'écran",
+    "screens": "écrans",
+    "print": "impression",
+    "Your palette": "Votre palette",
+    "CMYK values are converted from RGB. Printed colours vary with the printer and paper, so I'll confirm exact print colours with you.": "Les valeurs CMJN sont converties depuis le RVB. Les couleurs imprimées varient selon l'imprimante et le papier : je confirmerai avec vous les couleurs exactes à l'impression.",
+    "Use in my brief": "Utiliser dans ma demande",
+    "Copy colour codes": "Copier les codes couleur",
+    "Clear palette": "Vider la palette",
+    "Update colour": "Mettre à jour la couleur",
+    "Palette full (6 colours)": "Palette pleine (6 couleurs)",
+    "Add to palette": "Ajouter à la palette",
+    "No colours yet. Pick one above and press \"Add to palette\".": "Aucune couleur pour l'instant. Choisissez-en une ci-dessus puis appuyez sur « Ajouter à la palette ».",
+    "No colours chosen yet": "Aucune couleur choisie",
+    "Colours": "Couleurs",
+    "(optional) Choose with the colour picker in RGB or CMYK": "(facultatif) Choisissez avec le sélecteur en RVB ou CMJN",
+    "Pick colours": "Choisir les couleurs",
+    "Try the colour picker": "Essayer le sélecteur de couleurs"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
@@ -1030,5 +1054,7 @@ window.I18N_FR_PATTERNS = [
         Monday: 'lundi', Tuesday: 'mardi', Wednesday: 'mercredi', Thursday: 'jeudi', Friday: 'vendredi', Saturday: 'samedi', Sunday: 'dimanche',
         January: 'janvier', February: 'février', March: 'mars', April: 'avril', May: 'mai', June: 'juin', July: 'juillet', August: 'août',
         September: 'septembre', October: 'octobre', November: 'novembre', December: 'décembre', ' at ': ' à '
-    }[w] || w)) + " (heure de Nairobi)"]
+    }[w] || w)) + " (heure de Nairobi)"],
+    [/^Edit colour (#[0-9A-F]{6})$/, "Modifier la couleur $1"],
+    [/^Remove colour (#[0-9A-F]{6})$/, "Retirer la couleur $1"]
 ];

@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 
-    <link rel="stylesheet" href="css/style.css?v=14">
+    <link rel="stylesheet" href="css/style.css?v=15">
     <script>
         document.documentElement.classList.add('js');
         (function () {
@@ -256,7 +256,7 @@
                     </div>
                     <div class="float-badge badge-b">
                         <span class="badge-icon bg-teal"><svg><use href="#i-check"/></svg></span>
-                        <span><strong>SOLIDWORKS Trained</strong>CSWA exam prep · Udemy</span>
+                        <span><strong>SOLIDWORKS Trained</strong>CSWA prep · LinkedIn &amp; Udemy</span>
                     </div>
                 </div>
             </div>
@@ -362,7 +362,10 @@
                                 <div><h4>Product Renders</h4><p>Clean, realistic renders that present engineering work beautifully.</p></div>
                             </li>
                         </ul>
-                        <a href="#brief" class="pillar-link" data-brief="Graphic Design">Start a design project <svg><use href="#i-arrow"/></svg></a>
+                        <div class="pillar-links">
+                            <a href="#brief" class="pillar-link" data-brief="Graphic Design">Start a design project <svg><use href="#i-arrow"/></svg></a>
+                            <button type="button" class="pillar-link pillar-colour" data-colour-open><span class="cf-dot" aria-hidden="true"></span> Try the colour picker</button>
+                        </div>
                     </article>
                 </div>
             </div>
@@ -933,6 +936,15 @@
                                     <label class="opt"><input type="radio" name="Style" value="Corporate"><span>Corporate</span></label>
                                     <label class="opt"><input type="radio" name="Style" value="Not sure"><span>Not sure</span></label>
                                 </div>
+                            </div>
+
+                            <div class="q">
+                                <p class="q-label">Colours <small>(optional) Choose with the colour picker in RGB or CMYK</small></p>
+                                <div class="colour-field">
+                                    <div class="pal-chips" id="brief-palette"></div>
+                                    <button type="button" class="btn btn-outline" data-colour-open><span class="cf-dot" aria-hidden="true"></span> Pick colours <span data-colour-count></span></button>
+                                </div>
+                                <input type="hidden" name="Colours" id="brief-colours">
                             </div>
                         </fieldset>
 
@@ -1714,17 +1726,18 @@
     <script defer src="js/reviews.js?v=2"></script>
     <script defer src="js/packages.js?v=3"></script>
     <script defer src="js/rates.js?v=2"></script>
-    <script defer src="js/i18n-fr.js?v=11"></script>
-    <script defer src="js/i18n-sw.js?v=8"></script>
+    <script defer src="js/i18n-fr.js?v=12"></script>
+    <script defer src="js/i18n-sw.js?v=9"></script>
     <script defer src="js/i18n.js?v=3"></script>
     <script defer src="js/main.js?v=8"></script>
     <script defer src="js/forms.js?v=5"></script>
     <script defer src="js/instagram-snapshot.js?v=1"></script>
     <script defer src="js/shop.js?v=4"></script>
-    <script defer src="js/certificates.js?v=3"></script>
+    <script defer src="js/certificates.js?v=4"></script>
     <script defer src="js/extras.js?v=7"></script>
     <script defer src="js/analytics.js?v=1"></script>
     <script defer src="js/search.js?v=1"></script>
+    <script defer src="js/colours.js?v=1"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
     <script defer src="js/pdf-viewer.js?v=1"></script>

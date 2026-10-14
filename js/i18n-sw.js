@@ -37,7 +37,7 @@ window.I18N_SW = {
     "Nairobi, Kenya": "Nairobi, Kenya",
     "Honorable Mention": "Tuzo ya Heshima",
     "SOLIDWORKS Trained": "Nimefunzwa SOLIDWORKS",
-    "CSWA exam prep · Udemy": "Maandalizi ya CSWA · Udemy",
+    "CSWA prep · LinkedIn & Udemy": "Maandalizi ya CSWA · LinkedIn na Udemy",
     "Professionals trained in CAD": "Wataalamu waliofunzwa CAD",
     "CAD & design tools mastered": "Programu za CAD na usanifu ninazozimudu",
     "Autodesk Designathon honoree": "Mshindi wa tuzo, Autodesk Designathon",
@@ -982,7 +982,31 @@ window.I18N_SW = {
     "Send on WhatsApp": "Tuma kwa WhatsApp",
     "Send by email": "Tuma kwa barua pepe",
     "Test the link": "Jaribu kiungo",
-    "This page isn't linked anywhere on the site or shown in search engines. Bookmark it.": "Ukurasa huu haujaunganishwa popote kwenye tovuti wala hauonekani kwenye injini za utafutaji. Uhifadhi kwenye alamisho."
+    "This page isn't linked anywhere on the site or shown in search engines. Bookmark it.": "Ukurasa huu haujaunganishwa popote kwenye tovuti wala hauonekani kwenye injini za utafutaji. Uhifadhi kwenye alamisho.",
+    "Certified SOLIDWORKS Associate (CSWA) Cert Prep": "Maandalizi ya Cheti cha CSWA (Certified SOLIDWORKS Associate)",
+    "Colour picker": "Kichagua rangi",
+    "Choose your colours": "Chagua rangi zako",
+    "Drag to pick a colour, or type exact RGB, CMYK or HEX values. Add up to 6 colours to your palette.": "Buruta kuchagua rangi, au andika thamani kamili za RGB, CMYK au HEX. Ongeza hadi rangi 6 kwenye paleti yako.",
+    "Saturation and brightness": "Ukolezaji na mwangaza",
+    "Hue": "Rangi msingi",
+    "Quick colours": "Rangi za haraka",
+    "Pick a colour from your screen": "Chukua rangi kutoka kwenye skrini",
+    "screens": "skrini",
+    "print": "uchapishaji",
+    "Your palette": "Paleti yako",
+    "CMYK values are converted from RGB. Printed colours vary with the printer and paper, so I'll confirm exact print colours with you.": "Thamani za CMYK zimebadilishwa kutoka RGB. Rangi zilizochapishwa hutofautiana kulingana na printa na karatasi, kwa hivyo nitathibitisha nawe rangi kamili za kuchapisha.",
+    "Use in my brief": "Tumia kwenye maelezo yangu",
+    "Copy colour codes": "Nakili misimbo ya rangi",
+    "Clear palette": "Futa paleti",
+    "Update colour": "Sasisha rangi",
+    "Palette full (6 colours)": "Paleti imejaa (rangi 6)",
+    "Add to palette": "Ongeza kwenye paleti",
+    "No colours yet. Pick one above and press \"Add to palette\".": "Bado hakuna rangi. Chagua moja hapo juu kisha ubonyeze \"Ongeza kwenye paleti\".",
+    "No colours chosen yet": "Bado hujachagua rangi",
+    "Colours": "Rangi",
+    "(optional) Choose with the colour picker in RGB or CMYK": "(si lazima) Chagua kwa kichagua rangi katika RGB au CMYK",
+    "Pick colours": "Chagua rangi",
+    "Try the colour picker": "Jaribu kichagua rangi"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
@@ -1030,5 +1054,7 @@ window.I18N_SW_PATTERNS = [
         Monday: 'Jumatatu', Tuesday: 'Jumanne', Wednesday: 'Jumatano', Thursday: 'Alhamisi', Friday: 'Ijumaa', Saturday: 'Jumamosi', Sunday: 'Jumapili',
         January: 'Januari', February: 'Februari', March: 'Machi', April: 'Aprili', May: 'Mei', June: 'Juni', July: 'Julai', August: 'Agosti',
         September: 'Septemba', October: 'Oktoba', November: 'Novemba', December: 'Desemba', ' at ': ' saa '
-    }[w] || w)) + " (saa za Nairobi)"]
+    }[w] || w)) + " (saa za Nairobi)"],
+    [/^Edit colour (#[0-9A-F]{6})$/, "Hariri rangi $1"],
+    [/^Remove colour (#[0-9A-F]{6})$/, "Ondoa rangi $1"]
 ];
