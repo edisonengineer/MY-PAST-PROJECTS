@@ -80,18 +80,24 @@
             grid.classList.toggle('is-single', ok.length === 1);
             $('[data-cover]', gallery).hidden = true;
         };
+        // A quick HEAD check per photo, so photos further down still load lazily as people scroll
         shots.forEach((b) => {
             const img = $('img', b);
             const fail = () => { b.remove(); done(); };
-            if (img.complete) { img.naturalWidth ? done() : fail(); return; }
-            img.addEventListener('load', done, { once: true });
-            img.addEventListener('error', fail, { once: true });
-            img.loading = 'eager';
+            fetch(img.getAttribute('src'), { method: 'HEAD' })
+                .then((r) => { if (r.ok && /^image\//.test(r.headers.get('content-type') || 'image/')) done(); else fail(); })
+                .catch(() => {
+                    // HEAD not available (e.g. offline): fall back to loading the image itself
+                    if (img.complete) { img.naturalWidth ? done() : fail(); return; }
+                    img.addEventListener('load', done, { once: true });
+                    img.addEventListener('error', fail, { once: true });
+                    img.loading = 'eager';
+                });
         });
 
         grid.addEventListener('click', (e) => {
             const b = e.target.closest('.case-shot');
-            if (b) openLightbox($$('.case-shot img', grid).map((i) => i.src), +b.dataset.i, gallery.dataset.title, b);
+            if (b) openLightbox($$('.case-shot', grid).map((s) => s.dataset.full || $('img', s).src), +b.dataset.i, gallery.dataset.title, b);
         });
     }
 
