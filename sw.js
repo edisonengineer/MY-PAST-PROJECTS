@@ -4,14 +4,14 @@
    - CSS/JS/images/fonts: served from cache, refreshed in the background.
    Bump VERSION to clear old caches after big changes.
    ========================================================================= */
-const VERSION = 'v4';
+const VERSION = 'v5';
 const CACHE = 'eo-portfolio-' + VERSION;
 const PRECACHE = [
     './',
     'index.html',
     'offline.html',
     'css/style.css',
-    'js/config.js', 'js/projects.js', 'js/reviews.js', 'js/packages.js', 'js/rates.js',
+    'js/config.js', 'js/currency.js', 'js/projects.js', 'js/reviews.js', 'js/packages.js', 'js/rates.js',
     'js/i18n-fr.js', 'js/i18n-sw.js', 'js/i18n.js', 'js/main.js', 'js/forms.js', 'js/shop.js',
     'js/instagram-snapshot.js', 'js/certificates.js', 'js/extras.js', 'js/analytics.js', 'js/pages.js', 'js/search.js',
     'favicon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'
