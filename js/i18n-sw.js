@@ -1110,7 +1110,9 @@ window.I18N_SW = {
     "Convert length, area, mass, force, pressure, torque and temperature units.": "Badilisha vipimo vya urefu, eneo, uzito, nguvu, shinikizo, msokoto na joto.",
     "Heat-treated and tensile-tested AlSi10Mg specimens in the lab to calibrate the GTN–Hill’48 model": "Kutibu kwa joto na kupima kwa mvuto sampuli za AlSi10Mg maabara ili kurekebisha modeli ya GTN–Hill’48",
     "FE simulation & lab testing": "Uigaji wa FE na majaribio ya maabara",
-    "Tensile testing": "Majaribio ya mvuto"
+    "Tensile testing": "Majaribio ya mvuto",
+    "Industrial Attachment Report: KIRDI": "Ripoti ya Mafunzo Kazini: KIRDI",
+    "Sheet metal, CNC & fabrication · 2025": "Bati la chuma, CNC na uundaji · 2025"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

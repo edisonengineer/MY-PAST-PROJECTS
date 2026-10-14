@@ -1110,7 +1110,9 @@ window.I18N_FR = {
     "Convert length, area, mass, force, pressure, torque and temperature units.": "Convertissez les unités de longueur, surface, masse, force, pression, couple et température.",
     "Heat-treated and tensile-tested AlSi10Mg specimens in the lab to calibrate the GTN–Hill’48 model": "Traitement thermique et essais de traction d’éprouvettes d’AlSi10Mg en laboratoire pour calibrer le modèle GTN–Hill’48",
     "FE simulation & lab testing": "Simulation EF et essais en laboratoire",
-    "Tensile testing": "Essais de traction"
+    "Tensile testing": "Essais de traction",
+    "Industrial Attachment Report: KIRDI": "Rapport de stage industriel : KIRDI",
+    "Sheet metal, CNC & fabrication · 2025": "Tôlerie, CNC et fabrication · 2025"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

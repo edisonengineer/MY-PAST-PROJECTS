@@ -9,10 +9,10 @@
        file:  path to the PDF inside your repo (case-sensitive, no spaces)
        cover: optional image for the card; if omitted, page 1 is used     */
     const PDF_WORKS = [
+        { title: 'Industrial Attachment Report: KIRDI', subtitle: 'Sheet metal, CNC & fabrication · 2025', file: 'pdfs/kirdi-industrial-attachment-report.pdf' },
         { title: 'Simba Corp Graduate Engineer Trainee: Prep Guide', subtitle: 'Interview & Written Prep Guide', file: 'pdfs/simba-corp-prep-guide.pdf' },
         // { title: 'Structural FEA in Abaqus', subtitle: 'Technical Report', file: 'pdfs/abaqus-fea-report.pdf' },
         // { title: 'EV Battery Pack Cooling', subtitle: 'Technical Report', file: 'pdfs/ev-battery-cooling-report.pdf' },
-        // { title: 'Sheet Metal Fabrication, KIRDI', subtitle: 'Attachment Report', file: 'pdfs/kirdi-sheet-metal-report.pdf' },
         // { title: 'School Magazine, Oct-Nov 2026', subtitle: 'Layout & Design', file: 'pdfs/school-magazine.pdf' },
         // { title: 'Company Profile', subtitle: 'Brochure', file: 'pdfs/company-profile.pdf', cover: 'pdfs/company-cover.jpg' },
     ];
