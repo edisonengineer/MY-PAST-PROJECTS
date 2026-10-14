@@ -97,11 +97,13 @@ window.PROJECTS = [
         theme: 'violet',
         icon: 'chart',
         year: '2026',
-        cover: 'images/engineering/final-year-project/fyp-01.jpg',
+        cover: 'images/engineering/final-year-project/fyp-01-800.jpg',
         gallery: [
             'images/engineering/final-year-project/fyp-01.jpg',
             'images/engineering/final-year-project/fyp-02.jpg',
-            'images/engineering/final-year-project/fyp-03.jpg'
+            'images/engineering/final-year-project/fyp-03.jpg',
+            'images/engineering/final-year-project/fyp-04.jpg',
+            'images/engineering/final-year-project/fyp-05.jpg'
         ],
         summary: 'Predicting the forming limit curve of additively manufactured AlSi10Mg sheet through a coupled GTN–Hill’48 simulation of the Nakajima test, so that sheet-metal parts can be checked for failure before they are made.',
         points: [

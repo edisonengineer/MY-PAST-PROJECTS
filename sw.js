@@ -4,7 +4,7 @@
    - CSS/JS/images/fonts: served from cache, refreshed in the background.
    Bump VERSION to clear old caches after big changes.
    ========================================================================= */
-const VERSION = 'v10';
+const VERSION = 'v11';
 const CACHE = 'eo-portfolio-' + VERSION;
 const PRECACHE = [
     './',

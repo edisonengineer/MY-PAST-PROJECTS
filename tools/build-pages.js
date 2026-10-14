@@ -232,7 +232,7 @@ function footer(extraScripts = '') {
 ${extraScripts}    <script defer src="../js/i18n-fr.js?v=13"></script>
     <script defer src="../js/i18n-sw.js?v=10"></script>
     <script defer src="../js/i18n.js?v=3"></script>
-    <script defer src="../js/pages.js?v=3"></script>
+    <script defer src="../js/pages.js?v=5"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -287,7 +287,12 @@ function projectPage(p, i, all) {
                         <span class="pm-cover-note">Project images coming soon</span>
                     </div>
                     <div class="case-gallery" hidden>
-${imgs.map((src, k) => `                        <button type="button" class="case-shot" data-i="${k}" aria-label="View image ${k + 1} full screen"><img src="../${esc(src)}" alt="${esc(p.title)}, image ${k + 1}" loading="${k ? 'lazy' : 'eager'}" decoding="async"></button>`).join('\n')}
+${imgs.map((src, k) => {
+        // Smaller copy (name-800.jpg) in the grid when it exists; the full photo opens on tap
+        const thumb = src.replace(/(\.\w+)$/, '-800$1');
+        const shown = k > 0 && fs.existsSync(path.join(ROOT, thumb)) ? thumb : src;
+        return `                        <button type="button" class="case-shot" data-i="${k}" data-full="../${esc(src)}" aria-label="View image ${k + 1} full screen"><img src="../${esc(shown)}" alt="${esc(p.title)}, image ${k + 1}" loading="${k ? 'lazy' : 'eager'}" decoding="async"></button>`;
+    }).join('\n')}
                     </div>
                 </div>
 
