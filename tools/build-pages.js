@@ -125,7 +125,7 @@ function header(current) {
                 ${a('../index.html#work', 'Work', 'work')}
                 ${a('../blog/index.html', 'CAD Tips', 'blog')}
                 ${a('../index.html#pricing', 'Pricing')}
-                ${a('../index.html#faq', 'FAQ')}
+                ${a('../training/index.html', 'Training', 'training')}
                 ${a('../index.html#contact', 'Contact')}
                 <button type="button" class="nav-search" data-search-open><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Search</button>
                 <a href="../index.html#brief" class="btn btn-sun nav-cta">Start a project</a>
@@ -154,7 +154,7 @@ function header(current) {
 `;
 }
 
-function footer() {
+function footer(extraScripts = '') {
     return `
     <footer class="site-footer">
         <div class="container footer-grid">
@@ -170,6 +170,7 @@ function footer() {
                 <a href="../index.html#services">Services</a>
                 <a href="../index.html#work">Work</a>
                 <a href="../blog/index.html">CAD Tips</a>
+                <a href="../training/index.html">CAD training</a>
                 <a href="../index.html#pricing">Pricing</a>
                 <a href="../index.html#brief">Start a project</a>
                 <a href="../index.html#faq">FAQ</a>
@@ -192,10 +193,10 @@ function footer() {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-    <script defer src="../js/i18n-fr.js?v=6"></script>
+${extraScripts}    <script defer src="../js/i18n-fr.js?v=6"></script>
     <script defer src="../js/i18n-sw.js?v=3"></script>
     <script defer src="../js/i18n.js?v=2"></script>
-    <script defer src="../js/pages.js?v=1"></script>
+    <script defer src="../js/pages.js?v=2"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -417,6 +418,160 @@ function blogIndex(posts) {
 ` + footer();
 }
 
+/* ---------- CAD training page ---------- */
+function loadTraining() {
+    const ctx = { window: {} };
+    vm.runInNewContext(read('content/courses.js'), ctx);
+    return ctx.window.TRAINING;
+}
+
+function trainingPage(T) {
+    const url = SITE + 'training/';
+    const description = 'Learn AutoCAD, SolidWorks, Autodesk Inventor or Fusion 360 with Edison Ochieng, CSWA-certified CAD designer. One-on-one, group and company training, online or in Nairobi.';
+    const cfg = { window: {} };
+    vm.runInNewContext(read('js/config.js'), cfg);
+    const key = cfg.window.SITE_CONFIG.web3formsKey;
+    const kes = (n) => 'KES ' + Number(n).toLocaleString('en-US');
+    const jsonld = {
+        '@context': 'https://schema.org',
+        '@graph': T.courses.map((c) => ({
+            '@type': 'Course',
+            name: c.name + ' training',
+            description: c.tagline + '. ' + c.topics.join('; ') + '.',
+            provider: { '@type': 'Organization', name: 'Nexus CAD Studio', sameAs: SITE },
+            offers: { '@type': 'Offer', category: 'Paid', price: T.price, priceCurrency: 'KES' },
+            hasCourseInstance: { '@type': 'CourseInstance', courseMode: ['Online', 'Onsite'], location: 'Nairobi, Kenya' }
+        }))
+    };
+    const opt = (v, label) => `<option value="${esc(v)}">${esc(label || v)}</option>`;
+    return head({ title: 'CAD Training: AutoCAD, SolidWorks, Inventor & Fusion 360 | Edison Ochieng', description, url, image: SITE + 'og-image.jpg', type: 'website', jsonld }) + '\n' + header('training') + `
+    <main id="main">
+        <section class="page-hero theme-teal">
+            <div class="container page-hero-inner">
+                <nav class="crumbs" aria-label="Breadcrumb">
+                    <a href="../index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">CAD training</span>
+                </nav>
+                <p class="page-kicker">CAD training</p>
+                <h1 class="page-title">Learn CAD with a practising engineer.</h1>
+                <p class="page-lede">Practical, project-based training in AutoCAD, SolidWorks, Autodesk Inventor and Fusion 360. Over 100 people trained so far.</p>
+                <div class="hero-actions page-actions">
+                    <a class="btn btn-sun btn-lg" href="#reserve">Reserve a seat ${icon('arrow')}</a>
+                    <a class="btn btn-outline-light btn-lg" href="#courses">See the courses</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section training-intro">
+            <div class="container">
+                <div class="train-facts">
+                    <div><span class="tf-label">Starting from</span><strong data-kes="${T.price}">${kes(T.price)}</strong><span class="tf-sub">per trainee</span></div>
+                    <div><span class="tf-label">Next intake</span><strong class="tf-text">${T.nextIntake ? esc(T.nextIntake) : 'Dates on request'}</strong><span class="tf-sub">Evenings and weekends available</span></div>
+                    <div><span class="tf-label">Where</span><strong class="tf-text">Online or Nairobi</strong><span class="tf-sub">Your choice</span></div>
+                    <div class="tf-currency"><span class="tf-label">Show prices in</span>
+                        <div class="currency-switch" role="group" aria-label="Currency">
+                            <button type="button" data-currency="KES" aria-pressed="true">KES</button>
+                            <button type="button" data-currency="USD" aria-pressed="false">USD</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="train-h">Choose how you learn</h2>
+                <div class="train-formats">
+${T.formats.map((f) => `                    <article class="train-format"><span class="tfm-icon">${icon(f.icon)}</span><h3>${esc(f.title)}</h3><p>${esc(f.text)}</p></article>`).join('\n')}
+                </div>
+            </div>
+        </section>
+
+        <section class="section training-courses" id="courses">
+            <div class="container">
+                <header class="section-head center">
+                    <p class="kicker">Courses</p>
+                    <h2 class="section-title">Pick your <em>software</em>.</h2>
+                    <p class="section-lede">Every course mixes short demonstrations with hands-on exercises, and you keep all the practice files.</p>
+                </header>
+                <div class="course-grid">
+${T.courses.map((c) => `                    <article class="course-card theme-${esc(c.theme)}" id="course-${esc(c.id)}">
+                        <div class="course-top">
+                            <span class="pc-cover-icon">${icon(c.icon)}</span>
+                            <div><h3>${esc(c.name)}</h3><p>${esc(c.tagline)}</p></div>
+                        </div>
+                        <p class="course-level">${icon('award')} <span>${esc(c.levels)}</span></p>
+                        <h4>What you'll learn</h4>
+                        <ul class="pm-points">
+${c.topics.map((t) => `                            <li>${icon('check')}<span>${esc(t)}</span></li>`).join('\n')}
+                        </ul>
+                        <a class="btn btn-outline course-cta" href="#reserve" data-course="${esc(c.name)}">Reserve a seat ${icon('arrow')}</a>
+                    </article>`).join('\n')}
+                </div>
+            </div>
+        </section>
+
+        <section class="section training-reserve" id="reserve">
+            <div class="container reserve-grid">
+                <div class="reserve-intro">
+                    <p class="kicker">Reserve a seat</p>
+                    <h2 class="section-title">Ready to <em>start</em>?</h2>
+                    <p class="section-lede">Tell me which course you'd like and when you're free. I'll reply within a day with the schedule and fees.</p>
+                    <div class="faq-list train-faq">
+${T.faq.map(([q, a], i) => `                        <details class="faq-item"${i === 0 ? ' open' : ''}><summary>${esc(q)}</summary><div class="faq-body"><p>${esc(a)}</p></div></details>`).join('\n')}
+                    </div>
+                </div>
+
+                <div class="reserve-card">
+                    <form class="reserve-form" id="reserve-form" data-web3 novalidate>
+                        <input type="hidden" name="access_key" value="${esc(key)}">
+                        <input type="hidden" name="subject" value="New CAD training seat request">
+                        <input type="hidden" name="from_name" value="Portfolio: CAD training">
+                        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                        <div class="field-grid">
+                            <div class="field"><label for="tr-name">Full name <span class="req">*</span></label><input id="tr-name" name="name" type="text" autocomplete="name" required></div>
+                            <div class="field"><label for="tr-phone">Phone / WhatsApp <span class="req">*</span></label><input id="tr-phone" name="Phone / WhatsApp" type="tel" autocomplete="tel" required></div>
+                        </div>
+                        <div class="field"><label for="tr-email">Email <span class="req">*</span></label><input id="tr-email" name="email" type="email" autocomplete="email" required></div>
+                        <div class="field-grid">
+                            <div class="field"><label for="tr-course">Course <span class="req">*</span></label>
+                                <select id="tr-course" name="Course" required>
+                                    <option value="">Choose a course</option>
+                                    ${T.courses.map((c) => opt(c.name)).join('')}
+                                    ${opt('Not sure yet', 'Not sure yet, please advise')}
+                                </select>
+                            </div>
+                            <div class="field"><label for="tr-level">Your level</label>
+                                <select id="tr-level" name="Level">
+                                    ${opt('Complete beginner')}${opt('Some experience')}${opt('Confident, want to go further')}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field-grid">
+                            <div class="field"><label for="tr-format">Format</label>
+                                <select id="tr-format" name="Format">
+                                    ${opt('One-on-one online')}${opt('One-on-one in Nairobi')}${opt('Small group')}${opt('Company team')}
+                                </select>
+                            </div>
+                            <div class="field"><label for="tr-when">Best time</label>
+                                <select id="tr-when" name="Preferred schedule">
+                                    ${opt('Weekday evenings')}${opt('Weekends')}${opt('Weekday daytime')}${opt('Flexible')}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field"><label for="tr-notes">Anything else? <small>(optional)</small></label><textarea id="tr-notes" name="Message" rows="3" placeholder="Your goals, e.g. CSWA exam, a school project, a new job..."></textarea></div>
+                        <p class="form-error" role="alert" hidden></p>
+                        <button type="submit" class="btn btn-sun btn-lg btn-block">Reserve my seat</button>
+                        <button type="button" class="btn btn-green btn-block" data-wa-form>${icon('whatsapp')} Send on WhatsApp instead</button>
+                    </form>
+                    <div class="form-done" hidden tabindex="-1">
+                        <span class="done-icon">${icon('check')}</span>
+                        <h3>Seat request sent!</h3>
+                        <p>Thank you. I'll get back to you within a day with the schedule and fees.</p>
+                        <a class="btn btn-outline" href="../index.html#webinar">Join the free webinar meanwhile</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+` + footer('    <script defer src="../js/config.js?v=7"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n');
+}
+
 /* ---------- Homepage cards ---------- */
 function homeCards(posts) {
     return posts.slice(0, 3).map((x) => postCard(x, 'blog/')).join('\n                    ');
@@ -431,6 +586,7 @@ function sitemap(projects, posts) {
 ${[
         u('', '1.0', 'monthly'),
         u('blog/', '0.8', 'weekly'),
+        u('training/', '0.8', 'monthly'),
         ...posts.map((p) => u('blog/' + p.slug + '.html', '0.7', 'yearly', p.updated || p.date)),
         ...projects.map((p) => u('projects/' + p.id + '.html', '0.7', 'yearly'))
     ].join('\n')}
@@ -467,6 +623,7 @@ function searchIndex(projects, posts) {
     const items = [
         ...SECTIONS.map(([t, d, h, x]) => ({ k: 'page', t, d, u: 'index.html' + h, x })),
         ...projects.map((p) => ({ k: 'project', t: p.title, d: p.subtitle || '', u: 'projects/' + p.id + '.html', x: [p.summary, (p.tags || []).join(' '), (p.points || []).join(' '), (p.meta || []).map((m) => m[1]).join(' '), p.category].join(' ') })),
+        { k: 'page', t: 'CAD training courses', d: 'AutoCAD, SolidWorks, Inventor and Fusion 360 training. Reserve a seat.', u: 'training/index.html', x: 'training course class lessons learn autocad solidworks inventor fusion cswa tutor teacher student' },
         { k: 'page', t: 'CAD Tips', d: 'All articles on CAD software, DFM and working with a designer.', u: 'blog/index.html', x: 'blog articles tips tutorials' },
         ...posts.map((p) => ({ k: 'article', t: p.title, d: p.description, u: 'blog/' + p.slug + '.html', x: (p.tags || []).join(' ') + ' ' + strip(p.body).slice(0, 1200) })),
         ...ctxP.window.PACKAGES.map((p) => ({ k: 'service', t: p.name, d: p.description, p: p.price ? 'From ' + p.price : '', u: 'index.html#pricing', x: (p.includes || []).join(' ') + ' ' + p.category })),
@@ -482,6 +639,7 @@ const posts = loadPosts();
 projects.forEach((p, i) => write('projects/' + p.id + '.html', projectPage(p, i, projects)));
 posts.forEach((p, i) => write('blog/' + p.slug + '.html', postPage(p, i, posts)));
 write('blog/index.html', blogIndex(posts));
+write('training/index.html', trainingPage(loadTraining()));
 write('sitemap.xml', sitemap(projects, posts));
 write('js/search-index.js', searchIndex(projects, posts));
 

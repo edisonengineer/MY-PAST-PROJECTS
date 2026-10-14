@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 
-    <link rel="stylesheet" href="css/style.css?v=9">
+    <link rel="stylesheet" href="css/style.css?v=10">
     <script>
         document.documentElement.classList.add('js');
         (function () {
@@ -105,6 +105,7 @@
             <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></symbol>
             <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.8l2.83 5.73 6.32.92-4.58 4.46 1.08 6.3L12 17.24l-5.65 2.97 1.08-6.3L2.85 9.45l6.32-.92z"/></symbol>
             <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2.2l2.1 10.2a1.5 1.5 0 0 0 1.5 1.2h8.4a1.5 1.5 0 0 0 1.5-1.1L20.5 8H6.1 M9.5 20a1 1 0 1 0 0 .1 M17 20a1 1 0 1 0 0 .1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 7.5h15.5v12H4z M4 7.5 15.5 4v3.5 M15.5 12.5h4v3h-4a1.5 1.5 0 0 1 0-3Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
             <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M4 6.5h16V20H4z M4 10.5h16 M8.5 4v4 M15.5 4v4 M8 14h2.5 M13.5 14H16 M8 17h2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
         </defs>
     </svg>
@@ -538,11 +539,18 @@
                         <button class="filter" data-pkg="graphic" aria-pressed="false">Graphic</button>
                         <button class="filter" data-pkg="training" aria-pressed="false">Training</button>
                     </div>
+                    <div class="currency-switch" role="group" aria-label="Currency">
+                        <button type="button" data-currency="KES" aria-pressed="true">KES</button>
+                        <button type="button" data-currency="USD" aria-pressed="false">USD</button>
+                    </div>
                 </header>
                 <!-- Cards are generated from js/packages.js -->
                 <div class="package-grid" id="package-grid"></div>
                 <p class="pricing-note" data-reveal>Every project is different. Prices are a starting point and your final quote depends on scope and deadline.</p>
+                <p class="usd-note" data-usd-note hidden>Prices in US dollars are approximate and based on the current exchange rate. International clients can pay by card or bank transfer: ask me on WhatsApp.</p>
                 <div class="pricing-download" data-reveal>
+                    <button type="button" class="btn btn-green" data-open-modal="pay-modal" data-payment hidden><svg aria-hidden="true"><use href="#i-wallet"/></svg> Pay a deposit by M-Pesa</button>
+                    <a class="btn btn-outline" href="training/index.html"><svg aria-hidden="true"><use href="#i-cap"/></svg> CAD training courses</a>
                     <a class="btn btn-outline" href="pdfs/nexus-cad-studio-rate-card.pdf" download data-if-pdf hidden><svg aria-hidden="true"><use href="#i-doc"/></svg> Download the rate card (PDF)</a>
                 </div>
             </div>
@@ -555,6 +563,10 @@
                     <p class="kicker" data-reveal>Cost estimator</p>
                     <h2 class="section-title" id="est-title" data-reveal style="--d: 80ms">Get an <em>instant</em> estimate.</h2>
                     <p class="section-lede" data-reveal style="--d: 140ms">Pick what you need and see a starting price straight away. Add it to your quote when you're ready.</p>
+                    <div class="currency-switch" role="group" aria-label="Currency">
+                        <button type="button" data-currency="KES" aria-pressed="true">KES</button>
+                        <button type="button" data-currency="USD" aria-pressed="false">USD</button>
+                    </div>
                 </header>
 
                 <div class="est-wrap" data-reveal>
@@ -1183,6 +1195,12 @@
                                 <span><strong>Email</strong>Send me a message</span>
                             </a>
                         </li>
+                        <li data-payment hidden>
+                            <a href="#pay" data-open-modal="pay-modal">
+                                <span class="c-icon bg-green"><svg><use href="#i-wallet"/></svg></span>
+                                <span><strong>Pay by M-Pesa</strong>Buy Goods Till <b class="till-number" data-till-number></b></span>
+                            </a>
+                        </li>
                         <li data-booking-item hidden>
                             <a href="#contact" data-booking>
                                 <span class="c-icon bg-sun"><svg><use href="#i-calendar"/></svg></span>
@@ -1253,6 +1271,7 @@
                 <a href="#experience">Experience</a>
                 <a href="#process">How I work</a>
                 <a href="#pricing">Pricing</a>
+                <a href="training/index.html">CAD training</a>
                 <a href="#estimator" data-estimator-link hidden>Cost estimator</a>
                 <a href="#reviews">Reviews</a>
                 <a href="#reports">Reports</a>
@@ -1412,6 +1431,13 @@
                     </div>
                 </div>
                 <p class="cart-total" id="cart-total" hidden></p>
+                <div class="cart-tools">
+                    <button type="button" class="btn btn-outline btn-block" id="cart-pdf" hidden><svg aria-hidden="true"><use href="#i-doc"/></svg> Download quote (PDF)</button>
+                    <div class="currency-switch" role="group" aria-label="Currency">
+                        <button type="button" data-currency="KES" aria-pressed="true">KES</button>
+                        <button type="button" data-currency="USD" aria-pressed="false">USD</button>
+                    </div>
+                </div>
 
                 <form class="cart-form" id="cart-form" novalidate hidden>
                     <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -1618,7 +1644,8 @@
         <div class="pdf-loading" id="pdf-loading"><div class="pdf-spinner"></div><span id="pdf-loading-text">Loading...</span></div>
     </div>
 
-    <script defer src="js/config.js?v=6"></script>
+    <script defer src="js/config.js?v=7"></script>
+    <script defer src="js/currency.js?v=1"></script>
     <script defer src="js/projects.js?v=4"></script>
     <script defer src="js/reviews.js?v=2"></script>
     <script defer src="js/packages.js?v=3"></script>
@@ -1626,12 +1653,12 @@
     <script defer src="js/i18n-fr.js?v=6"></script>
     <script defer src="js/i18n-sw.js?v=3"></script>
     <script defer src="js/i18n.js?v=2"></script>
-    <script defer src="js/main.js?v=6"></script>
+    <script defer src="js/main.js?v=7"></script>
     <script defer src="js/forms.js?v=4"></script>
     <script defer src="js/instagram-snapshot.js?v=1"></script>
-    <script defer src="js/shop.js?v=3"></script>
+    <script defer src="js/shop.js?v=4"></script>
     <script defer src="js/certificates.js?v=1"></script>
-    <script defer src="js/extras.js?v=4"></script>
+    <script defer src="js/extras.js?v=5"></script>
     <script defer src="js/analytics.js?v=1"></script>
     <script defer src="js/search.js?v=1"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>

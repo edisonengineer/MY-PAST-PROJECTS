@@ -16,7 +16,12 @@
     const unlock = () => (window.Site ? window.Site.unlock() : document.body.classList.remove('no-scroll'));
     const track = (name) => { if (typeof window.track === 'function') window.track(name); };
     const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
-    const money = (n, cur) => (cur || 'KES') + ' ' + Math.round(n).toLocaleString('en-US');
+    const C = () => window.Currency;
+    // Prices are stored in KES; shown in the visitor's chosen currency (js/currency.js)
+    const money = (n, cur) => ((!cur || cur === 'KES') && C() ? C().fmt(n) : (cur || 'KES') + ' ' + Math.round(n).toLocaleString('en-US'));
+    const rangeText = (min, max, code) => (C() ? C().range(min, max, code) : (max == null ? 'From ' : '') + 'KES ' + Math.round(min).toLocaleString('en-US') + (max != null && max !== min ? ' – ' + Math.round(max).toLocaleString('en-US') : ''));
+    // A cart line's price: worked out again from its numbers, so it follows the currency switch
+    const itemEstimate = (i, code) => (typeof i.min === 'number' ? rangeText(i.min, typeof i.max === 'number' ? i.max : null, code) : (i.estimate || ''));
 
     /* ======================================================================
        TOAST
@@ -62,7 +67,7 @@
             partial: priced.length < cart.length
         };
     }
-    const totalText = (t) => (t.max == null ? 'From ' + money(t.min) : money(t.min) + ' – ' + Math.round(t.max).toLocaleString('en-US'));
+    const totalText = (t, code) => rangeText(t.min, t.max, code);
 
     function render() {
         const n = cart.length;
@@ -75,7 +80,7 @@
                 '<div class="cart-item-body">' +
                     '<strong>' + esc(i.title) + '</strong>' +
                     (i.detail ? '<span>' + esc(i.detail) + '</span>' : '') +
-                    (i.estimate ? '<em>' + esc(i.estimate) + '</em>' : '') +
+                    (itemEstimate(i) ? '<em>' + esc(itemEstimate(i)) + '</em>' : '') +
                 '</div>' +
                 '<button type="button" class="cart-remove" data-remove="' + esc(i.uid) + '" aria-label="Remove ' + esc(i.title) + '">' + icon('close') + '</button>' +
             '</li>'
@@ -87,6 +92,10 @@
         totalEl.hidden = !t;
         if (t) totalEl.innerHTML = '<span>Estimated total</span><strong>' + totalText(t) + '</strong>' +
             (t.partial ? '<small>Plus items priced on request</small>' : '');
+        const tools = $('.cart-tools', drawer);
+        if (tools) tools.hidden = n === 0 || !$('#cart-done').hidden;
+        const pdfBtn = $('#cart-pdf');
+        if (pdfBtn) pdfBtn.hidden = n === 0;
     }
 
     function addItem(item) {
@@ -120,6 +129,7 @@
 
     if (drawer) {
         render();
+        document.addEventListener('currencychange', render);
         $('#cart-btn').addEventListener('click', openCart);
         $('#toast-action').addEventListener('click', openCart);
         drawer.addEventListener('click', (e) => {
@@ -146,10 +156,70 @@
             });
         });
 
-        function summaryText() {
-            const lines = cart.map((i, n) => (n + 1) + '. ' + i.title + (i.detail ? ' (' + i.detail + ')' : '') + (i.estimate ? ': ' + i.estimate : ''));
+        /* ---------- Download the quote as a PDF (print / "Save as PDF") ---------- */
+        function quoteHtml() {
+            const pay = (window.SITE_CONFIG || {}).payments || {};
+            const code = C() ? C().code : 'KES';
+            const now = new Date();
+            const valid = new Date(now.getTime() + 14 * 864e5);
+            const day = (d) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            const ref = 'Q' + now.toISOString().slice(2, 10).replace(/-/g, '') + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+            const name = ($('#cart-name') && $('#cart-name').value.trim()) || '';
             const t = totals();
-            if (t) lines.push('', 'Estimated total: ' + totalText(t) + (t.partial ? ' + items priced on request' : ''));
+            const rows = cart.map((i, k) => '<tr><td>' + (k + 1) + '</td><td><strong>' + esc(i.title) + '</strong>' + (i.detail ? '<br><span>' + esc(i.detail) + '</span>' : '') + '</td><td class="r">' + esc(itemEstimate(i) || 'On request') + '</td></tr>').join('');
+            return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Quote ' + ref + ' | Nexus CAD Studio</title><style>' +
+                '@page{size:A4;margin:14mm}*{box-sizing:border-box;margin:0;padding:0}body{font:14px/1.5 "Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#18203a;background:#f3eadb;-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
+                '.sheet{max-width:800px;margin:24px auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(14,26,58,.15)}' +
+                'header{background:#0e1a3a;color:#fff;padding:28px 32px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-start}' +
+                '.brand{display:flex;gap:12px;align-items:center}.mark{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#ffb627,#ff6b4a);color:#0e1a3a;font:600 18px Georgia,serif}.brand b{display:block;font:600 20px Georgia,serif}.brand small{opacity:.75;font-size:11px;letter-spacing:.12em;text-transform:uppercase}' +
+                'h1{font:500 28px Georgia,serif;text-align:right}h1 em{color:#ffb627;font-style:normal}.ref{text-align:right;font-size:12px;opacity:.8}' +
+                'main{padding:28px 32px}.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:22px}.meta div{background:#fbf6ee;border-radius:10px;padding:10px 12px}.meta dt{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#646a82}.meta dd{font-weight:600}' +
+                'table{width:100%;border-collapse:collapse}th{text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#646a82;border-bottom:2px solid #0e1a3a;padding:8px 6px}td{padding:10px 6px;border-bottom:1px solid #e9e0d0;vertical-align:top}td span{color:#4c5470;font-size:12.5px}.r{text-align:right;white-space:nowrap;font-weight:600}' +
+                '.total{display:flex;justify-content:flex-end;gap:18px;align-items:baseline;margin-top:14px;font-size:16px}.total strong{font:600 22px Georgia,serif;color:#0e1a3a}' +
+                '.notes{margin-top:22px;padding:14px 16px;border-radius:10px;background:#fbf6ee;font-size:12.5px;color:#4c5470}.notes li{margin:4px 0 0 16px}.pay{margin-top:14px;padding:14px 16px;border-radius:10px;background:rgba(31,174,106,.1);font-size:13px}.pay b{font-size:16px;letter-spacing:.05em}' +
+                'footer{padding:16px 32px 24px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:12px;color:#4c5470;border-top:1px solid #e9e0d0}footer b{color:#0e1a3a}' +
+                '.bar{max-width:800px;margin:16px auto 0;display:flex;gap:10px;justify-content:center}.bar button{font:600 14px inherit;padding:12px 22px;border-radius:999px;border:0;background:#ffb627;color:#0e1a3a;cursor:pointer}.bar button+button{background:#fff}' +
+                '@media print{body{background:#fff}.sheet{box-shadow:none;margin:0;border-radius:0;max-width:none}.bar{display:none}}' +
+                '</style></head><body>' +
+                '<div class="bar"><button onclick="print()">Save as PDF / Print</button><button onclick="close()">Close</button></div>' +
+                '<div class="sheet"><header><div class="brand"><span class="mark">EO</span><div><b>Nexus CAD Studio</b><small>Edison Ochieng · Nairobi, Kenya</small></div></div>' +
+                '<div><h1>Quote <em>estimate</em></h1><p class="ref">Ref. ' + ref + '</p></div></header><main>' +
+                '<dl class="meta">' + (name ? '<div><dt>Prepared for</dt><dd>' + esc(name) + '</dd></div>' : '') +
+                '<div><dt>Date</dt><dd>' + day(now) + '</dd></div><div><dt>Valid until</dt><dd>' + day(valid) + '</dd></div><div><dt>Currency</dt><dd>' + (code === 'USD' ? 'US dollars (approx.)' : 'Kenyan shillings') + '</dd></div></dl>' +
+                '<table><thead><tr><th>#</th><th>Item</th><th class="r">Estimate</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+                (t ? '<p class="total"><span>Estimated total</span><strong>' + esc(totalText(t)) + '</strong></p>' + (t.partial ? '<p class="total" style="font-size:12px;margin-top:2px">Plus items priced on request</p>' : '') : '') +
+                '<div class="notes"><strong>Good to know</strong><ul>' +
+                    '<li>These are starting prices. Your final quote depends on complexity, scope and deadline, and is confirmed after I review your brief.</li>' +
+                    (code === 'USD' ? '<li>US dollar amounts are approximate and based on the current exchange rate.</li>' : '') +
+                    '<li>A deposit may be needed before work starts on larger projects.</li></ul></div>' +
+                (pay.mpesaTill ? '<div class="pay">Pay by M-Pesa: <strong>Buy Goods Till</strong> <b>' + esc(pay.mpesaTill) + '</b> (' + esc(pay.mpesaName || 'Edison Ochieng') + ')</div>' : '') +
+                '</main><footer><div><b>WhatsApp</b><br>+' + esc(WHATSAPP).replace(/^(\d{3})(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3 $4') + '</div><div><b>Website</b><br>' + esc(location.host + location.pathname.replace(/index\.html$/, '')) + '</div><div><b>Next step</b><br>Send this quote request from the website or on WhatsApp</div></footer></div>' +
+                '<script>window.addEventListener("load",function(){setTimeout(function(){print()},400)})<\/script></body></html>';
+        }
+
+        $('#cart-pdf').addEventListener('click', () => {
+            const html = quoteHtml();
+            const w = window.open('', '_blank');
+            if (w && w.document) {
+                w.document.open();
+                w.document.write(html);
+                w.document.close();
+            } else {
+                const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+                const a = document.createElement('a');
+                a.href = url; a.target = '_blank'; a.rel = 'noopener';
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 60000);
+            }
+            track('quote-pdf');
+        });
+
+        function summaryText() {
+            const usd = C() && C().code === 'USD';
+            const lines = cart.map((i, n) => (n + 1) + '. ' + i.title + (i.detail ? ' (' + i.detail + ')' : '') + (itemEstimate(i, 'KES') ? ': ' + itemEstimate(i, 'KES') : ''));
+            const t = totals();
+            if (t) lines.push('', 'Estimated total: ' + totalText(t, 'KES') + (usd ? ' (about ' + totalText(t, 'USD').replace(/^From /, '') + ')' : '') + (t.partial ? ' + items priced on request' : ''));
+            if (usd) lines.push('Client viewed prices in USD.');
             return lines.join('\n');
         }
 
@@ -276,7 +346,7 @@
             const f = c.factor * u.factor;
             const min = round(s.min * n * f);
             const max = typeof s.max === 'number' ? round(s.max * n * f) : null;
-            const text = max == null ? 'From ' + money(min, E.currency) : money(min, E.currency) + ' – ' + max.toLocaleString('en-US');
+            const text = (!E.currency || E.currency === 'KES') ? rangeText(min, max) : (max == null ? 'From ' + money(min, E.currency) : money(min, E.currency) + ' – ' + max.toLocaleString('en-US'));
             return { s, c, u, n, min, max, text };
         }
 
@@ -328,6 +398,7 @@
         });
 
         fillServices();
+        document.addEventListener('currencychange', update);
         update();
     }
 

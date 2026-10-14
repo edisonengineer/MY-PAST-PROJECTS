@@ -22,6 +22,7 @@
     const paystack = String(pay.paystackUrl || '').trim();
     if ((till || paybill || paystack) && $('#pay-modal')) {
         $$('[data-payment]').forEach((el) => { el.hidden = false; });
+        $$('[data-till-number]').forEach((el) => { el.textContent = till; if (!till) el.closest('[data-payment]').hidden = true; });
         const name = pay.mpesaName || 'Nexus CAD Studio';
         let steps, number;
         if (till) {

@@ -147,6 +147,73 @@
         if (e.key === 'Escape' && nav.classList.contains('is-open')) setMenu(false);
     });
 
+    /* ---------- Forms sent with Web3Forms (training seat requests) ---------- */
+    const tr = (s) => (window.I18N && window.I18N.t ? window.I18N.t(s) : s);
+    $$('form[data-web3]').forEach((form) => {
+        const err = $('.form-error', form);
+        const done = form.parentElement.querySelector('.form-done');
+        const submit = $('button[type="submit"]', form);
+        const label = submit.textContent;
+        const showError = (msg) => { err.textContent = tr(msg); err.hidden = false; };
+        function check() {
+            let bad = 0;
+            $$('[required]', form).forEach((f) => {
+                const ok = f.type === 'email' ? /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.value.trim()) : !!f.value.trim();
+                f.closest('.field').classList.toggle('is-invalid', !ok);
+                if (!ok) bad++;
+            });
+            if (bad) { showError('Please fill in the highlighted fields.'); $('.is-invalid input, .is-invalid select', form).focus(); }
+            return !bad;
+        }
+        form.addEventListener('input', (e) => {
+            const f = e.target.closest('.field');
+            if (f) f.classList.remove('is-invalid');
+            if (!$('.is-invalid', form)) err.hidden = true;
+        });
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            err.hidden = true;
+            if (!check()) return;
+            const data = Object.fromEntries(new FormData(form).entries());
+            if (form.botcheck && form.botcheck.checked) return;
+            delete data.botcheck;
+            data.replyto = data.email;
+            submit.disabled = true;
+            submit.textContent = tr('Sending…');
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify(data)
+            })
+                .then((r) => r.json().catch(() => ({})).then((j) => ({ ok: r.ok && j.success !== false, j })))
+                .then(({ ok, j }) => {
+                    if (!ok) throw new Error(j.message || 'error');
+                    form.hidden = true;
+                    done.hidden = false;
+                    done.focus();
+                    if (typeof window.track === 'function') window.track('training-seat-request');
+                })
+                .catch(() => showError('Sorry, that didn\'t go through. Please try again or send it on WhatsApp.'))
+                .finally(() => { submit.disabled = false; submit.textContent = label; });
+        });
+        const wa = $('[data-wa-form]', form);
+        if (wa) wa.addEventListener('click', () => {
+            const d = new FormData(form);
+            const lines = ['Hi Edison, I would like to reserve a seat for CAD training.'];
+            ['name', 'Course', 'Level', 'Format', 'Preferred schedule', 'Message'].forEach((k) => {
+                const v = (d.get(k) || '').toString().trim();
+                if (v) lines.push((k === 'name' ? 'Name' : k) + ': ' + v);
+            });
+            window.open('https://wa.me/254708639473?text=' + encodeURIComponent(lines.join('\n')), '_blank', 'noopener');
+        });
+    });
+    // "Reserve a seat" on a course card picks that course in the form
+    document.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-course]');
+        const sel = document.getElementById('tr-course');
+        if (b && sel) sel.value = b.dataset.course;
+    });
+
     /* ---------- Offline app ---------- */
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
         window.addEventListener('load', () => navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(() => {}));

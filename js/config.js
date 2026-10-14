@@ -8,6 +8,10 @@ window.SITE_CONFIG = {
     // WhatsApp number in international format, digits only
     whatsapp: '254708639473',
 
+    // Prices are set in Kenyan shillings. Visitors can switch to approximate US dollars.
+    // usdRate = how many KES make 1 USD (update it now and then).
+    currency: { usdRate: 129, allowUsd: true },
+
     // Visitor analytics (free): create an account at https://www.goatcounter.com,
     // choose a code (e.g. 'edisonochieng') and put it here. Leave '' to turn analytics off.
     goatcounter: '',
