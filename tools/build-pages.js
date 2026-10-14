@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=13';
+const CSS_V = 'css/style.css?v=14';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
@@ -206,6 +206,7 @@ function footer(extraScripts = '') {
                 <a href="../index.html#pricing">Pricing</a>
                 <a href="../index.html#brief">Start a project</a>
                 <a href="../track/index.html">Track your project</a>
+                <a href="../cv/index.html">Online CV</a>
                 <a href="../index.html#faq">FAQ</a>
             </nav>
             <div class="footer-col">
@@ -226,8 +227,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n-fr.js?v=9"></script>
-    <script defer src="../js/i18n-sw.js?v=6"></script>
+${extraScripts}    <script defer src="../js/i18n-fr.js?v=10"></script>
+    <script defer src="../js/i18n-sw.js?v=7"></script>
     <script defer src="../js/i18n.js?v=3"></script>
     <script defer src="../js/pages.js?v=3"></script>
     <script defer src="../js/search.js?v=1"></script>
@@ -605,6 +606,152 @@ ${newsletter()}    </main>
 ` + footer('    <script defer src="../js/config.js?v=8"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n');
 }
 
+/* ---------- Online CV ---------- */
+function loadCV() {
+    const ctx = { window: {} };
+    vm.runInNewContext(read('content/cv.js'), ctx);
+    vm.runInNewContext(read('js/certificates.js'), ctx);
+    return { cv: ctx.window.CV, certs: ctx.window.CERTIFICATES || [] };
+}
+
+function cvPage({ cv, certs }) {
+    const url = SITE + 'cv/';
+    const description = cv.name + ', ' + cv.title + '. ' + cv.summary.slice(0, 120).replace(/\s+\S*$/, '') + '…';
+    const jsonld = {
+        '@context': 'https://schema.org', '@type': 'ProfilePage', url,
+        mainEntity: { '@type': 'Person', name: cv.name, jobTitle: cv.title, image: SITE + 'images/profile/edison.jpg', address: { '@type': 'PostalAddress', addressLocality: 'Nairobi', addressCountry: 'KE' }, sameAs: [cv.linkedin] }
+    };
+    const list = (a) => a.map((x) => `<li>${esc(x)}</li>`).join('');
+    return head({ title: 'CV | ' + cv.name, description, url, image: SITE + 'og-image.jpg', type: 'profile', jsonld }) + '\n' + header('cv') + `
+    <main id="main">
+        <section class="page-hero theme-blue cv-hero">
+            <div class="container cv-hero-inner">
+                <img class="cv-photo" src="../images/profile/edison.jpg" alt="Portrait of ${esc(cv.name)}" width="160" height="160" onerror="this.remove()">
+                <div>
+                    <nav class="crumbs" aria-label="Breadcrumb">
+                        <a href="../index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">CV</span>
+                    </nav>
+                    <h1 class="page-title">${esc(cv.name)}</h1>
+                    <p class="page-lede">${esc(cv.title)}</p>
+                    <p class="cv-tagline">${esc(cv.tagline)}</p>
+                    <div class="page-actions cv-actions">
+                        <a class="btn btn-sun" href="../pdfs/edison-ochieng-cv.pdf" download>${icon('doc')} Download CV (PDF)</a>
+                        <a class="btn btn-outline-light" href="../pdfs/edison-ochieng-portfolio.pdf" download data-if-exists hidden>${icon('image')} Portfolio (PDF)</a>
+                        <button type="button" class="btn btn-outline-light" onclick="window.print()">Print</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section cv-wrap">
+            <div class="container">
+                <p class="article-lang-note">This CV is available in English only.</p>
+                <div class="cv-grid">
+                    <div class="cv-main" data-no-i18n>
+                        <section class="cv-block">
+                            <h2>Profile</h2>
+                            <p>${esc(cv.summary)}</p>
+                        </section>
+                        <section class="cv-block">
+                            <h2>Experience</h2>
+${cv.experience.map((x) => `                            <article class="cv-item">
+                                <header><h3>${esc(x.role)}</h3><span class="cv-dates">${esc(x.dates)}</span></header>
+                                <p class="cv-org">${esc(x.org)}</p>
+                                ${x.points.length ? `<ul>${list(x.points)}</ul>` : ''}
+                            </article>`).join('\n')}
+                        </section>
+                        <section class="cv-block">
+                            <h2>Selected projects</h2>
+${cv.projects.map((x) => `                            <article class="cv-item"><h3>${esc(x.name)}</h3><p>${esc(x.text)}</p></article>`).join('\n')}
+                            <p class="cv-more"><a href="../index.html#work">See all projects ${icon('arrow')}</a></p>
+                        </section>
+                        <section class="cv-block">
+                            <h2>Education</h2>
+${cv.education.map((x) => `                            <article class="cv-item">
+                                <header><h3>${esc(x.title)}</h3><span class="cv-dates">${esc(x.dates)}</span></header>
+                                <p class="cv-org">${esc(x.org)}</p>
+                                ${x.note ? `<p>${esc(x.note)}</p>` : ''}
+                            </article>`).join('\n')}
+                        </section>
+                    </div>
+                    <aside class="cv-side" data-no-i18n>
+                        <section class="cv-card">
+                            <h2>Contact</h2>
+                            <ul class="cv-contact">
+                                <li>${icon('pin')} <span>${esc(cv.location)}</span></li>
+                                <li>${icon('whatsapp')} <a href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener">${esc(cv.phone)}</a></li>
+                                <li>${icon('mail')} <a href="../index.html#contact" class="js-email" data-user="edisonochieng24" data-domain="gmail.com">Email me</a></li>
+                                <li>${icon('linkedin')} <a href="${esc(cv.linkedin)}" target="_blank" rel="noopener">LinkedIn</a></li>
+                                <li>${icon('globe')} <a href="${SITE}">edisonengineer.github.io/MY-PAST-PROJECTS</a></li>
+                            </ul>
+                        </section>
+                        <section class="cv-card">
+                            <h2>Skills</h2>
+                            <ul class="cv-list">${list(cv.skills)}</ul>
+                        </section>
+                        <section class="cv-card">
+                            <h2>Certifications</h2>
+                            <ul class="cv-certs">${certs.map((c) => `<li><strong>${esc(c.title)}</strong><span>${esc(c.issuer || '')}${c.verify ? ` · <a href="${esc(c.verify)}" target="_blank" rel="noopener">View credential</a>` : ''}</span></li>`).join('')}</ul>
+                        </section>
+                        <section class="cv-card">
+                            <h2>Languages</h2>
+                            <ul class="cv-list">${list(cv.languages)}</ul>
+                        </section>
+                        <section class="cv-card">
+                            <h2>Memberships</h2>
+                            <ul class="cv-list">${list(cv.memberships)}</ul>
+                        </section>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </main>
+` + footer();
+}
+
+/* ---------- Review-request link maker (for Edison) ---------- */
+function reviewLinkPage() {
+    const url = SITE + 'request-review/';
+    const opt = (v) => `<option value="${esc(v)}">${esc(v)}</option>`;
+    return head({ title: 'Request a review | Nexus CAD Studio', description: 'Create a link that asks a client for a review.', url, image: SITE + 'og-image.jpg', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Request a review', url } })
+        .replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, nofollow">') + '\n' + header('') + `
+    <main id="main">
+        <section class="page-hero theme-sun">
+            <div class="container page-hero-inner narrow">
+                <p class="page-kicker">For Edison</p>
+                <h1 class="page-title">Ask a client for a review.</h1>
+                <p class="page-lede">Fill in the client's details and send them the link. It opens the review form on your website with their name and project already filled in.</p>
+            </div>
+        </section>
+        <section class="section track-wrap">
+            <div class="container narrow">
+                <form class="track-form rr-form" id="rr-form" novalidate>
+                    <div class="field-grid">
+                        <div class="field"><label for="rr-client">Client name</label><input id="rr-client" name="client" type="text" placeholder="e.g. Jane Wanjiku"></div>
+                        <div class="field"><label for="rr-phone">Client WhatsApp <small>(optional)</small></label><input id="rr-phone" name="phone" type="tel" placeholder="e.g. 0712 345 678"></div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="field"><label for="rr-project">Project</label><input id="rr-project" name="project" type="text" placeholder="e.g. Bracket assembly & drawings"></div>
+                        <div class="field"><label for="rr-service">Service</label><select id="rr-service" name="service">${opt('Engineering Design')}${opt('Graphic Design')}${opt('CAD Training / Webinar')}${opt('Other')}</select></div>
+                    </div>
+                    <div class="field"><label for="rr-link">Review link</label>
+                        <div class="track-row"><input id="rr-link" type="text" readonly><button type="button" class="btn btn-navy" id="rr-copy">Copy link</button></div>
+                    </div>
+                    <p class="rr-preview-label">Message preview</p>
+                    <p class="rr-preview" id="rr-preview"></p>
+                    <div class="pm-actions">
+                        <a class="btn btn-green" id="rr-wa" href="#" target="_blank" rel="noopener">${icon('whatsapp')} Send on WhatsApp</a>
+                        <a class="btn btn-outline" id="rr-mail" href="#">${icon('mail')} Send by email</a>
+                        <a class="btn btn-outline" id="rr-open" href="#" target="_blank" rel="noopener">Test the link</a>
+                    </div>
+                </form>
+                <p class="track-privacy">${icon('check')} <span>This page isn't linked anywhere on the site or shown in search engines. Bookmark it.</span></p>
+            </div>
+        </section>
+    </main>
+` + footer('    <script defer src="../js/review-link.js?v=1"></script>\n');
+}
+
 /* ---------- Client project tracker ---------- */
 function trackPage() {
     const url = SITE + 'track/';
@@ -656,6 +803,7 @@ ${[
         u('', '1.0', 'monthly'),
         u('blog/', '0.8', 'weekly'),
         u('training/', '0.8', 'monthly'),
+        u('cv/', '0.8', 'monthly'),
         ...posts.map((p) => u('blog/' + p.slug + '.html', '0.7', 'yearly', p.updated || p.date)),
         ...projects.map((p) => u('projects/' + p.id + '.html', '0.7', 'yearly'))
     ].join('\n')}
@@ -693,6 +841,7 @@ function searchIndex(projects, posts) {
         ...SECTIONS.map(([t, d, h, x]) => ({ k: 'page', t, d, u: 'index.html' + h, x })),
         ...projects.map((p) => ({ k: 'project', t: p.title, d: p.subtitle || '', u: 'projects/' + p.id + '.html', x: [p.summary, (p.tags || []).join(' '), (p.points || []).join(' '), (p.meta || []).map((m) => m[1]).join(' '), p.category].join(' ') })),
         { k: 'page', t: 'CAD training courses', d: 'AutoCAD, SolidWorks, Inventor and Fusion 360 training. Reserve a seat.', u: 'training/index.html', x: 'training course class lessons learn autocad solidworks inventor fusion cswa tutor teacher student' },
+        { k: 'page', t: 'Online CV', d: 'Experience, education, skills and certifications. Download as PDF.', u: 'cv/index.html', x: 'cv resume curriculum vitae hire job employment experience education skills portfolio pdf' },
         { k: 'page', t: 'Track your project', d: 'Check the status of your project with your reference.', u: 'track/index.html', x: 'status progress order client reference tracker delivery' },
         { k: 'page', t: 'CAD Tips', d: 'All articles on CAD software, DFM and working with a designer.', u: 'blog/index.html', x: 'blog articles tips tutorials' },
         ...posts.map((p) => ({ k: 'article', t: p.title, d: p.description, u: 'blog/' + p.slug + '.html', x: (p.tags || []).join(' ') + ' ' + strip(p.body).slice(0, 1200) })),
@@ -711,6 +860,8 @@ posts.forEach((p, i) => write('blog/' + p.slug + '.html', postPage(p, i, posts))
 write('blog/index.html', blogIndex(posts));
 write('training/index.html', trainingPage(loadTraining()));
 write('track/index.html', trackPage());
+write('cv/index.html', cvPage(loadCV()));
+write('request-review/index.html', reviewLinkPage());
 write('sitemap.xml', sitemap(projects, posts));
 write('js/search-index.js', searchIndex(projects, posts));
 

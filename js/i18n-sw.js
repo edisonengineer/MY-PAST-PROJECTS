@@ -952,7 +952,37 @@ window.I18N_SW = {
     "Download your files": "Pakua faili zako",
     "Ask about this project": "Uliza kuhusu mradi huu",
     "Progress": "Maendeleo",
-    "View credential": "Tazama uthibitisho"
+    "View credential": "Tazama uthibitisho",
+    /* Online CV, review form and review-link page */
+    "CV": "CV",
+    "Edison Ochieng, Mechanical Design Engineer & Graphic Designer. Mechanical Engineering graduate from the University of Nairobi with hands-on CAD experience in SolidWorks, Autodesk…": "Edison Ochieng, Mhandisi wa Usanifu wa Mitambo na Msanifu wa Picha. Mhitimu wa Uhandisi wa Mitambo kutoka Chuo Kikuu cha Nairobi mwenye uzoefu wa vitendo wa CAD kwa SolidWorks na Autodesk.",
+    "Portrait of Edison Ochieng": "Picha ya Edison Ochieng",
+    "Mechanical Design Engineer & Graphic Designer": "Mhandisi wa Usanifu wa Mitambo na Msanifu wa Picha",
+    "Founder of Nexus CAD Studio · CSWA · Nairobi, Kenya": "Mwanzilishi wa Nexus CAD Studio · CSWA · Nairobi, Kenya",
+    "Download CV (PDF)": "Pakua CV (PDF)",
+    "Portfolio (PDF)": "Kazi zangu (PDF)",
+    "This CV is available in English only.": "CV hii inapatikana kwa Kiingereza pekee.",
+    "View online CV": "Tazama CV mtandaoni",
+    "Online CV": "CV mtandaoni",
+    "Experience, education, skills and certifications. Download as PDF.": "Uzoefu, elimu, ujuzi na vyeti. Pakua kama PDF.",
+    "Your project:": "Mradi wako:",
+    "Request a review | Nexus CAD Studio": "Omba maoni | Nexus CAD Studio",
+    "Create a link that asks a client for a review.": "Unda kiungo cha kumwomba mteja maoni.",
+    "For Edison": "Kwa ajili ya Edison",
+    "Ask a client for a review.": "Mwombe mteja maoni.",
+    "Fill in the client's details and send them the link. It opens the review form on your website with their name and project already filled in.": "Jaza maelezo ya mteja kisha umtumie kiungo. Kinafungua fomu ya maoni kwenye tovuti yako ikiwa na jina lake na mradi tayari vimejazwa.",
+    "Client name": "Jina la mteja",
+    "Client WhatsApp": "WhatsApp ya mteja",
+    "e.g. 0712 345 678": "mf. 0712 345 678",
+    "e.g. Bracket assembly & drawings": "mf. Muunganiko wa bracket na michoro",
+    "Review link": "Kiungo cha maoni",
+    "Copy link": "Nakili kiungo",
+    "Copied!": "Imenakiliwa!",
+    "Message preview": "Hakikisho la ujumbe",
+    "Send on WhatsApp": "Tuma kwa WhatsApp",
+    "Send by email": "Tuma kwa barua pepe",
+    "Test the link": "Jaribu kiungo",
+    "This page isn't linked anywhere on the site or shown in search engines. Bookmark it.": "Ukurasa huu haujaunganishwa popote kwenye tovuti wala hauonekani kwenye injini za utafutaji. Uhifadhi kwenye alamisho."
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

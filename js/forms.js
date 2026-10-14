@@ -359,6 +359,27 @@
             if (f) f.classList.remove('is-invalid');
             if (!$('.is-invalid', rForm)) rError.hidden = true;
         };
+        // Review-request links: index.html?review=1&name=Jane&project=Bracket%20design&service=Engineering%20Design
+        // (made with request-review/index.html) open this form ready to fill in
+        const rq = new URLSearchParams(location.search);
+        if (rq.has('review')) {
+            const name = (rq.get('name') || '').slice(0, 80);
+            const project = (rq.get('project') || '').slice(0, 120);
+            const service = rq.get('service') || '';
+            if (name) rForm.name.value = name;
+            if (project) { $('#rv-project').value = project; $('#rv-for-name').textContent = project; $('#rv-for').hidden = false; }
+            const opt = Array.from(rForm['Service received'].options).find((o) => o.value === service);
+            if (opt) rForm['Service received'].value = opt.value;
+            window.addEventListener('load', () => {
+                const sec = document.getElementById('reviews');
+                if (sec) sec.scrollIntoView({ block: 'start' });
+                openReview();
+                track('review-link-opened');
+            });
+        }
+        const resetProject = () => { $('#rv-for').hidden = true; };
+        rForm.addEventListener('reset', resetProject);
+
         rForm.addEventListener('change', rClear);
         rForm.addEventListener('input', rClear);
 
@@ -392,6 +413,7 @@
                     Rating: rating.value + ' / 5',
                     'Role / organisation': rForm['Role / organisation'].value.trim(),
                     'Service received': rForm['Service received'].value,
+                    Project: $('#rv-project').value.trim(),
                     Review: text,
                     'Permission to publish': rForm['Permission to publish'].checked ? 'Yes' : 'No'
                 };

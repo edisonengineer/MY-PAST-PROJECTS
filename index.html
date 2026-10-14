@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 
-    <link rel="stylesheet" href="css/style.css?v=13">
+    <link rel="stylesheet" href="css/style.css?v=14">
     <script>
         document.documentElement.classList.add('js');
         (function () {
@@ -46,6 +46,44 @@
             if (!t) t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             document.documentElement.setAttribute('data-theme', t);
         })();
+    </script>
+
+    <!-- Google Search Console: paste your verification tag on the next line (see images/README.md) -->
+
+    <!-- Search engines: the business, for Google Search and Maps -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "name": "Nexus CAD Studio",
+        "description": "CAD design, engineering simulation, technical drawings, graphic design and CAD training in Nairobi, Kenya.",
+        "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/",
+        "image": "https://edisonengineer.github.io/MY-PAST-PROJECTS/og-image.jpg",
+        "logo": "https://edisonengineer.github.io/MY-PAST-PROJECTS/icon-512.png",
+        "telephone": "+254708639473",
+        "priceRange": "KES 500 – KES 7,500+",
+        "currenciesAccepted": "KES, USD",
+        "paymentAccepted": "M-Pesa",
+        "address": { "@type": "PostalAddress", "addressLocality": "Nairobi", "addressCountry": "KE" },
+        "areaServed": [{ "@type": "Country", "name": "Kenya" }, "Worldwide (online)"],
+        "founder": { "@type": "Person", "name": "Edison Ochieng" },
+        "knowsLanguage": ["en", "sw", "fr"],
+        "sameAs": [
+            "https://www.linkedin.com/in/edison-ochieng-870a37229/",
+            "https://www.instagram.com/e_d_i_s_o_n_engineer/"
+        ],
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Services",
+            "itemListElement": [
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "3D CAD modelling" }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 1000, "priceCurrency": "KES" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Assemblies & technical drawings" }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 4500, "priceCurrency": "KES" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Simulation (FEA / thermal)" }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 4500, "priceCurrency": "KES" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Graphic design" }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 500, "priceCurrency": "KES" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "CAD training" }, "priceSpecification": { "@type": "PriceSpecification", "minPrice": 4500, "priceCurrency": "KES" } }
+            ]
+        }
+    }
     </script>
 
     <!-- Search engines: who this site is about -->
@@ -430,7 +468,11 @@
                 <header class="section-head center">
                     <p class="kicker" data-reveal>Journey</p>
                     <h2 class="section-title" id="exp-title" data-reveal style="--d: 80ms">Experience &amp; <em>education</em>.</h2>
-                    <p class="exp-cv" data-needs-file-wrap hidden><a href="pdfs/edison-ochieng-cv.pdf" class="btn btn-outline" data-needs-file download><svg><use href="#i-doc"/></svg> Download full CV</a></p>
+                    <div class="exp-cv">
+                        <a href="cv/index.html" class="btn btn-sun"><svg><use href="#i-users"/></svg> View online CV</a>
+                        <a href="pdfs/edison-ochieng-cv.pdf" class="btn btn-outline" data-needs-file download><svg><use href="#i-doc"/></svg> Download full CV</a>
+                        <a href="pdfs/edison-ochieng-portfolio.pdf" class="btn btn-outline" data-if-pdf hidden download><svg><use href="#i-image"/></svg> Portfolio (PDF)</a>
+                    </div>
                 </header>
 
                 <div class="exp-grid">
@@ -1296,6 +1338,7 @@
                 <a href="blog/index.html">CAD Tips</a>
                 <a href="#brief">Start a project</a>
                 <a href="track/index.html">Track your project</a>
+                <a href="cv/index.html">Online CV</a>
                 <a href="#faq">FAQ</a>
             </nav>
             <div class="footer-col">
@@ -1555,6 +1598,8 @@
             <button class="modal-close" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
             <form id="review-form" novalidate>
                 <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <input type="hidden" name="Project" id="rv-project">
+                <p class="review-for" id="rv-for" hidden><span>Your project:</span> <strong id="rv-for-name" data-no-i18n></strong></p>
                 <p class="kicker">Leave a review</p>
                 <h2 id="rv-title">How was your experience?</h2>
 
@@ -1669,11 +1714,11 @@
     <script defer src="js/reviews.js?v=2"></script>
     <script defer src="js/packages.js?v=3"></script>
     <script defer src="js/rates.js?v=2"></script>
-    <script defer src="js/i18n-fr.js?v=9"></script>
-    <script defer src="js/i18n-sw.js?v=6"></script>
+    <script defer src="js/i18n-fr.js?v=10"></script>
+    <script defer src="js/i18n-sw.js?v=7"></script>
     <script defer src="js/i18n.js?v=3"></script>
     <script defer src="js/main.js?v=8"></script>
-    <script defer src="js/forms.js?v=4"></script>
+    <script defer src="js/forms.js?v=5"></script>
     <script defer src="js/instagram-snapshot.js?v=1"></script>
     <script defer src="js/shop.js?v=4"></script>
     <script defer src="js/certificates.js?v=2"></script>
