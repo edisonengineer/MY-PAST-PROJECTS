@@ -285,7 +285,7 @@ window.SEARCH_INDEX = [
   "t": "Which software do you work with?",
   "d": "",
   "u": "index.html#faq",
-  "x": "For engineering: SolidWorks (I'm a Certified SOLIDWORKS Associate), Autodesk Inventor, AutoCAD, Fusion 360, Revit and Abaqus. For graphics: Adobe Illustrator, Photoshop, InDesign and Premiere Pro. If you need files in a specific program, just tell me in the project brief."
+  "x": "For engineering: SolidWorks (including CSWA exam preparation), Autodesk Inventor, AutoCAD, Fusion 360, Revit and Abaqus. For graphics: Adobe Illustrator, Photoshop, InDesign and Premiere Pro. If you need files in a specific program, just tell me in the project brief."
  },
  {
   "k": "faq",

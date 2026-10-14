@@ -227,8 +227,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n-fr.js?v=10"></script>
-    <script defer src="../js/i18n-sw.js?v=7"></script>
+${extraScripts}    <script defer src="../js/i18n-fr.js?v=11"></script>
+    <script defer src="../js/i18n-sw.js?v=8"></script>
     <script defer src="../js/i18n.js?v=3"></script>
     <script defer src="../js/pages.js?v=3"></script>
     <script defer src="../js/search.js?v=1"></script>
@@ -461,7 +461,7 @@ function loadTraining() {
 
 function trainingPage(T) {
     const url = SITE + 'training/';
-    const description = 'Learn AutoCAD, SolidWorks, Autodesk Inventor or Fusion 360 with Edison Ochieng, CSWA-certified CAD designer. One-on-one, group and company training, online or in Nairobi.';
+    const description = 'Learn AutoCAD, SolidWorks, Autodesk Inventor or Fusion 360 with Edison Ochieng, SOLIDWORKS-trained CAD designer. One-on-one, group and company training, online or in Nairobi.';
     const cfg = { window: {} };
     vm.runInNewContext(read('js/config.js'), cfg);
     const key = cfg.window.SITE_CONFIG.web3formsKey;
@@ -626,7 +626,7 @@ function cvPage({ cv, certs }) {
     <main id="main">
         <section class="page-hero theme-blue cv-hero">
             <div class="container cv-hero-inner">
-                <img class="cv-photo" src="../images/profile/edison.jpg" alt="Portrait of ${esc(cv.name)}" width="160" height="160" onerror="this.remove()">
+                <img class="cv-photo" src="../images/profile/edison.jpg?v=2" alt="Portrait of ${esc(cv.name)}" width="160" height="160" onerror="this.remove()">
                 <div>
                     <nav class="crumbs" aria-label="Breadcrumb">
                         <a href="../index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">CV</span>

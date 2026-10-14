@@ -5,7 +5,7 @@
    verify  online credential link (optional): shows a "View credential" button
    ========================================================================= */
 window.CERTIFICATES = [
-    { title: 'Certified SOLIDWORKS Associate (CSWA)', issuer: 'Udemy', tone: 'blue', icon: 'cube', file: 'images/certificates/cswa.jpg', verify: 'https://www.udemy.com/certificate/UC-09090316-a037-4c81-a287-30a8dc798a72/' },
+    { title: 'CSWA Exam Preparation (SOLIDWORKS)', issuer: 'Udemy', tone: 'blue', icon: 'cube', file: 'images/certificates/cswa.jpg', verify: 'https://www.udemy.com/certificate/UC-09090316-a037-4c81-a287-30a8dc798a72/' },
     { title: 'Autodesk Inventor Design Certification', issuer: 'LinkedIn Learning', tone: 'teal', icon: 'gear', file: 'images/certificates/inventor.jpg', verify: '' },
     { title: 'Autodesk Designathon 2025, Honorable Mention', issuer: 'Autodesk', tone: 'sun', icon: 'award', file: 'images/certificates/designathon-2025.jpg', verify: '' },
     { title: 'Autodesk Designathon 2026, Participant', issuer: 'Autodesk', tone: 'violet', icon: 'award', file: 'images/certificates/designathon-2026.jpg', verify: '' },

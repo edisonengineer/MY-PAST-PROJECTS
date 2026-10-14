@@ -6,7 +6,7 @@
 window.CV = {
     name: 'Edison Ochieng',
     title: 'Mechanical Design Engineer & Graphic Designer',
-    tagline: 'Founder of Nexus CAD Studio · CSWA · Nairobi, Kenya',
+    tagline: 'Founder of Nexus CAD Studio · Nairobi, Kenya',
     phone: '+254 708 639 473',
     location: 'Nairobi, Kenya',
     linkedin: 'https://www.linkedin.com/in/edison-ochieng-870a37229/',
