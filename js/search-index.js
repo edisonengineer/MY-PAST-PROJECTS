@@ -170,6 +170,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "Online CV",
+  "d": "Experience, education, skills and certifications. Download as PDF.",
+  "u": "cv/index.html",
+  "x": "cv resume curriculum vitae hire job employment experience education skills portfolio pdf"
+ },
+ {
+  "k": "page",
   "t": "Track your project",
   "d": "Check the status of your project with your reference.",
   "u": "track/index.html",

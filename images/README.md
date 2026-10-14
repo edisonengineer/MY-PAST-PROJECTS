@@ -158,6 +158,41 @@ progress, due date, your latest note, what's due and a download link.
 The demo reference `DEMO-2026` shows visitors how it works. Remove that
 block from your private file when you no longer want the demo.
 
+## Online CV and portfolio PDF
+- `cv/` is your online CV (with a print layout). Its content is in
+  `content/cv.js`; certificates come from `js/certificates.js`.
+- `pdfs/edison-ochieng-portfolio.pdf` is built from your CV, projects,
+  certificates and prices. Project photos are added automatically once
+  uploaded. Rebuild after changes:
+
+      node tools/build-pages.js
+      node tools/build-portfolio.js
+
+## Asking clients for reviews
+Open `request-review/` on your site (bookmark it; it isn't linked anywhere
+or shown on Google). Type the client's name and project, then press
+"Send on WhatsApp". The client's link opens your review form already
+filled in with their name and project. Reviews arrive in your email;
+copy the good ones into `js/reviews.js`.
+
+## Google: Search Console and Business Profile
+1. Search Console (shows your site in Google search):
+   - Go to https://search.google.com/search-console and add a
+     "URL prefix" property: `https://edisonengineer.github.io/MY-PAST-PROJECTS/`
+   - Choose the "HTML tag" method, copy the `<meta name="google-site-verification" ...>`
+     tag, and paste it into `index.html` on the line under the
+     "Google Search Console" comment. Upload, wait a few minutes, press Verify.
+   - Then open Sitemaps and submit `sitemap.xml`.
+2. Google Business Profile (shows Nexus CAD Studio on Google Maps):
+   - Go to https://business.google.com, create "Nexus CAD Studio",
+     category "Engineering consultant" (add "Graphic designer" and
+     "Computer training school" as extra categories).
+   - Choose "I deliver goods and services to customers" with Nairobi as the
+     service area if you don't want to show a street address.
+   - Add phone +254 708 639 473, your website link and opening hours,
+     then complete Google's verification (usually a video or postcard).
+   - Ask happy clients to leave Google reviews there too.
+
 ## Site search
 The magnifier in the header (or `/` / Ctrl+K) searches projects, articles,
 services, FAQ and page sections. Its list is rebuilt by
