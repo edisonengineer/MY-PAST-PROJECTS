@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=16';
+const CSS_V = 'css/style.css?v=17';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
@@ -232,7 +232,7 @@ function footer(extraScripts = '') {
 ${extraScripts}    <script defer src="../js/i18n-fr.js?v=15"></script>
     <script defer src="../js/i18n-sw.js?v=12"></script>
     <script defer src="../js/i18n.js?v=3"></script>
-    <script defer src="../js/pages.js?v=5"></script>
+    <script defer src="../js/pages.js?v=6"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -314,6 +314,7 @@ ${(p.tags || []).map((t) => `                        <li class="chip">${esc(t)}<
                     </ul>
 
                     <div class="pm-actions">
+                        ${p.model ? `<button type="button" class="btn btn-sun" data-model="../${esc(p.model)}" data-viewer="${esc(CFG.modelViewerSrc || '')}" hidden>${icon('cube')} View in 3D</button>` : ''}
                         ${p.pdf ? `<a class="btn btn-navy" href="../${esc(p.pdf)}" target="_blank" rel="noopener" data-if-exists hidden>${icon('doc')} Read report</a>` : ''}
                         <a class="btn btn-green" href="https://wa.me/${WHATSAPP}?text=${msg}" target="_blank" rel="noopener">${icon('whatsapp')} Discuss a similar project</a>
                         <a class="btn btn-outline" href="../index.html#brief">Start a project</a>
