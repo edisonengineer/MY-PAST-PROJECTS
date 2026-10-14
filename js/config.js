@@ -8,6 +8,13 @@ window.SITE_CONFIG = {
     // WhatsApp number in international format, digits only
     whatsapp: '254708639473',
 
+    // Availability shown at the top of the homepage:
+    //   'available'  green: "Available for projects & full-time roles"
+    //   'limited'    amber: "Limited availability: a few slots left this month"
+    //   'booked'     red:   "Fully booked. New projects from <from>" (or a waiting-list message if from is '')
+    // text: optional custom message that replaces the default one.
+    availability: { status: 'available', from: '', text: '' },
+
     // Prices are set in Kenyan shillings. Visitors can switch to approximate US dollars.
     // usdRate = how many KES make 1 USD (update it now and then).
     currency: { usdRate: 129, allowUsd: true },

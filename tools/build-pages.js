@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=10';
+const CSS_V = 'css/style.css?v=12';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
@@ -52,6 +52,38 @@ function loadPosts() {
 }
 
 const fmtDate = (d) => new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+
+/* ---------- Newsletter sign-up (sub-pages) ---------- */
+const CFG = (() => { const c = { window: {} }; vm.runInNewContext(read('js/config.js'), c); return c.window.SITE_CONFIG; })();
+
+function newsletter() {
+    return `
+        <section class="newsletter-band">
+            <div class="container newsletter">
+                <div class="newsletter-copy">
+                    <span class="newsletter-icon">${icon('mail')}</span>
+                    <div>
+                        <h2>Get new CAD tips by email</h2>
+                        <p>Short, practical tips and webinar reminders. No spam, and you can unsubscribe any time.</p>
+                    </div>
+                </div>
+                <div class="newsletter-box">
+                    <form class="newsletter-form" data-web3 novalidate>
+                        <input type="hidden" name="access_key" value="${esc(CFG.web3formsKey)}">
+                        <input type="hidden" name="subject" value="New CAD Tips subscriber">
+                        <input type="hidden" name="from_name" value="Portfolio: newsletter">
+                        <input type="hidden" name="List" value="CAD Tips newsletter">
+                        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                        <div class="field"><label class="sr-only" for="nl-email">Email address</label><input id="nl-email" name="email" type="email" autocomplete="email" placeholder="Your email address" required></div>
+                        <button type="submit" class="btn btn-sun">Subscribe</button>
+                        <p class="form-error" role="alert" hidden></p>
+                    </form>
+                    <div class="form-done newsletter-done" hidden tabindex="-1">${icon('check')} <span>You're subscribed. Thank you!</span></div>
+                </div>
+            </div>
+        </section>
+`;
+}
 
 /* ---------- Shared page chrome ---------- */
 const index = read('index.html');
@@ -173,6 +205,7 @@ function footer(extraScripts = '') {
                 <a href="../training/index.html">CAD training</a>
                 <a href="../index.html#pricing">Pricing</a>
                 <a href="../index.html#brief">Start a project</a>
+                <a href="../track/index.html">Track your project</a>
                 <a href="../index.html#faq">FAQ</a>
             </nav>
             <div class="footer-col">
@@ -193,10 +226,10 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n-fr.js?v=7"></script>
-    <script defer src="../js/i18n-sw.js?v=4"></script>
+${extraScripts}    <script defer src="../js/i18n-fr.js?v=8"></script>
+    <script defer src="../js/i18n-sw.js?v=5"></script>
     <script defer src="../js/i18n.js?v=3"></script>
-    <script defer src="../js/pages.js?v=2"></script>
+    <script defer src="../js/pages.js?v=3"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -378,7 +411,7 @@ ${others.length ? `
                 </div>
             </div>
         </section>
-` : ''}    </main>
+` : ''}${newsletter()}    </main>
 ` + footer();
 }
 
@@ -414,7 +447,7 @@ function blogIndex(posts) {
                 </div>
             </div>
         </section>
-    </main>
+${newsletter()}    </main>
 ` + footer();
 }
 
@@ -568,8 +601,44 @@ ${T.faq.map(([q, a], i) => `                        <details class="faq-item"${i
                 </div>
             </div>
         </section>
+${newsletter()}    </main>
+` + footer('    <script defer src="../js/config.js?v=8"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n');
+}
+
+/* ---------- Client project tracker ---------- */
+function trackPage() {
+    const url = SITE + 'track/';
+    const description = 'Check the status of your Nexus CAD Studio project with the reference Edison sent you.';
+    return head({ title: 'Track your project | Nexus CAD Studio', description, url, image: SITE + 'og-image.jpg', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Track your project', url, description } }).replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, follow">') + '\n' + header('track') + `
+    <main id="main">
+        <section class="page-hero theme-violet">
+            <div class="container page-hero-inner narrow">
+                <nav class="crumbs" aria-label="Breadcrumb">
+                    <a href="../index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">Track your project</span>
+                </nav>
+                <p class="page-kicker">Clients</p>
+                <h1 class="page-title">Track your project.</h1>
+                <p class="page-lede">Enter the project reference I sent you to see where your project is, what's next and anything that's due.</p>
+            </div>
+        </section>
+
+        <section class="section track-wrap">
+            <div class="container narrow">
+                <form class="track-form" id="track-form" novalidate>
+                    <label for="track-ref">Project reference</label>
+                    <div class="track-row">
+                        <input id="track-ref" name="ref" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. NCS-2026-014" required>
+                        <button type="submit" class="btn btn-sun">${icon('arrow')} Track project</button>
+                    </div>
+                    <p class="form-error" role="alert" hidden></p>
+                    <p class="track-hint"><span>No reference yet? Try the demo:</span> <button type="button" class="link-btn" data-demo="DEMO-2026" data-no-i18n>DEMO-2026</button></p>
+                </form>
+                <div class="track-result" id="track-result" tabindex="-1" aria-live="polite" hidden></div>
+                <p class="track-privacy">${icon('check')} <span>Your project details are locked with your reference and are only shown to people who know it.</span></p>
+            </div>
+        </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=7"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=8"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=1"></script>\n');
 }
 
 /* ---------- Homepage cards ---------- */
@@ -624,6 +693,7 @@ function searchIndex(projects, posts) {
         ...SECTIONS.map(([t, d, h, x]) => ({ k: 'page', t, d, u: 'index.html' + h, x })),
         ...projects.map((p) => ({ k: 'project', t: p.title, d: p.subtitle || '', u: 'projects/' + p.id + '.html', x: [p.summary, (p.tags || []).join(' '), (p.points || []).join(' '), (p.meta || []).map((m) => m[1]).join(' '), p.category].join(' ') })),
         { k: 'page', t: 'CAD training courses', d: 'AutoCAD, SolidWorks, Inventor and Fusion 360 training. Reserve a seat.', u: 'training/index.html', x: 'training course class lessons learn autocad solidworks inventor fusion cswa tutor teacher student' },
+        { k: 'page', t: 'Track your project', d: 'Check the status of your project with your reference.', u: 'track/index.html', x: 'status progress order client reference tracker delivery' },
         { k: 'page', t: 'CAD Tips', d: 'All articles on CAD software, DFM and working with a designer.', u: 'blog/index.html', x: 'blog articles tips tutorials' },
         ...posts.map((p) => ({ k: 'article', t: p.title, d: p.description, u: 'blog/' + p.slug + '.html', x: (p.tags || []).join(' ') + ' ' + strip(p.body).slice(0, 1200) })),
         ...ctxP.window.PACKAGES.map((p) => ({ k: 'service', t: p.name, d: p.description, p: p.price ? 'From ' + p.price : '', u: 'index.html#pricing', x: (p.includes || []).join(' ') + ' ' + p.category })),
@@ -640,6 +710,7 @@ projects.forEach((p, i) => write('projects/' + p.id + '.html', projectPage(p, i,
 posts.forEach((p, i) => write('blog/' + p.slug + '.html', postPage(p, i, posts)));
 write('blog/index.html', blogIndex(posts));
 write('training/index.html', trainingPage(loadTraining()));
+write('track/index.html', trackPage());
 write('sitemap.xml', sitemap(projects, posts));
 write('js/search-index.js', searchIndex(projects, posts));
 

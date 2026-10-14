@@ -63,7 +63,7 @@
         menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     }
     menuBtn.addEventListener('click', () => setMenu(!nav.classList.contains('is-open')));
-    window.addEventListener('resize', () => { if (window.innerWidth > 960) setMenu(false); });
+    window.addEventListener('resize', () => { if (window.innerWidth > 1280) setMenu(false); });
 
     /* ---------- Smooth scrolling for in-page links ---------- */
     document.addEventListener('click', (e) => {
