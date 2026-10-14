@@ -952,7 +952,37 @@ window.I18N_FR = {
     "Download your files": "Télécharger vos fichiers",
     "Ask about this project": "Poser une question",
     "Progress": "Avancement",
-    "View credential": "Voir le justificatif"
+    "View credential": "Voir le justificatif",
+    /* Online CV, review form and review-link page */
+    "CV": "CV",
+    "Edison Ochieng, Mechanical Design Engineer & Graphic Designer. Mechanical Engineering graduate from the University of Nairobi with hands-on CAD experience in SolidWorks, Autodesk…": "Edison Ochieng, ingénieur en conception mécanique et graphiste. Diplômé en génie mécanique de l'Université de Nairobi, avec une expérience pratique de la CAO sous SolidWorks et Autodesk.",
+    "Portrait of Edison Ochieng": "Portrait d'Edison Ochieng",
+    "Mechanical Design Engineer & Graphic Designer": "Ingénieur en conception mécanique et graphiste",
+    "Founder of Nexus CAD Studio · CSWA · Nairobi, Kenya": "Fondateur de Nexus CAD Studio · CSWA · Nairobi, Kenya",
+    "Download CV (PDF)": "Télécharger le CV (PDF)",
+    "Portfolio (PDF)": "Portfolio (PDF)",
+    "This CV is available in English only.": "Ce CV est disponible uniquement en anglais.",
+    "View online CV": "Voir le CV en ligne",
+    "Online CV": "CV en ligne",
+    "Experience, education, skills and certifications. Download as PDF.": "Expérience, formation, compétences et certifications. Téléchargeable en PDF.",
+    "Your project:": "Votre projet :",
+    "Request a review | Nexus CAD Studio": "Demander un avis | Nexus CAD Studio",
+    "Create a link that asks a client for a review.": "Créez un lien pour demander un avis à un client.",
+    "For Edison": "Pour Edison",
+    "Ask a client for a review.": "Demandez un avis à un client.",
+    "Fill in the client's details and send them the link. It opens the review form on your website with their name and project already filled in.": "Renseignez les coordonnées du client et envoyez-lui le lien. Il ouvre le formulaire d'avis de votre site avec son nom et son projet déjà remplis.",
+    "Client name": "Nom du client",
+    "Client WhatsApp": "WhatsApp du client",
+    "e.g. 0712 345 678": "ex. 0712 345 678",
+    "e.g. Bracket assembly & drawings": "ex. Assemblage de support et plans",
+    "Review link": "Lien d'avis",
+    "Copy link": "Copier le lien",
+    "Copied!": "Copié !",
+    "Message preview": "Aperçu du message",
+    "Send on WhatsApp": "Envoyer sur WhatsApp",
+    "Send by email": "Envoyer par e-mail",
+    "Test the link": "Tester le lien",
+    "This page isn't linked anywhere on the site or shown in search engines. Bookmark it.": "Cette page n'est liée nulle part sur le site et n'apparaît pas dans les moteurs de recherche. Ajoutez-la à vos favoris."
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
