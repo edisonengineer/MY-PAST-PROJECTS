@@ -1107,7 +1107,10 @@ window.I18N_FR = {
     "Print size & DPI calculator": "Calculateur de format et de DPI d'impression",
     "Pixels needed for A4, A3, A1, banners and business cards, and check if your image is big enough.": "Pixels nécessaires pour A4, A3, A1, bannières et cartes de visite, et vérification de la taille de votre image.",
     "Engineering unit converter": "Convertisseur d'unités d'ingénierie",
-    "Convert length, area, mass, force, pressure, torque and temperature units.": "Convertissez les unités de longueur, surface, masse, force, pression, couple et température."
+    "Convert length, area, mass, force, pressure, torque and temperature units.": "Convertissez les unités de longueur, surface, masse, force, pression, couple et température.",
+    "Heat-treated and tensile-tested AlSi10Mg specimens in the lab to calibrate the GTN–Hill’48 model": "Traitement thermique et essais de traction d’éprouvettes d’AlSi10Mg en laboratoire pour calibrer le modèle GTN–Hill’48",
+    "FE simulation & lab testing": "Simulation EF et essais en laboratoire",
+    "Tensile testing": "Essais de traction"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

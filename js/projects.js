@@ -67,11 +67,12 @@ window.PROJECTS = [
         theme: 'blue',
         icon: 'gear',
         year: '2025',
-        cover: 'images/engineering/kirdi/kirdi-sheet-metal-01.jpg',
+        cover: 'images/engineering/kirdi/kirdi-sheet-metal-01-800.jpg',
         gallery: [
             'images/engineering/kirdi/kirdi-sheet-metal-01.jpg',
             'images/engineering/kirdi/kirdi-sheet-metal-02.jpg',
-            'images/engineering/kirdi/kirdi-sheet-metal-03.jpg'
+            'images/engineering/kirdi/kirdi-sheet-metal-03.jpg',
+            'images/engineering/kirdi/kirdi-sheet-metal-04.jpg'
         ],
         summary: 'A 12-week attachment at the Kenya Industrial Research and Development Institute’s Engineering Research and ICT Department, designing and fabricating real components for projects that support Kenyan MSMEs.',
         points: [
@@ -108,6 +109,7 @@ window.PROJECTS = [
         summary: 'Predicting the forming limit curve of additively manufactured AlSi10Mg sheet through a coupled GTN–Hill’48 simulation of the Nakajima test, so that sheet-metal parts can be checked for failure before they are made.',
         points: [
             'Coupled damage mechanics (GTN) with Hill’48 anisotropic plasticity',
+            'Heat-treated and tensile-tested AlSi10Mg specimens in the lab to calibrate the GTN–Hill’48 model',
             'Simulated the Nakajima stretch-forming test to build the forming limit curve',
             'Practical failure prediction for sheet-metal parts before manufacture',
             'Insight into material behaviour under forming, failure and process optimisation'
@@ -115,9 +117,9 @@ window.PROJECTS = [
         meta: [
             ['Type', 'Final-year project'],
             ['Material', 'AM AlSi10Mg'],
-            ['Method', 'FE simulation']
+            ['Method', 'FE simulation & lab testing']
         ],
-        tags: ['FEA', 'Damage mechanics', 'Sheet metal forming'],
+        tags: ['FEA', 'Damage mechanics', 'Sheet metal forming', 'Tensile testing'],
         pdf: 'pdfs/final-year-project-report.pdf'
     },
     {
