@@ -132,6 +132,32 @@ In the quote cart, "Download quote (PDF)" opens a printable quote with a
 reference number, 14-day validity and your M-Pesa Till. Visitors choose
 "Save as PDF" in the print window.
 
+## Availability badge
+At the top of the homepage. In `js/config.js` → `availability` set
+`status` to `'available'` (green), `'limited'` (amber) or `'booked'` (red).
+For `'booked'`, add `from: 'November'` to show "Fully booked. New projects
+from November". Use `text` for your own message.
+
+## Newsletter
+"Get new CAD tips by email" forms are on the homepage CAD Tips section,
+the blog and the training page. Each sign-up arrives in your inbox through
+Web3Forms (subject "New CAD Tips subscriber"). Keep the addresses in a
+list, and send tips as a BCC email, or import them into a free tool like
+Mailchimp or Brevo when the list grows.
+
+## Client project tracker (/track/)
+Clients enter the reference you give them and see their project's stage,
+progress, due date, your latest note, what's due and a download link.
+1. Copy `content/tracker.example.js` to `content/tracker.private.js`.
+   This copy stays on your computer and is never uploaded.
+2. Add a block per project (the example explains every field). Give each
+   project a hard-to-guess reference such as `NCS-2026-014-KQ`.
+3. Run `node tools/build-tracker.js` and upload the new
+   `js/tracker-data.js`. Projects are locked (encrypted) with their own
+   reference, so nobody can read or list them without it.
+The demo reference `DEMO-2026` shows visitors how it works. Remove that
+block from your private file when you no longer want the demo.
+
 ## Site search
 The magnifier in the header (or `/` / Ctrl+K) searches projects, articles,
 services, FAQ and page sections. Its list is rebuilt by

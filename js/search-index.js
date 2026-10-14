@@ -170,6 +170,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "Track your project",
+  "d": "Check the status of your project with your reference.",
+  "u": "track/index.html",
+  "x": "status progress order client reference tracker delivery"
+ },
+ {
+  "k": "page",
   "t": "CAD Tips",
   "d": "All articles on CAD software, DFM and working with a designer.",
   "u": "blog/index.html",

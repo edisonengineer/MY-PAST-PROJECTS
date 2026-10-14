@@ -155,6 +155,19 @@
     }
 
     /* ======================================================================
+       AVAILABILITY BADGE (js/config.js → availability)
+       ====================================================================== */
+    const AV = CONFIG.availability || {};
+    const pill = $('#availability');
+    if (pill && ((AV.status && AV.status !== 'available') || AV.text)) {
+        const msg = AV.text || (AV.status === 'limited' ? 'Limited availability: a few slots left this month'
+            : AV.status === 'booked' ? (AV.from ? 'Fully booked. New projects from ' + AV.from : 'Fully booked for now. Message me to join the waiting list')
+            : 'Available for projects & full-time roles');
+        $('.pill-text', pill).textContent = msg;
+        pill.classList.add('is-' + (AV.status || 'available'));
+    }
+
+    /* ======================================================================
        RATE CARD: the download button appears once the PDF exists
        ====================================================================== */
     $$('[data-if-pdf]').forEach((el) => {
