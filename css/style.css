@@ -1668,6 +1668,8 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 .course-cta { margin-top: 22px; align-self: flex-start; }
 .training-reserve { background: var(--paper); }
 .reserve-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: clamp(28px, 5vw, 64px); align-items: start; }
+.reserve-grid > *, .course-grid > *, .train-facts > *, .field-grid > * { min-width: 0; }
+.reserve-card .field select, .reserve-card .field input { min-width: 0; width: 100%; }
 .train-faq { margin-top: 28px; }
 .reserve-card { padding: clamp(22px, 3vw, 34px); border-radius: var(--radius); background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow-md); }
 .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }

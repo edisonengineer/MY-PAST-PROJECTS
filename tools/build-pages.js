@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=9';
+const CSS_V = 'css/style.css?v=10';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
@@ -193,9 +193,9 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n-fr.js?v=6"></script>
-    <script defer src="../js/i18n-sw.js?v=3"></script>
-    <script defer src="../js/i18n.js?v=2"></script>
+${extraScripts}    <script defer src="../js/i18n-fr.js?v=7"></script>
+    <script defer src="../js/i18n-sw.js?v=4"></script>
+    <script defer src="../js/i18n.js?v=3"></script>
     <script defer src="../js/pages.js?v=2"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
