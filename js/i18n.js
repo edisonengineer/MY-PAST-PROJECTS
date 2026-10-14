@@ -59,7 +59,8 @@
     }
 
     function doAttrs(el) {
-        if (skipped(el)) return;
+        // A textarea's own text is the visitor's input, but its placeholder can be translated
+        if (el.tagName === 'TEXTAREA' ? (el.parentElement && skipped(el.parentElement)) : skipped(el)) return;
         let st = attrState.get(el);
         ATTRS.forEach((a) => {
             if (!el.hasAttribute(a)) return;

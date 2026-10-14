@@ -115,6 +115,23 @@ file name listed in `js/certificates.js` (e.g. `cswa.jpg`). The "View
 certificate" button appears automatically. Add a `verify` link if the
 issuer gives you one.
 
+## CAD training page
+Courses, topics, formats, FAQ and the next intake date are in
+`content/courses.js`. Set `nextIntake` (e.g. `'Saturday classes from
+7 November 2026'`) to replace "Dates on request". Seat requests arrive by
+email through Web3Forms. Run `node tools/build-pages.js` after editing.
+
+## KES / USD prices
+All prices are written in KES. Visitors can switch to approximate US
+dollars; set the exchange rate in `js/config.js` → `currency.usdRate`
+(KES per 1 USD). Visitors outside Africa see USD first. Quote requests
+always reach you in KES. Set `allowUsd: false` to hide the switch.
+
+## Quote PDF
+In the quote cart, "Download quote (PDF)" opens a printable quote with a
+reference number, 14-day validity and your M-Pesa Till. Visitors choose
+"Save as PDF" in the print window.
+
 ## Site search
 The magnifier in the header (or `/` / Ctrl+K) searches projects, articles,
 services, FAQ and page sections. Its list is rebuilt by

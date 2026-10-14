@@ -163,6 +163,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "CAD training courses",
+  "d": "AutoCAD, SolidWorks, Inventor and Fusion 360 training. Reserve a seat.",
+  "u": "training/index.html",
+  "x": "training course class lessons learn autocad solidworks inventor fusion cswa tutor teacher student"
+ },
+ {
+  "k": "page",
   "t": "CAD Tips",
   "d": "All articles on CAD software, DFM and working with a designer.",
   "u": "blog/index.html",

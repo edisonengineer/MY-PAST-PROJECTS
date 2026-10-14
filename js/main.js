@@ -199,7 +199,7 @@
                 '<p class="package-desc">' + esc(k.description) + '</p>' +
                 '<div class="package-price">' +
                     (k.price
-                        ? (k.from ? '<small>Starting from</small>' : '') + '<strong>' + esc(k.price) + '</strong>'
+                        ? (k.from ? '<small>Starting from</small>' : '') + '<strong' + (/\d/.test(k.price) && /KES/i.test(k.price) ? ' data-kes="' + esc(String(k.price).replace(/[^\d]/g, '')) + '"' : '') + '>' + esc(k.price) + '</strong>'
                         : '<small>Pricing</small><strong>Custom quote</strong>') +
                 '</div>' +
                 '<ul class="package-list">' + (k.includes || []).map((t) => '<li>' + icon('check') + '<span>' + esc(t) + '</span></li>').join('') + '</ul>' +
