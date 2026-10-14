@@ -101,6 +101,31 @@
         });
     }
 
+    /* ---------- 3D model ("View in 3D", shown once the .glb file exists) ---------- */
+    $$('[data-model]').forEach((btn) => {
+        fetch(btn.dataset.model, { method: 'HEAD' }).then((r) => { if (r.ok) btn.hidden = false; }).catch(() => {});
+        btn.addEventListener('click', () => {
+            const media = gallery || $('.case-media');
+            if (!media) return;
+            media.classList.add('has-3d');
+            media.innerHTML = '<div class="pm-3d-loading"><span class="spinner"></span> ' + tr('Loading 3D model…') + '</div>';
+            const ready = customElements.get('model-viewer') ? Promise.resolve() : new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.type = 'module';
+                s.src = btn.dataset.viewer || 'https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js';
+                s.onload = () => customElements.whenDefined('model-viewer').then(resolve);
+                s.onerror = reject;
+                document.head.appendChild(s);
+            });
+            ready.then(() => {
+                media.innerHTML = '<model-viewer src="' + btn.dataset.model + '" alt="' + tr('3D model of ') + (gallery ? gallery.dataset.title : '') + '" camera-controls auto-rotate shadow-intensity="1" exposure="1" touch-action="pan-y" interaction-prompt="auto"></model-viewer>' +
+                    '<p class="pm-3d-hint">' + tr('Drag to rotate · Scroll or pinch to zoom') + '</p>';
+                media.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (typeof window.track === 'function') window.track('model-3d-opened');
+            }).catch(() => { media.innerHTML = '<div class="pm-3d-loading">' + tr('The 3D viewer couldn\'t load. Please check your connection.') + '</div>'; });
+        });
+    });
+
     /* ---------- Image viewer ---------- */
     let list = [], index = 0, returnTo = null;
     const lbImg = $('#lightbox-img');

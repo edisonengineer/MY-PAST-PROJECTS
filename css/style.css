@@ -1220,6 +1220,9 @@ body.no-scroll .fab-wa, body.no-scroll .fab-top { opacity: 0; visibility: hidden
 /* ---------- 3D viewer ---------- */
 .pm-media.has-3d { background: radial-gradient(circle at 50% 40%, #ffffff, #e9e3d6); display: flex; flex-direction: column; }
 .pm-media model-viewer { width: 100%; flex: 1; min-height: 380px; --poster-color: transparent; background: transparent; }
+.case-media.has-3d { display: flex; flex-direction: column; border-radius: var(--radius); background: radial-gradient(circle at 50% 40%, #ffffff, #e9e3d6); overflow: hidden; }
+.case-media model-viewer { width: 100%; min-height: 440px; --poster-color: transparent; background: transparent; }
+@media (max-width: 640px) { .case-media model-viewer { min-height: 320px; } }
 .pm-3d-hint { text-align: center; font-size: 0.8rem; font-weight: 600; color: var(--text-soft); padding: 10px; }
 .pm-3d-loading { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 360px; color: var(--text-soft); font-weight: 600; padding: 20px; text-align: center; }
 
