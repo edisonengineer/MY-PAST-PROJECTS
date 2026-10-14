@@ -88,7 +88,7 @@ window.PROJECTS = [
             ['Focus', 'Fabrication & machining']
         ],
         tags: ['DFM', 'Sheet metal', 'CNC laser cutting', 'SolidWorks'],
-        pdf: 'pdfs/kirdi-sheet-metal-report.pdf'
+        pdf: 'pdfs/kirdi-industrial-attachment-report.pdf'
     },
     {
         id: 'final-year-project',
