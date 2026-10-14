@@ -2033,7 +2033,7 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 [data-theme="dark"] ::selection { background: var(--sun); color: var(--navy); }
 [data-theme="dark"] img:not(.no-dim) { filter: brightness(0.94); }
 
-@media (max-width: 1440px) and (min-width: 1281px) {
+@media (min-width: 1281px) {
     .site-nav { gap: 18px; }
     .site-nav > a:not(.btn) { font-size: 0.86rem; }
     .brand-text small { display: none; }
