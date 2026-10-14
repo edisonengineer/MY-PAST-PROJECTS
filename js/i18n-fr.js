@@ -951,7 +951,8 @@ window.I18N_FR = {
     "Latest update from Edison": "Dernières nouvelles d'Edison",
     "Download your files": "Télécharger vos fichiers",
     "Ask about this project": "Poser une question",
-    "Progress": "Avancement"
+    "Progress": "Avancement",
+    "View credential": "Voir le justificatif"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

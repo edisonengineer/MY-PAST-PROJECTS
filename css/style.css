@@ -1430,6 +1430,9 @@ body.no-scroll .fab-wa, body.no-scroll .fab-top { opacity: 0; visibility: hidden
 .cert-actions:empty { display: none; }
 .cert-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; color: var(--blue); }
 .cert-link svg { width: 14px; height: 14px; }
+.cert-credential { padding: 5px 12px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--blue) 35%, transparent); }
+.cert-credential:hover { background: rgba(47, 107, 255, 0.08); }
+[data-theme="dark"] .cert-link { color: #8fb0ff; }
 
 /* ---------- Payments ---------- */
 .pay-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; border-radius: 14px; background: var(--cream); margin-bottom: 18px; }

@@ -138,7 +138,7 @@
         const exists = (window.Site && window.Site.fileExists) || (() => Promise.resolve(false));
         certs.forEach((c, i) => {
             const box = $('[data-cert="' + i + '"]', certGrid);
-            if (c.verify) box.insertAdjacentHTML('beforeend', '<a class="cert-link" href="' + esc(c.verify) + '" target="_blank" rel="noopener">Verify ' + icon('arrow') + '</a>');
+            if (c.verify) box.insertAdjacentHTML('beforeend', '<a class="cert-link cert-credential" href="' + esc(c.verify) + '" target="_blank" rel="noopener">View credential <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>');
             if (!c.file) return;
             exists(c.file).then((ok) => {
                 if (!ok) return;
