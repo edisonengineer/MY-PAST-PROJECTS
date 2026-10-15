@@ -247,7 +247,7 @@ const cover = (o, cls) => `<div class="${cls} theme-${esc(o.theme || 'blue')}" a
 function projectPage(p, i, all) {
     const url = SITE + 'projects/' + p.id + '.html';
     const imgs = Array.from(new Set(p.gallery && p.gallery.length ? p.gallery : (p.cover ? [p.cover] : [])));
-    const image = SITE + (p.cover || 'og-image.jpg');
+    const image = SITE + (p.cover || 'og-image.jpg?v=2');
     const prev = all[(i - 1 + all.length) % all.length];
     const next = all[(i + 1) % all.length];
     const description = p.summary.length > 160 ? p.summary.slice(0, 157).replace(/\s+\S*$/, '') + '…' : p.summary;
@@ -376,7 +376,7 @@ function postCard(post, prefix, h = 'h3') {
 
 function postPage(post, i, all) {
     const url = SITE + 'blog/' + post.slug + '.html';
-    const image = SITE + (post.image || 'og-image.jpg');
+    const image = SITE + (post.image || 'og-image.jpg?v=2');
     const others = all.filter((x) => x !== post).slice(0, 3);
     const jsonld = {
         '@context': 'https://schema.org',
@@ -452,7 +452,7 @@ function blogIndex(posts) {
         author: { '@type': 'Person', name: 'Edison Ochieng', url: SITE },
         blogPost: posts.map((p) => ({ '@type': 'BlogPosting', headline: p.title, url: SITE + 'blog/' + p.slug + '.html', datePublished: p.date }))
     };
-    return head({ title: 'CAD Tips | Edison Ochieng', description, url, image: SITE + 'og-image.jpg', type: 'website', jsonld }) + '\n' + header('blog') + `
+    return head({ title: 'CAD Tips | Edison Ochieng', description, url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld }) + '\n' + header('blog') + `
     <main id="main">
         <section class="page-hero theme-blue">
             <div class="container page-hero-inner">
@@ -502,7 +502,7 @@ function trainingPage(T) {
         }))
     };
     const opt = (v, label) => `<option value="${esc(v)}">${esc(label || v)}</option>`;
-    return head({ title: 'CAD Training: AutoCAD, SolidWorks, Inventor & Fusion 360 | Edison Ochieng', description, url, image: SITE + 'og-image.jpg', type: 'website', jsonld }) + '\n' + header('training') + `
+    return head({ title: 'CAD Training: AutoCAD, SolidWorks, Inventor & Fusion 360 | Edison Ochieng', description, url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld }) + '\n' + header('training') + `
     <main id="main">
         <section class="page-hero theme-teal">
             <div class="container page-hero-inner">
@@ -644,7 +644,7 @@ function calculatorsPage() {
     };
     const num = (name, label, value, attrs = '') => `<div class="field"><label for="c-${name}">${label}</label><input id="c-${name}" name="${name}" type="number" inputmode="decimal" step="any" value="${value}" ${attrs}></div>`;
     const cta = (text, href, brief) => `<p class="tool-cta"><span>${text}</span> <a class="btn btn-sun" href="${href}"${brief ? ` data-brief="${brief}"` : ''}>Start a project ${icon('arrow')}</a></p>`;
-    return head({ title: 'Free Tools: Bend Allowance, Print DPI & Unit Converter | Edison Ochieng', description, url, image: SITE + 'og-image.jpg', type: 'website', jsonld }) + '\n' + header('calculators') + `
+    return head({ title: 'Free Tools: Bend Allowance, Print DPI & Unit Converter | Edison Ochieng', description, url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld }) + '\n' + header('calculators') + `
     <main id="main">
         <section class="page-hero theme-teal">
             <div class="container page-hero-inner">
@@ -826,7 +826,7 @@ function cvPage({ cv, certs }) {
         mainEntity: { '@type': 'Person', name: cv.name, jobTitle: cv.title, image: SITE + 'images/profile/edison.jpg', address: { '@type': 'PostalAddress', addressLocality: 'Nairobi', addressCountry: 'KE' }, sameAs: [cv.linkedin] }
     };
     const list = (a) => a.map((x) => `<li>${esc(x)}</li>`).join('');
-    return head({ title: 'CV | ' + cv.name, description, url, image: SITE + 'og-image.jpg', type: 'profile', jsonld }) + '\n' + header('cv') + `
+    return head({ title: 'CV | ' + cv.name, description, url, image: SITE + 'og-image.jpg?v=2', type: 'profile', jsonld }) + '\n' + header('cv') + `
     <main id="main">
         <section class="page-hero theme-blue cv-hero">
             <div class="container cv-hero-inner">
@@ -917,7 +917,7 @@ ${cv.education.map((x) => `                            <article class="cv-item">
 function reviewLinkPage() {
     const url = SITE + 'request-review/';
     const opt = (v) => `<option value="${esc(v)}">${esc(v)}</option>`;
-    return head({ title: 'Request a review | Nexus CAD Studio', description: 'Create a link that asks a client for a review.', url, image: SITE + 'og-image.jpg', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Request a review', url } })
+    return head({ title: 'Request a review | Nexus CAD Studio', description: 'Create a link that asks a client for a review.', url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Request a review', url } })
         .replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, nofollow">') + '\n' + header('') + `
     <main id="main">
         <section class="page-hero theme-sun">
@@ -960,7 +960,7 @@ function reviewLinkPage() {
 function trackPage() {
     const url = SITE + 'track/';
     const description = 'Check the status of your Nexus CAD Studio project with the reference Edison sent you.';
-    return head({ title: 'Track your project | Nexus CAD Studio', description, url, image: SITE + 'og-image.jpg', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Track your project', url, description } }).replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, follow">') + '\n' + header('track') + `
+    return head({ title: 'Track your project | Nexus CAD Studio', description, url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Track your project', url, description } }).replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, follow">') + '\n' + header('track') + `
     <main id="main">
         <section class="page-hero theme-violet">
             <div class="container page-hero-inner narrow">
