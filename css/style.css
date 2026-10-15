@@ -425,6 +425,8 @@ svg { width: 1em; height: 1em; flex-shrink: 0; }
     transition: background-color 0.3s var(--ease), color 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 .filter:hover { color: var(--heading); }
+.filter[data-filter="3d"] { display: inline-flex; align-items: center; gap: 6px; }
+.filter svg { width: 16px; height: 16px; }
 .filter.is-active { background: var(--navy); color: #fff; box-shadow: 0 6px 16px rgba(14, 26, 58, 0.22); }
 
 .project-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(18px, 2.4vw, 28px); }
@@ -495,6 +497,15 @@ svg { width: 1em; height: 1em; flex-shrink: 0; }
     font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
+.pc-3d {
+    position: absolute; top: 16px; right: 16px; z-index: 3;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 11px; border-radius: 999px;
+    background: var(--sun); color: #0f1b3d;
+    font-size: 0.74rem; font-weight: 800; letter-spacing: 0.02em;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+.pc-3d svg { width: 14px; height: 14px; }
 .pc-view {
     position: absolute; right: 16px; bottom: 16px; z-index: 3;
     display: inline-flex; align-items: center; gap: 8px;
@@ -1223,6 +1234,9 @@ body.no-scroll .fab-wa, body.no-scroll .fab-top { opacity: 0; visibility: hidden
 .case-media.has-3d { display: flex; flex-direction: column; border-radius: var(--radius); background: radial-gradient(circle at 50% 40%, #ffffff, #e9e3d6); overflow: hidden; }
 .case-media model-viewer { width: 100%; min-height: 440px; --poster-color: transparent; background: transparent; }
 @media (max-width: 640px) { .case-media model-viewer { min-height: 320px; } }
+/* "View in your room" (AR) button inside the 3D viewer; model-viewer only shows it on AR-capable phones */
+model-viewer .ar-btn { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border: 0; border-radius: 999px; background: var(--sun, #ffb627); color: #0f1b3d; font: 700 0.85rem/1 inherit; font-family: inherit; box-shadow: 0 6px 18px rgba(15, 27, 61, 0.25); cursor: pointer; white-space: nowrap; }
+model-viewer .ar-btn svg { width: 18px; height: 18px; }
 .pm-3d-hint { text-align: center; font-size: 0.8rem; font-weight: 600; color: var(--text-soft); padding: 10px; }
 .pm-3d-loading { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 360px; color: var(--text-soft); font-weight: 600; padding: 20px; text-align: center; }
 
@@ -1543,6 +1557,9 @@ body.no-scroll .fab-wa, body.no-scroll .fab-top { opacity: 0; visibility: hidden
 .post-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
 .post-link { display: flex; flex-direction: column; height: 100%; }
 .post-cover { position: relative; aspect-ratio: 16 / 7; display: flex; align-items: flex-end; padding: 20px; background: var(--cover); color: #fff; overflow: hidden; }
+.post-cover.has-photo { padding: 0; background: var(--cream-2); }
+.post-cover.has-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.post-cover.has-photo::after { display: none; }
 .post-cover::after { content: ''; position: absolute; right: -40px; top: -60px; width: 180px; height: 180px; border-radius: 50%; border: 24px solid rgba(255, 255, 255, 0.12); }
 .post-cover .pc-cover-icon { width: 48px; height: 48px; border-radius: 14px; }
 .post-cover .pc-cover-icon svg { width: 24px; height: 24px; }
@@ -1559,6 +1576,8 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 .article { font-size: 1.07rem; line-height: 1.75; color: var(--text); }
 .article > * + * { margin-top: 1.1em; }
 .article h2 { margin-top: 1.9em; font-family: var(--serif); font-weight: 600; font-size: clamp(1.35rem, 2.6vw, 1.7rem); line-height: 1.25; color: var(--heading); }
+.article figure img { width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--line); }
+.article figcaption { margin-top: 8px; font-size: 0.86rem; color: var(--text-soft); text-align: center; }
 .article ul, .article ol { padding-left: 1.3em; }
 .article ul { list-style: disc; }
 .article ol { list-style: decimal; }
@@ -2136,8 +2155,9 @@ html:not([lang="en"]) .article-lang-note { display: block; }
     .pc-view { opacity: 1; transform: none; }
 
     .section-head.split { flex-direction: column; align-items: flex-start; }
-    .filters { width: 100%; justify-content: space-between; }
-    .filter { flex: 1; padding: 10px 8px; }
+    .filters { width: 100%; display: grid; grid-template-columns: 1fr 1fr; border-radius: 22px; }
+    .filter { padding: 10px 8px; justify-content: center; text-align: center; }
+    .filter[data-filter="3d"] { justify-content: center; }
 
     .float-badge { position: static; animation: none; margin-top: 12px; width: min(100%, 360px); }
     .hero-visual { flex-direction: column; align-items: center; }
@@ -2166,3 +2186,16 @@ html:not([lang="en"]) .article-lang-note { display: block; }
     *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; transition-delay: 0ms !important; }
     .js [data-reveal] { opacity: 1; transform: none; }
 }
+
+/* ---------- Project case study (brief → approach → result) ---------- */
+.case-story { padding-top: 0; }
+.case-story .section-title { margin-top: 6px; }
+.story-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 28px; }
+.story-card { position: relative; padding: 26px 24px 24px; border-radius: 22px; background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+.story-card h3 { margin-top: 14px; font-family: var(--serif); font-weight: 600; font-size: 1.25rem; color: var(--heading); }
+.story-card p { margin-top: 10px; line-height: 1.65; color: var(--text); }
+.story-step { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: var(--sun); color: #0f1b3d; font-weight: 800; }
+.story-card:nth-child(2) .story-step { background: var(--teal, #12b5a5); color: #fff; }
+.story-card:nth-child(3) .story-step { background: var(--coral); color: #fff; }
+.story-link { margin-top: 22px; }
+@media (max-width: 900px) { .story-grid { grid-template-columns: 1fr; } }

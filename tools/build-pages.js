@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=17';
+const CSS_V = 'css/style.css?v=18';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
@@ -229,10 +229,10 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n-fr.js?v=17"></script>
-    <script defer src="../js/i18n-sw.js?v=14"></script>
+${extraScripts}    <script defer src="../js/i18n-fr.js?v=18"></script>
+    <script defer src="../js/i18n-sw.js?v=15"></script>
     <script defer src="../js/i18n.js?v=3"></script>
-    <script defer src="../js/pages.js?v=6"></script>
+    <script defer src="../js/pages.js?v=7"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -316,6 +316,7 @@ ${(p.tags || []).map((t) => `                        <li class="chip">${esc(t)}<
                     <div class="pm-actions">
                         ${p.model ? `<button type="button" class="btn btn-sun" data-model="../${esc(p.model)}" data-viewer="${esc(CFG.modelViewerSrc || '')}" hidden>${icon('cube')} View in 3D</button>` : ''}
                         ${p.pdf ? `<a class="btn btn-navy" href="../${esc(p.pdf)}" target="_blank" rel="noopener" data-if-exists hidden>${icon('doc')} Read report</a>` : ''}
+                        ${p.story && p.story.link && !(p.story.brief || p.story.approach || p.story.result) ? `<a class="btn btn-navy" href="../${esc(p.story.link.href)}">${icon('doc')} ${esc(p.story.link.label)}</a>` : ''}
                         <a class="btn btn-green" href="https://wa.me/${WHATSAPP}?text=${msg}" target="_blank" rel="noopener">${icon('whatsapp')} Discuss a similar project</a>
                         <a class="btn btn-outline" href="../index.html#brief">Start a project</a>
                     </div>
@@ -323,6 +324,21 @@ ${(p.tags || []).map((t) => `                        <li class="chip">${esc(t)}<
             </div>
         </section>
 
+${p.story && (p.story.brief || p.story.approach || p.story.result) ? `
+        <section class="section case-story" aria-labelledby="story-title">
+            <div class="container">
+                <p class="kicker">Case study</p>
+                <h2 class="section-title" id="story-title">From brief to <em>result</em>.</h2>
+                <div class="story-grid">
+${[['brief', 'The brief', 'doc'], ['approach', 'My approach', 'gear'], ['result', 'The result', 'award']].filter((x) => p.story[x[0]]).map((x, k) => `                    <article class="story-card">
+                        <span class="story-step">${k + 1}</span>
+                        <h3>${esc(x[1])}</h3>
+                        <p>${esc(p.story[x[0]])}</p>
+                    </article>`).join('\n')}
+                </div>
+${p.story.link ? `                <p class="story-link"><a class="btn btn-outline" href="../${esc(p.story.link.href)}">${esc(p.story.link.label)}</a></p>\n` : ''}            </div>
+        </section>
+` : ''}
         <nav class="container pager" aria-label="More projects">
             <a class="pager-link prev" href="${esc(prev.id)}.html"><small>Previous project</small><span>${esc(prev.title)}</span></a>
             <a class="pager-link all" href="../index.html#work">All work</a>
@@ -348,7 +364,7 @@ ${(p.tags || []).map((t) => `                        <li class="chip">${esc(t)}<
 function postCard(post, prefix, h = 'h3') {
     return `<article class="post-card">
                     <a href="${prefix}${esc(post.slug)}.html" class="post-link">
-                        ${cover(post, 'post-cover')}
+                        ${post.image ? `<div class="post-cover has-photo" aria-hidden="true"><img src="${prefix === 'blog/' ? '' : '../'}${esc(post.image)}" alt="" loading="lazy" decoding="async"></div>` : cover(post, 'post-cover')}
                         <div class="post-body" data-no-i18n>
                             <p class="post-meta"><time datetime="${esc(post.date)}">${esc(fmtDate(post.date))}</time> · ${post.minutes} min read</p>
                             <${h}>${esc(post.title)}</${h}>
@@ -360,7 +376,7 @@ function postCard(post, prefix, h = 'h3') {
 
 function postPage(post, i, all) {
     const url = SITE + 'blog/' + post.slug + '.html';
-    const image = SITE + 'og-image.jpg';
+    const image = SITE + (post.image || 'og-image.jpg');
     const others = all.filter((x) => x !== post).slice(0, 3);
     const jsonld = {
         '@context': 'https://schema.org',
@@ -1058,9 +1074,22 @@ write('request-review/index.html', reviewLinkPage());
 write('sitemap.xml', sitemap(projects, posts));
 write('js/search-index.js', searchIndex(projects, posts));
 
-const START = '<!-- BLOG-CARDS:START -->', END = '<!-- BLOG-CARDS:END -->';
-if (index.includes(START)) {
-    const updated = index.replace(new RegExp(START + '[\\s\\S]*?' + END), START + '\n                    ' + homeCards(posts) + '\n                    ' + END);
-    if (updated !== index) write('index.html', updated);
+// FAQ structured data for Google, generated from the FAQ section of index.html
+function faqSchema() {
+    const strip = (h) => h.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&#39;|&rsquo;/g, "'").replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').replace(/ ([.,:;])/g, '$1').trim();
+    const qa = [...index.matchAll(/<summary>([\s\S]*?)<\/summary>\s*<div class="faq-body">([\s\S]*?)<\/div>/g)];
+    const data = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: qa.map((m) => ({ '@type': 'Question', name: strip(m[1]), acceptedAnswer: { '@type': 'Answer', text: strip(m[2]) } }))
+    };
+    return '<script type="application/ld+json">\n    ' + JSON.stringify(data) + '\n    </script>';
 }
+
+const START = '<!-- BLOG-CARDS:START -->', END = '<!-- BLOG-CARDS:END -->';
+const FSTART = '<!-- FAQ-SCHEMA:START -->', FEND = '<!-- FAQ-SCHEMA:END -->';
+let updated = index;
+if (updated.includes(START)) updated = updated.replace(new RegExp(START + '[\\s\\S]*?' + END), START + '\n                    ' + homeCards(posts) + '\n                    ' + END);
+if (updated.includes(FSTART)) updated = updated.replace(new RegExp(FSTART + '[\\s\\S]*?' + FEND), () => FSTART + '\n    ' + faqSchema() + '\n    ' + FEND);
+if (updated !== index) write('index.html', updated);
 console.log('Done: ' + projects.length + ' projects, ' + posts.length + ' articles.');

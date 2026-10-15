@@ -118,7 +118,7 @@
     function cardHTML(p) {
         const tags = (p.tags || []).slice(0, 3).map((t) => '<li class="chip">' + esc(t) + '</li>').join('');
         return (
-            '<article class="project-card theme-' + esc(p.theme || 'blue') + (p.featured ? ' is-featured' : '') + '" data-category="' + esc(p.category) + '" data-reveal>' +
+            '<article class="project-card theme-' + esc(p.theme || 'blue') + (p.featured ? ' is-featured' : '') + '" data-category="' + esc(p.category) + '"' + (p.model ? ' data-3d' : '') + ' data-reveal>' +
                 '<div class="pc-media">' +
                     '<div class="pc-cover" aria-hidden="true">' +
                         '<span class="pc-cover-icon">' + icon(p.icon || 'cube') + '</span>' +
@@ -126,6 +126,7 @@
                     '</div>' +
                     (p.cover ? '<img src="' + esc(p.cover) + '" alt="' + esc(p.title) + '" loading="lazy" decoding="async" oncontextmenu="return false;">' : '') +
                     '<span class="pc-badge">' + esc(label[p.category] || p.category) + '</span>' +
+                    (p.model ? '<span class="pc-3d" title="Interactive 3D model">' + icon('cube') + ' 3D</span>' : '') +
                     '<span class="pc-view">View project ' + icon('arrow') + '</span>' +
                 '</div>' +
                 '<div class="pc-body">' +
@@ -146,6 +147,16 @@
             if (img.complete) { img.naturalWidth ? ok() : bad(); }
             img.addEventListener('load', ok, { once: true });
             img.addEventListener('error', bad, { once: true });
+        });
+        // The 3D badge and filter only count models that have been uploaded
+        $$('.project-card[data-3d]', grid).forEach((card) => {
+            const p = PROJECTS.find((x) => x.id === card.querySelector('.pc-open').dataset.id);
+            fetch(p.model, { method: 'HEAD' }).then((r) => r.ok).catch(() => false).then((ok) => {
+                if (ok) return;
+                card.removeAttribute('data-3d');
+                const badge = card.querySelector('.pc-3d');
+                if (badge) badge.remove();
+            });
         });
         grid.addEventListener('click', (e) => {
             const card = e.target.closest('.project-card');
@@ -175,7 +186,7 @@
             b.setAttribute('aria-pressed', String(on));
         });
         $$('.project-card', grid).forEach((card) => {
-            const show = cat === 'all' || card.dataset.category === cat;
+            const show = cat === 'all' || (cat === '3d' ? card.hasAttribute('data-3d') : card.dataset.category === cat);
             card.classList.toggle('is-hidden', !show);
             if (show) {
                 card.classList.remove('is-visible');
@@ -295,11 +306,23 @@
         loadModelViewer().then(() => {
             pm.media.innerHTML =
                 '<model-viewer src="' + esc(p.model) + '" alt="3D model of ' + esc(p.title) + '" camera-controls auto-rotate ' +
-                'shadow-intensity="1" exposure="1" touch-action="pan-y" interaction-prompt="auto"></model-viewer>' +
+                'shadow-intensity="1" exposure="1" touch-action="pan-y" interaction-prompt="auto" ' +
+                'ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed">' +
+                '<button type="button" slot="ar-button" class="ar-btn"><svg aria-hidden="true"><use href="#i-cube"/></svg> View in your room</button></model-viewer>' +
                 '<p class="pm-3d-hint">Drag to rotate · Scroll or pinch to zoom</p>';
+            arHint(pm.media);
         }).catch(() => {
             pm.media.innerHTML = '<div class="pm-3d-loading">The 3D viewer couldn\'t load. Please check your connection.</div>';
         });
+    }
+
+    // On a laptop, AR isn't available: point visitors to their phone instead
+    function arHint(box) {
+        const mv = box.querySelector('model-viewer'), hint = box.querySelector('.pm-3d-hint');
+        if (!mv || !hint) return;
+        mv.addEventListener('load', () => {
+            if (!mv.canActivateAR) hint.textContent = 'Drag to rotate · Open on your phone to view it in your room';
+        }, { once: true });
     }
 
     function imageLoads(src) {

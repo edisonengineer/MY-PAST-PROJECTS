@@ -21,6 +21,8 @@
      pdf       report in pdfs/ (optional). The "Read report" button only
                appears once the file actually exists.
      featured  true = larger card on desktop
+     story     case study shown on the project page (optional):
+               { brief, approach, result, link: { href, label } }
      model     3D model (.glb) in models/ (optional). Visitors can spin and
                zoom it in the browser. The "View in 3D" button only appears
                once the file exists. Export .glb from Fusion 360 / SolidWorks
@@ -57,6 +59,11 @@ window.PROJECTS = [
         ],
         tags: ['Fusion 360', 'Sustainable design', 'Structural simulation'],
         model: 'models/designathon-hub.glb',
+        story: {
+            brief: 'Design an accessible, all-season outdoor workspace for a university campus that runs on renewable energy, so students can study and charge their devices outside.',
+            approach: 'We sized the hub at 9.5 m × 9.5 m on 3 m concrete pillars and covered it with a 6 m radius curved roof of recycled polycarbonate. Solar panels built into the roof power ergonomic charging stations, so the hub supplies its own energy. The whole structure was modelled in Fusion 360 and checked with structural simulation.',
+            result: 'An Honorable Mention at the Autodesk Designathon 2025, for a design that meets the brief on accessibility, all-season comfort and renewable power.'
+        },
         pdf: null
     },
     {
@@ -90,6 +97,12 @@ window.PROJECTS = [
         ],
         tags: ['Fusion 360', 'Humanitarian design', 'Water filtration'],
         model: 'models/designathon-2026-hygiene-station.glb',
+        story: {
+            brief: 'After a natural disaster, clean water and sanitation become the most urgent needs. The brief: a compact, rapidly deployable and sustainable station where people can wash their hands, get filtered water and keep up basic hygiene, within 2 m × 2 m and built around 19-litre carboys or 2.5-litre bottles.',
+            approach: 'I arranged the station in layers that follow the water. Nine carboys on top feed a header tank, the water passes through three filter columns in an enclosed chamber, and filtered water reaches two taps over basins on opposite sides. Used water drains through U-bends into a separate wastewater tank at the base. A cross-braced steel frame carries the weight of the full carboys, about 170 kg of water.',
+            result: 'A complete Fusion 360 assembly submitted to the Autodesk Designathon 2026 that covers every requirement in the brief: carboy integration, a filtration area, wastewater storage and a washing station for two people at once, all inside the 2 m × 2 m footprint.',
+            link: { href: 'blog/designing-an-emergency-hygiene-station.html', label: 'Read the full design story' }
+        },
         pdf: null
     },
     {
@@ -123,6 +136,9 @@ window.PROJECTS = [
         ],
         tags: ['Fusion 360', 'Product design', 'Rendering'],
         model: 'models/coffee-machine.glb',
+        story: {
+            link: { href: 'blog/coffee-machine-from-concept-to-render.html', label: 'Read how I designed it' }
+        },
         pdf: null
     },
     {

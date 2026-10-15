@@ -118,8 +118,13 @@
                 document.head.appendChild(s);
             });
             ready.then(() => {
-                media.innerHTML = '<model-viewer src="' + btn.dataset.model + '" alt="' + tr('3D model of ') + (gallery ? gallery.dataset.title : '') + '" camera-controls auto-rotate shadow-intensity="1" exposure="1" touch-action="pan-y" interaction-prompt="auto"></model-viewer>' +
+                media.innerHTML = '<model-viewer src="' + btn.dataset.model + '" alt="' + tr('3D model of ') + (gallery ? gallery.dataset.title : '') + '" camera-controls auto-rotate shadow-intensity="1" exposure="1" touch-action="pan-y" interaction-prompt="auto" ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed">' +
+                    '<button type="button" slot="ar-button" class="ar-btn"><svg aria-hidden="true"><use href="#i-cube"/></svg> ' + tr('View in your room') + '</button></model-viewer>' +
                     '<p class="pm-3d-hint">' + tr('Drag to rotate · Scroll or pinch to zoom') + '</p>';
+                const mv = $('model-viewer', media), hint = $('.pm-3d-hint', media);
+                mv.addEventListener('load', () => {
+                    if (!mv.canActivateAR) hint.textContent = tr('Drag to rotate · Open on your phone to view it in your room');
+                }, { once: true });
                 media.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 if (typeof window.track === 'function') window.track('model-3d-opened');
             }).catch(() => { media.innerHTML = '<div class="pm-3d-loading">' + tr('The 3D viewer couldn\'t load. Please check your connection.') + '</div>'; });
