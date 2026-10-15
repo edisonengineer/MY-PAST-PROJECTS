@@ -121,6 +121,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "project",
+  "t": "Espresso Coffee Machine",
+  "d": "Product design · May – June 2026",
+  "u": "projects/coffee-machine.html",
+  "x": "A compact countertop espresso machine designed from concept to photorealistic render: the full product, from the water supply and internal layout to the brew group and drip tray, modelled as one assembly in Fusion 360. Fusion 360 Product design Rendering Twin inverted-bottle water reservoirs that feed the machine from the top Clear acrylic side panel that shows the twin filter cartridges and internal layout Group head with a wooden-handled portafilter over a perforated stainless drip tray Material palette of dark bamboo trim, anodised aluminium, stainless steel and ABS Full 3D assembly, section views and photorealistic rendering in Fusion 360 Product design May – June 2026 Autodesk Fusion 360 engineering"
+ },
+ {
+  "k": "project",
   "t": "Sheet Metal Fabrication at KIRDI",
   "d": "Industrial attachment · Jun – Aug 2025",
   "u": "projects/kirdi-fabrication.html",

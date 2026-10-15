@@ -60,6 +60,39 @@ window.PROJECTS = [
         pdf: null
     },
     {
+        id: 'coffee-machine',
+        title: 'Espresso Coffee Machine',
+        subtitle: 'Product design · May – June 2026',
+        category: 'engineering',
+        theme: 'coral',
+        icon: 'cube',
+        year: '2026',
+        cover: 'images/engineering/coffee-machine/coffee-machine-01-800.jpg',
+        gallery: [
+            'images/engineering/coffee-machine/coffee-machine-01.jpg',
+            'images/engineering/coffee-machine/coffee-machine-02.jpg',
+            'images/engineering/coffee-machine/coffee-machine-03.jpg',
+            'images/engineering/coffee-machine/coffee-machine-04.jpg',
+            'images/engineering/coffee-machine/coffee-machine-05.jpg'
+        ],
+        summary: 'A compact countertop espresso machine designed from concept to photorealistic render: the full product, from the water supply and internal layout to the brew group and drip tray, modelled as one assembly in Fusion 360.',
+        points: [
+            'Twin inverted-bottle water reservoirs that feed the machine from the top',
+            'Clear acrylic side panel that shows the twin filter cartridges and internal layout',
+            'Group head with a wooden-handled portafilter over a perforated stainless drip tray',
+            'Material palette of dark bamboo trim, anodised aluminium, stainless steel and ABS',
+            'Full 3D assembly, section views and photorealistic rendering in Fusion 360'
+        ],
+        meta: [
+            ['Type', 'Product design'],
+            ['Timeline', 'May – June 2026'],
+            ['Software', 'Autodesk Fusion 360']
+        ],
+        tags: ['Fusion 360', 'Product design', 'Rendering'],
+        model: 'models/coffee-machine.glb',
+        pdf: null
+    },
+    {
         id: 'kirdi-fabrication',
         title: 'Sheet Metal Fabrication at KIRDI',
         subtitle: 'Industrial attachment · Jun – Aug 2025',

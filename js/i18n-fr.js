@@ -1112,7 +1112,19 @@ window.I18N_FR = {
     "FE simulation & lab testing": "Simulation EF et essais en laboratoire",
     "Tensile testing": "Essais de traction",
     "Industrial Attachment Report: KIRDI": "Rapport de stage industriel : KIRDI",
-    "Sheet metal, CNC & fabrication · 2025": "Tôlerie, CNC et fabrication · 2025"
+    "Sheet metal, CNC & fabrication · 2025": "Tôlerie, CNC et fabrication · 2025",
+    "Espresso Coffee Machine": "Machine à café expresso",
+    "Product design · May – June 2026": "Design produit · mai – juin 2026",
+    "A compact countertop espresso machine designed from concept to photorealistic render: the full product, from the water supply and internal layout to the brew group and drip tray, modelled as one assembly in Fusion 360.": "Une machine à expresso compacte de comptoir, conçue du concept au rendu photoréaliste : le produit complet, de l’alimentation en eau et l’agencement interne au groupe d’infusion et au bac d’égouttage, modélisé en un seul assemblage sous Fusion 360.",
+    "Twin inverted-bottle water reservoirs that feed the machine from the top": "Deux réservoirs d’eau à bouteille renversée qui alimentent la machine par le haut",
+    "Clear acrylic side panel that shows the twin filter cartridges and internal layout": "Panneau latéral en acrylique transparent qui laisse voir les deux cartouches filtrantes et l’agencement interne",
+    "Group head with a wooden-handled portafilter over a perforated stainless drip tray": "Groupe d’infusion avec porte-filtre à manche en bois au-dessus d’un bac d’égouttage perforé en inox",
+    "Material palette of dark bamboo trim, anodised aluminium, stainless steel and ABS": "Palette de matériaux : finitions en bambou foncé, aluminium anodisé, acier inoxydable et ABS",
+    "Full 3D assembly, section views and photorealistic rendering in Fusion 360": "Assemblage 3D complet, vues en coupe et rendu photoréaliste sous Fusion 360",
+    "Timeline": "Calendrier",
+    "Product design": "Design produit",
+    "Rendering": "Rendu",
+    "Autodesk Fusion 360": "Autodesk Fusion 360"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
