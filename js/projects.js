@@ -60,6 +60,39 @@ window.PROJECTS = [
         pdf: null
     },
     {
+        id: 'designathon-2026-hygiene-station',
+        title: 'Emergency Hygiene Station',
+        subtitle: 'Autodesk Designathon 2026',
+        category: 'engineering',
+        theme: 'blue',
+        icon: 'hub',
+        year: '2026',
+        cover: 'images/engineering/designathon-2026/hygiene-station-01-800.jpg',
+        gallery: [
+            'images/engineering/designathon-2026/hygiene-station-01.jpg',
+            'images/engineering/designathon-2026/hygiene-station-02.jpg',
+            'images/engineering/designathon-2026/hygiene-station-03.jpg',
+            'images/engineering/designathon-2026/hygiene-station-04.jpg',
+            'images/engineering/designathon-2026/hygiene-station-05.jpg'
+        ],
+        summary: 'A compact, rapidly deployable hygiene station for communities displaced by natural disasters, designed for the Autodesk Designathon 2026 brief: a place to wash hands, get filtered water and keep up basic hygiene, all within a 2 m × 2 m footprint.',
+        points: [
+            'Header tank fed by nine inverted 19-litre carboys, the water containers most easily available after a disaster',
+            'Enclosed filtration chamber with three filter columns, visible through clear acrylic panels',
+            'Twin stainless-steel basins with taps on opposite sides, so two people can wash their hands at once',
+            'U-bend drains carry used water to a separate wastewater tank with a drain valve below',
+            'Cross-braced steel frame and aluminium columns, with fasteners and realistic Fusion materials throughout'
+        ],
+        meta: [
+            ['Event', 'Autodesk Designathon 2026'],
+            ['Footprint', '2 m × 2 m'],
+            ['Software', 'Autodesk Fusion 360']
+        ],
+        tags: ['Fusion 360', 'Humanitarian design', 'Water filtration'],
+        model: 'models/designathon-2026-hygiene-station.glb',
+        pdf: null
+    },
+    {
         id: 'coffee-machine',
         title: 'Espresso Coffee Machine',
         subtitle: 'Product design · May – June 2026',
