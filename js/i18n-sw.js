@@ -1112,7 +1112,19 @@ window.I18N_SW = {
     "FE simulation & lab testing": "Uigaji wa FE na majaribio ya maabara",
     "Tensile testing": "Majaribio ya mvuto",
     "Industrial Attachment Report: KIRDI": "Ripoti ya Mafunzo Kazini: KIRDI",
-    "Sheet metal, CNC & fabrication · 2025": "Bati la chuma, CNC na uundaji · 2025"
+    "Sheet metal, CNC & fabrication · 2025": "Bati la chuma, CNC na uundaji · 2025",
+    "Espresso Coffee Machine": "Mashine ya Kahawa ya Espresso",
+    "Product design · May – June 2026": "Usanifu wa bidhaa · Mei – Juni 2026",
+    "A compact countertop espresso machine designed from concept to photorealistic render: the full product, from the water supply and internal layout to the brew group and drip tray, modelled as one assembly in Fusion 360.": "Mashine ndogo ya espresso ya mezani iliyosanifiwa kutoka wazo hadi picha halisi: bidhaa nzima, kuanzia usambazaji wa maji na mpangilio wa ndani hadi kichwa cha kutengenezea kahawa na trei ya matone, imeundwa kama kiunganisho kimoja kwa Fusion 360.",
+    "Twin inverted-bottle water reservoirs that feed the machine from the top": "Matangi mawili ya maji ya chupa zilizopinduliwa yanayolisha mashine kutoka juu",
+    "Clear acrylic side panel that shows the twin filter cartridges and internal layout": "Paneli ya pembeni ya akriliki angavu inayoonyesha katriji mbili za kichujio na mpangilio wa ndani",
+    "Group head with a wooden-handled portafilter over a perforated stainless drip tray": "Kichwa cha kutengenezea chenye kishikio cha chujio cha mpini wa mbao juu ya trei ya matone ya chuma cha pua yenye matundu",
+    "Material palette of dark bamboo trim, anodised aluminium, stainless steel and ABS": "Mchanganyiko wa vifaa: mapambo ya mianzi meusi, alumini iliyoanodishwa, chuma cha pua na ABS",
+    "Full 3D assembly, section views and photorealistic rendering in Fusion 360": "Kiunganisho kamili cha 3D, mionekano ya sehemu-kata na picha halisi kwa Fusion 360",
+    "Timeline": "Muda",
+    "Product design": "Usanifu wa bidhaa",
+    "Rendering": "Utoaji picha",
+    "Autodesk Fusion 360": "Autodesk Fusion 360"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
