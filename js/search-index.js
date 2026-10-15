@@ -226,6 +226,20 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "article",
+  "t": "How I designed an emergency hygiene station in Fusion 360",
+  "d": "My Autodesk Designathon 2026 entry: a compact station for disaster zones that stores, filters and supplies water for handwashing, and keeps the wastewater separate.",
+  "u": "blog/designing-an-emergency-hygiene-station.html",
+  "x": "Fusion 360 Designathon Product design Water filtration After a natural disaster, clean water and sanitation quickly become the most urgent needs for displaced families. That was the starting point for the Autodesk Designathon 2026 : design a compact, rapidly deployable and sustainable hygiene station where people can wash their hands, get filtered water and keep up basic hygiene in difficult conditions. The finished station: nine carboys on top, a filtration chamber in the middle and two washing basins below. The brief, in short The design had to fit inside a 2 m × 2 m area and include: Water storage built around standard 19-litre carboys or 2.5-litre bottles, the containers aid teams can actually find after a disaster A dedicated filtration area (shown conceptually; it didn't need to work physically) A storage area for wastewater A washing station where at least two people can wash their hands at the same time Realistic assembly details, like fasteners and fillets, and real materials from the Fusion library Start with the path of the water Instead of starting with the outer shape, I followed a drop of water from the moment it goes in to the moment it leaves. That gave the station four clear layers, stacked from top to bottom, so gravi"
+ },
+ {
+  "k": "article",
+  "t": "Designing a coffee machine from concept to render",
+  "d": "How I took a compact espresso machine from first idea to a full Fusion 360 assembly and photorealistic renders, with tips you can use on your own product designs.",
+  "u": "blog/coffee-machine-from-concept-to-render.html",
+  "x": "Fusion 360 Product design Rendering Between May and June 2026 I designed a compact countertop espresso machine in Fusion 360, from the first rough layout to finished photorealistic renders. Here's how the design came together, and a few tips you can use on your own product designs. The finished machine, rendered in Fusion 360. Start with what the machine has to do Before drawing anything, I listed the jobs the machine has to do: store water, filter it, brew the coffee and catch the drips. Each job became a zone of the machine, and the overall shape came from arranging those zones as compactly as possible. Water on top Two inverted bottles sit on top of the machine and feed water down into it. Putting the water at the top keeps the footprint small, and it makes refilling as easy as swapping a bottle. Show the inside One side of the machine is a clear acrylic panel. It shows the twin filter cartridges and the internal layout, so you can see at a glance when the filters need attention. It also turns the engineering into part of the look. The internal layout, visible through the clear side panel. The brewing area At the front, the group head takes a portafilter with a wooden handle, over a perforated stainless-steel drip"
+ },
+ {
+  "k": "article",
   "t": "10 AutoCAD shortcuts that save hours every week",
   "d": "The AutoCAD habits I teach in my weekly webinar: command aliases, repeat commands, quick properties and more, so you can draft faster from day one.",
   "u": "blog/autocad-shortcuts-that-save-hours.html",
@@ -363,6 +377,27 @@ window.SEARCH_INDEX = [
   "d": "",
   "u": "index.html#faq",
   "x": "Yes. Revisions are agreed as part of your quote, so we can refine the design until it's right for you."
+ },
+ {
+  "k": "faq",
+  "t": "How do I pay?",
+  "d": "",
+  "u": "index.html#faq",
+  "x": "Once you accept your quote, you pay the deposit shown on it to confirm your project, by M-Pesa to Buy Goods Till 8438334 (EDISON OCHIENG). Tap Pay a deposit for the till number and QR code. International clients can pay by card or bank transfer: just ask me on WhatsApp."
+ },
+ {
+  "k": "faq",
+  "t": "Can I see your work in 3D before I hire you?",
+  "d": "",
+  "u": "index.html#faq",
+  "x": "Yes. Projects with a 3D badge have interactive models you can rotate and zoom in your browser (use the 3D models filter in my work). On a phone, tap View in your room to place the model in your own space at its real size."
+ },
+ {
+  "k": "faq",
+  "t": "Do you offer CAD training?",
+  "d": "",
+  "u": "index.html#faq",
+  "x": "Yes. I teach AutoCAD, SolidWorks (including CSWA exam preparation), Inventor and Fusion 360, one-on-one, in small groups or for company teams, online or in person in Nairobi. See the training page to reserve a seat."
  },
  {
   "k": "faq",
