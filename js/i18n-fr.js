@@ -1124,7 +1124,18 @@ window.I18N_FR = {
     "Timeline": "Calendrier",
     "Product design": "Design produit",
     "Rendering": "Rendu",
-    "Autodesk Fusion 360": "Autodesk Fusion 360"
+    "Autodesk Fusion 360": "Autodesk Fusion 360",
+    "Emergency Hygiene Station": "Station d’hygiène d’urgence",
+    "Autodesk Designathon 2026": "Autodesk Designathon 2026",
+    "A compact, rapidly deployable hygiene station for communities displaced by natural disasters, designed for the Autodesk Designathon 2026 brief: a place to wash hands, get filtered water and keep up basic hygiene, all within a 2 m × 2 m footprint.": "Une station d’hygiène compacte et rapidement déployable pour les communautés déplacées par des catastrophes naturelles, conçue pour le brief de l’Autodesk Designathon 2026 : un lieu pour se laver les mains, obtenir de l’eau filtrée et maintenir une hygiène de base, le tout sur une emprise de 2 m × 2 m.",
+    "Header tank fed by nine inverted 19-litre carboys, the water containers most easily available after a disaster": "Réservoir supérieur alimenté par neuf bonbonnes de 19 litres renversées, les contenants d’eau les plus faciles à trouver après une catastrophe",
+    "Enclosed filtration chamber with three filter columns, visible through clear acrylic panels": "Chambre de filtration fermée avec trois colonnes filtrantes, visibles à travers des panneaux en acrylique transparent",
+    "Twin stainless-steel basins with taps on opposite sides, so two people can wash their hands at once": "Deux bacs en inox avec robinets sur des côtés opposés, pour que deux personnes puissent se laver les mains en même temps",
+    "U-bend drains carry used water to a separate wastewater tank with a drain valve below": "Des siphons en U conduisent l’eau usée vers une cuve d’eaux usées séparée, munie d’une vanne de vidange en dessous",
+    "Cross-braced steel frame and aluminium columns, with fasteners and realistic Fusion materials throughout": "Châssis en acier contreventé et colonnes en aluminium, avec fixations et matériaux Fusion réalistes partout",
+    "Footprint": "Emprise au sol",
+    "Humanitarian design": "Design humanitaire",
+    "Water filtration": "Filtration de l’eau"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

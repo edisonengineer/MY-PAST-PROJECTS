@@ -121,6 +121,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "project",
+  "t": "Emergency Hygiene Station",
+  "d": "Autodesk Designathon 2026",
+  "u": "projects/designathon-2026-hygiene-station.html",
+  "x": "A compact, rapidly deployable hygiene station for communities displaced by natural disasters, designed for the Autodesk Designathon 2026 brief: a place to wash hands, get filtered water and keep up basic hygiene, all within a 2 m × 2 m footprint. Fusion 360 Humanitarian design Water filtration Header tank fed by nine inverted 19-litre carboys, the water containers most easily available after a disaster Enclosed filtration chamber with three filter columns, visible through clear acrylic panels Twin stainless-steel basins with taps on opposite sides, so two people can wash their hands at once U-bend drains carry used water to a separate wastewater tank with a drain valve below Cross-braced steel frame and aluminium columns, with fasteners and realistic Fusion materials throughout Autodesk Designathon 2026 2 m × 2 m Autodesk Fusion 360 engineering"
+ },
+ {
+  "k": "project",
   "t": "Espresso Coffee Machine",
   "d": "Product design · May – June 2026",
   "u": "projects/coffee-machine.html",

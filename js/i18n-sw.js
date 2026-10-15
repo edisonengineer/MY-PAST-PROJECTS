@@ -1124,7 +1124,18 @@ window.I18N_SW = {
     "Timeline": "Muda",
     "Product design": "Usanifu wa bidhaa",
     "Rendering": "Utoaji picha",
-    "Autodesk Fusion 360": "Autodesk Fusion 360"
+    "Autodesk Fusion 360": "Autodesk Fusion 360",
+    "Emergency Hygiene Station": "Kituo cha Usafi cha Dharura",
+    "Autodesk Designathon 2026": "Autodesk Designathon 2026",
+    "A compact, rapidly deployable hygiene station for communities displaced by natural disasters, designed for the Autodesk Designathon 2026 brief: a place to wash hands, get filtered water and keep up basic hygiene, all within a 2 m × 2 m footprint.": "Kituo kidogo cha usafi kinachoweza kuwekwa haraka kwa jamii zilizohamishwa na majanga ya asili, kilichosanifiwa kwa maelekezo ya Autodesk Designathon 2026: mahali pa kunawa mikono, kupata maji yaliyochujwa na kudumisha usafi wa msingi, vyote ndani ya eneo la m 2 × m 2.",
+    "Header tank fed by nine inverted 19-litre carboys, the water containers most easily available after a disaster": "Tangi la juu linalolishwa na madumu tisa ya lita 19 yaliyopinduliwa, vyombo vya maji vinavyopatikana kwa urahisi zaidi baada ya janga",
+    "Enclosed filtration chamber with three filter columns, visible through clear acrylic panels": "Chumba cha kuchuja kilichofungwa chenye nguzo tatu za vichujio, zinazoonekana kupitia paneli za akriliki angavu",
+    "Twin stainless-steel basins with taps on opposite sides, so two people can wash their hands at once": "Sinki mbili za chuma cha pua zenye mabomba pande tofauti, ili watu wawili waweze kunawa mikono kwa wakati mmoja",
+    "U-bend drains carry used water to a separate wastewater tank with a drain valve below": "Mabomba ya U hupeleka maji yaliyotumika kwenye tangi tofauti la maji taka lenye vali ya kumwaga chini",
+    "Cross-braced steel frame and aluminium columns, with fasteners and realistic Fusion materials throughout": "Fremu ya chuma iliyoimarishwa kwa mikanda ya msalaba na nguzo za alumini, pamoja na viungio na vifaa halisi vya Fusion kote",
+    "Footprint": "Eneo la sakafu",
+    "Humanitarian design": "Usanifu wa kibinadamu",
+    "Water filtration": "Uchujaji wa maji"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
