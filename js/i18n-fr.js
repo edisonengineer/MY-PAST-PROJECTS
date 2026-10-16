@@ -1165,7 +1165,12 @@ window.I18N_FR = {
     "Do you offer CAD training?": "Proposez-vous des formations CAO ?",
     "Yes. I teach AutoCAD, SolidWorks (including CSWA exam preparation), Inventor and Fusion 360, one-on-one, in small groups or for company teams, online or in person in Nairobi. See the": "Oui. J’enseigne AutoCAD, SolidWorks (y compris la préparation à l’examen CSWA), Inventor et Fusion 360, en individuel, en petit groupe ou pour les équipes d’entreprise, en ligne ou en présentiel à Nairobi. Consultez la",
     "training page": "page formations",
-    "to reserve a seat.": "pour réserver une place."
+    "to reserve a seat.": "pour réserver une place.",
+    "See the project": "Voir le projet",
+    "Camp Meeting Appreciation certificates": "Certificats de remerciement du Camp Meeting",
+    "Battery pack cooling system": "Système de refroidissement de batterie",
+    "Mazingira Day organisers": "Organisateurs de la Mazingira Day",
+    "EV battery project client": "Client du projet de batterie VE"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
