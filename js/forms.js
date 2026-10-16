@@ -398,7 +398,6 @@
         const avg = rated.reduce((a, r) => a + Math.min(5, +r.rating), 0) / rated.length;
         $('.hr-score', box).textContent = avg.toFixed(1);
         $('.hr-count', box).textContent = rated.length === 1 ? 'from 1 client review' : 'from ' + rated.length + ' client reviews';
-        box.setAttribute('aria-label', avg.toFixed(1) + ' out of 5 stars from ' + rated.length + ' reviews');
         box.hidden = false;
     }
     renderReviews();

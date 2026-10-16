@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=21';
+const CSS_V = 'css/style.css?v=23';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
@@ -124,9 +124,8 @@ function head({ title, description, url, image, type, jsonld }) {
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="../apple-touch-icon.png">
     <link rel="manifest" href="../site.webmanifest">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+    <link rel="preload" href="../fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../${CSS_V}">
     <script>
         document.documentElement.classList.add('js');
@@ -155,7 +154,7 @@ function header(current) {
 
     <header class="site-header" id="site-header">
         <div class="container header-inner">
-            <a href="../index.html" class="brand" aria-label="Edison Ochieng, home">
+            <a href="../index.html" class="brand">
                 <span class="brand-mark">EO</span>
                 <span class="brand-text">Edison Ochieng<small>Nexus CAD Studio</small></span>
             </a>
@@ -237,9 +236,7 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n-fr.js?v=23"></script>
-    <script defer src="../js/i18n-sw.js?v=20"></script>
-    <script defer src="../js/i18n.js?v=3"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=4" data-fr="../js/i18n-fr.js?v=23" data-sw="../js/i18n-sw.js?v=20"></script>
     <script defer src="../js/pages.js?v=8"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
@@ -254,8 +251,10 @@ const cover = (o, cls) => `<div class="${cls} theme-${esc(o.theme || 'blue')}" a
 /* ---------- Project pages ---------- */
 function projectPage(p, i, all) {
     const url = SITE + 'projects/' + p.id + '.html';
-    const imgs = Array.from(new Set(p.gallery && p.gallery.length ? p.gallery : (p.cover ? [p.cover] : [])));
-    const image = SITE + (p.cover || 'og-image.jpg?v=2');
+    // Only photos that exist (placeholders for files not uploaded yet are left out; pages rebuild when they arrive)
+    const has = (f) => f && fs.existsSync(path.join(ROOT, String(f).split('?')[0]));
+    const imgs = Array.from(new Set(p.gallery && p.gallery.length ? p.gallery : (p.cover ? [p.cover] : []))).filter(has);
+    const image = SITE + (has(p.cover) ? p.cover : 'og-image.jpg?v=2');
     const prev = all[(i - 1 + all.length) % all.length];
     const next = all[(i + 1) % all.length];
     const description = p.summary.length > 160 ? p.summary.slice(0, 157).replace(/\s+\S*$/, '') + '…' : p.summary;
@@ -327,8 +326,8 @@ ${(p.tags || []).map((t) => `                        <li class="chip">${esc(t)}<
                     </ul>
 
                     <div class="pm-actions">
-                        ${p.model ? `<button type="button" class="btn btn-sun" data-model="../${esc(p.model)}" data-viewer="${esc(CFG.modelViewerSrc || '')}" hidden>${icon('cube')} View in 3D</button>` : ''}
-                        ${p.pdf ? `<a class="btn btn-navy" href="../${esc(p.pdf)}" target="_blank" rel="noopener" data-if-exists hidden>${icon('doc')} Read report</a>` : ''}
+                        ${has(p.model) ? `<button type="button" class="btn btn-sun" data-model="../${esc(p.model)}" data-viewer="${esc(CFG.modelViewerSrc || '')}" hidden>${icon('cube')} View in 3D</button>` : ''}
+                        ${has(p.pdf) ? `<a class="btn btn-navy" href="../${esc(p.pdf)}" target="_blank" rel="noopener" data-if-exists hidden>${icon('doc')} Read report</a>` : ''}
                         ${p.story && p.story.link && !(p.story.brief || p.story.approach || p.story.result) ? `<a class="btn btn-navy" href="../${esc(p.story.link.href)}">${icon('doc')} ${esc(p.story.link.label)}</a>` : ''}
                         <a class="btn btn-green" href="https://wa.me/${WHATSAPP}?text=${msg}" target="_blank" rel="noopener">${icon('whatsapp')} Discuss a similar project</a>
                         <a class="btn btn-outline" href="../index.html#brief">Start a project</a>

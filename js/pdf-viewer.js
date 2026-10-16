@@ -7,10 +7,11 @@
 
     /* ---------- EDIT THIS LIST TO ADD YOUR PDFs ----------
        file:  path to the PDF inside your repo (case-sensitive, no spaces)
-       cover: optional image for the card; if omitted, page 1 is used     */
+       cover: image for the card (recommended: much lighter than drawing
+              page 1 of the PDF, which downloads the whole file)          */
     const PDF_WORKS = [
-        { title: 'Industrial Attachment Report: KIRDI', subtitle: 'Sheet metal, CNC & fabrication · 2025', file: 'pdfs/kirdi-industrial-attachment-report.pdf' },
-        { title: 'Simba Corp Graduate Engineer Trainee: Prep Guide', subtitle: 'Interview & Written Prep Guide', file: 'pdfs/simba-corp-prep-guide.pdf' },
+        { title: 'Industrial Attachment Report: KIRDI', subtitle: 'Sheet metal, CNC & fabrication · 2025', file: 'pdfs/kirdi-industrial-attachment-report.pdf', cover: 'images/pdf-covers/kirdi-industrial-attachment-report.jpg' },
+        { title: 'Simba Corp Graduate Engineer Trainee: Prep Guide', subtitle: 'Interview & Written Prep Guide', file: 'pdfs/simba-corp-prep-guide.pdf', cover: 'images/pdf-covers/simba-corp-prep-guide.jpg' },
         // { title: 'Structural FEA in Abaqus', subtitle: 'Technical Report', file: 'pdfs/abaqus-fea-report.pdf' },
         // { title: 'EV Battery Pack Cooling', subtitle: 'Technical Report', file: 'pdfs/ev-battery-cooling-report.pdf' },
         // { title: 'School Magazine, Oct-Nov 2026', subtitle: 'Layout & Design', file: 'pdfs/school-magazine.pdf' },
@@ -25,7 +26,22 @@
     const FIT = 0.8;
 
     const WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = WORKER;
+    const LIBS = ['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js'];
+    // The PDF libraries (~120 KB) are only downloaded when a PDF is actually needed
+    let libs = null;
+    function loadLibs() {
+        if (window.pdfjsLib && window.St) return Promise.resolve();
+        if (!libs) {
+            libs = Promise.all(LIBS.map((src) => new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = src;
+                s.onload = resolve;
+                s.onerror = reject;
+                document.head.appendChild(s);
+            }))).then(() => { pdfjsLib.GlobalWorkerOptions.workerSrc = WORKER; }).catch((e) => { libs = null; throw e; });
+        }
+        return libs;
+    }
 
     let pdfDoc = null, flip = null, pageEls = [], current = null, token = 0, ratio = 1.414;
     const rendered = new Set(), rendering = new Set();
@@ -68,6 +84,7 @@
                 img.src = item.cover;
                 el.appendChild(img);
             } else {
+                await loadLibs();
                 const doc = await pdfjsLib.getDocument(item.file).promise;
                 const page = await doc.getPage(1);
                 const base = page.getViewport({ scale: 1 });
@@ -102,7 +119,11 @@
     }
 
     async function openPdf(item) {
-        if (!window.pdfjsLib || !window.St) { alert('The PDF viewer libraries have not loaded yet. Check your internet connection and refresh the page.'); return; }
+        if (!window.pdfjsLib || !window.St) {
+            viewer.classList.add('active');
+            setLoading(true, 'Loading…');
+            try { await loadLibs(); } catch (e) { setLoading(true, 'The PDF viewer could not load. Please check your connection and try again.', true); return; }
+        }
         teardown();
         const my = ++token;
         current = item;
