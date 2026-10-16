@@ -1,0 +1,75 @@
+# Rebuilds the generated parts of the site whenever you edit its content on GitHub:
+# project pages, blog pages, CV, sitemap, search index and photo thumbnails.
+# You don't need to do anything: edit js/projects.js (or upload photos),
+# commit, and about a minute later this commits the rebuilt pages for you.
+name: Rebuild site pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/projects.js'
+      - 'js/reviews.js'
+      - 'js/certificates.js'
+      - 'js/packages.js'
+      - 'js/config.js'
+      - 'content/**'
+      - 'images/engineering/**'
+      - 'images/graphic/**'
+      - 'index.html'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: rebuild-site
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check the data files for typos
+        run: |
+          for f in js/projects.js js/reviews.js js/certificates.js js/packages.js js/config.js; do
+            node -e "require('vm').runInNewContext(require('fs').readFileSync('$f','utf8'), { window: {} })" \
+              || { echo "::error file=$f::$f has a typo (often a missing comma, quote or bracket). Fix it and commit again."; exit 1; }
+          done
+
+      - name: Shrink newly uploaded photos and make thumbnails
+        run: |
+          pip install --quiet pillow
+          BEFORE="${{ github.event.before }}"
+          if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
+            git diff --name-only --diff-filter=AM "$BEFORE" "${{ github.sha }}" -- images/engineering images/graphic > /tmp/new-images.txt
+          else
+            : > /tmp/new-images.txt
+          fi
+          cat /tmp/new-images.txt
+          if [ -s /tmp/new-images.txt ]; then tr '\n' '\0' < /tmp/new-images.txt | xargs -0 python3 tools/optimize-images.py; fi
+
+      - name: Rebuild pages
+        run: node tools/build-pages.js
+
+      - name: Save the rebuilt pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "Everything is already up to date."; exit 0; fi
+          git commit -m "Rebuild pages after content update [automated]"
+          git push
+          # Pushes made by this workflow don't start a Pages deploy on their own, so ask for one
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages will update on the next push."
