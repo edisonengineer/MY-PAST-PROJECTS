@@ -1173,7 +1173,12 @@ window.I18N_FR = {
     "EV battery project client": "Client du projet de batterie VE",
     "Your review is now live on the site. Thank you for taking the time!": "Votre avis est maintenant en ligne sur le site. Merci d’avoir pris le temps !",
     "The tracker couldn't connect just now. Please try again in a minute, or message me on WhatsApp.": "Le suivi n’a pas pu se connecter. Réessayez dans une minute, ou écrivez-moi sur WhatsApp.",
-    "from 1 client review": "sur 1 avis client"
+    "from 1 client review": "sur 1 avis client",
+    "Your project reference": "Votre référence de projet",
+    "Save it: use it to follow your project's progress at any time. A copy has been sent to your email.": "Conservez-la : elle vous permet de suivre l’avancement de votre projet à tout moment. Une copie vous a été envoyée par e-mail.",
+    "Reviewing your brief": "Analyse de votre brief",
+    "Not taken on": "Non retenu",
+    "Accepted": "Accepté"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

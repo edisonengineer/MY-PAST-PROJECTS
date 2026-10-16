@@ -173,6 +173,15 @@
         }
 
         const LABELS = { name: 'Name', email: 'Email' };
+        // Random, hard-to-guess project reference: NCS-YYMM-XXXX (no 0/O/1/I to avoid mix-ups)
+        function newRef() {
+            const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            const bytes = new Uint8Array(5);
+            (window.crypto || window.msCrypto).getRandomValues(bytes);
+            const d = new Date();
+            return 'NCS-' + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                Array.from(bytes, (b) => abc[b % abc.length]).join('');
+        }
         function renderSummary() {
             const data = collect();
             const skip = ['name', 'email', 'Phone / WhatsApp', 'Organisation', 'Preferred contact', 'Heard about me via'];
@@ -227,16 +236,49 @@
 
             const data = collect();
             const type = data['Service type'] || 'Project';
+            // Tracking reference, e.g. NCS-2610-K7QX (also saved in the Google Sheet's Submissions tab)
+            const sheetApi = CONFIG.trackerApi || CONFIG.reviewsApi;
+            const ref = sheetApi ? newRef() : '';
             setLoading(btnSubmit, true, 'Sending brief…');
             try {
-                await sendToWeb3Forms(Object.assign({
-                    subject: 'New project brief: ' + type + ' from ' + data.name,
+                const jobs = [sendToWeb3Forms(Object.assign({
+                    subject: 'New project brief' + (ref ? ' ' + ref : '') + ': ' + type + ' from ' + data.name,
                     from_name: 'Portfolio: Project Brief',
                     replyto: data.email
-                }, data));
+                }, ref ? { Reference: ref } : {}, data))];
+                if (ref) {
+                    jobs.push(fetch(sheetApi, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: new URLSearchParams({
+                            action: 'brief',
+                            ref: ref,
+                            name: data.name || '',
+                            email: data.email || '',
+                            phone: data['Phone / WhatsApp'] || '',
+                            service: type,
+                            project: data['Project name'] || '',
+                            budget: data.Budget || '',
+                            deadline: data['Due date'] || '',
+                            details: Object.keys(data).map((k) => (LABELS[k] || k) + ': ' + data[k]).join('\n')
+                        })
+                    }));
+                }
+                const results = await Promise.allSettled(jobs);
+                if (results.every((r) => r.status === 'rejected')) throw results[0].reason;
+                const saved = ref && results[1] && results[1].status === 'fulfilled';
+                const refBox = $('#brief-ref');
+                if (refBox) {
+                    refBox.hidden = !saved;
+                    if (saved) {
+                        $('#brief-ref-code').textContent = ref;
+                        $('#brief-track').href = 'track/?ref=' + encodeURIComponent(ref);
+                    }
+                }
 
                 const wa = 'Hi Edison, I just submitted a ' + type.toLowerCase() + ' project brief on your portfolio' +
-                    (data['Project name'] ? ' ("' + data['Project name'] + '")' : '') + '. My name is ' + data.name + '.';
+                    (data['Project name'] ? ' ("' + data['Project name'] + '")' : '') + '. My name is ' + data.name + '.' +
+                    (saved ? ' My reference is ' + ref + '.' : '');
                 $('#brief-wa').href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(wa);
                 form.hidden = true;
                 done.hidden = false;

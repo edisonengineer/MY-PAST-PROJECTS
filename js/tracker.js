@@ -74,12 +74,13 @@
             '<article class="track-card">' +
                 '<header class="track-head">' +
                     '<div><p class="track-ref" data-no-i18n>' + esc(p.ref || '') + '</p><h2 data-no-i18n>' + esc(p.project || '') + '</h2>' + (p.client ? '<p class="track-client"><span>For</span> <span data-no-i18n>' + esc(p.client) + '</span></p>' : '') + '</div>' +
-                    '<span class="track-badge' + (done ? ' is-done' : '') + '">' + esc(STAGES[stage]) + '</span>' +
+                    '<span class="track-badge' + (done ? ' is-done' : '') + (p.declined ? ' is-declined' : '') + '">' + esc(p.status || STAGES[stage]) + '</span>' +
                 '</header>' +
+                (p.declined ? '' :
                 '<div class="track-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + progress + '" aria-label="Progress"><span style="width:' + progress + '%"></span></div>' +
                 '<p class="track-pct"><strong>' + progress + '%</strong> <span>complete</span></p>' +
                 '<ol class="track-steps">' + STAGES.map((s, i) =>
-                    '<li class="' + (i < stage || done ? 'is-done' : i === stage ? 'is-current' : '') + '"><span class="ts-dot">' + (i < stage || done ? icon('check') : i + 1) + '</span><span class="ts-label">' + esc(s) + '</span></li>').join('') + '</ol>' +
+                    '<li class="' + (i < stage || done ? 'is-done' : i === stage ? 'is-current' : '') + '"><span class="ts-dot">' + (i < stage || done ? icon('check') : i + 1) + '</span><span class="ts-label">' + esc(s) + '</span></li>').join('') + '</ol>') +
                 '<dl class="pm-meta track-meta">' +
                     (p.due ? '<div><dt>Due date</dt><dd data-no-i18n>' + esc(day(p.due)) + '</dd></div>' : '') +
                     (p.updated ? '<div><dt>Last update</dt><dd data-no-i18n>' + esc(day(p.updated)) + '</dd></div>' : '') +

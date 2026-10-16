@@ -11,6 +11,11 @@
    see a project; nobody can list them. If you fill in "Client email", the
    client automatically gets an email each time you change the Stage.
 
+   SUBMISSIONS tab: project briefs sent from the website, each with an
+   automatic reference the client can track straight away. Change its
+   Status (New → Reviewing → Quote sent → Accepted / Declined) and the
+   client is emailed. "Accepted" moves it into the Projects tab for you.
+
    SETTINGS tab: control the website without code: availability badge,
    webinar day and time, and an announcement shown at the top of the site.
 
@@ -51,6 +56,7 @@ const clean_ = (v, max) => String(v || '').replace(/[\u0000-\u001f<>]/g, ' ').re
 function doPost(e) {
   const p = (e && e.parameter) || {};
   if (p.botcheck) return out_({ ok: true });                       // bots fill the hidden box
+  if (p.action === 'brief') return out_(brief_(p));
   const name = clean_(p.name, 80);
   const text = clean_(p.text, 1500);
   const rating = Math.round(Number(p.rating));
@@ -98,6 +104,59 @@ function projects_() {
   sh.getRange('K2:K1000').setNumberFormat('d mmm yyyy');
   sh.setColumnWidth(7, 360);
   return sh;
+}
+
+/* ---------- Project briefs submitted on the website ---------- */
+const SUBS = 'Submissions';
+const SUB_STATUS = ['New', 'Reviewing', 'Quote sent', 'Accepted', 'Declined'];
+const SHEAD = ['Reference', 'Received', 'Status', 'Name', 'Email', 'Phone / WhatsApp', 'Service', 'Project', 'Budget', 'Deadline', 'Brief details', 'Note to client', 'Moved to Projects'];
+
+function subs_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SUBS);
+  if (sh) return sh;
+  sh = ss.insertSheet(SUBS);
+  sh.appendRow(SHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, SHEAD.length).setFontWeight('bold');
+  sh.getRange('C2:C2000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(SUB_STATUS, true).build());
+  sh.getRange('B2:B2000').setNumberFormat('d mmm yyyy, HH:mm');
+  sh.setColumnWidth(11, 420);
+  sh.setColumnWidth(12, 320);
+  return sh;
+}
+
+const cleanLong_ = (v, max) => String(v || '').replace(/[\u0000-\u0008\u000b-\u001f<>]/g, ' ').trim().slice(0, max);
+
+function brief_(p) {
+  const ref = clean_(p.ref, 24).toUpperCase();
+  const name = clean_(p.name, 80);
+  const email = clean_(p.email, 120);
+  if (!/^[A-Z0-9-]{8,24}$/.test(ref) || !name) return { ok: false, error: 'invalid' };
+  const cache = CacheService.getScriptCache();
+  const count = Number(cache.get('brief-count') || 0);
+  if (count >= 30) return { ok: false, error: 'busy' };
+  cache.put('brief-count', String(count + 1), 3600);
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sh = subs_();
+    const refs = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues().map((r) => normRef_(r[0])) : [];
+    if (refs.indexOf(normRef_(ref)) > -1) return { ok: true, ref: ref };          // sent twice
+    sh.appendRow([ref, new Date(), 'New', name, email, clean_(p.phone, 40), clean_(p.service, 60), clean_(p.project, 160),
+      clean_(p.budget, 80), clean_(p.deadline, 80), cleanLong_(p.details, 5000), '', '']);
+  } finally {
+    lock.releaseLock();
+  }
+  if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    try {
+      mail_(email, 'We received your project brief (' + ref + ')', name,
+        'Thank you for your project brief' + (p.project ? ' for <b>' + html_(clean_(p.project, 160)) + '</b>' : '') + '. I will review it and get back to you with a quote and timeline as soon as possible.',
+        'Brief received', 0, '', ref);
+    } catch (err) { /* email quota reached: the brief is still saved */ }
+  }
+  return { ok: true, ref: ref };
 }
 
 /* ---------- Settings tab ---------- */
@@ -159,6 +218,7 @@ function setup() {
   const p = projects_();
   if (!p.getRange(1, 12).getValue()) p.getRange(1, 12).setValue('Client email').setFontWeight('bold');
   settings_();
+  subs_();
   ScriptApp.getProjectTriggers()
     .filter((t) => t.getHandlerFunction() === 'notifyClient')
     .forEach((t) => ScriptApp.deleteTrigger(t));
@@ -168,42 +228,71 @@ function setup() {
 /* ---------- Automatic email to the client when you change a project's Stage ---------- */
 const html_ = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-function notifyClient(e) {
-  if (!e || !e.range) return;
-  const sh = e.range.getSheet();
-  if (sh.getName() !== PROJECTS || e.range.getRow() < 2 || e.range.getColumn() !== 4 || e.range.getNumRows() !== 1) return;
-  if (e.oldValue !== undefined && String(e.oldValue) === String(e.value)) return;
-  const r = sh.getRange(e.range.getRow(), 1, 1, 12).getValues()[0];
-  const to = String(r[11] || '').trim();
-  const stage = String(r[3] || '').trim();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to) || !stage || !r[0]) return;
-  const i = STAGES.findIndex((s) => s.toLowerCase() === stage.toLowerCase());
-  const progress = r[4] !== '' && !isNaN(Number(r[4])) ? Number(r[4]) : Math.round(Math.max(0, i) / (STAGES.length - 1) * 100);
-  const link = SITE_URL + 'track/?ref=' + encodeURIComponent(String(r[0]));
-  const name = String(r[1] || 'your project');
-  const done = i === STAGES.length - 1;
+// One email layout for every client update
+function mail_(to, subject, name, message, stageLabel, progress, note, ref) {
+  const link = SITE_URL + 'track/?ref=' + encodeURIComponent(String(ref));
+  const bar = progress === null ? '' :
+    '<div style="background:#eef0f6;border-radius:99px;height:10px;margin:0 0 6px"><div style="background:#13a89e;height:10px;border-radius:99px;width:' + Math.max(3, Math.min(100, progress)) + '%"></div></div>' +
+    '<p style="margin:0 0 16px;font-size:13px;color:#555">' + html_(stageLabel) + ' · ' + progress + '% complete</p>';
   const body =
     '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
       '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · PROJECT UPDATE</p>' +
-      '<h2 style="margin:0 0 14px;font-size:22px">' + html_(name) + '</h2>' +
-      '<p style="margin:0 0 10px">Hello' + (r[2] ? ' ' + html_(r[2]) : '') + ',</p>' +
-      '<p style="margin:0 0 14px">' + (done ? 'Good news: your project is <b>delivered</b>.' : 'Your project has moved to a new stage: <b>' + html_(stage) + '</b>.') + '</p>' +
-      '<div style="background:#eef0f6;border-radius:99px;height:10px;margin:0 0 6px"><div style="background:#13a89e;height:10px;border-radius:99px;width:' + Math.max(3, Math.min(100, progress)) + '%"></div></div>' +
-      '<p style="margin:0 0 16px;font-size:13px;color:#555">' + progress + '% complete</p>' +
-      (r[6] ? '<div style="border-left:4px solid #ffb627;background:#fbf6ec;padding:12px 14px;margin:0 0 18px"><b style="font-size:12px;color:#555">LATEST UPDATE FROM EDISON</b><br>' + html_(r[6]) + '</div>' : '') +
-      '<p style="margin:0 0 20px"><a href="' + link + '" style="background:#0e1a3a;color:#fff;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">View your project</a></p>' +
-      '<p style="margin:0 0 4px;font-size:13px;color:#555">Your reference: <b>' + html_(r[0]) + '</b></p>' +
+      '<p style="margin:0 0 10px">Hello' + (name ? ' ' + html_(name) : '') + ',</p>' +
+      '<p style="margin:0 0 14px">' + message + '</p>' + bar +
+      (note ? '<div style="border-left:4px solid #ffb627;background:#fbf6ec;padding:12px 14px;margin:0 0 18px"><b style="font-size:12px;color:#555">NOTE FROM EDISON</b><br>' + html_(note) + '</div>' : '') +
+      '<p style="margin:0 0 20px"><a href="' + link + '" style="background:#0e1a3a;color:#fff;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Track your project</a></p>' +
+      '<p style="margin:0 0 4px;font-size:13px;color:#555">Your reference: <b>' + html_(ref) + '</b></p>' +
       '<p style="margin:0;font-size:13px;color:#555">Questions? Reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
       '<p style="margin:18px 0 0">Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p>' +
     '</div>';
-  MailApp.sendEmail({
-    to: to,
-    subject: (done ? 'Delivered: ' : 'Project update: ') + name + (done ? '' : ' is now at "' + stage + '"'),
-    htmlBody: body,
-    body: 'Your project "' + name + '" is now at: ' + stage + '. ' + (r[6] ? 'Note: ' + r[6] + ' ' : '') + 'View it here: ' + link,
-    name: SENDER
-  });
+  MailApp.sendEmail({ to: to, subject: subject, htmlBody: body, name: SENDER,
+    body: message.replace(/<[^>]+>/g, '') + (note ? ' Note: ' + note : '') + ' Track it here: ' + link + ' (reference ' + ref + ')' });
+}
+
+const validEmail_ = (t) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(t || '').trim());
+
+// Runs on every edit (installed by setup): client emails + moving accepted briefs
+function notifyClient(e) {
+  if (!e || !e.range || e.range.getNumRows() !== 1 || e.range.getRow() < 2) return;
+  const sh = e.range.getSheet();
+  if (e.oldValue !== undefined && String(e.oldValue) === String(e.value)) return;
+  if (sh.getName() === SUBS && e.range.getColumn() === 3) return submissionChanged_(sh, e.range.getRow());
+  if (sh.getName() !== PROJECTS || e.range.getColumn() !== 4) return;
+  const r = sh.getRange(e.range.getRow(), 1, 1, 12).getValues()[0];
+  const to = String(r[11] || '').trim();
+  const stage = String(r[3] || '').trim();
+  if (!validEmail_(to) || !stage || !r[0]) return;
+  const i = STAGES.findIndex((s) => s.toLowerCase() === stage.toLowerCase());
+  const progress = r[4] !== '' && !isNaN(Number(r[4])) ? Number(r[4]) : Math.round(Math.max(0, i) / (STAGES.length - 1) * 100);
+  const name = String(r[1] || 'your project');
+  const done = i === STAGES.length - 1;
+  mail_(to, (done ? 'Delivered: ' : 'Project update: ') + name + (done ? '' : ' is now at "' + stage + '"'), String(r[2] || ''),
+    done ? 'Good news: <b>' + html_(name) + '</b> is <b>delivered</b>.' : '<b>' + html_(name) + '</b> has moved to a new stage: <b>' + html_(stage) + '</b>.',
+    stage, progress, String(r[6] || ''), String(r[0]));
   sh.getRange(e.range.getRow(), 11).setValue(new Date());
+}
+
+function submissionChanged_(sh, row) {
+  const r = sh.getRange(row, 1, 1, SHEAD.length).getValues()[0];
+  const ref = String(r[0] || ''), status = String(r[2] || '').trim(), name = String(r[3] || ''), email = String(r[4] || '').trim();
+  const title = String(r[7] || r[6] || 'your project'), note = String(r[11] || '');
+  if (!ref) return;
+  if (status === 'Accepted' && !r[12]) {
+    // Into the Projects tab, ready for the deposit
+    projects_().appendRow([ref, title, name, 'Quote sent', '', r[9] || '', note, 'Due', '', '', new Date(), email]);
+    sh.getRange(row, 13).setValue('Yes, ' + Utilities.formatDate(new Date(), 'Africa/Nairobi', 'd MMM yyyy'));
+  }
+  if (!validEmail_(email)) return;
+  const msg = {
+    'Reviewing': 'I am now reviewing your brief for <b>' + html_(title) + '</b>. I will send you a quote and timeline shortly.',
+    'Quote sent': 'Your quote for <b>' + html_(title) + '</b> is ready. Please check your messages, and let me know if you have any questions.',
+    'Accepted': 'Great news: I have accepted <b>' + html_(title) + '</b>. Once the deposit is paid, the design work begins. You can pay by M-Pesa from your tracking page.',
+    'Declined': 'Thank you for considering me for <b>' + html_(title) + '</b>. Unfortunately I can\'t take on this project at the moment.'
+  }[status];
+  if (!msg) return;
+  const stage = status === 'Accepted' || status === 'Quote sent' ? 'Quote sent' : 'Brief received';
+  mail_(email, 'Project update (' + ref + '): ' + (status === 'Declined' ? 'about your brief' : status.toLowerCase()), name, msg,
+    stage, status === 'Declined' ? null : (stage === 'Quote sent' ? 20 : 5), note, ref);
 }
 
 // Stamps "Last updated" whenever you edit a project row
@@ -226,6 +315,8 @@ function track_(ref) {
   const rows = projects_().getDataRange().getValues().slice(1);
   const r = rows.find((x) => x[0] && normRef_(x[0]) === want);
   if (!r) {
+    const sub = subs_().getDataRange().getValues().slice(1).find((x) => x[0] && normRef_(x[0]) === want);
+    if (sub) return { found: true, project: fromSubmission_(sub) };
     cache.put('track-miss', String(misses + 1), 600);
     return { found: false };
   }
@@ -264,6 +355,29 @@ function reviews_() {
       project: String(r[6] || ''),
       date: r[0] instanceof Date ? Utilities.formatDate(r[0], 'Africa/Nairobi', 'MMM yyyy') : ''
     }));
+}
+
+// A brief that hasn't been moved to Projects yet
+function fromSubmission_(r) {
+  const status = String(r[2] || 'New').trim();
+  const label = { 'New': 'Brief received', 'Reviewing': 'Reviewing your brief', 'Quote sent': 'Quote sent', 'Accepted': 'Accepted', 'Declined': 'Not taken on' }[status] || 'Brief received';
+  const defaults = {
+    'New': 'Thank you, your brief has arrived. I will review it and send you a quote and timeline soon.',
+    'Reviewing': 'I am reviewing your brief and will send you a quote and timeline soon.',
+    'Quote sent': 'Your quote has been sent. Let me know if you have any questions.',
+    'Accepted': 'Your project has been accepted. Once the deposit is paid, the design work begins.',
+    'Declined': 'Unfortunately I can\'t take on this project at the moment. Thank you for thinking of me.'
+  };
+  return {
+    ref: String(r[0]),
+    project: String(r[7] || r[6] || ''),
+    client: String(r[3] || ''),
+    stage: status === 'Quote sent' || status === 'Accepted' ? 1 : 0,
+    status: label,
+    declined: status === 'Declined',
+    note: String(r[11] || '') || defaults[status] || defaults['New'],
+    updated: ymd_(r[1])
+  };
 }
 
 function doGet(e) {
