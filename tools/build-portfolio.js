@@ -65,12 +65,13 @@ const pairs = [];
 for (let i = 0; i < PROJECTS.length; i += 2) pairs.push(PROJECTS.slice(i, i + 2));
 const page = (inner, cls = '') => '<section class="page ' + cls + '">' + inner + '<footer class="pfoot"><span>Edison Ochieng · Nexus CAD Studio</span><span>' + esc(SITE.replace('https://', '')) + '</span></footer></section>';
 
-const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
 @page { size: A4; margin: 0; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #18203a; font-size: 10pt; line-height: 1.5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: 'Plus Jakarta Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #18203a; font-size: 9.5pt; line-height: 1.45; letter-spacing: -0.005em; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .ic { width: 1em; height: 1em; }
-h1, h2, h3, b.serif { font-family: Georgia, 'Times New Roman', serif; font-weight: 500; }
+h1, h2, h3, b.serif { font-family: 'Fraunces', Georgia, 'Times New Roman', serif; font-weight: 500; }
 .page { width: 210mm; height: 297mm; padding: 16mm 16mm 20mm; position: relative; overflow: hidden; page-break-after: always; }
 .pfoot { position: absolute; left: 16mm; right: 16mm; bottom: 9mm; display: flex; justify-content: space-between; font-size: 8pt; color: #7b8199; border-top: 1px solid #e9e0d0; padding-top: 3mm; }
 .kicker { font-size: 8pt; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #c43d22; }
@@ -223,7 +224,8 @@ ${page(`
 (async () => {
     const browser = await playwright.chromium.launch();
     const pg = await browser.newPage();
-    await pg.setContent(html, { waitUntil: 'load' });
+    await pg.setContent(html, { waitUntil: 'networkidle' });
+    await pg.evaluate(() => document.fonts.ready);   // the website's fonts (Google Fonts)
     // Downscale photos so the PDF stays small enough to email
     await pg.evaluate(() => Promise.all([...document.images].filter((i) => i.src.startsWith('data:')).map((img) => {
         const max = img.classList.contains('photo') ? 900 : 1100;

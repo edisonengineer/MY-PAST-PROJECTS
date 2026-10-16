@@ -38,24 +38,26 @@ const rows = (cat) => PACKAGES.filter((p) => p.category === cat).map((p) => `
             <td class="price">${p.price ? (p.from ? '<small>From</small>' : '') + esc(p.price) : 'Custom quote'}</td>
         </tr>`).join('');
 
-const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
 @page { size: A4; margin: 0; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #18203a; font-size: 10.5pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.page { width: 210mm; height: 297mm; display: flex; flex-direction: column; }
-header { background: #0e1a3a; color: #fff; padding: 14mm 16mm 11mm; position: relative; overflow: hidden; }
+body { font-family: 'Plus Jakarta Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #18203a; font-size: 10.5pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 210mm; min-height: 297mm; display: flex; flex-direction: column; }
+header { flex: none; background: #0e1a3a; color: #fff; padding: 11mm 16mm 8mm; position: relative; overflow: hidden; }
+footer { flex: none; }
 header::after { content: ''; position: absolute; right: -30mm; top: -30mm; width: 90mm; height: 90mm; border-radius: 50%; background: linear-gradient(135deg, #ffb627, #ff6b4a); opacity: .9; }
 .brand { display: flex; align-items: center; gap: 4mm; position: relative; z-index: 1; }
 .brand img { width: 13mm; height: 13mm; border-radius: 3mm; }
-.brand b { display: block; font-family: Georgia, 'Times New Roman', serif; font-size: 15pt; }
+.brand b { display: block; font-family: 'Fraunces', Georgia, 'Times New Roman', serif; font-size: 15pt; }
 .brand small { letter-spacing: .14em; text-transform: uppercase; font-size: 7.5pt; opacity: .75; }
-h1 { position: relative; z-index: 1; margin-top: 8mm; font-family: Georgia, 'Times New Roman', serif; font-weight: 500; font-size: 30pt; letter-spacing: -.01em; }
+h1 { position: relative; z-index: 1; margin-top: 6mm; font-family: 'Fraunces', Georgia, 'Times New Roman', serif; font-weight: 500; font-size: 30pt; letter-spacing: -.01em; }
 h1 em { color: #ffb627; }
-.lede { position: relative; z-index: 1; margin-top: 2mm; max-width: 120mm; color: rgba(255,255,255,.8); }
-main { flex: 1; padding: 8mm 16mm 0; }
+.lede { position: relative; z-index: 1; margin-top: 2mm; max-width: 130mm; line-height: 1.5; color: rgba(255,255,255,.8); }
+main { flex: 1; padding: 6mm 16mm 0; }
 h2 { margin: 5mm 0 2mm; font-size: 8.5pt; letter-spacing: .16em; text-transform: uppercase; color: #ff6b4a; }
 table { width: 100%; border-collapse: collapse; }
-td { padding: 2.6mm 2mm; border-bottom: 1px solid #e9e0d0; vertical-align: top; }
+td { padding: 2.1mm 2mm; border-bottom: 1px solid #e9e0d0; vertical-align: top; }
 td.name { width: 44%; }
 .nm { display: flex; gap: 3mm; }
 td.name p { color: #4c5470; font-size: 9pt; margin-top: .6mm; }
@@ -94,7 +96,8 @@ ${GROUPS.map(([cat, title]) => `    <h2>${title}</h2>\n    <table>${rows(cat)}\n
 (async () => {
     const browser = await playwright.chromium.launch();
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'load' });
+    await page.setContent(html, { waitUntil: 'networkidle' });
+    await page.evaluate(() => document.fonts.ready);   // the website's fonts (Google Fonts)
     await page.pdf({ path: OUT, format: 'A4', printBackground: true, preferCSSPageSize: true });
     await browser.close();
     console.log('wrote ' + path.relative(ROOT, OUT));
