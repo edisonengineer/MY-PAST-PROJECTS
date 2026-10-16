@@ -8,6 +8,7 @@
     // Settings live in js/config.js. The Web3Forms key is public by design:
     // it can only send to the inbox it was created for.
     const CONFIG = window.SITE_CONFIG || {};
+    const tr = (t) => (window.I18N && window.I18N.t ? window.I18N.t(t) : t);
     const WEB3FORMS_KEY = CONFIG.web3formsKey;
     const WEB3FORMS_URL = 'https://api.web3forms.com/submit';
     const WHATSAPP = CONFIG.whatsapp || '254708639473';
@@ -291,29 +292,21 @@
     const starRow = (n) => '<span class="review-stars" role="img" aria-label="' + n + ' out of 5 stars">' +
         [1, 2, 3, 4, 5].map((i) => '<svg class="' + (i <= n ? 'on' : '') + '" aria-hidden="true"><use href="#i-star"/></svg>').join('') + '</span>';
 
-    if (grid) {
-        if (reviews.length) {
-            grid.innerHTML = reviews.map((r, i) => {
-                const initials = String(r.name || '?').split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
-                const rating = Math.max(1, Math.min(5, parseInt(r.rating, 10) || 5));
-                return '<figure class="review-card" data-reveal style="--d:' + (i % 3) * 100 + 'ms">' +
-                    '<div class="review-top">' + starRow(rating) + (r.service ? '<span class="chip">' + esc(r.service) + '</span>' : '') + '</div>' +
-                    '<blockquote>' + esc(r.text) + '</blockquote>' +
-                    '<figcaption><span class="review-avatar bg-' + tones[i % tones.length] + '">' + esc(initials) + '</span>' +
-                    '<span><strong>' + esc(r.name) + '</strong>' + esc([r.role, r.date].filter(Boolean).join(' · ')) +
-                        (r.project ? '<a class="review-project" href="projects/' + encodeURIComponent(r.project) + '.html">See the project</a>' : '') + '</span></figcaption>' +
-                '</figure>';
-            }).join('');
-        } else {
-            grid.innerHTML =
-                '<div class="review-empty" data-reveal>' +
-                    '<span class="review-empty-stars">' + starRow(5) + '</span>' +
-                    '<h3>Be the first to leave a review</h3>' +
-                    '<p>Reviews from clients, trainees and collaborators will appear here.</p>' +
-                '</div>';
-        }
-        // Reveal the freshly rendered cards
-        const els = $$('[data-reveal]', grid);
+    const projectIds = new Set((window.PROJECTS || []).map((p) => p.id));
+    function reviewCard(r, i) {
+        const initials = String(r.name || '?').split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+        const rating = Math.max(1, Math.min(5, parseInt(r.rating, 10) || 5));
+        const link = r.project && projectIds.has(r.project)
+            ? '<a class="review-project" href="projects/' + encodeURIComponent(r.project) + '.html">See the project</a>' : '';
+        return '<figure class="review-card" data-reveal style="--d:' + (i % 3) * 100 + 'ms">' +
+            '<div class="review-top">' + starRow(rating) + (r.service ? '<span class="chip">' + esc(r.service) + '</span>' : '') + '</div>' +
+            '<blockquote>' + esc(r.text) + '</blockquote>' +
+            '<figcaption><span class="review-avatar bg-' + tones[i % tones.length] + '">' + esc(initials) + '</span>' +
+                '<span><strong>' + esc(r.name) + '</strong>' + esc([r.role, r.date].filter(Boolean).join(' · ')) + link + '</span></figcaption>' +
+        '</figure>';
+    }
+    function revealIn(box) {
+        const els = $$('[data-reveal]:not(.is-visible)', box);
         if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             const io = new IntersectionObserver((entries) => entries.forEach((en) => {
                 if (en.isIntersecting) { en.target.classList.add('is-visible'); io.unobserve(en.target); }
@@ -322,6 +315,33 @@
         } else {
             els.forEach((el) => el.classList.add('is-visible'));
         }
+    }
+    // Reviews shown: newest live ones (from the Google Sheet) first, then those in js/reviews.js
+    let shown = reviews.slice();
+    function renderReviews() {
+        if (!grid) return;
+        if (shown.length) {
+            grid.innerHTML = shown.map(reviewCard).join('');
+        } else {
+            grid.innerHTML =
+                '<div class="review-empty" data-reveal>' +
+                    '<span class="review-empty-stars">' + starRow(5) + '</span>' +
+                    '<h3>Be the first to leave a review</h3>' +
+                    '<p>Reviews from clients, trainees and collaborators will appear here.</p>' +
+                '</div>';
+        }
+        revealIn(grid);
+    }
+    function addLive(list) {
+        const seen = new Set(shown.map((r) => String(r.text).trim()));
+        const fresh = list.filter((r) => r && r.name && r.text && !seen.has(String(r.text).trim()));
+        if (!fresh.length) return;
+        shown = fresh.concat(shown);
+        renderReviews();
+    }
+    renderReviews();
+    if (grid && CONFIG.reviewsApi) {
+        fetch(CONFIG.reviewsApi).then((r) => r.json()).then((list) => { if (Array.isArray(list)) addLive(list); }).catch(() => {});
     }
 
     /* ======================================================================
@@ -420,7 +440,32 @@
                 };
                 if (email) { fields.email = email; fields.replyto = email; }
                 Object.keys(fields).forEach((k) => { if (fields[k] === '') delete fields[k]; });
-                await sendToWeb3Forms(fields);
+                const live = CONFIG.reviewsApi && rForm['Permission to publish'].checked;
+                const entry = {
+                    name: name,
+                    role: rForm['Role / organisation'].value.trim(),
+                    service: rForm['Service received'].value,
+                    rating: Number(rating.value),
+                    text: text,
+                    project: $('#rv-project').value.trim()
+                };
+                const jobs = [sendToWeb3Forms(fields)];
+                if (live) {
+                    // Publish straight away (Google Sheet). no-cors: the reply can't be read, so success is assumed
+                    jobs.push(fetch(CONFIG.reviewsApi, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: new URLSearchParams(Object.assign({}, entry, { rating: String(entry.rating) }))
+                    }));
+                }
+                const results = await Promise.allSettled(jobs);
+                if (results.every((r) => r.status === 'rejected')) throw results[0].reason;
+                if (live && results[1] && results[1].status === 'fulfilled') {
+                    addLive([Object.assign({}, entry, { date: new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) })]);
+                    $('#review-done-msg').textContent = tr('Your review is now live on the site. Thank you for taking the time!');
+                } else {
+                    $('#review-done-msg').textContent = tr('It has been sent to Edison and will appear on the site once approved.');
+                }
                 track('review-submitted');
                 rForm.reset();
                 rForm.hidden = true;

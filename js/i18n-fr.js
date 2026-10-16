@@ -1170,7 +1170,8 @@ window.I18N_FR = {
     "Camp Meeting Appreciation certificates": "Certificats de remerciement du Camp Meeting",
     "Battery pack cooling system": "Système de refroidissement de batterie",
     "Mazingira Day organisers": "Organisateurs de la Mazingira Day",
-    "EV battery project client": "Client du projet de batterie VE"
+    "EV battery project client": "Client du projet de batterie VE",
+    "Your review is now live on the site. Thank you for taking the time!": "Votre avis est maintenant en ligne sur le site. Merci d’avoir pris le temps !"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

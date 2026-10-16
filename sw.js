@@ -4,7 +4,7 @@
    - CSS/JS/images/fonts: served from cache, refreshed in the background.
    Bump VERSION to clear old caches after big changes.
    ========================================================================= */
-const VERSION = 'v17';
+const VERSION = 'v18';
 const CACHE = 'eo-portfolio-' + VERSION;
 const PRECACHE = [
     './',
@@ -50,8 +50,8 @@ self.addEventListener('fetch', (event) => {
     if (!sameSite && !fonts) return;
     if (sameSite && /\.pdf$/i.test(url.pathname)) return; // let PDFs stream normally
 
-    // Project tracker statuses: always try for the latest, use the saved copy only offline
-    if (sameSite && /tracker-data\.js$/.test(url.pathname)) {
+    // Site data (projects, reviews, tracker statuses...): always try for the latest, use the saved copy only offline
+    if (sameSite && /\/js\/(tracker-data|projects|reviews|certificates|packages|config)\.js$/.test(url.pathname)) {
         event.respondWith(
             fetch(req, { cache: 'no-store' })
                 .then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res; })
