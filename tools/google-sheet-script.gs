@@ -39,7 +39,9 @@
    (client name and email fill in), list the items, then set Action to
    "Send": a branded PDF is saved in your Google Drive ("Nexus CAD Studio
    invoices") and emailed to the client. A receipt marks the project's
-   deposit as paid and updates its balance.
+   deposit as paid and updates its balance, and carries a PAID (or PART PAID)
+   stamp. Unpaid invoices get a polite reminder email after 7 and 14 days
+   (type Off in the reminders column to stop them for one invoice).
 
    SUBSCRIBERS tab: people who signed up for CAD tips by email. When an
    article goes live, it is emailed to them automatically (each email has
@@ -448,7 +450,7 @@ function siteLists_() {
 
 /* ---------- Quotes, invoices and receipts ---------- */
 const INVOICES = 'Invoices';
-const IHEAD = ['Number (automatic)', 'Type', 'Date', 'Project reference', 'Client', 'Client email', 'Items (one per line: description - amount)', 'Total (KES, automatic if empty)', 'Amount paid (KES)', 'Note to client', 'Action', 'PDF (automatic)', 'Sent (automatic)'];
+const IHEAD = ['Number (automatic)', 'Type', 'Date', 'Project reference', 'Client', 'Client email', 'Items (one per line: description - amount)', 'Total (KES, automatic if empty)', 'Amount paid (KES)', 'Note to client', 'Action', 'PDF (automatic)', 'Sent (automatic)', 'Payment reminders (automatic; type Off to stop)'];
 const MPESA_TILL = '8438334', MPESA_NAME = 'EDISON OCHIENG';
 
 function invoices_() {
@@ -464,7 +466,7 @@ function invoices_() {
   sh.getRange('K2:K1000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['Draft', 'Send', 'Sent'], true).build());
   sh.getRange('C2:C1000').setNumberFormat('d mmm yyyy');
   sh.getRange(2, 1, 999, IHEAD.length).setVerticalAlignment('top').setWrap(true);
-  [150, 90, 100, 150, 170, 200, 360, 120, 120, 260, 80, 200, 150].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  [150, 90, 100, 150, 170, 200, 360, 120, 120, 260, 80, 200, 150, 230].forEach((w, i) => sh.setColumnWidth(i + 1, w));
   return sh;
 }
 
@@ -492,6 +494,16 @@ function invoiceItems_(text) {
   });
 }
 
+// Rubber-stamp style mark on receipts: PAID when nothing is owed, PART PAID otherwise
+function stamp_(d) {
+  if (d.type !== 'Receipt') return '';
+  const full = d.balance <= 0, c = full ? '#1fae6a' : '#e08a00';
+  return '<div style="display:inline-block;padding:6px 18px 4px;border:4px solid ' + c + ';border-radius:10px;color:' + c + ';text-align:center;' +
+    'transform:rotate(-8deg);-webkit-transform:rotate(-8deg);opacity:.9">' +
+    '<div style="font-size:' + (full ? 34 : 24) + 'px;font-weight:bold;letter-spacing:6px;line-height:1.1">' + (full ? 'PAID' : 'PART PAID') + '</div>' +
+    '<div style="font-size:10px;letter-spacing:2px;font-weight:bold">' + html_(d.date).toUpperCase() + '</div></div>';
+}
+
 function invoiceHtml_(d) {
   const accent = d.type === 'Receipt' ? '#1fae6a' : d.type === 'Quote' ? '#7457f2' : '#ff6b4a';
   const rows = d.items.map((it) => '<tr><td style="padding:9px 10px;border-bottom:1px solid #ece4d6">' + html_(it.text) + '</td><td style="padding:9px 10px;border-bottom:1px solid #ece4d6;text-align:right;white-space:nowrap">' + (it.amount === null ? '' : kes_(it.amount)) + '</td></tr>').join('');
@@ -510,8 +522,11 @@ function invoiceHtml_(d) {
     '<div style="padding:22px 30px 0"><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse">' +
       '<tr><td style="padding:9px 10px;background:#f6f1e7;font-size:10px;letter-spacing:1.5px;color:#666">DESCRIPTION</td><td style="padding:9px 10px;background:#f6f1e7;font-size:10px;letter-spacing:1.5px;color:#666;text-align:right">AMOUNT</td></tr>' +
       rows + '</table>' +
-      '<table cellspacing="0" cellpadding="0" style="margin:10px 0 0 auto">' + line('Total', kes_(d.total), d.type === 'Quote') +
-        (d.type !== 'Quote' ? line(d.type === 'Receipt' ? 'Amount received' : 'Paid so far', kes_(d.paid)) + line(d.type === 'Receipt' ? 'Balance remaining' : 'Balance due', kes_(d.balance), true) : '') + '</table>' +
+      '<table width="100%" cellspacing="0" cellpadding="0" style="margin-top:10px"><tr>' +
+        '<td style="vertical-align:middle;padding:10px 0 0 6px">' + stamp_(d) + '</td>' +
+        '<td style="vertical-align:top"><table cellspacing="0" cellpadding="0" style="margin:0 0 0 auto">' + line('Total', kes_(d.total), d.type === 'Quote') +
+        (d.type !== 'Quote' ? line(d.type === 'Receipt' ? 'Amount received' : 'Paid so far', kes_(d.paid)) + line(d.type === 'Receipt' ? 'Balance remaining' : 'Balance due', kes_(d.balance), true) : '') + '</table></td>' +
+      '</tr></table>' +
     '</div>' +
     (d.note ? '<div style="margin:18px 30px 0;padding:12px 14px;background:#fbf6ec;border-left:4px solid #ffb627">' + html_(d.note) + '</div>' : '') +
     (d.type === 'Receipt'
@@ -577,6 +592,63 @@ function sendInvoice_(sh, row) {
       P.getRange(i + 1, 11).setValue(new Date());
     }
   }
+}
+
+/* ---------- Payment reminders for unpaid invoices (daily, 9am) ---------- */
+const REMIND_DAYS = [7, 14];
+
+// Has this invoice been paid? (a receipt for the same project or client sent on/after it, or no balance left on the project)
+function invoicePaid_(inv, rows) {
+  const ref = normRef_(inv[3]), email = String(inv[5] || '').trim().toLowerCase();
+  const day = (v) => (v instanceof Date ? new Date(v.getFullYear(), v.getMonth(), v.getDate()).getTime() : 0);
+  const receipt = rows.some((r) => String(r[1]).trim() === 'Receipt' && String(r[10]).trim() === 'Sent' && day(r[2]) >= day(inv[2]) &&
+    ((ref && normRef_(r[3]) === ref) || (!ref && email && String(r[5]).trim().toLowerCase() === email)));
+  if (receipt) return true;
+  if (ref) {
+    const p = projects_().getDataRange().getValues().slice(1).find((x) => normRef_(x[0]) === ref);
+    if (p && String(p[8]).trim() !== '' && num_(p[8]) === 0 && /^paid$/i.test(String(p[7]).trim())) return true;
+  }
+  return false;
+}
+
+function reminderJob() {
+  if (/^no$/i.test(setting_('Payment reminders'))) return;
+  const sh = invoices_(), rows = sh.getDataRange().getValues().slice(1);
+  const tz = 'Africa/Nairobi', now = new Date();
+  rows.forEach((r, i) => {
+    const row = i + 2, status = String(r[13] || '').trim();
+    if (String(r[1]).trim() !== 'Invoice' || String(r[10]).trim() !== 'Sent' || !(r[2] instanceof Date)) return;
+    if (/^(off|no|stop|paid)/i.test(status)) return;
+    const balance = Math.max(0, num_(r[7]) - num_(r[8]));
+    if (balance <= 0 || invoicePaid_(r, rows)) { sh.getRange(row, 14).setValue('Paid: no reminders needed'); return; }
+    const sent = /^reminder (\d)/i.test(status) ? Number(/^reminder (\d)/i.exec(status)[1]) : 0;
+    if (sent >= REMIND_DAYS.length) return;
+    const age = Math.floor((now - r[2]) / 864e5);
+    if (age < REMIND_DAYS[sent]) return;
+    const email = String(r[5] || '').trim();
+    if (!validEmail_(email) || MailApp.getRemainingDailyQuota() <= 5) return;
+    let pdf = null;
+    const id = driveId_(r[11]);
+    try { if (id) pdf = DriveApp.getFileById(id).getBlob(); } catch (err) { /* file moved or deleted: send without it */ }
+    const number = String(r[0]), ref = String(r[3] || '').trim(), client = String(r[4] || '').trim();
+    const first = sent === 0;
+    const body = '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+      '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · PAYMENT REMINDER</p>' +
+      '<p>Hello' + (client ? ' ' + html_(client) : '') + ',</p>' +
+      '<p>' + (first ? 'A friendly reminder that invoice <b>' + html_(number) + '</b> is still open.' : 'Just following up on invoice <b>' + html_(number) + '</b>, which is still open.') +
+      ' The balance due is <b>' + kes_(balance) + '</b>.</p>' +
+      '<div style="padding:12px 14px;border:1px solid #ece4d6;margin:0 0 16px"><b>How to pay</b><br>M-Pesa · Buy Goods Till <b>' + MPESA_TILL + '</b> (' + MPESA_NAME + ')' +
+      (ref ? '<br>Please mention your project reference <b>' + html_(ref) + '</b>.' : '') + '</div>' +
+      '<p>If you have already paid, thank you, and please ignore this message' + (first ? '' : '. If anything is holding up the payment, just reply and let me know') + '.</p>' +
+      (ref ? '<p><a href="' + SITE_URL + 'track/?ref=' + encodeURIComponent(ref) + '" style="background:#0e1a3a;color:#fff;padding:11px 18px;border-radius:99px;text-decoration:none;font-weight:bold">View your project</a></p>' : '') +
+      '<p style="font-size:13px;color:#555">Questions? Reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
+      '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p></div>';
+    const mail = { to: email, name: SENDER, subject: (first ? 'Reminder: ' : 'Second reminder: ') + 'invoice ' + number + ' (' + kes_(balance) + ')', htmlBody: body,
+      body: 'Invoice ' + number + ' is still open. Balance due: ' + kes_(balance) + '. Pay by M-Pesa Buy Goods Till ' + MPESA_TILL + ' (' + MPESA_NAME + ').' };
+    if (pdf) mail.attachments = [pdf];
+    MailApp.sendEmail(mail);
+    sh.getRange(row, 14).setValue('Reminder ' + (sent + 1) + ' sent ' + Utilities.formatDate(now, tz, 'd MMM yyyy'));
+  });
 }
 
 /* ---------- Newsletter: subscribers and emailing new articles ---------- */
@@ -711,6 +783,8 @@ function weeklySummary() {
   const subsAll = subscribers_().getDataRange().getValues().slice(1).filter((r) => r[0] && !/^unsub/i.test(String(r[4])));
   const subsNew = subsAll.filter((r) => r[2] instanceof Date && r[2] >= weekAgo);
   const owedTotal = owed.reduce((a, r) => a + num_(r[8]), 0);
+  const invRows = invoices_().getDataRange().getValues().slice(1);
+  const unpaid = invRows.filter((r) => String(r[1]).trim() === 'Invoice' && String(r[10]).trim() === 'Sent' && num_(r[7]) - num_(r[8]) > 0 && !invoicePaid_(r, invRows));
 
   const stat = (n, label) => '<td style="padding:12px;background:#f6f1e7;border-radius:12px;text-align:center"><div style="font-size:22px;font-weight:bold">' + n + '</div><div style="font-size:11px;color:#666">' + label + '</div></td>';
   const html = '<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#0e1a3a">' +
@@ -722,6 +796,7 @@ function weeklySummary() {
     section('Due within 7 days or overdue', due.map((r) => '<b>' + html_(r[1] || r[0]) + '</b> · ' + html_(r[2]) + ' · due ' + fmt(r[5]) + (r[5] < now ? ' <b style="color:#c4422a">overdue</b>' : '') + ' · ' + html_(r[3])), 'Nothing due this week.') +
     section('Active projects', projects.map((r) => '<b>' + html_(r[1] || r[0]) + '</b> · ' + html_(r[2]) + ' · ' + html_(r[3]) + (r[5] instanceof Date ? ' · due ' + fmt(r[5]) : '')), 'No active projects.') +
     section('Balances to collect', owed.map((r) => '<b>' + html_(r[1] || r[0]) + '</b> · ' + html_(r[2]) + ' · ' + kes_(r[8])), 'All paid up.') +
+    section('Unpaid invoices', unpaid.map((r) => '<b>' + html_(r[0]) + '</b> · ' + html_(r[4]) + ' · ' + kes_(num_(r[7]) - num_(r[8])) + ' · sent ' + fmt(r[2]) + (r[13] ? ' <span style="color:#777">(' + html_(r[13]) + ')</span>' : '')), 'No unpaid invoices.') +
     section('New reviews', reviews.map((r) => '★'.repeat(Math.min(5, Number(r[4]) || 5)) + ' <b>' + html_(r[1]) + '</b>: “' + html_(String(r[5]).slice(0, 140)) + (String(r[5]).length > 140 ? '…' : '') + '”'), 'No new reviews this week.') +
     '<p style="margin-top:22px">Subscribers: <b>' + subsAll.length + '</b> (' + subsNew.length + ' new this week)</p>' +
     '<p style="margin-top:22px"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '" style="background:#0e1a3a;color:#fff;padding:11px 18px;border-radius:99px;text-decoration:none;font-weight:bold">Open your sheet</a></p>' +
@@ -742,7 +817,8 @@ const SROWS = [
   ['Training next intake', SEED_TRAINING.intake, 'Training page: e.g. Saturday classes from 7 November 2026. Leave empty for "Dates on request"'],
   ['Training starting price (KES)', SEED_TRAINING.price, 'Training page: starting price per trainee, e.g. 4500'],
   ['Monday summary email', 'Yes', 'Yes = every Monday morning you get an email summary of briefs, projects, balances, reviews and subscribers'],
-  ['Email new articles to subscribers', 'Yes', 'Yes = each new article is emailed to the Subscribers tab once it is live on the website']
+  ['Email new articles to subscribers', 'Yes', 'Yes = each new article is emailed to the Subscribers tab once it is live on the website'],
+  ['Payment reminders', 'Yes', 'Yes = unpaid invoices get a polite reminder email after 7 and 14 days (stops once you send a receipt)']
 ];
 
 function settings_() {
@@ -808,7 +884,8 @@ function setup() {
   certs_();
   courses_();
   recordings_();
-  invoices_();
+  const inv = invoices_();
+  if (!inv.getRange(1, 14).getValue()) inv.getRange(1, 14).setValue(IHEAD[13]).setFontWeight('bold').setWrap(true);
   subscribers_();
   const a = articles_();
   if (!a.getRange(1, 9).getValue()) {
@@ -819,11 +896,12 @@ function setup() {
     a.getRange(2, 9, 999, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(YESNO, true).build());
   }
   ScriptApp.getProjectTriggers()
-    .filter((t) => ['notifyClient', 'weeklySummary', 'newsletterJob'].indexOf(t.getHandlerFunction()) > -1)
+    .filter((t) => ['notifyClient', 'weeklySummary', 'newsletterJob', 'reminderJob'].indexOf(t.getHandlerFunction()) > -1)
     .forEach((t) => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('notifyClient').forSpreadsheet(SpreadsheetApp.getActive()).onEdit().create();
   ScriptApp.newTrigger('weeklySummary').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(7).inTimezone('Africa/Nairobi').create();
   ScriptApp.newTrigger('newsletterJob').timeBased().everyHours(1).create();
+  ScriptApp.newTrigger('reminderJob').timeBased().everyDays(1).atHour(9).inTimezone('Africa/Nairobi').create();
 }
 
 // "Website" menu at the top of the sheet
