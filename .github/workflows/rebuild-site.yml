@@ -9,6 +9,7 @@ on:
     branches: [main]
     paths:
       - 'js/projects.js'
+      - 'js/sheet-works.js'
       - 'js/reviews.js'
       - 'js/certificates.js'
       - 'js/packages.js'
@@ -24,7 +25,7 @@ permissions:
   pages: write
 
 concurrency:
-  group: rebuild-site
+  group: site-write
   cancel-in-progress: false
 
 jobs:
@@ -41,7 +42,7 @@ jobs:
 
       - name: Check the data files for typos
         run: |
-          for f in js/projects.js js/reviews.js js/certificates.js js/packages.js js/config.js; do
+          for f in js/projects.js js/sheet-works.js js/reviews.js js/certificates.js js/packages.js js/config.js; do
             node -e "require('vm').runInNewContext(require('fs').readFileSync('$f','utf8'), { window: {} })" \
               || { echo "::error file=$f::$f has a typo (often a missing comma, quote or bracket). Fix it and commit again."; exit 1; }
           done
@@ -70,6 +71,7 @@ jobs:
           git add -A
           if git diff --cached --quiet; then echo "Everything is already up to date."; exit 0; fi
           git commit -m "Rebuild pages after content update [automated]"
+          git pull --rebase --autostash origin main
           git push
           # Pushes made by this workflow don't start a Pages deploy on their own, so ask for one
           gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages will update on the next push."

@@ -19,6 +19,15 @@
    SETTINGS tab: control the website without code: availability badge,
    webinar day and time, and an announcement shown at the top of the site.
 
+   ARTICLES tab: write an article in a Google Doc, paste its link here and
+   set Status to "Published". Within about 30 minutes it appears on the
+   website's CAD Tips blog as a full page (headings, lists, bold, links and
+   photos from the Doc). Set it back to "Draft" to take it down.
+
+   WORKS tab: add a new project (title, summary, highlights and photos from
+   Google Drive) and set Status to "Published". It appears in "My work"
+   with its own page within about 30 minutes.
+
    FIRST-TIME SET-UP (about 5 minutes)
    1. Go to sheets.google.com and create a blank sheet named "Website reviews".
    2. Menu: Extensions → Apps Script. Delete what's there and paste this
@@ -30,8 +39,8 @@
    UPDATING THIS SCRIPT LATER (the link stays the same)
    1. Extensions → Apps Script, select everything, paste the new version, save.
    2. Choose  setup  in the function list at the top and click Run. This
-      creates the Projects and Settings tabs and turns on the automatic
-      client emails (allow the permissions Google asks for).
+      creates any missing tabs and turns on the automatic client emails
+      (allow the permissions Google asks for).
    3. Deploy → Manage deployments → pencil icon → Version: New version → Deploy.
    ========================================================================= */
 
@@ -159,6 +168,183 @@ function brief_(p) {
   return { ok: true, ref: ref };
 }
 
+/* ---------- Articles and Works written in the sheet (published by the website's GitHub automation) ---------- */
+const ARTICLES = 'Articles';
+const AHEAD = ['Title', 'Status', 'Date', 'Google Doc link', 'Summary (1–2 sentences)', 'Cover photo (Google Drive link)', 'Tags (comma separated)', 'Web address (automatic)'];
+const WORKS = 'Works';
+const WHEAD = ['Title', 'Status', 'Category', 'Subtitle', 'Year', 'Summary', 'Highlights (one per line)', 'Software / tags (comma separated)', 'Photos (Drive folder link, or Drive photo links one per line)', 'Web address (automatic)'];
+
+function contentTab_(name, head, widths, example) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(name);
+  if (sh) return sh;
+  sh = ss.insertSheet(name);
+  sh.appendRow(head);
+  if (example) sh.appendRow(example);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, head.length).setFontWeight('bold').setWrap(true);
+  sh.getRange('B2:B1000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['Draft', 'Published'], true).build());
+  widths.forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  sh.getRange(2, 1, 999, head.length).setVerticalAlignment('top').setWrap(true);
+  return sh;
+}
+const articles_ = () => contentTab_(ARTICLES, AHEAD, [260, 100, 110, 280, 320, 260, 200, 220],
+  ['Example: How I choose materials for a prototype', 'Draft', new Date(), 'Paste a Google Doc link here', 'One or two sentences shown on the blog card and in Google results.', '', 'Product design, Materials', '']);
+const works_ = () => {
+  const sh = contentTab_(WORKS, WHEAD, [240, 100, 150, 240, 70, 320, 340, 220, 320, 220],
+    ['Example: Solar water pump housing', 'Draft', 'Engineering', 'Client project · 2027', '2027', 'One or two sentences about the project.', 'First highlight\nSecond highlight', 'SolidWorks, Sheet metal', 'Paste a Google Drive folder link with the photos', '']);
+  sh.getRange('C2:C1000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['Engineering', 'Graphic Design'], true).build());
+  return sh;
+};
+
+const slug_ = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 70).replace(/-+$/, '') || 'post';
+const driveId_ = (link) => { const m = /(?:\/d\/|\/folders\/|[?&]id=)([\w-]{20,})/.exec(String(link || '')); return m ? m[1] : ''; };
+const published_ = (r) => String(r[1]).trim().toLowerCase() === 'published' && String(r[0]).trim();
+
+// Fills the automatic "Web address" once, so it never changes even if you edit the title
+function ensureSlugs_(sh, col) {
+  const rows = sh.getDataRange().getValues();
+  const taken = {};
+  rows.slice(1).forEach((r) => { if (r[col]) taken[r[col]] = 1; });
+  rows.slice(1).forEach((r, i) => {
+    if (!published_(r) || r[col]) return;
+    let s = slug_(r[0]), n = 2;
+    while (taken[s]) s = slug_(r[0]) + '-' + n++;
+    taken[s] = 1;
+    sh.getRange(i + 2, col + 1).setValue(s);
+    r[col] = s;
+  });
+  return rows.slice(1);
+}
+
+// Google Doc → simple, safe HTML. Photos become {{IMG:n}} placeholders the automation downloads.
+function docHtml_(docId) {
+  const body = DocumentApp.openById(docId).getBody();
+  const out = [];
+  let list = null, img = 0;
+  const closeList = () => { if (list) { out.push('</' + list + '>'); list = null; } };
+  function inline(el) {
+    let h = '';
+    for (let i = 0; i < el.getNumChildren(); i++) {
+      const c = el.getChild(i), type = c.getType();
+      if (type === DocumentApp.ElementType.TEXT) {
+        const t = c.asText(), str = t.getText(), idx = t.getTextAttributeIndices();
+        for (let k = 0; k < idx.length; k++) {
+          const a = idx[k], b = k + 1 < idx.length ? idx[k + 1] : str.length;
+          let piece = html_(str.slice(a, b)).replace(/\r|\n/g, '<br>');
+          if (!piece) continue;
+          if (t.isBold(a)) piece = '<strong>' + piece + '</strong>';
+          if (t.isItalic(a)) piece = '<em>' + piece + '</em>';
+          const url = t.getLinkUrl(a);
+          if (url && /^(https?:|mailto:)/i.test(url)) piece = '<a href="' + html_(url) + '" target="_blank" rel="noopener">' + piece + '</a>';
+          h += piece;
+        }
+      } else if (type === DocumentApp.ElementType.INLINE_IMAGE) {
+        h += '{{IMG:' + (img++) + '}}';
+      }
+    }
+    return h.trim();
+  }
+  for (let i = 0; i < body.getNumChildren(); i++) {
+    const el = body.getChild(i), type = el.getType();
+    if (type === DocumentApp.ElementType.LIST_ITEM) {
+      const li = el.asListItem();
+      const g = li.getGlyphType();
+      const tag = g === DocumentApp.GlyphType.NUMBER || g === DocumentApp.GlyphType.LATIN_LOWER || g === DocumentApp.GlyphType.LATIN_UPPER ||
+        g === DocumentApp.GlyphType.ROMAN_LOWER || g === DocumentApp.GlyphType.ROMAN_UPPER ? 'ol' : 'ul';
+      if (list !== tag) { closeList(); out.push('<' + tag + '>'); list = tag; }
+      const t = inline(li);
+      if (t) out.push('<li>' + t + '</li>');
+      continue;
+    }
+    closeList();
+    if (type !== DocumentApp.ElementType.PARAGRAPH) continue;
+    const para = el.asParagraph(), t = inline(para);
+    if (!t) continue;
+    const hd = para.getHeading(), H = DocumentApp.ParagraphHeading;
+    if (/^(\{\{IMG:\d+\}\}\s*)+$/.test(t)) out.push(t);                    // a photo on its own line
+    else if (hd === H.TITLE) continue;                                         // the Doc title: the sheet's Title is used
+    else if (hd === H.HEADING1 || hd === H.HEADING2 || hd === H.SUBTITLE) out.push('<h2>' + t + '</h2>');
+    else if (hd !== H.NORMAL) out.push('<h3>' + t + '</h3>');
+    else out.push('<p>' + t + '</p>');
+  }
+  closeList();
+  // A short fingerprint per photo, so the website only downloads photos that changed
+  const hashes = body.getImages().slice(0, img).map((im) =>
+    Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, im.getBlob().getBytes()).slice(0, 5)
+      .map((b) => ((b + 256) % 256).toString(16).padStart(2, '0')).join(''));
+  return { html: out.join('\n'), images: hashes };
+}
+
+function docImage_(docId, n) {
+  const imgs = DocumentApp.openById(docId).getBody().getImages();
+  return imgs[n] ? imgs[n].getBlob() : null;
+}
+
+const fileRef_ = (f) => ({ id: f.getId(), v: f.getLastUpdated().getTime().toString(36) });   // v changes when the photo is replaced
+
+function photoIds_(cell) {
+  const list = [];
+  String(cell || '').split(/[\s,]+/).forEach((part) => {
+    const id = driveId_(part);
+    if (!id) return;
+    if (/\/folders\//.test(part)) {
+      const files = [];
+      const it = DriveApp.getFolderById(id).getFiles();
+      while (it.hasNext()) { const f = it.next(); if (/^image\//.test(f.getMimeType())) files.push(f); }
+      files.sort((a, b) => a.getName().localeCompare(b.getName(), undefined, { numeric: true }));
+      files.slice(0, 12).forEach((f) => list.push(fileRef_(f)));
+    } else list.push(fileRef_(DriveApp.getFileById(id)));
+  });
+  return list;
+}
+
+// Everything that is Published (drafts are never shared)
+function content_() {
+  const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const articles = ensureSlugs_(articles_(), 7).filter(published_).map((r) => {
+    const docId = driveId_(r[3]);
+    let doc = { html: '', images: [] }, cover = null, error = '';
+    try { if (docId) doc = docHtml_(docId); } catch (err) { error = 'Could not open the Google Doc: ' + err.message; }
+    try { if (driveId_(r[5])) cover = fileRef_(DriveApp.getFileById(driveId_(r[5]))); } catch (err) { error += ' Could not open the cover photo: ' + err.message; }
+    return {
+      slug: String(r[7]), title: String(r[0]).trim(),
+      date: r[2] instanceof Date ? Utilities.formatDate(r[2], tz, 'yyyy-MM-dd') : Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd'),
+      summary: String(r[4] || '').trim(), tags: String(r[6] || '').split(',').map((t) => t.trim()).filter(Boolean),
+      cover: cover, doc: docId, html: doc.html, images: doc.images, error: error.trim()
+    };
+  });
+  const works = ensureSlugs_(works_(), 9).filter(published_).map((r) => {
+    let photos = [], error = '';
+    try { photos = photoIds_(r[8]); } catch (err) { error = 'Could not open the photos: ' + err.message; }
+    return {
+      slug: String(r[9]), title: String(r[0]).trim(),
+      category: /graphic/i.test(r[2]) ? 'graphic' : 'engineering',
+      subtitle: String(r[3] || '').trim(), year: String(r[4] || '').trim(), summary: String(r[5] || '').trim(),
+      points: String(r[6] || '').split(/\n+/).map((t) => t.replace(/^[-•*]\s*/, '').trim()).filter(Boolean),
+      tags: String(r[7] || '').split(',').map((t) => t.trim()).filter(Boolean),
+      photos: photos, error: error
+    };
+  });
+  return { articles: articles, works: works };
+}
+
+// A photo, only if it belongs to something Published (nothing else in your Drive can be fetched)
+function image_(q) {
+  const arts = articles_().getDataRange().getValues().slice(1).filter(published_);
+  let blob = null;
+  if (q.doc) {
+    if (arts.some((r) => driveId_(r[3]) === q.doc) && Number(q.n) >= 0) blob = docImage_(q.doc, Number(q.n));
+  } else if (q.id) {
+    const ok = arts.some((r) => driveId_(r[5]) === q.id) ||
+      works_().getDataRange().getValues().slice(1).filter(published_).some((r) => photoIds_(r[8]).some((p) => p.id === q.id));
+    if (ok) blob = DriveApp.getFileById(q.id).getBlob();
+  }
+  if (!blob) return { ok: false };
+  return { ok: true, type: blob.getContentType(), data: Utilities.base64Encode(blob.getBytes()) };
+}
+
 /* ---------- Settings tab ---------- */
 const SETTINGS = 'Settings';
 const SROWS = [
@@ -219,6 +405,8 @@ function setup() {
   if (!p.getRange(1, 12).getValue()) p.getRange(1, 12).setValue('Client email').setFontWeight('bold');
   settings_();
   subs_();
+  articles_();
+  works_();
   ScriptApp.getProjectTriggers()
     .filter((t) => t.getHandlerFunction() === 'notifyClient')
     .forEach((t) => ScriptApp.deleteTrigger(t));
@@ -385,6 +573,8 @@ function doGet(e) {
   if (q.action === 'track') return out_(track_(q.ref));
   if (q.action === 'site') return out_({ reviews: reviews_(), settings: readSettings_() });   // homepage: one request
   if (q.action === 'settings') return out_(readSettings_());
+  if (q.action === 'content') return out_(content_());          // used by the website's GitHub automation
+  if (q.action === 'image') return out_(image_(q));
   return out_(reviews_());
 }
 

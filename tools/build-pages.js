@@ -35,6 +35,8 @@ const LABEL = { engineering: 'Engineering', graphic: 'Graphic design' };
 function loadProjects() {
     const ctx = { window: {} };
     vm.runInNewContext(read('js/projects.js'), ctx);
+    // Works published from the Google Sheet (tools/sync-from-sheet.js)
+    if (fs.existsSync(path.join(ROOT, 'js/sheet-works.js'))) vm.runInNewContext(read('js/sheet-works.js'), ctx);
     return ctx.window.PROJECTS;
 }
 
