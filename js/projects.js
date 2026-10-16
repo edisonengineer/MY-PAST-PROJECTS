@@ -231,7 +231,7 @@ window.PROJECTS = [
             ['Focus', 'Thermal management']
         ],
         tags: ['SolidWorks', 'Inventor', 'Thermal simulation'],
-        model: 'models/ev-battery-cooling.glb',
+        // model: 'models/ev-battery-cooling.glb',   // add back once the 3D file is uploaded
         pdf: 'pdfs/ev-battery-cooling-report.pdf'
     },
     {

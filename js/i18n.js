@@ -8,12 +8,39 @@
 
    To change a translation, edit the dictionary file. Missing entries simply
    stay in English, so new content never breaks the page.
+
+   The dictionaries are only downloaded when French or Kiswahili is chosen
+   (their paths are on this script's tag: data-fr / data-sw), so English
+   visitors don't load them.
    ========================================================================= */
 (function () {
     'use strict';
 
-    const DICT = { fr: window.I18N_FR || {}, sw: window.I18N_SW || {} };
+    const LANGS = ['en', 'fr', 'sw'];
+    const DICT = { fr: window.I18N_FR || null, sw: window.I18N_SW || null };
     const PATTERNS = { fr: window.I18N_FR_PATTERNS || [], sw: window.I18N_SW_PATTERNS || [] };
+    const me = document.currentScript;
+    const loading = {};
+    // Downloads a dictionary the first time its language is needed
+    function load(l) {
+        if (l === 'en' || DICT[l]) return Promise.resolve();
+        if (loading[l]) return loading[l];
+        const src = me && me.dataset[l];
+        loading[l] = new Promise((resolve) => {
+            if (!src) return resolve();
+            const s = document.createElement('script');
+            s.src = src;
+            s.onload = s.onerror = () => {
+                const U = l.toUpperCase();
+                DICT[l] = window['I18N_' + U] || null;
+                PATTERNS[l] = window['I18N_' + U + '_PATTERNS'] || [];
+                if (!DICT[l]) delete loading[l];   // failed (offline?): allow another try
+                resolve();
+            };
+            document.head.appendChild(s);
+        });
+        return loading[l];
+    }
     const ATTRS = ['placeholder', 'aria-label', 'title', 'alt'];
     const SKIP = 'script, style, noscript, textarea, [data-no-i18n], .brand-text, .marquee, code';
     const textState = new WeakMap();   // text node -> { en, tr }
@@ -118,7 +145,15 @@
     }
 
     function setLang(next, save) {
-        if (!DICT[next] && next !== 'en') return;
+        if (LANGS.indexOf(next) < 0) return;
+        if (next !== 'en' && !DICT[next]) {
+            document.documentElement.classList.add('i18n-loading');
+            load(next).then(() => {
+                document.documentElement.classList.remove('i18n-loading');
+                if (DICT[next]) setLang(next, save);
+            });
+            return;
+        }
         lang = next;
         if (save) { try { localStorage.setItem('lang', next); } catch (e) { /* storage blocked */ } }
         apply();
@@ -141,6 +176,7 @@
     const q = new URLSearchParams(location.search).get('lang');
     try { initial = localStorage.getItem('lang') || initial; } catch (e) { /* storage blocked */ }
     if (q === 'fr' || q === 'sw' || q === 'en') initial = q;
-    if (!DICT[initial] && initial !== 'en') initial = 'en';
+    if (LANGS.indexOf(initial) < 0) initial = 'en';
+    if (initial !== 'en') load(initial);   // start downloading now, while the page finishes loading
     document.addEventListener('DOMContentLoaded', () => setLang(initial, false));
 })();
