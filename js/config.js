@@ -23,10 +23,14 @@ window.SITE_CONFIG = {
     // choose a code (e.g. 'edisonochieng') and put it here. Leave '' to turn analytics off.
     goatcounter: '',
 
-    // Instant reviews: paste the Google Apps Script "Web app URL" (ends in /exec).
-    // Set-up steps are at the top of tools/reviews-google-apps-script.gs.
+    // Google Sheet "database" (instant reviews + project tracker): the Google Apps
+    // Script "Web app URL" (ends in /exec). Set-up steps: tools/google-sheet-script.gs.
     // When set, reviews visitors submit appear on the site straight away.
     reviewsApi: 'https://script.google.com/macros/s/AKfycbzhZ6fb-p7uUTFm7GCl3dvCEaiIM1p___NvuTYyAhejrTvfyUEGOq5fXxVbpROj9ok0/exec',
+
+    // Project tracker: read project status from the "Projects" tab of the same sheet.
+    // Leave '' to use only js/tracker-data.js (built with tools/build-tracker.js).
+    trackerApi: 'https://script.google.com/macros/s/AKfycbzhZ6fb-p7uUTFm7GCl3dvCEaiIM1p___NvuTYyAhejrTvfyUEGOq5fXxVbpROj9ok0/exec',
 
     // Booking calendar: paste your free Calendly link (e.g. 'https://calendly.com/edisonochieng/30min')
     // or a Google Calendar appointment page link. Leave '' to hide the "Book a call" buttons.
