@@ -2129,6 +2129,8 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 
     .hero-grid { grid-template-columns: 1fr; }
     .hero-copy { text-align: center; }
+    .announce { margin-left: auto; margin-right: auto; text-align: left; }
+    .hero-rating { justify-content: center; }
     .hero-lede { margin-left: auto; margin-right: auto; }
     .hero-actions { justify-content: center; }
     .hero-visual { max-width: 520px; margin: 0 auto; width: 100%; }
@@ -2207,3 +2209,18 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 .case-quote figcaption strong { color: var(--heading); }
 .review-project { display: block; margin-top: 4px; font-size: 0.82rem; font-weight: 700; color: var(--coral-text, #c4422a); text-decoration: underline; text-underline-offset: 3px; }
 .case-quote .cq-role::before { content: '· '; }
+
+/* ---------- Announcement (Settings tab of the Google Sheet) ---------- */
+.announce { display: flex; align-items: center; gap: 10px; width: fit-content; max-width: 100%; margin-bottom: 14px; padding: 8px 14px 8px 8px; border-radius: 16px; background: linear-gradient(90deg, rgba(255, 182, 39, 0.22), rgba(255, 107, 74, 0.18)); border: 1px solid rgba(255, 182, 39, 0.45); color: #fff; font-size: 0.88rem; font-weight: 600; line-height: 1.35; text-decoration: none; transition: transform 0.3s var(--ease-out), background-color 0.3s var(--ease); }
+.announce:hover { transform: translateY(-2px); }
+.announce-icon { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: var(--sun); color: #0f1b3d; }
+.announce-icon svg { width: 16px; height: 16px; }
+.announce-arrow { flex: none; width: 16px; height: 16px; opacity: 0.8; }
+
+/* ---------- Star rating link in the hero (from the reviews) ---------- */
+.hero-rating { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 22px; color: rgba(255, 255, 255, 0.86); font-size: 0.92rem; font-weight: 600; text-decoration: none; }
+.hero-rating:hover .hr-count { text-decoration: underline; text-underline-offset: 3px; }
+.hr-stars { display: inline-flex; gap: 2px; color: var(--sun); }
+.hr-stars svg { width: 18px; height: 18px; }
+.hr-score { color: #fff; font-size: 1.05rem; }
+.hero-rating[hidden], .announce[hidden] { display: none; }

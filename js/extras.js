@@ -65,11 +65,17 @@
        ====================================================================== */
     const W = CONFIG.webinar || {};
     const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const dayIdx = DAYS.indexOf(String(W.day || '').toLowerCase());
-    const tm = /^(\d{1,2}):(\d{2})$/.exec(String(W.time || '').trim());
-    if (dayIdx > -1 && tm && $('#countdown')) {
+    let cdTimer = null;
+    // Can be called again with values from the Settings tab of the Google Sheet
+    function startCountdown(w) {
+        const box = $('#countdown');
+        if (!box) return;
+        if (cdTimer) { clearInterval(cdTimer); cdTimer = null; }
+        const dayIdx = DAYS.indexOf(String(w.day || '').trim().toLowerCase());
+        const tm = /^(\d{1,2})[:.](\d{2})$/.exec(String(w.time || '').trim());
+        if (dayIdx < 0 || !tm) { box.hidden = true; return; }
         const EAT = 3; // Nairobi is UTC+3 all year
-        const duration = (W.durationMinutes || 60) * 60000;
+        const duration = (w.durationMinutes || 60) * 60000;
         function nextStart(now) {
             // Work in Nairobi wall-clock time, then convert back to a real instant
             const local = new Date(now.getTime() + EAT * 3600000);
@@ -79,7 +85,6 @@
             if (s.getTime() + duration <= now.getTime()) s = new Date(s.getTime() + 7 * 86400000);
             return s;
         }
-        const box = $('#countdown');
         box.hidden = false;
         const fmt = (d) => d.toLocaleString(undefined, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Nairobi' }) + ' (Nairobi time)';
         const pad = (n) => String(n).padStart(2, '0');
@@ -100,8 +105,9 @@
             $('#cd-secs').textContent = pad(s % 60);
         }
         tick();
-        setInterval(tick, 1000);
+        cdTimer = setInterval(tick, 1000);
     }
+    startCountdown(W);
 
     const recs = (W.recordings || []).filter((r) => r && /^[\w-]{6,}$/.test(r.id || ''));
     if (recs.length && $('#recordings-grid')) {
@@ -157,15 +163,40 @@
     /* ======================================================================
        AVAILABILITY BADGE (js/config.js → availability)
        ====================================================================== */
-    const AV = CONFIG.availability || {};
     const pill = $('#availability');
-    if (pill && ((AV.status && AV.status !== 'available') || AV.text)) {
-        const msg = AV.text || (AV.status === 'limited' ? 'Limited availability: a few slots left this month'
-            : AV.status === 'booked' ? (AV.from ? 'Fully booked. New projects from ' + AV.from : 'Fully booked for now. Message me to join the waiting list')
+    function applyAvailability(av) {
+        if (!pill || !av) return;
+        const status = ['available', 'limited', 'booked'].indexOf(av.status) > -1 ? av.status : 'available';
+        const msg = av.text || (status === 'limited' ? 'Limited availability: a few slots left this month'
+            : status === 'booked' ? (av.from ? 'Fully booked. New projects from ' + av.from : 'Fully booked for now. Message me to join the waiting list')
             : 'Available for projects & full-time roles');
         $('.pill-text', pill).textContent = msg;
-        pill.classList.add('is-' + (AV.status || 'available'));
+        pill.classList.remove('is-available', 'is-limited', 'is-booked');
+        if (status !== 'available' || av.text) pill.classList.add('is-' + status);
     }
+    applyAvailability(CONFIG.availability || {});
+
+    /* ---------- Announcement at the top of the homepage (Settings tab) ---------- */
+    function applyAnnouncement(an) {
+        const a = $('#announce');
+        if (!a) return;
+        if (!an || !an.text) { a.hidden = true; return; }
+        $('.announce-text', a).textContent = an.text;
+        const link = /^(https?:\/\/|#)/i.test(an.link || '') ? an.link : '#contact';
+        a.href = link;
+        if (/^https?:/i.test(link)) { a.target = '_blank'; a.rel = 'noopener'; } else { a.removeAttribute('target'); a.removeAttribute('rel'); }
+        a.hidden = false;
+    }
+    applyAnnouncement(CONFIG.announcement);
+
+    /* ---------- Settings tab of the Google Sheet overrides the values above ---------- */
+    if (window.LiveData) window.LiveData.then((d) => {
+        const S = d && d.settings;
+        if (!S) return;
+        if (S.availability) applyAvailability(S.availability);
+        if (S.webinar && S.webinar.day && S.webinar.time) startCountdown(Object.assign({}, W, S.webinar));
+        applyAnnouncement(S.announcement);
+    });
 
     /* ======================================================================
        RATE CARD: the download button appears once the PDF exists

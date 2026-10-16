@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 
-    <link rel="stylesheet" href="css/style.css?v=19">
+    <link rel="stylesheet" href="css/style.css?v=20">
     <script>
         document.documentElement.classList.add('js');
         (function () {
@@ -213,6 +213,7 @@
 
             <div class="container hero-grid">
                 <div class="hero-copy">
+                    <a class="announce" id="announce" href="#contact" hidden><span class="announce-icon" aria-hidden="true"><svg><use href="#i-award"/></svg></span><span class="announce-text"></span><svg class="announce-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
                     <p class="pill" id="availability" data-reveal><span class="dot"></span> <span class="pill-text">Available for projects &amp; full-time roles</span></p>
                     <h1 class="hero-title" id="hero-title">
                         Engineering precision.<br><em>Creative</em> design.
@@ -235,6 +236,11 @@
                             <svg><use href="#i-doc"/></svg> Download CV
                         </a>
                     </div>
+                    <a class="hero-rating" id="hero-rating" href="#reviews" hidden>
+                        <span class="hr-stars" aria-hidden="true"><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg></span>
+                        <strong class="hr-score"></strong>
+                        <span class="hr-count"></span>
+                    </a>
                 </div>
 
                 <div class="hero-visual" data-reveal style="--d: 200ms">
@@ -1740,20 +1746,21 @@
     </div>
 
     <script defer src="js/config.js?v=11"></script>
+    <script defer src="js/live-data.js?v=1"></script>
     <script defer src="js/currency.js?v=1"></script>
     <script defer src="js/projects.js?v=11"></script>
     <script defer src="js/reviews.js?v=3"></script>
     <script defer src="js/packages.js?v=3"></script>
     <script defer src="js/rates.js?v=2"></script>
-    <script defer src="js/i18n-fr.js?v=21"></script>
-    <script defer src="js/i18n-sw.js?v=18"></script>
+    <script defer src="js/i18n-fr.js?v=22"></script>
+    <script defer src="js/i18n-sw.js?v=19"></script>
     <script defer src="js/i18n.js?v=3"></script>
     <script defer src="js/main.js?v=9"></script>
-    <script defer src="js/forms.js?v=7"></script>
+    <script defer src="js/forms.js?v=8"></script>
     <script defer src="js/instagram-snapshot.js?v=1"></script>
     <script defer src="js/shop.js?v=4"></script>
     <script defer src="js/certificates.js?v=5"></script>
-    <script defer src="js/extras.js?v=7"></script>
+    <script defer src="js/extras.js?v=8"></script>
     <script defer src="js/analytics.js?v=1"></script>
     <script defer src="js/search.js?v=1"></script>
     <script defer src="js/colours.js?v=1"></script>

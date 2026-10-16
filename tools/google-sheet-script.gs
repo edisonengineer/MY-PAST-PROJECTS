@@ -8,7 +8,11 @@
    PROJECTS tab: your client projects. Change a project's Stage, Progress
    or Note here and the client sees it at /track/ within a minute when they
    enter their reference. Only someone who types the exact reference can
-   see a project; nobody can list them.
+   see a project; nobody can list them. If you fill in "Client email", the
+   client automatically gets an email each time you change the Stage.
+
+   SETTINGS tab: control the website without code: availability badge,
+   webinar day and time, and an announcement shown at the top of the site.
 
    FIRST-TIME SET-UP (about 5 minutes)
    1. Go to sheets.google.com and create a blank sheet named "Website reviews".
@@ -20,8 +24,9 @@
 
    UPDATING THIS SCRIPT LATER (the link stays the same)
    1. Extensions → Apps Script, select everything, paste the new version, save.
-   2. Choose  setup  in the function list at the top and click Run (this
-      creates the Projects tab with its drop-down lists).
+   2. Choose  setup  in the function list at the top and click Run. This
+      creates the Projects and Settings tabs and turns on the automatic
+      client emails (allow the permissions Google asks for).
    3. Deploy → Manage deployments → pencil icon → Version: New version → Deploy.
    ========================================================================= */
 
@@ -72,7 +77,10 @@ function doPost(e) {
 /* ---------- Client project tracker ---------- */
 const PROJECTS = 'Projects';
 const STAGES = ['Brief received', 'Quote sent', 'Deposit received', 'Design in progress', 'Review & revisions', 'Delivered'];
-const PHEAD = ['Reference', 'Project', 'Client', 'Stage', 'Progress %', 'Due date', 'Note to client', 'Deposit', 'Balance due (KES)', 'Files link', 'Last updated'];
+const PHEAD = ['Reference', 'Project', 'Client', 'Stage', 'Progress %', 'Due date', 'Note to client', 'Deposit', 'Balance due (KES)', 'Files link', 'Last updated', 'Client email'];
+const SITE_URL = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
+const WHATSAPP = '254708639473';
+const SENDER = 'Edison Ochieng · Nexus CAD Studio';
 
 function projects_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -80,7 +88,7 @@ function projects_() {
   if (sh) return sh;
   sh = ss.insertSheet(PROJECTS);
   sh.appendRow(PHEAD);
-  sh.appendRow(['DEMO-SHEET-01', 'Example: bracket drawings', 'Example client', 'Design in progress', 60, new Date(Date.now() + 14 * 864e5), 'This row is an example. Replace it with a real project.', 'Paid', 2500, '', new Date()]);
+  sh.appendRow(['DEMO-SHEET-01', 'Example: bracket drawings', 'Example client', 'Design in progress', 60, new Date(Date.now() + 14 * 864e5), 'This row is an example. Replace it with a real project.', 'Paid', 2500, '', new Date(), '']);
   sh.setFrozenRows(1);
   sh.getRange(1, 1, 1, PHEAD.length).setFontWeight('bold');
   sh.getRange('D2:D1000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(STAGES, true).build());
@@ -92,10 +100,110 @@ function projects_() {
   return sh;
 }
 
-// Run once from the editor after pasting this script (creates both tabs)
+/* ---------- Settings tab ---------- */
+const SETTINGS = 'Settings';
+const SROWS = [
+  ['Availability', 'available', 'available, limited or booked (choose from the list)'],
+  ['Booked until', '', 'Only when booked: when you can take new projects, e.g. 30 November 2026'],
+  ['Availability message', '', 'Optional: your own wording for the badge. Leave empty for the standard text'],
+  ['Webinar day', '', 'Day of the weekly free webinar, e.g. Saturday. Leave empty to hide the countdown'],
+  ['Webinar time', '', '24-hour Nairobi time, e.g. 18:00'],
+  ['Announcement', '', 'Optional short message shown at the top of the homepage, e.g. Christmas offer: 15% off posters'],
+  ['Announcement link', '', 'Optional: where the announcement goes when tapped, e.g. #pricing or a full https:// link']
+];
+
+function settings_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SETTINGS);
+  if (sh) return sh;
+  sh = ss.insertSheet(SETTINGS);
+  sh.getRange(1, 1, 1, 3).setValues([['Setting', 'Value', 'What it does']]).setFontWeight('bold');
+  sh.getRange(2, 2, SROWS.length, 1).setNumberFormat('@');   // keep times like 18:00 as typed
+  sh.getRange(2, 1, SROWS.length, 3).setValues(SROWS);
+  sh.getRange('B2').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['available', 'limited', 'booked'], true).build());
+  sh.getRange('B5').setDataValidation(SpreadsheetApp.newDataValidation()
+    .requireValueInList(['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], true).setAllowInvalid(true).build());
+  sh.setFrozenRows(1);
+  sh.setColumnWidth(1, 180);
+  sh.setColumnWidth(2, 300);
+  sh.setColumnWidth(3, 560);
+  sh.getRange('C2:C20').setFontColor('#666666');
+  return sh;
+}
+
+function readSettings_() {
+  const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const map = {};
+  settings_().getDataRange().getValues().slice(1).forEach((r) => {
+    let v = r[1];
+    if (v instanceof Date) v = v.getFullYear() < 1901 ? Utilities.formatDate(v, tz, 'HH:mm') : Utilities.formatDate(v, tz, 'd MMMM yyyy');
+    map[String(r[0]).trim().toLowerCase()] = String(v == null ? '' : v).trim();
+  });
+  const status = (map['availability'] || 'available').toLowerCase();
+  const link = map['announcement link'] || '';
+  return {
+    availability: {
+      status: ['available', 'limited', 'booked'].indexOf(status) > -1 ? status : 'available',
+      from: map['booked until'] || '',
+      text: map['availability message'] || ''
+    },
+    webinar: { day: map['webinar day'] || '', time: map['webinar time'] || '' },
+    announcement: { text: map['announcement'] || '', link: /^(https?:\/\/|#)/i.test(link) ? link : '' }
+  };
+}
+
+// Run once from the editor after pasting this script: creates the tabs and
+// turns on the automatic client emails (Google will ask for permission).
 function setup() {
   sheet_();
-  projects_();
+  const p = projects_();
+  if (!p.getRange(1, 12).getValue()) p.getRange(1, 12).setValue('Client email').setFontWeight('bold');
+  settings_();
+  ScriptApp.getProjectTriggers()
+    .filter((t) => t.getHandlerFunction() === 'notifyClient')
+    .forEach((t) => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('notifyClient').forSpreadsheet(SpreadsheetApp.getActive()).onEdit().create();
+}
+
+/* ---------- Automatic email to the client when you change a project's Stage ---------- */
+const html_ = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function notifyClient(e) {
+  if (!e || !e.range) return;
+  const sh = e.range.getSheet();
+  if (sh.getName() !== PROJECTS || e.range.getRow() < 2 || e.range.getColumn() !== 4 || e.range.getNumRows() !== 1) return;
+  if (e.oldValue !== undefined && String(e.oldValue) === String(e.value)) return;
+  const r = sh.getRange(e.range.getRow(), 1, 1, 12).getValues()[0];
+  const to = String(r[11] || '').trim();
+  const stage = String(r[3] || '').trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to) || !stage || !r[0]) return;
+  const i = STAGES.findIndex((s) => s.toLowerCase() === stage.toLowerCase());
+  const progress = r[4] !== '' && !isNaN(Number(r[4])) ? Number(r[4]) : Math.round(Math.max(0, i) / (STAGES.length - 1) * 100);
+  const link = SITE_URL + 'track/?ref=' + encodeURIComponent(String(r[0]));
+  const name = String(r[1] || 'your project');
+  const done = i === STAGES.length - 1;
+  const body =
+    '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+      '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · PROJECT UPDATE</p>' +
+      '<h2 style="margin:0 0 14px;font-size:22px">' + html_(name) + '</h2>' +
+      '<p style="margin:0 0 10px">Hello' + (r[2] ? ' ' + html_(r[2]) : '') + ',</p>' +
+      '<p style="margin:0 0 14px">' + (done ? 'Good news: your project is <b>delivered</b>.' : 'Your project has moved to a new stage: <b>' + html_(stage) + '</b>.') + '</p>' +
+      '<div style="background:#eef0f6;border-radius:99px;height:10px;margin:0 0 6px"><div style="background:#13a89e;height:10px;border-radius:99px;width:' + Math.max(3, Math.min(100, progress)) + '%"></div></div>' +
+      '<p style="margin:0 0 16px;font-size:13px;color:#555">' + progress + '% complete</p>' +
+      (r[6] ? '<div style="border-left:4px solid #ffb627;background:#fbf6ec;padding:12px 14px;margin:0 0 18px"><b style="font-size:12px;color:#555">LATEST UPDATE FROM EDISON</b><br>' + html_(r[6]) + '</div>' : '') +
+      '<p style="margin:0 0 20px"><a href="' + link + '" style="background:#0e1a3a;color:#fff;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">View your project</a></p>' +
+      '<p style="margin:0 0 4px;font-size:13px;color:#555">Your reference: <b>' + html_(r[0]) + '</b></p>' +
+      '<p style="margin:0;font-size:13px;color:#555">Questions? Reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
+      '<p style="margin:18px 0 0">Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p>' +
+    '</div>';
+  MailApp.sendEmail({
+    to: to,
+    subject: (done ? 'Delivered: ' : 'Project update: ') + name + (done ? '' : ' is now at "' + stage + '"'),
+    htmlBody: body,
+    body: 'Your project "' + name + '" is now at: ' + stage + '. ' + (r[6] ? 'Note: ' + r[6] + ' ' : '') + 'View it here: ' + link,
+    name: SENDER
+  });
+  sh.getRange(e.range.getRow(), 11).setValue(new Date());
 }
 
 // Stamps "Last updated" whenever you edit a project row
@@ -140,12 +248,10 @@ function track_(ref) {
   return { found: true, project: p };
 }
 
-function doGet(e) {
-  const q = (e && e.parameter) || {};
-  if (q.action === 'track') return out_(track_(q.ref));
+function reviews_() {
   const rows = sheet_().getDataRange().getValues().slice(1);
   const hidden = /^(hide|hidden|no|spam|delete)$/i;
-  const list = rows
+  return rows
     .filter((r) => r[1] && r[5] && !hidden.test(String(r[7]).trim()))
     .reverse()
     .slice(0, 60)
@@ -158,7 +264,14 @@ function doGet(e) {
       project: String(r[6] || ''),
       date: r[0] instanceof Date ? Utilities.formatDate(r[0], 'Africa/Nairobi', 'MMM yyyy') : ''
     }));
-  return out_(list);
+}
+
+function doGet(e) {
+  const q = (e && e.parameter) || {};
+  if (q.action === 'track') return out_(track_(q.ref));
+  if (q.action === 'site') return out_({ reviews: reviews_(), settings: readSettings_() });   // homepage: one request
+  if (q.action === 'settings') return out_(readSettings_());
+  return out_(reviews_());
 }
 
 function out_(data) {
