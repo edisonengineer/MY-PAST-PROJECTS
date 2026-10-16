@@ -1172,7 +1172,8 @@ window.I18N_SW = {
     "Mazingira Day organisers": "Waandaaji wa Siku ya Mazingira",
     "EV battery project client": "Mteja wa mradi wa betri ya EV",
     "Your review is now live on the site. Thank you for taking the time!": "Maoni yako sasa yako hewani kwenye tovuti. Asante kwa kuchukua muda wako!",
-    "The tracker couldn't connect just now. Please try again in a minute, or message me on WhatsApp.": "Kifuatiliaji hakikuweza kuunganishwa sasa hivi. Tafadhali jaribu tena baada ya dakika moja, au nitumie ujumbe WhatsApp."
+    "The tracker couldn't connect just now. Please try again in a minute, or message me on WhatsApp.": "Kifuatiliaji hakikuweza kuunganishwa sasa hivi. Tafadhali jaribu tena baada ya dakika moja, au nitumie ujumbe WhatsApp.",
+    "from 1 client review": "kutoka maoni 1 ya mteja"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
@@ -1223,5 +1224,6 @@ window.I18N_SW_PATTERNS = [
         September: 'Septemba', October: 'Oktoba', November: 'Novemba', December: 'Desemba', ' at ': ' saa '
     }[w] || w)) + " (saa za Nairobi)"],
     [/^Edit colour (#[0-9A-F]{6})$/, "Hariri rangi $1"],
-    [/^Remove colour (#[0-9A-F]{6})$/, "Ondoa rangi $1"]
+    [/^Remove colour (#[0-9A-F]{6})$/, "Ondoa rangi $1"],
+    [/^from (\d+) client reviews$/, "kutoka maoni $1 ya wateja"]
 ];

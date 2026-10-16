@@ -1172,7 +1172,8 @@ window.I18N_FR = {
     "Mazingira Day organisers": "Organisateurs de la Mazingira Day",
     "EV battery project client": "Client du projet de batterie VE",
     "Your review is now live on the site. Thank you for taking the time!": "Votre avis est maintenant en ligne sur le site. Merci d’avoir pris le temps !",
-    "The tracker couldn't connect just now. Please try again in a minute, or message me on WhatsApp.": "Le suivi n’a pas pu se connecter. Réessayez dans une minute, ou écrivez-moi sur WhatsApp."
+    "The tracker couldn't connect just now. Please try again in a minute, or message me on WhatsApp.": "Le suivi n’a pas pu se connecter. Réessayez dans une minute, ou écrivez-moi sur WhatsApp.",
+    "from 1 client review": "sur 1 avis client"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
@@ -1223,5 +1224,6 @@ window.I18N_FR_PATTERNS = [
         September: 'septembre', October: 'octobre', November: 'novembre', December: 'décembre', ' at ': ' à '
     }[w] || w)) + " (heure de Nairobi)"],
     [/^Edit colour (#[0-9A-F]{6})$/, "Modifier la couleur $1"],
-    [/^Remove colour (#[0-9A-F]{6})$/, "Retirer la couleur $1"]
+    [/^Remove colour (#[0-9A-F]{6})$/, "Retirer la couleur $1"],
+    [/^from (\d+) client reviews$/, "sur $1 avis clients"]
 ];

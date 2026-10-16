@@ -339,10 +339,21 @@
         shown = fresh.concat(shown);
         renderReviews();
     }
-    renderReviews();
-    if (grid && CONFIG.reviewsApi) {
-        fetch(CONFIG.reviewsApi).then((r) => r.json()).then((list) => { if (Array.isArray(list)) addLive(list); }).catch(() => {});
+    // "★ 4.9 · 12 client reviews" link in the hero
+    function renderRating() {
+        const box = $('#hero-rating');
+        if (!box) return;
+        const rated = shown.filter((r) => +r.rating >= 1);
+        if (!rated.length) { box.hidden = true; return; }
+        const avg = rated.reduce((a, r) => a + Math.min(5, +r.rating), 0) / rated.length;
+        $('.hr-score', box).textContent = avg.toFixed(1);
+        $('.hr-count', box).textContent = rated.length === 1 ? 'from 1 client review' : 'from ' + rated.length + ' client reviews';
+        box.setAttribute('aria-label', avg.toFixed(1) + ' out of 5 stars from ' + rated.length + ' reviews');
+        box.hidden = false;
     }
+    renderReviews();
+    renderRating();
+    if (grid && window.LiveData) window.LiveData.then((d) => { addLive(d.reviews || []); renderRating(); });
 
     /* ======================================================================
        REVIEW FORM (popup)
@@ -462,6 +473,8 @@
                 if (results.every((r) => r.status === 'rejected')) throw results[0].reason;
                 if (live && results[1] && results[1].status === 'fulfilled') {
                     addLive([Object.assign({}, entry, { date: new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) })]);
+                    renderRating();
+                    try { sessionStorage.removeItem('live-data-v1'); } catch (e) { /* private mode */ }
                     $('#review-done-msg').textContent = tr('Your review is now live on the site. Thank you for taking the time!');
                 } else {
                     $('#review-done-msg').textContent = tr('It has been sent to Edison and will appear on the site once approved.');
