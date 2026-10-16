@@ -39,6 +39,19 @@ jobs:
       - name: Rebuild pages
         run: node tools/build-pages.js
 
+      - name: Check whether the PDFs need updating
+        id: pdfs
+        run: |
+          if [ -n "$(git status --porcelain js/sheet-data.js js/sheet-works.js)" ]; then echo "needed=yes" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Rebuild the rate card and portfolio PDFs (prices, certificates or works changed)
+        if: steps.pdfs.outputs.needed == 'yes'
+        run: |
+          npm install -g playwright@1.56.1
+          npx -y playwright@1.56.1 install --with-deps chromium
+          node tools/build-rate-card.js
+          node tools/build-portfolio.js
+
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}

@@ -10,6 +10,7 @@ on:
     paths:
       - 'js/projects.js'
       - 'js/sheet-works.js'
+      - 'js/sheet-data.js'
       - 'js/reviews.js'
       - 'js/certificates.js'
       - 'js/packages.js'
@@ -42,7 +43,7 @@ jobs:
 
       - name: Check the data files for typos
         run: |
-          for f in js/projects.js js/sheet-works.js js/reviews.js js/certificates.js js/packages.js js/config.js; do
+          for f in js/projects.js js/sheet-works.js js/sheet-data.js js/reviews.js js/certificates.js js/packages.js js/config.js; do
             node -e "require('vm').runInNewContext(require('fs').readFileSync('$f','utf8'), { window: {} })" \
               || { echo "::error file=$f::$f has a typo (often a missing comma, quote or bracket). Fix it and commit again."; exit 1; }
           done

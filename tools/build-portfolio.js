@@ -20,7 +20,7 @@ try { playwright = require('playwright'); } catch (e) {
 }
 
 const ctx = { window: {} };
-['content/cv.js', 'js/projects.js', 'js/packages.js', 'js/certificates.js', 'js/config.js']
+['content/cv.js', 'js/projects.js', 'js/sheet-works.js', 'js/packages.js', 'js/certificates.js', 'js/config.js', 'js/sheet-data.js']
     .forEach((f) => vm.runInNewContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx));
 const { CV, PROJECTS, PACKAGES, CERTIFICATES, SITE_CONFIG } = ctx.window;
 
