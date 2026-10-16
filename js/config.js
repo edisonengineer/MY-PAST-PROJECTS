@@ -26,7 +26,7 @@ window.SITE_CONFIG = {
     // Instant reviews: paste the Google Apps Script "Web app URL" (ends in /exec).
     // Set-up steps are at the top of tools/reviews-google-apps-script.gs.
     // When set, reviews visitors submit appear on the site straight away.
-    reviewsApi: '',
+    reviewsApi: 'https://script.google.com/macros/s/AKfycbzhZ6fb-p7uUTFm7GCl3dvCEaiIM1p___NvuTYyAhejrTvfyUEGOq5fXxVbpROj9ok0/exec',
 
     // Booking calendar: paste your free Calendly link (e.g. 'https://calendly.com/edisonochieng/30min')
     // or a Google Calendar appointment page link. Leave '' to hide the "Book a call" buttons.

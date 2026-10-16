@@ -638,7 +638,7 @@ ${T.faq.map(([q, a], i) => `                        <details class="faq-item"${i
             </div>
         </section>
 ${newsletter()}    </main>
-` + footer('    <script defer src="../js/config.js?v=9"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=10"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n');
 }
 
 /* ---------- Free tools (calculators) ---------- */
@@ -1000,7 +1000,7 @@ function trackPage() {
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=9"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=10"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=1"></script>\n');
 }
 
 /* ---------- Homepage cards ---------- */
