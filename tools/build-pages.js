@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=18';
+const CSS_V = 'css/style.css?v=19';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
@@ -36,6 +36,12 @@ function loadProjects() {
     const ctx = { window: {} };
     vm.runInNewContext(read('js/projects.js'), ctx);
     return ctx.window.PROJECTS;
+}
+
+function loadReviews() {
+    const ctx = { window: {} };
+    vm.runInNewContext(read('js/reviews.js'), ctx);
+    return ctx.window.REVIEWS || [];
 }
 
 function loadPosts() {
@@ -229,8 +235,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n-fr.js?v=18"></script>
-    <script defer src="../js/i18n-sw.js?v=15"></script>
+${extraScripts}    <script defer src="../js/i18n-fr.js?v=19"></script>
+    <script defer src="../js/i18n-sw.js?v=16"></script>
     <script defer src="../js/i18n.js?v=3"></script>
     <script defer src="../js/pages.js?v=7"></script>
     <script defer src="../js/search.js?v=1"></script>
@@ -305,7 +311,12 @@ ${imgs.map((src, k) => {
 ${(p.points || []).map((t) => `                        <li>${icon('check')}<span>${esc(t)}</span></li>`).join('\n')}
                     </ul>
 
-                    <dl class="pm-meta">
+${REVIEWS.filter((r) => r.project === p.id).map((r) => `                    <figure class="case-quote">
+                        <span class="review-stars" role="img" aria-label="${Math.max(1, Math.min(5, parseInt(r.rating, 10) || 5))} out of 5 stars">${[1, 2, 3, 4, 5].map((n) => `<svg class="${n <= (parseInt(r.rating, 10) || 5) ? 'on' : ''}" aria-hidden="true"><use href="#i-star"/></svg>`).join('')}</span>
+                        <blockquote>${esc(r.text)}</blockquote>
+                        <figcaption><strong>${esc(r.name)}</strong>${r.role ? ' <span class="cq-role">' + esc(r.role) + '</span>' : ''}</figcaption>
+                    </figure>
+`).join('')}                    <dl class="pm-meta">
 ${(p.meta || []).map((m) => `                        <div><dt>${esc(m[0])}</dt><dd>${esc(m[1])}</dd></div>`).join('\n')}
                     </dl>
 
@@ -1060,6 +1071,7 @@ function searchIndex(projects, posts) {
 }
 
 /* ---------- Build ---------- */
+const REVIEWS = loadReviews();
 const projects = loadProjects();
 const posts = loadPosts();
 

@@ -300,7 +300,8 @@
                     '<div class="review-top">' + starRow(rating) + (r.service ? '<span class="chip">' + esc(r.service) + '</span>' : '') + '</div>' +
                     '<blockquote>' + esc(r.text) + '</blockquote>' +
                     '<figcaption><span class="review-avatar bg-' + tones[i % tones.length] + '">' + esc(initials) + '</span>' +
-                    '<span><strong>' + esc(r.name) + '</strong>' + esc([r.role, r.date].filter(Boolean).join(' · ')) + '</span></figcaption>' +
+                    '<span><strong>' + esc(r.name) + '</strong>' + esc([r.role, r.date].filter(Boolean).join(' · ')) +
+                        (r.project ? '<a class="review-project" href="projects/' + encodeURIComponent(r.project) + '.html">See the project</a>' : '') + '</span></figcaption>' +
                 '</figure>';
             }).join('');
         } else {

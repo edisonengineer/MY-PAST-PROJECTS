@@ -2199,3 +2199,11 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 .story-card:nth-child(3) .story-step { background: var(--coral); color: #fff; }
 .story-link { margin-top: 22px; }
 @media (max-width: 900px) { .story-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Client quote on a project page + project link on review cards ---------- */
+.case-quote { margin-top: 26px; padding: 22px 24px; border-radius: 20px; background: var(--cream); border-left: 4px solid var(--sun); }
+.case-quote blockquote { margin: 10px 0 0; font-family: var(--serif); font-size: 1.08rem; line-height: 1.55; color: var(--heading); }
+.case-quote figcaption { margin-top: 12px; font-size: 0.88rem; color: var(--text-soft); }
+.case-quote figcaption strong { color: var(--heading); }
+.review-project { display: block; margin-top: 4px; font-size: 0.82rem; font-weight: 700; color: var(--coral-text, #c4422a); text-decoration: underline; text-underline-offset: 3px; }
+.case-quote .cq-role::before { content: '· '; }
