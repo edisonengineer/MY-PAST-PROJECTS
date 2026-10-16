@@ -35,6 +35,20 @@
    within about 30 minutes, including the rate card and portfolio PDFs.
    The training intake date and starting price are in the Settings tab.
 
+   INVOICES tab: quotes, invoices and receipts. Type the project reference
+   (client name and email fill in), list the items, then set Action to
+   "Send": a branded PDF is saved in your Google Drive ("Nexus CAD Studio
+   invoices") and emailed to the client. A receipt marks the project's
+   deposit as paid and updates its balance.
+
+   SUBSCRIBERS tab: people who signed up for CAD tips by email. When an
+   article goes live, it is emailed to them automatically (each email has
+   an unsubscribe link).
+
+   Every Monday morning you get a summary email: new briefs, active
+   projects and due dates, balances, reviews and subscribers.
+   Menu "Website" (top of the sheet) sends the summary or newsletter now.
+
    FIRST-TIME SET-UP (about 5 minutes)
    1. Go to sheets.google.com and create a blank sheet named "Website reviews".
    2. Menu: Extensions → Apps Script. Delete what's there and paste this
@@ -73,6 +87,7 @@ function doPost(e) {
   const p = (e && e.parameter) || {};
   if (p.botcheck) return out_({ ok: true });                       // bots fill the hidden box
   if (p.action === 'brief') return out_(brief_(p));
+  if (p.action === 'subscribe') return out_(subscribe_(p));
   const name = clean_(p.name, 80);
   const text = clean_(p.text, 1500);
   const rating = Math.round(Number(p.rating));
@@ -177,7 +192,7 @@ function brief_(p) {
 
 /* ---------- Articles and Works written in the sheet (published by the website's GitHub automation) ---------- */
 const ARTICLES = 'Articles';
-const AHEAD = ['Title', 'Status', 'Date', 'Google Doc link', 'Summary (1–2 sentences)', 'Cover photo (Google Drive link)', 'Tags (comma separated)', 'Web address (automatic)'];
+const AHEAD = ['Title', 'Status', 'Date', 'Google Doc link', 'Summary (1–2 sentences)', 'Cover photo (Google Drive link)', 'Tags (comma separated)', 'Web address (automatic)', 'Email to subscribers?', 'Emailed (automatic)'];
 const WORKS = 'Works';
 const WHEAD = ['Title', 'Status', 'Category', 'Subtitle', 'Year', 'Summary', 'Highlights (one per line)', 'Software / tags (comma separated)', 'Photos (Drive folder link, or Drive photo links one per line)', 'Web address (automatic)'];
 
@@ -195,8 +210,8 @@ function contentTab_(name, head, widths, example) {
   sh.getRange(2, 1, 999, head.length).setVerticalAlignment('top').setWrap(true);
   return sh;
 }
-const articles_ = () => contentTab_(ARTICLES, AHEAD, [260, 100, 110, 280, 320, 260, 200, 220],
-  ['Example: How I choose materials for a prototype', 'Draft', new Date(), 'Paste a Google Doc link here', 'One or two sentences shown on the blog card and in Google results.', '', 'Product design, Materials', '']);
+const articles_ = () => contentTab_(ARTICLES, AHEAD, [260, 100, 110, 280, 320, 260, 200, 220, 120, 220],
+  ['Example: How I choose materials for a prototype', 'Draft', new Date(), 'Paste a Google Doc link here', 'One or two sentences shown on the blog card and in Google results.', '', 'Product design, Materials', '', 'Yes', '']);
 const works_ = () => {
   const sh = contentTab_(WORKS, WHEAD, [240, 100, 150, 240, 70, 320, 340, 220, 320, 220],
     ['Example: Solar water pump housing', 'Draft', 'Engineering', 'Client project · 2027', '2027', 'One or two sentences about the project.', 'First highlight\nSecond highlight', 'SolidWorks, Sheet metal', 'Paste a Google Drive folder link with the photos', '']);
@@ -431,6 +446,289 @@ function siteLists_() {
   };
 }
 
+/* ---------- Quotes, invoices and receipts ---------- */
+const INVOICES = 'Invoices';
+const IHEAD = ['Number (automatic)', 'Type', 'Date', 'Project reference', 'Client', 'Client email', 'Items (one per line: description - amount)', 'Total (KES, automatic if empty)', 'Amount paid (KES)', 'Note to client', 'Action', 'PDF (automatic)', 'Sent (automatic)'];
+const MPESA_TILL = '8438334', MPESA_NAME = 'EDISON OCHIENG';
+
+function invoices_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(INVOICES);
+  if (sh) return sh;
+  sh = ss.insertSheet(INVOICES);
+  sh.appendRow(IHEAD);
+  sh.appendRow(['', 'Invoice', new Date(), 'DEMO-SHEET-01', 'Example client', '', 'Bracket 3D model - 1500\nManufacturing drawings (3 sheets) - 3000', '', 0, 'Example row: put your own email in Client email to test, then set Action to Send.', 'Draft', '', '']);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, IHEAD.length).setFontWeight('bold').setWrap(true);
+  sh.getRange('B2:B1000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['Quote', 'Invoice', 'Receipt'], true).build());
+  sh.getRange('K2:K1000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['Draft', 'Send', 'Sent'], true).build());
+  sh.getRange('C2:C1000').setNumberFormat('d mmm yyyy');
+  sh.getRange(2, 1, 999, IHEAD.length).setVerticalAlignment('top').setWrap(true);
+  [150, 90, 100, 150, 170, 200, 360, 120, 120, 260, 80, 200, 150].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+
+// Typing a project reference fills in the client's name and email
+function fillInvoice_(sh, row) {
+  const ref = normRef_(sh.getRange(row, 4).getValue());
+  if (!ref) return;
+  const p = projects_().getDataRange().getValues().slice(1).find((r) => normRef_(r[0]) === ref);
+  const b = p ? null : subs_().getDataRange().getValues().slice(1).find((r) => normRef_(r[0]) === ref);
+  const name = p ? p[2] : b ? b[3] : '', email = p ? p[11] : b ? b[4] : '';
+  if (name && !sh.getRange(row, 5).getValue()) sh.getRange(row, 5).setValue(name);
+  if (email && !sh.getRange(row, 6).getValue()) sh.getRange(row, 6).setValue(email);
+  if (!sh.getRange(row, 2).getValue()) sh.getRange(row, 2).setValue('Invoice');
+  if (!sh.getRange(row, 3).getValue()) sh.getRange(row, 3).setValue(new Date());
+  if (!sh.getRange(row, 11).getValue()) sh.getRange(row, 11).setValue('Draft');
+}
+
+const kes_ = (n) => 'KES ' + Math.round(Number(n) || 0).toLocaleString('en-US');
+const num_ = (v) => { const n = Number(String(v == null ? '' : v).replace(/[^\d.]/g, '')); return isNaN(n) ? 0 : n; };
+
+function invoiceItems_(text) {
+  return String(text || '').split(/\n+/).map((l) => l.trim()).filter(Boolean).map((l) => {
+    const m = /^(.*?)[\s:\-–|]*(?:KES|KSh|Ksh)?\s*([\d][\d,]*(?:\.\d+)?)\s*$/i.exec(l);
+    return m && m[1].trim() ? { text: m[1].replace(/[\s:\-–|]+$/, '').trim(), amount: num_(m[2]) } : { text: l, amount: null };
+  });
+}
+
+function invoiceHtml_(d) {
+  const accent = d.type === 'Receipt' ? '#1fae6a' : d.type === 'Quote' ? '#7457f2' : '#ff6b4a';
+  const rows = d.items.map((it) => '<tr><td style="padding:9px 10px;border-bottom:1px solid #ece4d6">' + html_(it.text) + '</td><td style="padding:9px 10px;border-bottom:1px solid #ece4d6;text-align:right;white-space:nowrap">' + (it.amount === null ? '' : kes_(it.amount)) + '</td></tr>').join('');
+  const line = (label, value, strong) => '<tr><td style="padding:6px 10px;text-align:right;color:#555">' + label + '</td><td style="padding:6px 10px;text-align:right;white-space:nowrap' + (strong ? ';font-weight:bold;font-size:15px;color:#0e1a3a' : '') + '">' + value + '</td></tr>';
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"><style>table{font-size:12px;color:#18203a}</style></head><body style="font-family:Arial,Helvetica,sans-serif;color:#18203a;font-size:12px;margin:0">' +
+    '<table width="100%" cellspacing="0" cellpadding="0" style="background:#0e1a3a;color:#ffffff"><tr>' +
+      '<td style="padding:26px 30px"><table cellspacing="0" cellpadding="0"><tr><td style="background:#ffb627;color:#0e1a3a;font-weight:bold;font-size:16px;width:40px;height:40px;text-align:center">EO</td>' +
+      '<td style="padding-left:12px"><div style="font-size:18px;font-weight:bold;color:#ffffff">Nexus CAD Studio</div><div style="font-size:10px;letter-spacing:2px;color:#c9d0ea">EDISON OCHIENG · NAIROBI, KENYA</div></td></tr></table></td>' +
+      '<td style="padding:26px 30px;text-align:right"><div style="font-size:26px;font-weight:bold;color:' + accent + '">' + d.type.toUpperCase() + '</div><div style="color:#c9d0ea">' + html_(d.number) + '</div></td>' +
+    '</tr></table>' +
+    '<table width="100%" cellspacing="0" cellpadding="0" style="margin-top:22px"><tr>' +
+      '<td style="padding:0 30px;vertical-align:top"><div style="font-size:10px;letter-spacing:1.5px;color:#888">' + (d.type === 'Receipt' ? 'RECEIVED FROM' : 'BILL TO') + '</div><div style="font-size:14px;font-weight:bold;margin-top:4px">' + html_(d.client || '') + '</div>' + (d.email ? '<div style="color:#555">' + html_(d.email) + '</div>' : '') + '</td>' +
+      '<td style="padding:0 30px;vertical-align:top;text-align:right"><div style="font-size:10px;letter-spacing:1.5px;color:#888">DATE</div><div style="margin-top:4px">' + html_(d.date) + '</div>' +
+        (d.ref ? '<div style="font-size:10px;letter-spacing:1.5px;color:#888;margin-top:8px">PROJECT REFERENCE</div><div style="margin-top:4px">' + html_(d.ref) + '</div>' : '') + '</td>' +
+    '</tr></table>' +
+    '<div style="padding:22px 30px 0"><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse">' +
+      '<tr><td style="padding:9px 10px;background:#f6f1e7;font-size:10px;letter-spacing:1.5px;color:#666">DESCRIPTION</td><td style="padding:9px 10px;background:#f6f1e7;font-size:10px;letter-spacing:1.5px;color:#666;text-align:right">AMOUNT</td></tr>' +
+      rows + '</table>' +
+      '<table cellspacing="0" cellpadding="0" style="margin:10px 0 0 auto">' + line('Total', kes_(d.total), d.type === 'Quote') +
+        (d.type !== 'Quote' ? line(d.type === 'Receipt' ? 'Amount received' : 'Paid so far', kes_(d.paid)) + line(d.type === 'Receipt' ? 'Balance remaining' : 'Balance due', kes_(d.balance), true) : '') + '</table>' +
+    '</div>' +
+    (d.note ? '<div style="margin:18px 30px 0;padding:12px 14px;background:#fbf6ec;border-left:4px solid #ffb627">' + html_(d.note) + '</div>' : '') +
+    (d.type === 'Receipt'
+      ? '<div style="margin:22px 30px 0;color:#1fae6a;font-weight:bold;font-size:14px">Thank you for your payment.</div>'
+      : '<div style="margin:22px 30px 0;padding:14px 16px;border:1px solid #ece4d6"><b>How to pay</b><br>M-Pesa · Lipa na M-Pesa · Buy Goods Till <b>' + MPESA_TILL + '</b> (' + MPESA_NAME + ')<br>Please use your project reference' + (d.ref ? ' <b>' + html_(d.ref) + '</b>' : '') + ' when you message me the confirmation code.' + (d.type === 'Quote' ? '<br>This quote is valid for 30 days.' : '') + '</div>') +
+    '<div style="margin:26px 30px 0;padding-top:12px;border-top:1px solid #ece4d6;color:#666;font-size:11px">WhatsApp +254 708 639 473 · ' + SITE_URL.replace(/^https:\/\//, '').replace(/\/$/, '') + (d.ref ? ' · Track your project: ' + SITE_URL + 'track/?ref=' + encodeURIComponent(d.ref) : '') + '</div>' +
+    '</body></html>';
+}
+
+function invoiceFolder_() {
+  const name = 'Nexus CAD Studio invoices';
+  const it = DriveApp.getFoldersByName(name);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(name);
+}
+
+function sendInvoice_(sh, row) {
+  const r = sh.getRange(row, 1, 1, IHEAD.length).getValues()[0];
+  const fail = (msg) => { sh.getRange(row, 13).setValue('⚠ ' + msg); sh.getRange(row, 11).setValue('Draft'); };
+  const type = ['Quote', 'Invoice', 'Receipt'].indexOf(String(r[1]).trim()) > -1 ? String(r[1]).trim() : 'Invoice';
+  const email = String(r[5] || '').trim();
+  const items = invoiceItems_(r[6]);
+  if (!validEmail_(email)) return fail('Add the client email (column F), then set Action to Send again.');
+  if (!items.length) return fail('Add at least one item (column G), then set Action to Send again.');
+  const total = num_(r[7]) || items.reduce((a, it) => a + (it.amount || 0), 0);
+  const paid = num_(r[8]);
+  const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const date = r[2] instanceof Date ? r[2] : new Date();
+  let number = String(r[0] || '').trim();
+  if (!number) {
+    const prefix = { Quote: 'QUO', Invoice: 'INV', Receipt: 'RCT' }[type] + '-' + Utilities.formatDate(date, tz, 'yyyy') + '-';
+    const used = sh.getRange(2, 1, Math.max(1, sh.getLastRow() - 1), 1).getValues().map((x) => String(x[0])).filter((x) => x.indexOf(prefix) === 0).length;
+    number = prefix + String(used + 1).padStart(3, '0');
+    sh.getRange(row, 1).setValue(number);
+  }
+  const d = { type, number, date: Utilities.formatDate(date, tz, 'd MMMM yyyy'), ref: String(r[3] || '').trim(), client: String(r[4] || '').trim(), email, items, total, paid, balance: Math.max(0, total - paid), note: String(r[9] || '').trim() };
+  const pdf = Utilities.newBlob(invoiceHtml_(d), 'text/html', number + '.html').getAs('application/pdf').setName(number + ' - ' + (d.client || 'client') + '.pdf');
+  const file = invoiceFolder_().createFile(pdf);
+  const message = {
+    Quote: 'Please find attached your quote <b>' + html_(number) + '</b> for <b>' + kes_(total) + '</b>. Let me know if you have any questions, or reply to accept it.',
+    Invoice: 'Please find attached invoice <b>' + html_(number) + '</b>. The balance due is <b>' + kes_(d.balance) + '</b>, payable by M-Pesa to Buy Goods Till <b>' + MPESA_TILL + '</b> (' + MPESA_NAME + ').',
+    Receipt: 'Thank you for your payment of <b>' + kes_(paid) + '</b>. Your receipt <b>' + html_(number) + '</b> is attached.' + (d.balance > 0 ? ' The remaining balance is <b>' + kes_(d.balance) + '</b>.' : '')
+  }[type];
+  const body = '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+    '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · ' + type.toUpperCase() + '</p>' +
+    '<p>Hello' + (d.client ? ' ' + html_(d.client) : '') + ',</p><p>' + message + '</p>' +
+    (d.note ? '<p style="border-left:4px solid #ffb627;background:#fbf6ec;padding:10px 12px">' + html_(d.note) + '</p>' : '') +
+    (d.ref ? '<p><a href="' + SITE_URL + 'track/?ref=' + encodeURIComponent(d.ref) + '" style="background:#0e1a3a;color:#fff;padding:11px 18px;border-radius:99px;text-decoration:none;font-weight:bold">Track your project</a></p>' : '') +
+    '<p style="font-size:13px;color:#555">Questions? Reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
+    '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p></div>';
+  MailApp.sendEmail({ to: email, subject: type + ' ' + number + ' from Nexus CAD Studio', htmlBody: body, body: message.replace(/<[^>]+>/g, ''), name: SENDER, attachments: [pdf] });
+  sh.getRange(row, 12).setValue(file.getUrl());
+  sh.getRange(row, 13).setValue('Sent ' + Utilities.formatDate(new Date(), tz, 'd MMM yyyy, HH:mm'));
+  sh.getRange(row, 11).setValue('Sent');
+  if (!num_(r[7])) sh.getRange(row, 8).setValue(total);
+  // Keep the project's tracker in step
+  if (d.ref && type !== 'Quote') {
+    const P = projects_(), rows = P.getDataRange().getValues();
+    const i = rows.findIndex((x, k) => k > 0 && normRef_(x[0]) === normRef_(d.ref));
+    if (i > 0) {
+      P.getRange(i + 1, 9).setValue(d.balance);
+      if (type === 'Receipt') P.getRange(i + 1, 8).setValue('Paid');
+      else if (!rows[i][7]) P.getRange(i + 1, 8).setValue('Due');
+      P.getRange(i + 1, 11).setValue(new Date());
+    }
+  }
+}
+
+/* ---------- Newsletter: subscribers and emailing new articles ---------- */
+const SUBSCRIBERS = 'Subscribers';
+const NHEAD = ['Email', 'Name', 'Subscribed on', 'Source', 'Status'];
+
+function subscribers_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SUBSCRIBERS);
+  if (sh) return sh;
+  sh = ss.insertSheet(SUBSCRIBERS);
+  sh.appendRow(NHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, NHEAD.length).setFontWeight('bold');
+  sh.getRange('E2:E5000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['Subscribed', 'Unsubscribed'], true).build());
+  sh.getRange('C2:C5000').setNumberFormat('d mmm yyyy');
+  [260, 180, 120, 160, 120].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+
+function subscribe_(p) {
+  const email = clean_(p.email, 120).toLowerCase();
+  if (!validEmail_(email)) return { ok: false, error: 'invalid' };
+  const cache = CacheService.getScriptCache();
+  const count = Number(cache.get('sub-count') || 0);
+  if (count >= 60) return { ok: false, error: 'busy' };
+  cache.put('sub-count', String(count + 1), 3600);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sh = subscribers_();
+    const rows = sh.getDataRange().getValues();
+    const i = rows.findIndex((r, k) => k > 0 && String(r[0]).trim().toLowerCase() === email);
+    if (i > 0) sh.getRange(i + 1, 5).setValue('Subscribed');
+    else sh.appendRow([email, clean_(p.name, 80), new Date(), clean_(p.source, 60) || 'Website', 'Subscribed']);
+  } finally {
+    lock.releaseLock();
+  }
+  return { ok: true };
+}
+
+function unsubToken_(email) {
+  const props = PropertiesService.getScriptProperties();
+  let secret = props.getProperty('NL_SECRET');
+  if (!secret) { secret = Utilities.getUuid() + Utilities.getUuid(); props.setProperty('NL_SECRET', secret); }
+  return Utilities.computeHmacSha256Signature(String(email).toLowerCase(), secret).slice(0, 10)
+    .map((b) => ((b + 256) % 256).toString(16).padStart(2, '0')).join('');
+}
+// The website's link to this script (also in js/config.js); used for unsubscribe links
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzhZ6fb-p7uUTFm7GCl3dvCEaiIM1p___NvuTYyAhejrTvfyUEGOq5fXxVbpROj9ok0/exec';
+const unsubLink_ = (email) => (ScriptApp.getService().getUrl() || WEB_APP_URL).replace(/\/dev$/, '/exec') + '?action=unsubscribe&e=' + encodeURIComponent(email) + '&t=' + unsubToken_(email);
+
+function unsubscribePage_(q) {
+  const email = String(q.e || '').trim().toLowerCase();
+  let ok = false;
+  if (validEmail_(email) && q.t === unsubToken_(email)) {
+    const sh = subscribers_(), rows = sh.getDataRange().getValues();
+    const i = rows.findIndex((r, k) => k > 0 && String(r[0]).trim().toLowerCase() === email);
+    if (i > 0) sh.getRange(i + 1, 5).setValue('Unsubscribed');
+    ok = true;
+  }
+  return HtmlService.createHtmlOutput('<div style="font-family:Arial,sans-serif;max-width:480px;margin:60px auto;text-align:center;color:#0e1a3a">' +
+    '<h2>' + (ok ? 'You have been unsubscribed' : 'This link is not valid') + '</h2>' +
+    '<p>' + (ok ? 'You will no longer receive CAD tips by email. You can sign up again any time on the website.' : 'Please use the unsubscribe link from your latest email.') + '</p>' +
+    '<p><a href="' + SITE_URL + '">Back to the website</a></p></div>').setTitle('Nexus CAD Studio');
+}
+
+function setting_(label) {
+  const r = settings_().getDataRange().getValues().slice(1).find((x) => String(x[0]).trim().toLowerCase() === label.toLowerCase());
+  return r ? String(r[1]).trim() : '';
+}
+
+// Hourly: emails each new article to subscribers once it is live on the website
+function newsletterJob() {
+  if (/^no$/i.test(setting_('Email new articles to subscribers'))) return;
+  const sh = articles_();
+  const rows = sh.getDataRange().getValues();
+  const people = subscribers_().getDataRange().getValues().slice(1)
+    .filter((r) => validEmail_(r[0]) && !/^unsub/i.test(String(r[4]))).map((r) => ({ email: String(r[0]).trim(), name: String(r[1] || '').trim() }));
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    const status = String(r[9] || '');
+    if (!published_(r) || !r[7] || /^no$/i.test(String(r[8]).trim()) || (status && !/^sending/i.test(status))) continue;
+    const url = SITE_URL + 'blog/' + r[7] + '.html';
+    const res = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: true });
+    if (res.getResponseCode() !== 200) continue;                       // not live yet: try next hour
+    const page = res.getContentText();
+    const img = (/<meta property="og:image" content="([^"]+)"/.exec(page) || [])[1] || '';
+    const title = String(r[0]).trim(), summary = String(r[4] || '').trim();
+    let done = /^sending (\d+)/i.test(status) ? Number(/^sending (\d+)/i.exec(status)[1]) : 0;
+    for (; done < people.length; done++) {
+      if (MailApp.getRemainingDailyQuota() <= 10) break;                // keep some for client emails; carry on tomorrow
+      const p = people[done];
+      const unsub = unsubLink_(p.email);
+      MailApp.sendEmail({
+        to: p.email, name: SENDER, subject: 'New on CAD Tips: ' + title,
+        htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+          '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 10px">CAD TIPS · NEXUS CAD STUDIO</p>' +
+          (img ? '<a href="' + url + '"><img src="' + html_(img) + '" alt="" style="width:100%;border-radius:14px;display:block;margin-bottom:16px"></a>' : '') +
+          '<h2 style="margin:0 0 10px;font-size:22px">' + html_(title) + '</h2>' +
+          (summary ? '<p style="margin:0 0 18px;color:#333">' + html_(summary) + '</p>' : '') +
+          '<p style="margin:0 0 22px"><a href="' + url + '" style="background:#0e1a3a;color:#fff;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Read the article</a></p>' +
+          '<p style="font-size:13px;color:#555">Need help with a design? <a href="' + SITE_URL + '#brief">Start a project</a> or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
+          '<p style="margin-top:24px;font-size:11px;color:#888">You are receiving this because you signed up for CAD tips on ' + SITE_URL.replace(/^https:\/\//, '').replace(/\/$/, '') + '. <a href="' + unsub + '" style="color:#888">Unsubscribe</a></p></div>',
+        body: title + '\n\n' + summary + '\n\nRead it: ' + url + '\n\nUnsubscribe: ' + unsub
+      });
+    }
+    sh.getRange(i + 1, 10).setValue(done >= people.length
+      ? 'Sent to ' + people.length + ' subscriber' + (people.length === 1 ? '' : 's') + ' on ' + Utilities.formatDate(new Date(), 'Africa/Nairobi', 'd MMM yyyy')
+      : 'Sending ' + done + ' of ' + people.length + ' (continues tomorrow)');
+    if (done < people.length) return;
+  }
+}
+
+/* ---------- Monday summary email to you ---------- */
+function weeklySummary() {
+  if (/^no$/i.test(setting_('Monday summary email'))) return;
+  const me = Session.getEffectiveUser().getEmail();
+  if (!me) return;
+  const tz = 'Africa/Nairobi', now = new Date(), weekAgo = new Date(now.getTime() - 7 * 864e5), soon = new Date(now.getTime() + 7 * 864e5);
+  const fmt = (d) => d instanceof Date ? Utilities.formatDate(d, tz, 'd MMM') : String(d || '');
+  const section = (title, items, empty) => '<h3 style="margin:22px 0 8px;font-size:15px">' + title + '</h3>' +
+    (items.length ? '<ul style="margin:0;padding-left:18px">' + items.map((t) => '<li style="margin:4px 0">' + t + '</li>').join('') + '</ul>' : '<p style="margin:0;color:#777">' + empty + '</p>');
+
+  const briefs = subs_().getDataRange().getValues().slice(1).filter((r) => r[0]);
+  const newBriefs = briefs.filter((r) => r[1] instanceof Date && r[1] >= weekAgo);
+  const waiting = briefs.filter((r) => /^(new|reviewing)$/i.test(String(r[2]).trim()));
+  const projects = projects_().getDataRange().getValues().slice(1).filter((r) => r[0] && !/^delivered$/i.test(String(r[3]).trim()) && !/^DEMO/i.test(String(r[0])));
+  const due = projects.filter((r) => r[5] instanceof Date && r[5] <= soon);
+  const owed = projects.filter((r) => num_(r[8]) > 0);
+  const reviews = sheet_().getDataRange().getValues().slice(1).filter((r) => r[0] instanceof Date && r[0] >= weekAgo && !/^(hide|hidden|no|spam|delete)$/i.test(String(r[7]).trim()));
+  const subsAll = subscribers_().getDataRange().getValues().slice(1).filter((r) => r[0] && !/^unsub/i.test(String(r[4])));
+  const subsNew = subsAll.filter((r) => r[2] instanceof Date && r[2] >= weekAgo);
+  const owedTotal = owed.reduce((a, r) => a + num_(r[8]), 0);
+
+  const stat = (n, label) => '<td style="padding:12px;background:#f6f1e7;border-radius:12px;text-align:center"><div style="font-size:22px;font-weight:bold">' + n + '</div><div style="font-size:11px;color:#666">' + label + '</div></td>';
+  const html = '<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#0e1a3a">' +
+    '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · WEEKLY SUMMARY</p>' +
+    '<h2 style="margin:0 0 14px">Good morning, Edison</h2>' +
+    '<table width="100%" cellspacing="6"><tr>' + stat(newBriefs.length, 'new briefs') + stat(projects.length, 'active projects') + stat(kes_(owedTotal), 'balances due') + stat(subsAll.length, 'subscribers') + '</tr></table>' +
+    section('New briefs this week', newBriefs.map((r) => '<b>' + html_(r[0]) + '</b> · ' + html_(r[3]) + ' · ' + html_(r[6]) + (r[7] ? ' · ' + html_(r[7]) : '') + ' <span style="color:#777">(' + html_(r[2]) + ')</span>'), 'No new briefs this week.') +
+    section('Briefs waiting for you', waiting.map((r) => '<b>' + html_(r[0]) + '</b> · ' + html_(r[3]) + ' · ' + html_(r[2]) + ' since ' + fmt(r[1])), 'None: every brief has a reply.') +
+    section('Due within 7 days or overdue', due.map((r) => '<b>' + html_(r[1] || r[0]) + '</b> · ' + html_(r[2]) + ' · due ' + fmt(r[5]) + (r[5] < now ? ' <b style="color:#c4422a">overdue</b>' : '') + ' · ' + html_(r[3])), 'Nothing due this week.') +
+    section('Active projects', projects.map((r) => '<b>' + html_(r[1] || r[0]) + '</b> · ' + html_(r[2]) + ' · ' + html_(r[3]) + (r[5] instanceof Date ? ' · due ' + fmt(r[5]) : '')), 'No active projects.') +
+    section('Balances to collect', owed.map((r) => '<b>' + html_(r[1] || r[0]) + '</b> · ' + html_(r[2]) + ' · ' + kes_(r[8])), 'All paid up.') +
+    section('New reviews', reviews.map((r) => '★'.repeat(Math.min(5, Number(r[4]) || 5)) + ' <b>' + html_(r[1]) + '</b>: “' + html_(String(r[5]).slice(0, 140)) + (String(r[5]).length > 140 ? '…' : '') + '”'), 'No new reviews this week.') +
+    '<p style="margin-top:22px">Subscribers: <b>' + subsAll.length + '</b> (' + subsNew.length + ' new this week)</p>' +
+    '<p style="margin-top:22px"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '" style="background:#0e1a3a;color:#fff;padding:11px 18px;border-radius:99px;text-decoration:none;font-weight:bold">Open your sheet</a></p>' +
+    '<p style="font-size:11px;color:#888;margin-top:20px">Turn this email off in the Settings tab (Monday summary email: No).</p></div>';
+  MailApp.sendEmail({ to: me, subject: 'Your week: ' + newBriefs.length + ' new brief' + (newBriefs.length === 1 ? '' : 's') + ', ' + projects.length + ' active project' + (projects.length === 1 ? '' : 's'), htmlBody: html, name: 'Nexus CAD Studio website' });
+}
+
 /* ---------- Settings tab ---------- */
 const SETTINGS = 'Settings';
 const SROWS = [
@@ -442,7 +740,9 @@ const SROWS = [
   ['Announcement', '', 'Optional short message shown at the top of the homepage, e.g. Christmas offer: 15% off posters'],
   ['Announcement link', '', 'Optional: where the announcement goes when tapped, e.g. #pricing or a full https:// link'],
   ['Training next intake', SEED_TRAINING.intake, 'Training page: e.g. Saturday classes from 7 November 2026. Leave empty for "Dates on request"'],
-  ['Training starting price (KES)', SEED_TRAINING.price, 'Training page: starting price per trainee, e.g. 4500']
+  ['Training starting price (KES)', SEED_TRAINING.price, 'Training page: starting price per trainee, e.g. 4500'],
+  ['Monday summary email', 'Yes', 'Yes = every Monday morning you get an email summary of briefs, projects, balances, reviews and subscribers'],
+  ['Email new articles to subscribers', 'Yes', 'Yes = each new article is emailed to the Subscribers tab once it is live on the website']
 ];
 
 function settings_() {
@@ -508,10 +808,32 @@ function setup() {
   certs_();
   courses_();
   recordings_();
+  invoices_();
+  subscribers_();
+  const a = articles_();
+  if (!a.getRange(1, 9).getValue()) {
+    a.getRange(1, 9, 1, 2).setValues([['Email to subscribers?', 'Emailed (automatic)']]).setFontWeight('bold');
+    // Articles already published before the newsletter existed are not emailed
+    const n = a.getLastRow() - 1;
+    if (n > 0) a.getRange(2, 10, n, 1).setValues(a.getRange(2, 2, n, 1).getValues().map((r) => [/published/i.test(r[0]) ? 'Published before the newsletter' : '']));
+    a.getRange(2, 9, 999, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(YESNO, true).build());
+  }
   ScriptApp.getProjectTriggers()
-    .filter((t) => t.getHandlerFunction() === 'notifyClient')
+    .filter((t) => ['notifyClient', 'weeklySummary', 'newsletterJob'].indexOf(t.getHandlerFunction()) > -1)
     .forEach((t) => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('notifyClient').forSpreadsheet(SpreadsheetApp.getActive()).onEdit().create();
+  ScriptApp.newTrigger('weeklySummary').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(7).inTimezone('Africa/Nairobi').create();
+  ScriptApp.newTrigger('newsletterJob').timeBased().everyHours(1).create();
+}
+
+// "Website" menu at the top of the sheet
+function onOpen() {
+  SpreadsheetApp.getUi().createMenu('Website')
+    .addItem('Send me the weekly summary now', 'weeklySummary')
+    .addItem('Email new articles to subscribers now', 'newsletterJob')
+    .addSeparator()
+    .addItem('Set up / repair (run after updating the script)', 'setup')
+    .addToUi();
 }
 
 /* ---------- Automatic email to the client when you change a project's Stage ---------- */
@@ -546,6 +868,7 @@ function notifyClient(e) {
   const sh = e.range.getSheet();
   if (e.oldValue !== undefined && String(e.oldValue) === String(e.value)) return;
   if (sh.getName() === SUBS && e.range.getColumn() === 3) return submissionChanged_(sh, e.range.getRow());
+  if (sh.getName() === INVOICES && e.range.getColumn() === 11 && /^send$/i.test(String(e.value || ''))) return sendInvoice_(sh, e.range.getRow());
   if (sh.getName() !== PROJECTS || e.range.getColumn() !== 4) return;
   const r = sh.getRange(e.range.getRow(), 1, 1, 12).getValues()[0];
   const to = String(r[11] || '').trim();
@@ -587,6 +910,7 @@ function submissionChanged_(sh, row) {
 // Stamps "Last updated" whenever you edit a project row
 function onEdit(e) {
   const sh = e.range.getSheet();
+  if (sh.getName() === INVOICES && e.range.getColumn() === 4 && e.range.getRow() > 1) return fillInvoice_(sh, e.range.getRow());
   if (sh.getName() !== PROJECTS || e.range.getRow() < 2 || e.range.getColumn() === 11) return;
   sh.getRange(e.range.getRow(), 11).setValue(new Date());
 }
@@ -676,6 +1000,7 @@ function doGet(e) {
   if (q.action === 'settings') return out_(readSettings_());
   if (q.action === 'content') return out_(content_());          // used by the website's GitHub automation
   if (q.action === 'image') return out_(image_(q));
+  if (q.action === 'unsubscribe') return unsubscribePage_(q);
   return out_(reviews_());
 }
 

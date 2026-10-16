@@ -33,6 +33,14 @@
         return data;
     }
 
+    // Newsletter sign-ups (and "tell me about webinars") also go to the Subscribers tab of the Google Sheet
+    function subscribe(data, source) {
+        const api = CONFIG.trackerApi || CONFIG.reviewsApi;
+        const wants = /newsletter/i.test(data.List || '') || data['Webinar updates'] === 'Yes';
+        if (!api || !wants || !isEmail(data.email || '')) return;
+        fetch(api, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'subscribe', email: data.email, name: data.name || '', source }) }).catch(() => {});
+    }
+
     function setLoading(btn, loading, label) {
         if (loading) {
             btn.dataset.label = btn.innerHTML;
@@ -613,6 +621,7 @@
             setLoading(submit, true);
             try {
                 await sendToWeb3Forms(Object.assign({ subject, from_name: f.dataset.from || 'Portfolio', replyto: data.email }, data));
+                subscribe(data, f.dataset.track === 'newsletter-signup' ? 'Newsletter' : 'Webinar sign-up');
                 track(f.dataset.track || 'form-submitted');
                 f.reset();
                 f.hidden = true;

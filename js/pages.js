@@ -224,6 +224,10 @@
                 .then((r) => r.json().catch(() => ({})).then((j) => ({ ok: r.ok && j.success !== false, j })))
                 .then(({ ok, j }) => {
                     if (!ok) throw new Error(j.message || 'error');
+                    // Newsletter sign-ups also go to the Subscribers tab of the Google Sheet
+                    if (form.dataset.sheet && (/newsletter/i.test(data.List || '') || data['Webinar updates'] === 'Yes')) {
+                        fetch(form.dataset.sheet, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'subscribe', email: data.email, name: data.name || '', source: 'Newsletter (' + location.pathname.split('/').filter(Boolean).slice(-2).join('/') + ')' }) }).catch(() => {});
+                    }
                     form.hidden = true;
                     done.hidden = false;
                     done.focus();
