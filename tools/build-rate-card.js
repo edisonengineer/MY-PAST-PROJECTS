@@ -19,6 +19,7 @@ try { playwright = require('playwright'); } catch (e) {
 
 const ctx = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'js/packages.js'), 'utf8'), ctx);
+vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'js/sheet-data.js'), 'utf8'), ctx);   // Pricing tab of the Google Sheet
 const PACKAGES = ctx.window.PACKAGES;
 const cfg = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'js/config.js'), 'utf8'), cfg);

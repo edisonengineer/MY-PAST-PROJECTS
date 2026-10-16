@@ -28,6 +28,13 @@
    Google Drive) and set Status to "Published". It appears in "My work"
    with its own page within about 30 minutes.
 
+   PRICING, CERTIFICATES, COURSES and RECORDINGS tabs: the website's
+   packages and prices, certificates, training courses and webinar videos.
+   They start filled with what the website shows today. Edit, add or
+   remove rows (or set "Show on website" to No); the website follows
+   within about 30 minutes, including the rate card and portfolio PDFs.
+   The training intake date and starting price are in the Settings tab.
+
    FIRST-TIME SET-UP (about 5 minutes)
    1. Go to sheets.google.com and create a blank sheet named "Website reviews".
    2. Menu: Extensions → Apps Script. Delete what's there and paste this
@@ -327,7 +334,7 @@ function content_() {
       photos: photos, error: error
     };
   });
-  return { articles: articles, works: works };
+  return { articles: articles, works: works, site: siteLists_() };
 }
 
 // A photo, only if it belongs to something Published (nothing else in your Drive can be fetched)
@@ -338,11 +345,90 @@ function image_(q) {
     if (arts.some((r) => driveId_(r[3]) === q.doc) && Number(q.n) >= 0) blob = docImage_(q.doc, Number(q.n));
   } else if (q.id) {
     const ok = arts.some((r) => driveId_(r[5]) === q.id) ||
+      certs_().getDataRange().getValues().slice(1).some((r) => shown_(r, 4) && driveId_(r[3]) === q.id) ||
       works_().getDataRange().getValues().slice(1).filter(published_).some((r) => photoIds_(r[8]).some((p) => p.id === q.id));
     if (ok) blob = DriveApp.getFileById(q.id).getBlob();
   }
   if (!blob) return { ok: false };
   return { ok: true, type: blob.getContentType(), data: Utilities.base64Encode(blob.getBytes()) };
+}
+
+/* ---------- Pricing, certificates, courses and webinar recordings ---------- */
+const SEED_PRICING = [["3D Part Model","Engineering",1000,"Yes","A single part modelled from your sketch, dimensions or physical sample.","Parametric 3D model\nNative CAD file + STEP\nClean product renders","cube","Yes"],["Assembly & Drawings","Engineering",4500,"Yes","Multi-part assemblies with manufacturing-ready drawings.","Full 3D assembly\nDimensioned 2D drawings (PDF / DWG)\nBill of materials\nExploded views","gear","Yes"],["Simulation Study","Engineering",4500,"Yes","FEA or thermal analysis to validate a design before it is built.","Model preparation & meshing\nLoads & boundary conditions\nResult plots\nShort technical report","chart","Yes"],["Social Media Pack","Graphic Design",3500,"Yes","A set of on-brand posts and stories for your campaign or event.","Designs sized for your platforms\nPNG / JPG exports\nEditable source on request","image","Yes"],["Poster & Print","Graphic Design",500,"Yes","Posters, flyers, certificates and banners that stand out.","Price per design\nPrint-ready PDF\nDigital version for sharing\nPrinting from KES 1,000 per m²","layout","Yes"],["Brand Identity","Graphic Design",7500,"Yes","A logo and visual identity that makes your business recognisable.","Logo concepts\nColour palette & fonts\nLogo files for print & web\nMini brand guide","brush","Yes"],["CAD Training","Training",4500,"Yes","One-on-one or group training, online or in person in Nairobi.","AutoCAD, SolidWorks, Inventor or Fusion 360\nBeginner to advanced\nPractical, project-based exercises\nPractice files to keep","cap","Yes"]];
+const SEED_CERTS = [["Certified SOLIDWORKS Associate (CSWA) Cert Prep","LinkedIn Learning","https://www.linkedin.com/learning/certificates/02dd967cc0613a683c80a08ea44bbfa46d1d73ca0be389a0979e2d0e829e80e2","","Yes"],["CSWA Exam Preparation (SOLIDWORKS)","Udemy","https://www.udemy.com/certificate/UC-09090316-a037-4c81-a287-30a8dc798a72/","","Yes"],["Autodesk Inventor Design Certification","LinkedIn Learning","","","Yes"],["Autodesk Designathon 2025, Honorable Mention","Autodesk","","","Yes"],["Autodesk Designathon 2026, Participant","Autodesk","","","Yes"],["SOLIDWORKS 2024 Essential Training","LinkedIn Learning","https://www.linkedin.com/learning/certificates/02dd967cc0613a683c80a08ea44bbfa46d1d73ca0be389a0979e2d0e829e80e2","","Yes"],["Premiere Pro Essential Training","LinkedIn Learning","https://www.linkedin.com/learning/certificates/e274dcccc2f54a1828948722cabe58f6e0139d7b03f2031937cdca995df90a6d","","Yes"]];
+const SEED_COURSES = [["AutoCAD","2D drafting and technical drawings","Beginner to intermediate","Interface, command aliases and drafting settings\nDrawing and editing tools with precision (object snaps, ortho, polar)\nLayers, linetypes and drawing organisation\nDimensions, text and annotation styles\nBlocks and reusable details\nLayouts, viewports, scales and plotting to PDF\nIntroduction to 3D modelling","Yes"],["SolidWorks","3D parts, assemblies and drawings","Beginner to advanced","Sketching with relations and dimensions\nPart modelling features and design intent\nAssemblies, mates and motion checks\nManufacturing drawings with dimensions and BOMs\nSheet metal parts and flat patterns\nIntro to simulation (FEA) studies\nCSWA exam preparation and practice","Yes"],["Autodesk Inventor","Mechanical design for machines and products","Beginner to advanced","Parametric sketches and part features\nAssemblies, constraints and joints\nDrawings, parts lists and annotation\nSheet metal design\nFrame Generator for structures\nExploded views and presentations\nWorking with AutoCAD DWG files","Yes"],["Fusion 360","Design, render and make, all in one","Beginner to intermediate","Sketching and solid modelling\nComponents, joints and assemblies\nRendering and product visuals\nPreparing parts for 3D printing\nIntroduction to CAM and CNC toolpaths\nIntroduction to simulation\nCloud collaboration and sharing designs","Yes"]];
+const SEED_RECORDINGS = [["https://www.youtube.com/watch?v=MrBvUttpKN4","Webinar recording","Yes"]];
+const SEED_TRAINING = {"intake":"","price":4500};
+
+const YESNO = ['Yes', 'No'];
+const PRICING = 'Pricing', CERTS = 'Certificates', COURSES = 'Courses', RECORDINGS = 'Recordings';
+const PRHEAD = ['Package', 'Category', 'Price (KES)', 'Starting from?', 'Description', "What's included (one per line)", 'Icon', 'Show on website'];
+const CEHEAD = ['Certificate', 'Issued by', 'Credential link', 'Certificate image (Google Drive link, optional)', 'Show on website'];
+const COHEAD = ['Course', 'Tagline', 'Level', 'Topics (one per line)', 'Show on website'];
+const REHEAD = ['YouTube link', 'Title', 'Show on website'];
+const ICONS = ['cube', 'gear', 'chart', 'image', 'layout', 'brush', 'cap', 'hub', 'battery', 'leaf', 'pen', 'award', 'play', 'users', 'doc'];
+
+function listTab_(name, head, seed, widths, rules) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(name);
+  if (sh) return sh;
+  sh = ss.insertSheet(name);
+  sh.appendRow(head);
+  if (seed.length) sh.getRange(2, 1, seed.length, head.length).setValues(seed);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, head.length).setFontWeight('bold').setWrap(true);
+  sh.getRange(2, 1, 499, head.length).setVerticalAlignment('top').setWrap(true);
+  widths.forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  sh.getRange(2, head.length, 499, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(YESNO, true).build());
+  (rules || []).forEach((r) => sh.getRange(r[0]).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(r[1], true).build()));
+  return sh;
+}
+const pricing_ = () => listTab_(PRICING, PRHEAD, SEED_PRICING, [200, 140, 110, 110, 320, 320, 90, 110],
+  [['B2:B500', ['Engineering', 'Graphic Design', 'Training']], ['D2:D500', YESNO], ['G2:G500', ICONS]]);
+const certs_ = () => listTab_(CERTS, CEHEAD, SEED_CERTS, [320, 160, 320, 300, 110]);
+const courses_ = () => listTab_(COURSES, COHEAD, SEED_COURSES, [180, 260, 180, 420, 110]);
+const recordings_ = () => listTab_(RECORDINGS, REHEAD, SEED_RECORDINGS, [340, 340, 110]);
+
+const shown_ = (r, col) => String(r[0]).trim() && !/^no$/i.test(String(r[col]).trim());
+const lines_ = (t) => String(t || '').split(/\n+/).map((x) => x.replace(/^[-•*]\s*/, '').trim()).filter(Boolean);
+const ytId_ = (t) => { const m = /(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{6,})/.exec(String(t || '')) || /^([\w-]{11})$/.exec(String(t || '').trim()); return m ? m[1] : ''; };
+
+// Site lists for the automation. A tab with no rows to show sends null, so the website keeps its built-in list.
+function siteLists_() {
+  const rows = (sh) => sh.getDataRange().getValues().slice(1);
+  const packages = rows(pricing_()).filter((r) => shown_(r, 7)).map((r) => {
+    const n = Number(String(r[2]).replace(/[^\d.]/g, ''));
+    return {
+      name: String(r[0]).trim(),
+      category: /graphic/i.test(r[1]) ? 'graphic' : /train/i.test(r[1]) ? 'training' : 'engineering',
+      price: n > 0 ? 'KES ' + Math.round(n).toLocaleString('en-US') : '',
+      from: !/^no$/i.test(String(r[3]).trim()),
+      description: String(r[4] || '').trim(),
+      includes: lines_(r[5]),
+      icon: ICONS.indexOf(String(r[6]).trim()) > -1 ? String(r[6]).trim() : ''
+    };
+  });
+  const certificates = rows(certs_()).filter((r) => shown_(r, 4)).map((r) => {
+    let image = null;
+    try { if (driveId_(r[3])) image = fileRef_(DriveApp.getFileById(driveId_(r[3]))); } catch (err) { /* not readable */ }
+    return { title: String(r[0]).trim(), issuer: String(r[1] || '').trim(), verify: /^https?:\/\//i.test(String(r[2]).trim()) ? String(r[2]).trim() : '', image: image };
+  });
+  const courses = rows(courses_()).filter((r) => shown_(r, 4)).map((r) => ({
+    name: String(r[0]).trim(), tagline: String(r[1] || '').trim(), levels: String(r[2] || '').trim(), topics: lines_(r[3])
+  }));
+  const recordings = rows(recordings_()).filter((r) => shown_(r, 2) && ytId_(r[0])).map((r) => ({ id: ytId_(r[0]), title: String(r[1] || '').trim() || 'Webinar recording' }));
+  const S = {};
+  settings_().getDataRange().getValues().slice(1).forEach((r) => { S[String(r[0]).trim().toLowerCase()] = r[1]; });
+  const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const intake = S['training next intake'] instanceof Date ? Utilities.formatDate(S['training next intake'], tz, 'd MMMM yyyy') : String(S['training next intake'] == null ? '' : S['training next intake']).trim();
+  const price = Number(String(S['training starting price (kes)'] == null ? '' : S['training starting price (kes)']).replace(/[^\d.]/g, ''));
+  return {
+    packages: packages.length ? packages : null,
+    certificates: certificates.length ? certificates : null,
+    courses: courses.length ? courses : null,
+    recordings: recordings.length ? recordings : null,
+    training: { intake: intake, price: price > 0 ? Math.round(price) : null }
+  };
 }
 
 /* ---------- Settings tab ---------- */
@@ -354,13 +440,24 @@ const SROWS = [
   ['Webinar day', '', 'Day of the weekly free webinar, e.g. Saturday. Leave empty to hide the countdown'],
   ['Webinar time', '', '24-hour Nairobi time, e.g. 18:00'],
   ['Announcement', '', 'Optional short message shown at the top of the homepage, e.g. Christmas offer: 15% off posters'],
-  ['Announcement link', '', 'Optional: where the announcement goes when tapped, e.g. #pricing or a full https:// link']
+  ['Announcement link', '', 'Optional: where the announcement goes when tapped, e.g. #pricing or a full https:// link'],
+  ['Training next intake', SEED_TRAINING.intake, 'Training page: e.g. Saturday classes from 7 November 2026. Leave empty for "Dates on request"'],
+  ['Training starting price (KES)', SEED_TRAINING.price, 'Training page: starting price per trainee, e.g. 4500']
 ];
 
 function settings_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sh = ss.getSheetByName(SETTINGS);
-  if (sh) return sh;
+  if (sh) {
+    // Add any settings introduced by a newer version of this script
+    const have = sh.getRange(1, 1, sh.getLastRow(), 1).getValues().map((r) => String(r[0]).trim().toLowerCase());
+    SROWS.filter((r) => have.indexOf(r[0].toLowerCase()) < 0).forEach((r) => {
+      sh.appendRow(r);
+      sh.getRange(sh.getLastRow(), 2).setNumberFormat('@');
+      sh.getRange(sh.getLastRow(), 3).setFontColor('#666666');
+    });
+    return sh;
+  }
   sh = ss.insertSheet(SETTINGS);
   sh.getRange(1, 1, 1, 3).setValues([['Setting', 'Value', 'What it does']]).setFontWeight('bold');
   sh.getRange(2, 2, SROWS.length, 1).setNumberFormat('@');   // keep times like 18:00 as typed
@@ -407,6 +504,10 @@ function setup() {
   subs_();
   articles_();
   works_();
+  pricing_();
+  certs_();
+  courses_();
+  recordings_();
   ScriptApp.getProjectTriggers()
     .filter((t) => t.getHandlerFunction() === 'notifyClient')
     .forEach((t) => ScriptApp.deleteTrigger(t));

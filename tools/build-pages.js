@@ -493,6 +493,7 @@ ${newsletter()}    </main>
 function loadTraining() {
     const ctx = { window: {} };
     vm.runInNewContext(read('content/courses.js'), ctx);
+    vm.runInNewContext(read('js/sheet-data.js'), ctx);   // Courses tab + training settings from the Google Sheet
     return ctx.window.TRAINING;
 }
 
@@ -828,6 +829,7 @@ function loadCV() {
     const ctx = { window: {} };
     vm.runInNewContext(read('content/cv.js'), ctx);
     vm.runInNewContext(read('js/certificates.js'), ctx);
+    vm.runInNewContext(read('js/sheet-data.js'), ctx);   // Certificates tab of the Google Sheet
     return { cv: ctx.window.CV, certs: ctx.window.CERTIFICATES || [] };
 }
 
@@ -1052,6 +1054,7 @@ const SECTIONS = [
 function searchIndex(projects, posts) {
     const ctxP = { window: {} };
     vm.runInNewContext(read('js/packages.js'), ctxP);
+    vm.runInNewContext(read('js/sheet-data.js'), ctxP);   // Pricing tab of the Google Sheet
     const strip = (h) => h.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&#39;|&rsquo;/g, "'").replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
     const faqs = [...index.matchAll(/<summary>([\s\S]*?)<\/summary>\s*<div class="faq-body">([\s\S]*?)<\/div>/g)]
         .map((m) => ({ k: 'faq', t: strip(m[1]), d: '', u: 'index.html#faq', x: strip(m[2]) }));
