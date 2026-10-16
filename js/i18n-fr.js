@@ -1171,7 +1171,8 @@ window.I18N_FR = {
     "Battery pack cooling system": "Système de refroidissement de batterie",
     "Mazingira Day organisers": "Organisateurs de la Mazingira Day",
     "EV battery project client": "Client du projet de batterie VE",
-    "Your review is now live on the site. Thank you for taking the time!": "Votre avis est maintenant en ligne sur le site. Merci d’avoir pris le temps !"
+    "Your review is now live on the site. Thank you for taking the time!": "Votre avis est maintenant en ligne sur le site. Merci d’avoir pris le temps !",
+    "The tracker couldn't connect just now. Please try again in a minute, or message me on WhatsApp.": "Le suivi n’a pas pu se connecter. Réessayez dans une minute, ou écrivez-moi sur WhatsApp."
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

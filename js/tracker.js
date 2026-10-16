@@ -1,8 +1,9 @@
 /* =========================================================================
    Client project tracker (track/index.html)
-   Clients enter the reference you gave them. The matching project in
-   js/tracker-data.js is unlocked (decrypted) with that reference in the
-   browser, so project details are never readable without it.
+   Clients enter the reference you gave them. The project is looked up in
+   the "Projects" tab of the Google Sheet (config trackerApi), which only
+   returns a project for its exact reference. If it isn't there, the
+   encrypted js/tracker-data.js is tried (unlocked with the reference).
    ========================================================================= */
 (function () {
     'use strict';
@@ -26,7 +27,30 @@
     const hex = (buf) => Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
     const enc = new TextEncoder();
 
+    let sheetDown = false;
+    // 1. The "Projects" tab of the Google Sheet (updated by Edison, read live)
+    async function findInSheet(ref) {
+        const api = (window.SITE_CONFIG || {}).trackerApi;
+        if (!api) return null;
+        const ctrl = 'AbortController' in window ? new AbortController() : null;
+        const timer = ctrl && setTimeout(() => ctrl.abort(), 12000);
+        try {
+            const res = await fetch(api + (api.includes('?') ? '&' : '?') + 'action=track&ref=' + encodeURIComponent(ref), ctrl ? { signal: ctrl.signal } : {});
+            const data = await res.json();
+            if (data && data.error) sheetDown = true;
+            return data && data.found && data.project ? data.project : null;
+        } catch (e) {
+            sheetDown = true;
+            return null;
+        } finally {
+            if (timer) clearTimeout(timer);
+        }
+    }
+
+    // 2. js/tracker-data.js (encrypted, built from content/tracker.private.js)
     async function find(ref) {
+        const fromSheet = await findInSheet(ref);
+        if (fromSheet) return fromSheet;
         const data = window.TRACKER;
         if (!data || !window.crypto || !crypto.subtle) throw new Error('unsupported');
         const id = hex(await crypto.subtle.digest('SHA-256', enc.encode('ncs-track:' + ref))).slice(0, 24);
@@ -83,8 +107,12 @@
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner" aria-hidden="true"></span> ' + t('Checking…');
         try {
+            sheetDown = false;
             const p = await find(ref);
-            if (!p) {
+            if (!p && sheetDown) {
+                err.textContent = t("The tracker couldn't connect just now. Please try again in a minute, or message me on WhatsApp.");
+                err.hidden = false;
+            } else if (!p) {
                 err.textContent = t("We couldn't find that reference. Check it matches the one I sent you, or message me on WhatsApp.");
                 err.hidden = false;
             } else {
