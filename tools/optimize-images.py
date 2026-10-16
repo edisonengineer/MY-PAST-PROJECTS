@@ -16,13 +16,23 @@ Run: python3 tools/optimize-images.py images/engineering/x/photo.jpg ...
 import os
 import sys
 from PIL import Image, ImageOps
+try:  # iPhone photos (HEIC), if pillow-heif is installed
+    import pillow_heif
+    pillow_heif.register_heif_opener()
+except ImportError:
+    pass
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
-FOLDERS = ['images/engineering', 'images/graphic']  # only photos in these folders
+FOLDERS = ['images/engineering', 'images/graphic', 'images/blog', 'images/works']  # only photos in these folders
 EXTS = ('.jpg', '.jpeg')
 MAX_W, FULL_W, THUMB_W, MAX_BYTES, QUALITY = 1600, 1200, 800, 450 * 1024, 78
 
 def save(im, path):
+    if im.mode in ('RGBA', 'LA', 'P'):  # transparent PNGs: white background instead of black
+        im = im.convert('RGBA')
+        bg = Image.new('RGB', im.size, (255, 255, 255))
+        bg.paste(im, mask=im.split()[-1])
+        im = bg
     im.convert('RGB').save(path, 'JPEG', quality=QUALITY, optimize=True, progressive=True)
 
 changed = 0
@@ -41,7 +51,8 @@ for arg in sys.argv[1:]:
     except Exception as e:  # not a real image: leave it
         print('skip', rel, e)
         continue
-    if im.width > MAX_W or os.path.getsize(path) > MAX_BYTES:
+    # Photos from Google Drive are saved as .jpg whatever their real format (PNG, WEBP, HEIC...)
+    if im.width > MAX_W or os.path.getsize(path) > MAX_BYTES or im.format != 'JPEG':
         im = ImageOps.exif_transpose(im)
         if im.width > FULL_W:
             im = im.resize((FULL_W, round(im.height * FULL_W / im.width)), Image.LANCZOS)

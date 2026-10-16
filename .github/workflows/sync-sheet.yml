@@ -1,0 +1,53 @@
+# Publishes the Articles and Works tabs of your Google Sheet to the website.
+# Runs every 30 minutes. To publish straight away: GitHub → Actions →
+# "Publish from Google Sheet" → Run workflow.
+name: Publish from Google Sheet
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: site-write
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Get published articles and works from the sheet
+        run: node tools/sync-from-sheet.js /tmp/new-images.txt
+
+      - name: Shrink new photos
+        run: |
+          if [ -s /tmp/new-images.txt ]; then
+            pip install --quiet pillow pillow-heif
+            tr '\n' '\0' < /tmp/new-images.txt | xargs -0 python3 tools/optimize-images.py
+          fi
+
+      - name: Rebuild pages
+        run: node tools/build-pages.js
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "Nothing new in the sheet."; exit 0; fi
+          git commit -m "Publish from Google Sheet [automated]"
+          git pull --rebase --autostash origin main
+          git push
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages will update on the next push."
