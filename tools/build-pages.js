@@ -76,7 +76,7 @@ function newsletter() {
                     </div>
                 </div>
                 <div class="newsletter-box">
-                    <form class="newsletter-form" data-web3 novalidate>
+                    <form class="newsletter-form" data-web3${CFG.trackerApi || CFG.reviewsApi ? ` data-sheet="${esc(CFG.trackerApi || CFG.reviewsApi)}"` : ''} novalidate>
                         <input type="hidden" name="access_key" value="${esc(CFG.web3formsKey)}">
                         <input type="hidden" name="subject" value="New CAD Tips subscriber">
                         <input type="hidden" name="from_name" value="Portfolio: newsletter">
@@ -240,7 +240,7 @@ function footer(extraScripts = '') {
 ${extraScripts}    <script defer src="../js/i18n-fr.js?v=23"></script>
     <script defer src="../js/i18n-sw.js?v=20"></script>
     <script defer src="../js/i18n.js?v=3"></script>
-    <script defer src="../js/pages.js?v=7"></script>
+    <script defer src="../js/pages.js?v=8"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
