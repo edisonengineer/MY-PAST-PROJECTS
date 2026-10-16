@@ -1173,7 +1173,12 @@ window.I18N_SW = {
     "EV battery project client": "Mteja wa mradi wa betri ya EV",
     "Your review is now live on the site. Thank you for taking the time!": "Maoni yako sasa yako hewani kwenye tovuti. Asante kwa kuchukua muda wako!",
     "The tracker couldn't connect just now. Please try again in a minute, or message me on WhatsApp.": "Kifuatiliaji hakikuweza kuunganishwa sasa hivi. Tafadhali jaribu tena baada ya dakika moja, au nitumie ujumbe WhatsApp.",
-    "from 1 client review": "kutoka maoni 1 ya mteja"
+    "from 1 client review": "kutoka maoni 1 ya mteja",
+    "Your project reference": "Namba ya kumbukumbu ya mradi wako",
+    "Save it: use it to follow your project's progress at any time. A copy has been sent to your email.": "Ihifadhi: itumie kufuatilia maendeleo ya mradi wako wakati wowote. Nakala imetumwa kwa barua pepe yako.",
+    "Reviewing your brief": "Ninapitia maelezo yako",
+    "Not taken on": "Haukuchukuliwa",
+    "Accepted": "Umekubaliwa"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
