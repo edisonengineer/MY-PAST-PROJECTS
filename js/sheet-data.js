@@ -250,6 +250,60 @@
       ]
     }
   ],
+  "faq": [
+    {
+      "q": "What services do you offer?",
+      "a": "Two kinds of work through Nexus CAD Studio. **Engineering design:** 3D CAD modelling, 2D manufacturing drawings, FEA/CFD simulation, sheet metal and fabrication design, product renders and CAD training. **Graphic design:** posters, branding, certificates, social media graphics, print layouts and motion graphics."
+    },
+    {
+      "q": "Which software do you work with?",
+      "a": "For engineering: SolidWorks (including CSWA exam preparation), Autodesk Inventor, AutoCAD, Fusion 360, Revit and Abaqus. For graphics: Adobe Illustrator, Photoshop, InDesign and Premiere Pro. If you need files in a specific program, just tell me in the project brief."
+    },
+    {
+      "q": "How do I start a project?",
+      "a": "Fill in the [project brief](#brief) above. It takes about two minutes and covers everything I need to understand your project. You can also message me directly on WhatsApp."
+    },
+    {
+      "q": "How much will my project cost?",
+      "a": "Pricing depends on complexity, the files you need and how soon you need them. Once I have your brief, I'll send a clear quote before any work starts, so there are no surprises."
+    },
+    {
+      "q": "How long does a project take?",
+      "a": "It depends on the scope. A single poster is much quicker than a full assembly with simulation. We agree on a timeline together when I send your quote, and I'll keep you updated along the way."
+    },
+    {
+      "q": "Can you work from my sketches, photos or existing files?",
+      "a": "Yes. Hand sketches with dimensions, photos, physical samples or existing CAD files are all great starting points. The more detail you share, the faster and more accurate the result."
+    },
+    {
+      "q": "What files will I receive?",
+      "a": "Whatever suits your project. For engineering: native CAD files, STEP/IGES, STL for 3D printing, DWG/DXF and PDF drawings. For graphics: print-ready PDFs and high-resolution PNG/JPG, with source files available on request."
+    },
+    {
+      "q": "Do you include revisions?",
+      "a": "Yes. Revisions are agreed as part of your quote, so we can refine the design until it's right for you."
+    },
+    {
+      "q": "How do I pay?",
+      "a": "Once you accept your quote, you pay the deposit shown on it to confirm your project, by M-Pesa to Buy Goods Till **8438334** (EDISON OCHIENG). Tap [Pay a deposit](#open:pay-modal) for the till number and QR code. International clients can pay by card or bank transfer: just ask me on WhatsApp."
+    },
+    {
+      "q": "Can I see your work in 3D before I hire you?",
+      "a": "Yes. Projects with a 3D badge have interactive models you can rotate and zoom in your browser (use the [3D models](#work) filter in my work). On a phone, tap **View in your room** to place the model in your own space at its real size."
+    },
+    {
+      "q": "Do you offer CAD training?",
+      "a": "Yes. I teach AutoCAD, SolidWorks (including CSWA exam preparation), Inventor and Fusion 360, one-on-one, in small groups or for company teams, online or in person in Nairobi. See the [training page](training/index.html) to reserve a seat."
+    },
+    {
+      "q": "Do you work with clients outside Nairobi?",
+      "a": "Yes. I work with clients remotely: briefs, files and reviews are shared online, and training can be delivered online or in person in Nairobi."
+    },
+    {
+      "q": "How do I join the free AutoCAD webinar?",
+      "a": "Tap [Reserve a seat](#open:webinar-modal), fill in the short form, and I'll send you the details for the next weekly session."
+    }
+  ],
   "recordings": [
     {
       "id": "MrBvUttpKN4",
