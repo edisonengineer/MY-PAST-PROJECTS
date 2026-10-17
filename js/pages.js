@@ -224,6 +224,12 @@
                 .then((r) => r.json().catch(() => ({})).then((j) => ({ ok: r.ok && j.success !== false, j })))
                 .then(({ ok, j }) => {
                     if (!ok) throw new Error(j.message || 'error');
+                    // Forms that also save to the Google Sheet (e.g. training seat reservations)
+                    if (form.dataset.sheet && form.dataset.sheetAction) {
+                        const fields = Object.assign({ action: form.dataset.sheetAction }, data);
+                        ['access_key', 'subject', 'from_name', 'replyto', 'botcheck'].forEach((k) => { delete fields[k]; });
+                        fetch(form.dataset.sheet, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(fields) }).catch(() => {});
+                    }
                     // Newsletter sign-ups also go to the Subscribers tab of the Google Sheet
                     if (form.dataset.sheet && (/newsletter/i.test(data.List || '') || data['Webinar updates'] === 'Yes')) {
                         fetch(form.dataset.sheet, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'subscribe', email: data.email, name: data.name || '', source: 'Newsletter (' + location.pathname.split('/').filter(Boolean).slice(-2).join('/') + ')' }) }).catch(() => {});

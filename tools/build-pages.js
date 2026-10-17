@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=23';
+const CSS_V = 'css/style.css?v=24';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
@@ -215,6 +215,7 @@ function footer(extraScripts = '') {
                 <a href="../index.html#pricing">Pricing</a>
                 <a href="../index.html#brief">Start a project</a>
                 <a href="../track/index.html">Track your project</a>
+                <a href="../verify/index.html">Verify a certificate</a>
                 <a href="../cv/index.html">Online CV</a>
                 <a href="../index.html#faq">FAQ</a>
             </nav>
@@ -236,8 +237,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=4" data-fr="../js/i18n-fr.js?v=23" data-sw="../js/i18n-sw.js?v=20"></script>
-    <script defer src="../js/pages.js?v=8"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=4" data-fr="../js/i18n-fr.js?v=24" data-sw="../js/i18n-sw.js?v=21"></script>
+    <script defer src="../js/pages.js?v=10"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -567,6 +568,7 @@ ${T.courses.map((c) => `                    <article class="course-card theme-${
                             <div><h3>${esc(c.name)}</h3><p>${esc(c.tagline)}</p></div>
                         </div>
                         <p class="course-level">${icon('award')} <span>${esc(c.levels)}</span></p>
+                        <p class="course-seats" data-seats="${esc(c.name)}" hidden></p>
                         <h4>What you'll learn</h4>
                         <ul class="pm-points">
 ${c.topics.map((t) => `                            <li>${icon('check')}<span>${esc(t)}</span></li>`).join('\n')}
@@ -589,7 +591,7 @@ ${T.faq.map(([q, a], i) => `                        <details class="faq-item"${i
                 </div>
 
                 <div class="reserve-card">
-                    <form class="reserve-form" id="reserve-form" data-web3 novalidate>
+                    <form class="reserve-form" id="reserve-form" data-web3${CFG.trackerApi || CFG.reviewsApi ? ` data-sheet="${esc(CFG.trackerApi || CFG.reviewsApi)}" data-sheet-action="reserve"` : ''} novalidate>
                         <input type="hidden" name="access_key" value="${esc(key)}">
                         <input type="hidden" name="subject" value="New CAD training seat request">
                         <input type="hidden" name="from_name" value="Portfolio: CAD training">
@@ -639,8 +641,19 @@ ${T.faq.map(([q, a], i) => `                        <details class="faq-item"${i
                 </div>
             </div>
         </section>
+
+        <section class="section verify-band">
+            <div class="container verify-cta">
+                <span class="verify-cta-icon">${icon('award')}</span>
+                <div>
+                    <h2>Trained with me?</h2>
+                    <p>Every certificate has a unique code. Employers can check it online in seconds.</p>
+                </div>
+                <a class="btn btn-navy" href="../verify/">Verify a certificate ${icon('arrow')}</a>
+            </div>
+        </section>
 ${newsletter()}    </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=1"></script>\n');
 }
 
 /* ---------- Free tools (calculators) ---------- */
@@ -1003,7 +1016,42 @@ function trackPage() {
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=5"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=6"></script>\n');
+}
+
+/* ---------- Certificate verification ---------- */
+function verifyPage() {
+    const url = SITE + 'verify/';
+    const description = 'Check that a Nexus CAD Studio training certificate is genuine: enter the certificate code printed on it.';
+    return head({ title: 'Verify a certificate | Nexus CAD Studio', description, url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Verify a certificate', url, description } }) + '\n' + header('training') + `
+    <main id="main">
+        <section class="page-hero theme-green">
+            <div class="container page-hero-inner narrow">
+                <nav class="crumbs" aria-label="Breadcrumb">
+                    <a href="../index.html">Home</a><span aria-hidden="true">/</span><a href="../training/index.html">CAD training</a><span aria-hidden="true">/</span><span aria-current="page">Verify a certificate</span>
+                </nav>
+                <p class="page-kicker">Certificates</p>
+                <h1 class="page-title">Verify a certificate.</h1>
+                <p class="page-lede">Every Nexus CAD Studio training certificate carries a unique code. Enter it below to confirm the certificate is genuine.</p>
+            </div>
+        </section>
+
+        <section class="section track-wrap">
+            <div class="container narrow">
+                <form class="track-form" id="verify-form" novalidate>
+                    <label for="verify-code">Certificate code</label>
+                    <div class="track-row">
+                        <input id="verify-code" name="code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. NCS-7KQ4-X9TB" required>
+                        <button type="submit" class="btn btn-sun">${icon('check')} Verify</button>
+                    </div>
+                    <p class="form-error" role="alert" hidden></p>
+                </form>
+                <div class="track-result" id="verify-result" tabindex="-1" aria-live="polite" hidden></div>
+                <p class="track-privacy">${icon('check')} <span>Only the trainee's name, course and completion date are shown, and only for a valid code.</span></p>
+            </div>
+        </section>
+    </main>
+` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/verify.js?v=1"></script>\n');
 }
 
 /* ---------- Homepage cards ---------- */
@@ -1023,6 +1071,7 @@ ${[
         u('training/', '0.8', 'monthly'),
         u('cv/', '0.8', 'monthly'),
         u('calculators/', '0.9', 'monthly'),
+        u('verify/', '0.4', 'yearly'),
         ...posts.map((p) => u('blog/' + p.slug + '.html', '0.7', 'yearly', p.updated || p.date)),
         ...projects.map((p) => u('projects/' + p.id + '.html', '0.7', 'yearly'))
     ].join('\n')}
@@ -1065,6 +1114,7 @@ function searchIndex(projects, posts) {
         { k: 'page', t: 'Print size & DPI calculator', d: 'Pixels needed for A4, A3, A1, banners and business cards, and check if your image is big enough.', u: 'calculators/index.html#print', x: 'print size dpi pixels resolution a4 a3 a2 a1 a0 banner roll-up bleed poster image quality calculator tool free' },
         { k: 'page', t: 'Engineering unit converter', d: 'Convert length, area, mass, force, pressure, torque and temperature units.', u: 'calculators/index.html#units', x: 'unit converter mm inch mpa psi newton lbf torque nm kg lb celsius fahrenheit conversion tool free' },
         { k: 'page', t: 'Online CV', d: 'Experience, education, skills and certifications. Download as PDF.', u: 'cv/index.html', x: 'cv resume curriculum vitae hire job employment experience education skills portfolio pdf' },
+        { k: 'page', t: 'Verify a certificate', d: 'Check a Nexus CAD Studio training certificate with its code.', u: 'verify/index.html', x: 'verify certificate code training trainee check authentic employer' },
         { k: 'page', t: 'Track your project', d: 'Check the status of your project with your reference.', u: 'track/index.html', x: 'status progress order client reference tracker delivery' },
         { k: 'page', t: 'CAD Tips', d: 'All articles on CAD software, DFM and working with a designer.', u: 'blog/index.html', x: 'blog articles tips tutorials' },
         ...posts.map((p) => ({ k: 'article', t: p.title, d: p.description, u: 'blog/' + p.slug + '.html', x: (p.tags || []).join(' ') + ' ' + strip(p.body).slice(0, 1200) })),
@@ -1084,6 +1134,7 @@ posts.forEach((p, i) => write('blog/' + p.slug + '.html', postPage(p, i, posts))
 write('blog/index.html', blogIndex(posts));
 write('training/index.html', trainingPage(loadTraining()));
 write('track/index.html', trackPage());
+write('verify/index.html', verifyPage());
 write('cv/index.html', cvPage(loadCV()));
 write('calculators/index.html', calculatorsPage());
 write('request-review/index.html', reviewLinkPage());

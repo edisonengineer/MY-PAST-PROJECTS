@@ -2239,3 +2239,40 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 .brief-ref-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 1.6rem; letter-spacing: 0.06em; color: var(--heading); user-select: all; }
 .wizard-done .brief-ref-hint { font-size: 0.86rem; color: var(--text-soft); max-width: 40ch; }
 .brief-ref .btn { margin-top: 6px; }
+
+/* ---------- Training: live seats + verify call-to-action ---------- */
+.course-seats { margin-top: 10px; font-size: 0.86rem; color: var(--text-soft); }
+.course-seats strong { color: var(--heading); }
+.course-seats.is-low .cs-left { color: #b25d00; font-weight: 700; }
+.course-seats.is-full { color: #b23a22; }
+.cs-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; background: rgba(255, 107, 74, 0.14); color: #b23a22; font-weight: 700; }
+.verify-band { padding-top: 0; }
+.verify-cta { display: flex; align-items: center; gap: 18px; padding: 22px 24px; border-radius: 22px; background: var(--paper); border: 1px solid var(--line); }
+.verify-cta h2 { font-family: var(--serif); font-weight: 600; font-size: 1.3rem; color: var(--heading); }
+.verify-cta p { margin-top: 4px; color: var(--text-soft); }
+.verify-cta .btn { margin-left: auto; flex: none; }
+.verify-cta-icon { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: var(--sun); color: #0f1b3d; }
+.verify-cta-icon svg { width: 24px; height: 24px; }
+@media (max-width: 640px) { .verify-cta { flex-direction: column; align-items: flex-start; } .verify-cta .btn { margin-left: 0; } }
+
+/* ---------- Certificate verification ---------- */
+.verify-card h2 { margin-top: 10px; font-family: var(--serif); font-weight: 600; font-size: 1.7rem; color: var(--heading); }
+.verify-line { margin-top: 6px; color: var(--text-soft); }
+.verify-line strong { color: var(--heading); }
+.verify-status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; font-weight: 700; font-size: 0.88rem; }
+.verify-status svg { width: 18px; height: 18px; }
+.verify-card.is-valid .verify-status { background: rgba(31, 174, 106, 0.14); color: #137a49; }
+.verify-card.is-invalid .verify-status { background: rgba(255, 107, 74, 0.14); color: #b23a22; }
+.verify-card.is-invalid p:last-child { margin-top: 12px; color: var(--text-soft); }
+
+/* ---------- Client review on the tracking page ---------- */
+.track-review { margin-top: 18px; padding: 18px 20px; border-radius: 18px; border: 2px solid var(--sun); background: var(--cream); }
+.track-review h3 { font-family: var(--serif); font-weight: 600; font-size: 1.2rem; color: var(--heading); }
+.track-review > p { margin-top: 6px; color: var(--text-soft); }
+.track-review label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.9rem; color: var(--heading); }
+.track-review label small { font-weight: 500; color: var(--text-soft); }
+.track-review textarea { width: 100%; margin-top: 6px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--paper); color: var(--text); font: inherit; resize: vertical; }
+.tr-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.track-review.is-approved { display: flex; align-items: flex-start; gap: 10px; border-color: rgba(31, 174, 106, 0.5); background: rgba(31, 174, 106, 0.08); }
+.track-review.is-approved > svg { flex: none; width: 22px; height: 22px; color: #137a49; margin-top: 2px; }
+.track-review.is-approved p { margin: 0; color: var(--text); }
