@@ -251,6 +251,20 @@
       ]
     }
   ],
+  "downloads": [
+    {
+      "id": "autocad-shortcuts-cheat-sheet",
+      "title": "AutoCAD shortcuts cheat sheet",
+      "description": "The command aliases, function keys and object snaps I teach in every AutoCAD class, on one printable page.",
+      "file": "https://edisonengineer.github.io/MY-PAST-PROJECTS/pdfs/autocad-shortcuts-cheat-sheet.pdf"
+    },
+    {
+      "id": "solidworks-shortcuts-cheat-sheet",
+      "title": "SolidWorks shortcuts cheat sheet",
+      "description": "View, selection and sketching shortcuts plus mouse gestures that make SolidWorks faster, on one printable page.",
+      "file": "https://edisonengineer.github.io/MY-PAST-PROJECTS/pdfs/solidworks-shortcuts-cheat-sheet.pdf"
+    }
+  ],
   "faq": [
     {
       "q": "What services do you offer?",
