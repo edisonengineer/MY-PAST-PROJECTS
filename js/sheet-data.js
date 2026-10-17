@@ -1,4 +1,4 @@
-/* Generated from the Google Sheet (Pricing, Certificates, Courses, Recordings and Settings tabs)
+/* Generated from the Google Sheet (Pricing, Certificates, Courses, Recordings, FAQ and Settings tabs)
    by tools/sync-from-sheet.js: edit the sheet, not this file. A list missing here keeps the website's built-in one. */
 (function (d) {
     if (d.packages) window.PACKAGES = d.packages;
