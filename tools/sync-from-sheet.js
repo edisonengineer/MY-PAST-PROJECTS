@@ -244,6 +244,9 @@ async function siteLists(site) {
             return { id: String(c.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'course-' + (i + 1), name: c.name, theme: st[0], icon: st[1], tagline: c.tagline || '', levels: c.levels || '', topics: c.topics || [] };
         });
     }
+    // Free downloads: a website file (pdfs/...) or an https link (e.g. Google Drive)
+    if (Array.isArray(site.downloads)) out.downloads = site.downloads.filter((d) => d && /^[a-z0-9][a-z0-9-]{0,80}$/.test(d.id) && d.title && /^https:\/\//.test(d.file))
+        .map((d) => ({ id: d.id, title: String(d.title).trim().slice(0, 120), description: String(d.description || '').trim().slice(0, 300), file: d.file }));
     if (Array.isArray(site.faq)) out.faq = site.faq.filter((f) => f && f.q && f.a).map((f) => ({ q: String(f.q).trim(), a: String(f.a).trim() }));
     if (Array.isArray(site.recordings)) out.recordings = site.recordings.filter((r) => /^[\w-]{6,}$/.test(r.id)).map((r) => ({ id: r.id, title: r.title || 'Webinar recording' }));
     if (site.training) out.training = { intake: String(site.training.intake || ''), price: Number(site.training.price) || null };
@@ -254,6 +257,7 @@ async function siteLists(site) {
         '    if (d.packages) window.PACKAGES = d.packages;\n' +
         '    if (d.certificates) window.CERTIFICATES = d.certificates;\n' +
         '    if (d.faq) window.SITE_FAQ = d.faq;\n' +
+        '    if (d.downloads) window.SITE_DOWNLOADS = d.downloads;\n' +
         '    if (d.recordings && window.SITE_CONFIG) (window.SITE_CONFIG.webinar = window.SITE_CONFIG.webinar || {}).recordings = d.recordings;\n' +
         '    if (window.TRAINING) {\n' +
         '        if (d.courses) window.TRAINING.courses = d.courses;\n' +
@@ -261,7 +265,7 @@ async function siteLists(site) {
         '    }\n' +
         '})(' + JSON.stringify(out, null, 2) + ');\n';
     if (!fs.existsSync(abs(SHEET_DATA)) || fs.readFileSync(abs(SHEET_DATA), 'utf8') !== js) { fs.writeFileSync(abs(SHEET_DATA), js); console.log('wrote', SHEET_DATA); }
-    console.log('Lists: ' + ['packages', 'certificates', 'courses', 'recordings', 'faq'].map((k) => k + ' ' + (out[k] ? out[k].length : 'built-in')).join(', '));
+    console.log('Lists: ' + ['packages', 'certificates', 'courses', 'recordings', 'faq', 'downloads'].map((k) => k + ' ' + (out[k] ? out[k].length : 'built-in')).join(', '));
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });
