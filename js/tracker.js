@@ -110,7 +110,99 @@
             });
     });
 
-    function render(p) {
+    // A quote the client can accept here (sent from the Invoices tab of the sheet)
+    const kes = (n) => '<span data-kes="' + Number(n) + '">' + esc(money(n)) + '</span>';
+    function quoteBox(p) {
+        const q = p.quote;
+        if (!q || !sheetApi) return '';
+        if (q.state === 'accepted') {
+            return '<div class="track-review is-approved">' + icon('check') + '<p><strong>You accepted quote</strong> <strong data-no-i18n>' + esc(q.number) + '</strong>' +
+                (q.acceptedOn ? ' <span>on</span> <span data-no-i18n>' + esc(q.acceptedOn) + '</span>' : '') + '. <span>Thank you!</span></p></div>';
+        }
+        const rows = (q.items || []).map((it) => '<tr><td data-no-i18n>' + esc(it.text) + '</td><td>' + (it.amount === null ? '' : kes(it.amount)) + '</td></tr>').join('') +
+            (q.discount ? '<tr class="tq-disc"><td>' + esc(q.discount.label) + '</td><td>−' + kes(q.discount.amount) + '</td></tr>' : '') +
+            '<tr class="tq-total"><td>Total</td><td>' + kes(q.total) + '</td></tr>';
+        const ask = encodeURIComponent('Hi Edison, I have a question about quote ' + q.number + ' (' + (p.ref || '') + ').');
+        return '<div class="track-review track-quote" id="track-quote">' +
+            '<h3><span>Your quote</span> <span data-no-i18n>' + esc(q.number) + '</span></h3>' +
+            '<table class="tq-table">' + rows + '</table>' +
+            (q.state === 'expired'
+                ? '<p class="tq-note">' + icon('calendar') + ' <span>This quote expired on</span> <span data-no-i18n>' + esc(day(q.validUntil)) + '</span>. <span>Message me for an updated quote.</span></p>' +
+                  '<div class="tr-actions"><a class="btn btn-green" href="https://wa.me/' + WHATSAPP + '?text=' + ask + '" target="_blank" rel="noopener">' + icon('whatsapp') + ' Ask for an updated quote</a></div>'
+                : (q.validUntil ? '<p class="tq-note"><span>Valid until</span> <span data-no-i18n>' + esc(day(q.validUntil)) + '</span>.</p>' : '') +
+                  '<div class="tr-actions">' +
+                    '<button type="button" class="btn btn-sun" data-accept="' + esc(q.number) + '">' + icon('check') + ' Accept quote</button>' +
+                    '<a class="btn btn-outline" href="https://wa.me/' + WHATSAPP + '?text=' + ask + '" target="_blank" rel="noopener">Ask a question</a>' +
+                  '</div><p class="form-error" role="alert" hidden></p>') +
+            '</div>';
+    }
+
+    // "Already paid?" The client sends the M-Pesa confirmation code; Edison confirms it in the sheet and the receipt is emailed
+    const PAY_LABEL = { pending: 'Waiting for confirmation', confirmed: 'Confirmed', declined: 'Not found: please check the code' };
+    function payBox(p) {
+        if (p.declined || !sheetApi || !p.ref) return '';
+        const due = typeof p.amountDue === 'number' && p.amountDue > 0;
+        const list = (p.payments || []).map((x) => '<li class="is-' + esc(x.status) + '">' + kes(x.amount) + ' · <span data-no-i18n>' + esc(x.code) + '</span>' +
+            (x.date ? ' · <span data-no-i18n>' + esc(day(x.date)) + '</span>' : '') + ' <em>' + esc(PAY_LABEL[x.status] || '') + '</em></li>').join('');
+        if (!due && p.deposit !== 'due' && !list) return '';
+        const till = ((window.SITE_CONFIG || {}).payments || {}).mpesaTill || '8438334';
+        const name = ((window.SITE_CONFIG || {}).payments || {}).mpesaName || 'EDISON OCHIENG';
+        return '<div class="track-pay" id="track-pay">' +
+            '<h3>' + icon('wallet') + ' Paid by M-Pesa?</h3>' +
+            (list ? '<ul class="tp-list">' + list + '</ul>' : '') +
+            (due || p.deposit === 'due'
+                ? '<p><span>Pay to Buy Goods Till</span> <strong data-no-i18n>' + esc(till) + '</strong> (<span data-no-i18n>' + esc(name) + '</span>), <span>then enter the confirmation code from your M-Pesa SMS. I will confirm it and email your receipt.</span></p>' +
+                  '<div class="tp-fields">' +
+                    '<div class="field"><label for="tp-code">M-Pesa code</label><input id="tp-code" type="text" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. SJK7ABC12D"></div>' +
+                    '<div class="field"><label for="tp-amount">Amount (KES)</label><input id="tp-amount" type="number" min="1" step="1" inputmode="numeric"' + (due ? ' value="' + Math.round(p.amountDue) + '"' : '') + '></div>' +
+                    '<div class="field tp-wide"><label for="tp-payer">Paid from <small>(name or number, optional)</small></label><input id="tp-payer" type="text" maxlength="80" autocomplete="name"></div>' +
+                  '</div>' +
+                  '<div class="tr-actions"><button type="button" class="btn btn-navy" data-pay>' + icon('check') + ' Send payment code</button></div>' +
+                  '<p class="form-error" role="alert" hidden></p>'
+                : '') +
+            '</div>';
+    }
+
+    const post = (fields) => fetch(sheetApi, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(fields) });
+    out.addEventListener('click', (e) => {
+        const acc = e.target.closest('[data-accept]');
+        if (acc) {
+            const box = $('#track-quote'), errEl = $('.form-error', box);
+            if (!window.confirm(t('Accept this quote? Edison will be notified and your deposit invoice will be emailed to you.'))) return;
+            $$('button', box).forEach((x) => { x.disabled = true; });
+            acc.innerHTML = '<span class="spinner" aria-hidden="true"></span> ' + t('Accepting…');
+            post({ action: 'accept', ref: shownRef, number: acc.dataset.accept })
+                .then(() => { if (typeof window.track === 'function') window.track('quote-accepted'); return lookup(shownRef, true); })
+                .catch(() => {
+                    $$('button', box).forEach((x) => { x.disabled = false; });
+                    acc.innerHTML = icon('check') + ' ' + t('Accept quote');
+                    errEl.textContent = t("This couldn't be sent just now. Please try again, or message me on WhatsApp.");
+                    errEl.hidden = false;
+                });
+            return;
+        }
+        const pay = e.target.closest('[data-pay]');
+        if (pay) {
+            const box = $('#track-pay'), errEl = $('.form-error', box);
+            const code = $('#tp-code', box).value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            const amount = Math.round(Number($('#tp-amount', box).value));
+            errEl.hidden = true;
+            if (!/^[A-Z0-9]{8,12}$/.test(code)) { errEl.textContent = t('Please enter the confirmation code from your M-Pesa SMS (10 letters and numbers).'); errEl.hidden = false; $('#tp-code', box).focus(); return; }
+            if (!(amount > 0)) { errEl.textContent = t('Please enter the amount you paid.'); errEl.hidden = false; $('#tp-amount', box).focus(); return; }
+            pay.disabled = true;
+            pay.innerHTML = '<span class="spinner" aria-hidden="true"></span> ' + t('Sending…');
+            post({ action: 'payment', ref: shownRef, code, amount, payer: $('#tp-payer', box).value.trim() })
+                .then(() => { if (typeof window.track === 'function') window.track('payment-reported'); return lookup(shownRef, true); })
+                .catch(() => {
+                    pay.disabled = false;
+                    pay.innerHTML = icon('check') + ' ' + t('Send payment code');
+                    errEl.textContent = t("This couldn't be sent just now. Please try again, or message me on WhatsApp.");
+                    errEl.hidden = false;
+                });
+        }
+    });
+
+    function render(p, quiet) {
         shownRef = p.ref || '';
         const stage = Math.max(0, Math.min(STAGES.length - 1, +p.stage || 0));
         const done = stage === STAGES.length - 1;
@@ -134,7 +226,9 @@
                     (typeof p.amountDue === 'number' && p.amountDue > 0 ? '<div><dt>Balance due</dt><dd data-kes="' + p.amountDue + '">' + esc(money(p.amountDue)) + '</dd></div>' : '') +
                 '</dl>' +
                 (p.note ? '<div class="track-note"><span>Latest update from Edison</span><p data-no-i18n>' + esc(p.note) + '</p></div>' : '') +
+                quoteBox(p) +
                 reviewBox(p) +
+                payBox(p) +
                 '<div class="pm-actions">' +
                     (p.files ? '<a class="btn btn-sun" href="' + esc(p.files) + '" target="_blank" rel="noopener">' + icon('doc') + ' Download your files</a>' : '') +
                     (p.deposit === 'due' || (typeof p.amountDue === 'number' && p.amountDue > 0) ? '<a class="btn btn-navy" href="../index.html#pay">' + icon('wallet') + ' Pay by M-Pesa</a>' : '') +
@@ -142,14 +236,16 @@
                 '</div>' +
             '</article>';
         out.hidden = false;
+        if (window.Currency && window.Currency.paint) window.Currency.paint(out);
+        if (quiet) return;
         out.focus({ preventScroll: true });
         out.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    async function lookup(raw) {
+    async function lookup(raw, quiet) {
         const ref = norm(raw);
         err.hidden = true;
-        out.hidden = true;
+        if (!quiet) out.hidden = true;
         if (ref.length < 6) { err.textContent = t('Please enter the project reference from your quote or message.'); err.hidden = false; input.focus(); return; }
         const label = btn.innerHTML;
         btn.disabled = true;
@@ -164,8 +260,8 @@
                 err.textContent = t("We couldn't find that reference. Check it matches the one I sent you, or message me on WhatsApp.");
                 err.hidden = false;
             } else {
-                render(p);
-                if (typeof window.track === 'function') window.track('project-tracked');
+                render(p, quiet);
+                if (!quiet && typeof window.track === 'function') window.track('project-tracked');
                 history.replaceState(null, '', location.pathname);
             }
         } catch (e) {

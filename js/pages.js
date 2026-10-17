@@ -246,13 +246,43 @@
         if (wa) wa.addEventListener('click', () => {
             const d = new FormData(form);
             const lines = ['Hi Edison, I would like to reserve a seat for CAD training.'];
-            ['name', 'Course', 'Level', 'Format', 'Preferred schedule', 'Message'].forEach((k) => {
+            ['name', 'Course', 'Level', 'Format', 'Preferred schedule', 'Message', 'Discount code'].forEach((k) => {
                 const v = (d.get(k) || '').toString().trim();
                 if (v) lines.push((k === 'name' ? 'Name' : k) + ': ' + v);
             });
             window.open('https://wa.me/254708639473?text=' + encodeURIComponent(lines.join('\n')), '_blank', 'noopener');
         });
     });
+    /* ---------- Free downloads: email in, download out (the sheet emails a copy and adds them to Subscribers) ---------- */
+    $$('form[data-download]').forEach((form) => {
+        const err = $('.form-error', form);
+        const done = form.parentElement.querySelector('.dl-done');
+        const email = $('input[type="email"]', form);
+        form.addEventListener('input', () => { email.closest('.field').classList.remove('is-invalid'); err.hidden = true; });
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (form.botcheck && form.botcheck.checked) return;
+            const v = email.value.trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) {
+                email.closest('.field').classList.add('is-invalid');
+                err.textContent = tr('Please enter a valid email address.');
+                err.hidden = false;
+                email.focus();
+                return;
+            }
+            const btn = $('button[type="submit"]', form);
+            btn.disabled = true;
+            fetch(form.dataset.sheet, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'download', item: form.dataset.download, email: v, source: location.pathname }) })
+                .catch(() => { /* the download link still works */ })
+                .finally(() => {
+                    form.hidden = true;
+                    done.hidden = false;
+                    done.focus();
+                    if (typeof window.track === 'function') window.track('download-' + form.dataset.download);
+                });
+        });
+    });
+
     // "Reserve a seat" on a course card picks that course in the form
     document.addEventListener('click', (e) => {
         const b = e.target.closest('[data-course]');

@@ -90,8 +90,11 @@
         const t = totals();
         const totalEl = $('#cart-total');
         totalEl.hidden = !t;
+        const d = window.Discount && window.Discount.get('cart-code');
         if (t) totalEl.innerHTML = '<span>Estimated total</span><strong>' + totalText(t) + '</strong>' +
-            (t.partial ? '<small>Plus items priced on request</small>' : '');
+            (t.partial ? '<small>Plus items priced on request</small>' : '') +
+            (d && d.percent ? '<small class="cart-disc"><span>' + esc(d.label) + '</span>: <span>' + esc(totalText({ min: t.min * (1 - d.percent / 100), max: t.max == null ? null : t.max * (1 - d.percent / 100) })) + '</span></small>' : '') +
+            (d && d.amount ? '<small class="cart-disc"><span>' + esc(d.label) + '</span></small>' : '');
         const tools = $('.cart-tools', drawer);
         if (tools) tools.hidden = n === 0 || !$('#cart-done').hidden;
         const pdfBtn = $('#cart-pdf');
@@ -214,6 +217,16 @@
             track('quote-pdf');
         });
 
+        // Random, hard-to-guess reference like the brief form's: NCS-YYMM-XXXXX
+        function newRef() {
+            const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            const bytes = new Uint8Array(5);
+            window.crypto.getRandomValues(bytes);
+            const d = new Date();
+            return 'NCS-' + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0') + '-' + Array.from(bytes, (b) => abc[b % abc.length]).join('');
+        }
+        document.addEventListener('discountchange', (e) => { if (e.target.id === 'cart-code') render(); });
+
         function summaryText() {
             const usd = C() && C().code === 'USD';
             const lines = cart.map((i, n) => (n + 1) + '. ' + i.title + (i.detail ? ' (' + i.detail + ')' : '') + (itemEstimate(i, 'KES') ? ': ' + itemEstimate(i, 'KES') : ''));
@@ -253,6 +266,10 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Sending…';
             const name = form.name.value.trim(), email = form.email.value.trim();
+            const code = (form['Discount code'] && form['Discount code'].value.trim().toUpperCase()) || '';
+            // Saved in the Google Sheet too (Submissions tab), with a reference the client can track
+            const sheetApi = CONFIG.trackerApi || CONFIG.reviewsApi;
+            const ref = sheetApi ? newRef() : '';
             const fields = {
                 access_key: CONFIG.web3formsKey,
                 subject: 'Quote request: ' + cart.length + (cart.length === 1 ? ' item' : ' items') + ' from ' + name,
@@ -260,7 +277,9 @@
                 name: name, email: email, replyto: email,
                 'Phone / WhatsApp': form['Phone / WhatsApp'].value.trim(),
                 'Requested items': summaryText(),
-                Notes: form.Notes.value.trim()
+                Notes: form.Notes.value.trim(),
+                'Discount code': code,
+                Reference: ref
             };
             Object.keys(fields).forEach((k) => { if (fields[k] === '') delete fields[k]; });
             try {
@@ -271,6 +290,18 @@
                 });
                 const data = await res.json().catch(() => ({}));
                 if (!res.ok || !data.success) throw new Error(data.message || 'Request failed (' + res.status + ')');
+                let saved = false;
+                if (ref) {
+                    saved = await fetch(sheetApi, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({
+                        action: 'brief', ref, name, email, phone: fields['Phone / WhatsApp'] || '', service: 'Quote cart',
+                        project: cart.map((i) => i.title).join(', ').slice(0, 150), details: summaryText() + (fields.Notes ? '\n\nNotes: ' + fields.Notes : ''), code
+                    }) }).then(() => true, () => false);
+                }
+                const refBox = $('#cart-ref');
+                if (refBox) {
+                    refBox.hidden = !saved;
+                    if (saved) { $('#cart-ref-code').textContent = ref; $('#cart-track').href = 'track/?ref=' + encodeURIComponent(ref); }
+                }
                 track('quote-sent');
                 cart = [];
                 save();

@@ -68,6 +68,35 @@
    BACKUPS: every Sunday a copy of this whole sheet is saved in your Drive
    folder "Nexus CAD Studio sheet backups" (the last 8 are kept).
 
+   QUOTES: send a Quote from the Invoices tab and the client can accept it
+   on their tracking page (the email has a "Review & accept" button). It
+   then becomes a project on the tracker and its deposit invoice is sent
+   (deposit % in Settings). A quote without a reference gets one.
+
+   PAYMENTS tab: after paying by M-Pesa, clients type their confirmation
+   code on the tracking page. You get an email; check your M-Pesa messages
+   and set Status to "Confirmed": the receipt is created and sent for you.
+
+   DASHBOARD tab: charts and totals (income per month, projects by stage,
+   income by service, ratings, trainees, profit per project). It refreshes
+   every morning and whenever you open the sheet.
+
+   REFERRALS tab: delivered clients get a personal referral code. A friend
+   who uses it gets a discount, and once the friend pays, the client earns
+   a reward they claim by using their own code on their next project.
+
+   PROMO CODES tab: your own discount codes (e.g. TRAIN20 = 20% off
+   training) with an expiry date and a usage limit. Clients type them on
+   the brief, quote cart or training form; the discount is applied to
+   their quote or invoice automatically.
+
+   TIME LOG tab: hours worked per project reference. The monthly report
+   and the dashboard show each project's profit and your real hourly rate.
+   (The Expenses tab has a "Project reference" column for project costs.)
+
+   DOWNLOADS tab: free resources (e.g. shortcut cheat sheets) that visitors
+   get by email in exchange for their address; they join your Subscribers.
+
    SUBSCRIBERS tab: people who signed up for CAD tips by email. When an
    article goes live, it is emailed to them automatically (each email has
    an unsubscribe link).
@@ -117,6 +146,9 @@ function doPost(e) {
   if (p.action === 'subscribe') return out_(subscribe_(p));
   if (p.action === 'reserve') return out_(reserve_(p));
   if (p.action === 'feedback') return out_(feedback_(p));
+  if (p.action === 'accept') return out_(acceptQuote_(p));
+  if (p.action === 'payment') return out_(payment_(p));
+  if (p.action === 'download') return out_(download_(p));
   const name = clean_(p.name, 80);
   const text = clean_(p.text, 1500);
   const rating = Math.round(Number(p.rating));
@@ -169,7 +201,7 @@ function projects_() {
 /* ---------- Project briefs submitted on the website ---------- */
 const SUBS = 'Submissions';
 const SUB_STATUS = ['New', 'Reviewing', 'Quote sent', 'Accepted', 'Declined'];
-const SHEAD = ['Reference', 'Received', 'Status', 'Name', 'Email', 'Phone / WhatsApp', 'Service', 'Project', 'Budget', 'Deadline', 'Brief details', 'Note to client', 'Moved to Projects'];
+const SHEAD = ['Reference', 'Received', 'Status', 'Name', 'Email', 'Phone / WhatsApp', 'Service', 'Project', 'Budget', 'Deadline', 'Brief details', 'Note to client', 'Moved to Projects', 'Discount / referral code (automatic)'];
 
 function subs_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -204,8 +236,9 @@ function brief_(p) {
     const sh = subs_();
     const refs = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues().map((r) => normRef_(r[0])) : [];
     if (refs.indexOf(normRef_(ref)) > -1) return { ok: true, ref: ref };          // sent twice
+    const code = useCode_(p.code, { for: p.service, email: email, name: name, ref: ref });
     sh.appendRow([ref, new Date(), 'New', name, email, clean_(p.phone, 40), clean_(p.service, 60), clean_(p.project, 160),
-      clean_(p.budget, 80), clean_(p.deadline, 80), cleanLong_(p.details, 5000), '', '']);
+      clean_(p.budget, 80), clean_(p.deadline, 80), cleanLong_(p.details, 5000), '', '', code]);
   } finally {
     lock.releaseLock();
   }
@@ -467,6 +500,7 @@ function siteLists_() {
   }));
   const recordings = rows(recordings_()).filter((r) => shown_(r, 2) && ytId_(r[0])).map((r) => ({ id: ytId_(r[0]), title: String(r[1] || '').trim() || 'Webinar recording' }));
   const faq = rows(faq_()).filter((r) => shown_(r, 2) && String(r[1]).trim()).map((r) => ({ q: String(r[0]).trim(), a: String(r[1]).trim() }));
+  const downloads = rows(downloads_()).filter((r) => shown_(r, 3) && fileUrl_(r[2])).map((r) => ({ id: slug_(r[0]), title: String(r[0]).trim(), description: String(r[1] || '').trim(), file: fileUrl_(r[2]) }));
   const S = {};
   settings_().getDataRange().getValues().slice(1).forEach((r) => { S[String(r[0]).trim().toLowerCase()] = r[1]; });
   const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
@@ -478,13 +512,14 @@ function siteLists_() {
     courses: courses.length ? courses : null,
     recordings: recordings.length ? recordings : null,
     faq: faq.length ? faq : null,
+    downloads: downloads,
     training: { intake: intake, price: price > 0 ? Math.round(price) : null }
   };
 }
 
 /* ---------- Quotes, invoices and receipts ---------- */
 const INVOICES = 'Invoices';
-const IHEAD = ['Number (automatic)', 'Type', 'Date', 'Project reference', 'Client', 'Client email', 'Items (one per line: description - amount)', 'Total (KES, automatic if empty)', 'Amount paid (KES)', 'Note to client', 'Action', 'PDF (automatic)', 'Sent (automatic)', 'Payment reminders (automatic; type Off to stop)'];
+const IHEAD = ['Number (automatic)', 'Type', 'Date', 'Project reference', 'Client', 'Client email', 'Items (one per line: description - amount)', 'Total (KES, automatic if empty)', 'Amount paid (KES)', 'Note to client', 'Action', 'PDF (automatic)', 'Sent (automatic)', 'Payment reminders (automatic; type Off to stop)', 'Quote accepted (automatic)', 'Discount code (optional; filled in for you)'];
 const MPESA_TILL = '8438334', MPESA_NAME = 'EDISON OCHIENG';
 
 function invoices_() {
@@ -500,7 +535,7 @@ function invoices_() {
   sh.getRange('K2:K1000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['Draft', 'Send', 'Sent'], true).build());
   sh.getRange('C2:C1000').setNumberFormat('d mmm yyyy');
   sh.getRange(2, 1, 999, IHEAD.length).setVerticalAlignment('top').setWrap(true);
-  [150, 90, 100, 150, 170, 200, 360, 120, 120, 260, 80, 200, 150, 230].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  [150, 90, 100, 150, 170, 200, 360, 120, 120, 260, 80, 200, 150, 230, 170, 200].forEach((w, i) => sh.setColumnWidth(i + 1, w));
   return sh;
 }
 
@@ -559,14 +594,16 @@ function invoiceHtml_(d) {
       rows + '</table>' +
       '<table width="100%" cellspacing="0" cellpadding="0" style="margin-top:10px"><tr>' +
         '<td style="vertical-align:middle;padding:10px 0 0 6px">' + stamp_(d) + '</td>' +
-        '<td style="vertical-align:top"><table cellspacing="0" cellpadding="0" style="margin:0 0 0 auto">' + line('Total', kes_(d.total), d.type === 'Quote') +
+        '<td style="vertical-align:top"><table cellspacing="0" cellpadding="0" style="margin:0 0 0 auto">' +
+        (d.discount ? line('Subtotal', kes_(d.total + d.discount.amount)) + line(html_(d.discount.label), '<span style="color:#137a49">−' + kes_(d.discount.amount) + '</span>') : '') +
+        line('Total', kes_(d.total), d.type === 'Quote') +
         (d.type !== 'Quote' ? line(d.type === 'Receipt' ? 'Amount received' : 'Paid so far', kes_(d.paid)) + line(d.type === 'Receipt' ? 'Balance remaining' : 'Balance due', kes_(d.balance), true) : '') + '</table></td>' +
       '</tr></table>' +
     '</div>' +
     (d.note ? '<div style="margin:18px 30px 0;padding:12px 14px;background:#fbf6ec;border-left:4px solid #ffb627">' + html_(d.note) + '</div>' : '') +
     (d.type === 'Receipt'
       ? '<div style="margin:22px 30px 0;color:#1fae6a;font-weight:bold;font-size:14px">Thank you for your payment.</div>'
-      : '<div style="margin:22px 30px 0;padding:14px 16px;border:1px solid #ece4d6"><b>How to pay</b><br>M-Pesa · Lipa na M-Pesa · Buy Goods Till <b>' + MPESA_TILL + '</b> (' + MPESA_NAME + ')<br>Please use your project reference' + (d.ref ? ' <b>' + html_(d.ref) + '</b>' : '') + ' when you message me the confirmation code.' + (d.type === 'Quote' ? '<br>This quote is valid for 30 days.' : '') + '</div>') +
+      : '<div style="margin:22px 30px 0;padding:14px 16px;border:1px solid #ece4d6"><b>How to pay</b><br>M-Pesa · Lipa na M-Pesa · Buy Goods Till <b>' + MPESA_TILL + '</b> (' + MPESA_NAME + ')' + (d.ref ? '<br>After paying, enter your M-Pesa confirmation code on your tracking page (link below), or message it to me with your reference <b>' + html_(d.ref) + '</b>.' : '<br>After paying, please message me the M-Pesa confirmation code.') + (d.type === 'Quote' && d.ref ? '<br>This quote is valid for 30 days. Accept it on your tracking page: ' + SITE_URL + 'track/?ref=' + encodeURIComponent(d.ref) : '') + '</div>') +
     '<div style="margin:26px 30px 0;padding-top:12px;border-top:1px solid #ece4d6;color:#666;font-size:11px">WhatsApp +254 708 639 473 · ' + SITE_URL.replace(/^https:\/\//, '').replace(/\/$/, '') + (d.ref ? ' · Track your project: ' + SITE_URL + 'track/?ref=' + encodeURIComponent(d.ref) : '') + '</div>' +
     '</body></html>';
 }
@@ -585,10 +622,31 @@ function sendInvoice_(sh, row) {
   const items = invoiceItems_(r[6]);
   if (!validEmail_(email)) return fail('Add the client email (column F), then set Action to Send again.');
   if (!items.length) return fail('Add at least one item (column G), then set Action to Send again.');
-  const total = num_(r[7]) || items.reduce((a, it) => a + (it.amount || 0), 0);
-  const paid = num_(r[8]);
   const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
   const date = r[2] instanceof Date ? r[2] : new Date();
+  // A quote always gets a reference, so the client can accept it on the tracking page
+  let ref = String(r[3] || '').trim();
+  if (!ref && type === 'Quote') { ref = newId_('NCS'); sh.getRange(row, 4).setValue(ref); }
+  if (type === 'Quote') quoteBrief_(ref, String(r[4] || '').trim(), email, items[0].text);
+  // Discount: a code typed in column P, or the one the client used on the website
+  let total = num_(r[7]) || items.reduce((a, it) => a + (it.amount || 0), 0);
+  let discount = null;
+  const dcell = String(r[15] || '').trim();
+  const applied = /\(−KES ([\d,]+)\)/.exec(dcell);
+  if (applied && num_(r[7])) {
+    discount = { label: discountLabel_(codeOf_(dcell)), amount: num_(applied[1]) };   // sent before: the total already includes it
+  } else if (type !== 'Receipt' && !/^(none|no|off)\b/i.test(dcell)) {
+    const code = codeOf_(dcell) || (dcell ? '' : autoCode_(sh, row, type, ref));
+    const dsc = code ? discountFor_(code, email, total, ref) : null;
+    if (dsc && dsc.amount > 0) {
+      discount = dsc;
+      total = Math.max(0, total - dsc.amount);
+      sh.getRange(row, 16).setValue(code + ' (−KES ' + Math.round(dsc.amount).toLocaleString('en-US') + ')');
+      sh.getRange(row, 8).setValue(total);
+      if (dsc.reward) claimReward_(dsc.reward, ref || email);
+    } else if (dcell && code) sh.getRange(row, 16).setValue('⚠ ' + code + ': unknown code, not applied');
+  }
+  const paid = num_(r[8]);
   let number = String(r[0] || '').trim();
   if (!number) {
     const prefix = { Quote: 'QUO', Invoice: 'INV', Receipt: 'RCT' }[type] + '-' + Utilities.formatDate(date, tz, 'yyyy') + '-';
@@ -596,42 +654,654 @@ function sendInvoice_(sh, row) {
     number = prefix + String(used + 1).padStart(3, '0');
     sh.getRange(row, 1).setValue(number);
   }
-  const d = { type, number, date: Utilities.formatDate(date, tz, 'd MMMM yyyy'), ref: String(r[3] || '').trim(), client: String(r[4] || '').trim(), email, items, total, paid, balance: Math.max(0, total - paid), note: String(r[9] || '').trim() };
+  const d = { type, number, date: Utilities.formatDate(date, tz, 'd MMMM yyyy'), ref, client: String(r[4] || '').trim(), email, items, total, paid, balance: Math.max(0, total - paid), note: String(r[9] || '').trim(), discount };
   const pdf = Utilities.newBlob(invoiceHtml_(d), 'text/html', number + '.html').getAs('application/pdf').setName(number + ' - ' + (d.client || 'client') + '.pdf');
   const file = invoiceFolder_().createFile(pdf);
+  const trackLink = SITE_URL + 'track/?ref=' + encodeURIComponent(ref);
   const message = {
-    Quote: 'Please find attached your quote <b>' + html_(number) + '</b> for <b>' + kes_(total) + '</b>. Let me know if you have any questions, or reply to accept it.',
-    Invoice: 'Please find attached invoice <b>' + html_(number) + '</b>. The balance due is <b>' + kes_(d.balance) + '</b>, payable by M-Pesa to Buy Goods Till <b>' + MPESA_TILL + '</b> (' + MPESA_NAME + ').',
+    Quote: 'Please find attached your quote <b>' + html_(number) + '</b> for <b>' + kes_(total) + '</b>' + (discount ? ' (including ' + html_(discount.label) + ')' : '') + '. You can review and accept it online with the button below, or reply with any questions. The quote is valid for 30 days.',
+    Invoice: 'Please find attached invoice <b>' + html_(number) + '</b>. The balance due is <b>' + kes_(d.balance) + '</b>, payable by M-Pesa to Buy Goods Till <b>' + MPESA_TILL + '</b> (' + MPESA_NAME + ').' + (ref ? ' After paying, you can send me your M-Pesa confirmation code on your tracking page.' : ''),
     Receipt: 'Thank you for your payment of <b>' + kes_(paid) + '</b>. Your receipt <b>' + html_(number) + '</b> is attached.' + (d.balance > 0 ? ' The remaining balance is <b>' + kes_(d.balance) + '</b>.' : '')
   }[type];
   const body = '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
     '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · ' + type.toUpperCase() + '</p>' +
     '<p>Hello' + (d.client ? ' ' + html_(d.client) : '') + ',</p><p>' + message + '</p>' +
     (d.note ? '<p style="border-left:4px solid #ffb627;background:#fbf6ec;padding:10px 12px">' + html_(d.note) + '</p>' : '') +
-    (d.ref ? '<p><a href="' + SITE_URL + 'track/?ref=' + encodeURIComponent(d.ref) + '" style="background:#0e1a3a;color:#fff;padding:11px 18px;border-radius:99px;text-decoration:none;font-weight:bold">Track your project</a></p>' : '') +
+    (ref ? '<p><a href="' + trackLink + '" style="background:' + (type === 'Quote' ? '#ffb627;color:#0e1a3a' : '#0e1a3a;color:#fff') + ';padding:11px 18px;border-radius:99px;text-decoration:none;font-weight:bold">' + (type === 'Quote' ? 'Review &amp; accept your quote' : type === 'Invoice' ? 'Pay &amp; track your project' : 'Track your project') + '</a></p>' : '') +
     '<p style="font-size:13px;color:#555">Questions? Reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
     '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p></div>';
-  MailApp.sendEmail({ to: email, subject: type + ' ' + number + ' from Nexus CAD Studio', htmlBody: body, body: message.replace(/<[^>]+>/g, ''), name: SENDER, attachments: [pdf] });
+  MailApp.sendEmail({ to: email, subject: type + ' ' + number + ' from Nexus CAD Studio', htmlBody: body, body: message.replace(/<[^>]+>/g, '') + (ref ? ' ' + trackLink : ''), name: SENDER, attachments: [pdf] });
   sh.getRange(row, 12).setValue(file.getUrl());
   sh.getRange(row, 13).setValue('Sent ' + Utilities.formatDate(new Date(), tz, 'd MMM yyyy, HH:mm'));
   sh.getRange(row, 11).setValue('Sent');
-  if (!num_(r[7])) sh.getRange(row, 8).setValue(total);
+  if (!num_(r[7]) && !discount) sh.getRange(row, 8).setValue(total);
   // Keep the project's tracker in step
-  if (d.ref && type !== 'Quote') {
+  if (ref && type !== 'Quote') {
     const P = projects_(), rows = P.getDataRange().getValues();
-    const i = rows.findIndex((x, k) => k > 0 && normRef_(x[0]) === normRef_(d.ref));
+    const i = rows.findIndex((x, k) => k > 0 && normRef_(x[0]) === normRef_(ref));
     if (i > 0) {
       P.getRange(i + 1, 9).setValue(d.balance);
-      if (type === 'Receipt') P.getRange(i + 1, 8).setValue('Paid');
-      else if (!rows[i][7]) P.getRange(i + 1, 8).setValue('Due');
+      if (type === 'Receipt') {
+        P.getRange(i + 1, 8).setValue('Paid');
+        // The first payment moves a project that is waiting for its deposit forward
+        const st = STAGES.findIndex((x) => x.toLowerCase() === String(rows[i][3]).trim().toLowerCase());
+        if (st < 2) { P.getRange(i + 1, 4).setValue(STAGES[2]); P.getRange(i + 1, 5).setValue(Math.max(num_(rows[i][4]), 40)); }
+      } else if (!rows[i][7]) P.getRange(i + 1, 8).setValue('Due');
       P.getRange(i + 1, 11).setValue(new Date());
     }
     if (type === 'Receipt' && i < 1) {
       const T = trainees_(), tr = T.getDataRange().getValues();
-      const j = tr.findIndex((x, k) => k > 0 && normRef_(x[0]) === normRef_(d.ref));
+      const j = tr.findIndex((x, k) => k > 0 && normRef_(x[0]) === normRef_(ref));
       if (j > 0 && /^(reserved|waiting list|confirmed)$/i.test(String(tr[j][8]).trim())) T.getRange(j + 1, 9).setValue('Paid');
     }
+    if (type === 'Receipt') { try { referralPaid_(ref); } catch (err) { console.error('referral: ' + err); } }
   }
+}
+
+/* ---------- Promo codes and referral codes ---------- */
+const PROMOS = 'Promo codes';
+const PCHEAD = ['Code', 'Discount (e.g. 20% or 1000 for KES 1,000)', 'For', 'Expires on (optional)', 'Max uses (empty = no limit)', 'Uses (automatic)', 'Active', 'Notes'];
+const PC_FOR = ['Everything', 'Engineering design', 'Graphic design', 'Training'];
+const REFERRALS = 'Referrals';
+const RFHEAD = ['Code', 'Client', 'Client email', 'Project reference', 'Created', 'Times used', 'Rewards earned', 'Rewards claimed', 'History (automatic)'];
+
+function promos_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(PROMOS);
+  if (sh) return sh;
+  sh = ss.insertSheet(PROMOS);
+  sh.appendRow(PCHEAD);
+  sh.appendRow(['WELCOME10', '10%', 'Everything', '', '', 0, 'No', 'Example: set Active to Yes to switch it on']);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, PCHEAD.length).setFontWeight('bold').setWrap(true);
+  sh.getRange('B2:B500').setNumberFormat('@');
+  sh.getRange('C2:C500').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(PC_FOR, true).build());
+  sh.getRange('D2:D500').setNumberFormat('d mmm yyyy');
+  sh.getRange('G2:G500').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(YESNO, true).build());
+  [150, 200, 160, 140, 140, 110, 90, 300].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+
+function referrals_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(REFERRALS);
+  if (sh) return sh;
+  sh = ss.insertSheet(REFERRALS);
+  sh.appendRow(RFHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, RFHEAD.length).setFontWeight('bold').setWrap(true);
+  sh.getRange('E2:E2000').setNumberFormat('d mmm yyyy');
+  [140, 180, 220, 160, 110, 100, 110, 110, 420].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+
+// The code at the start of a cell such as "TRAIN20 · 20% off" or "AMINA-7K3P (−KES 450)"
+const codeOf_ = (v) => { const m = /^\s*([A-Za-z0-9][A-Za-z0-9-]{2,23})(?![A-Za-z0-9-])/.exec(String(v || '')); return m && !/^(none|no|off)$/i.test(m[1]) ? m[1].toUpperCase() : ''; };
+const forKey_ = (t) => (/engineer/i.test(t) ? 'engineering design' : /graphic/i.test(t) ? 'graphic design' : /train/i.test(t) ? 'training' : '');
+
+// "20%", 0.2 (a cell formatted as %), "20" → 20% ; "1000" → KES 1,000
+function parseDiscount_(v) {
+  if (typeof v === 'number') return v > 0 && v < 1 ? { percent: Math.round(v * 1000) / 10 } : v >= 1 && v <= 100 ? { percent: v } : v > 100 ? { amount: v } : null;
+  const t = String(v || '').trim(), n = num_(t);
+  if (!n) return null;
+  return /%/.test(t) || n <= 100 ? { percent: Math.min(100, n) } : { amount: n };
+}
+
+function addHistory_(sh, row, text) {
+  const cur = String(sh.getRange(row, 9).getValue() || '');
+  sh.getRange(row, 9).setValue(([Utilities.formatDate(new Date(), 'Africa/Nairobi', 'd MMM yyyy') + ': ' + text].concat(cur ? [cur] : [])).join('\n').slice(0, 5000));
+}
+
+// Is this code valid? opts: for (service), email (who uses it), ref, honour (it was accepted earlier: skip expiry, limits and Active)
+function codeInfo_(raw, opts) {
+  opts = opts || {};
+  const code = codeOf_(raw);
+  if (!code) return { valid: false, reason: 'unknown' };
+  const P = promos_(), prow = P.getDataRange().getValues();
+  const i = prow.findIndex((x, k) => k > 0 && normRef_(x[0]) && normRef_(x[0]) === normRef_(code));
+  if (i > 0) {
+    const x = prow[i], d = parseDiscount_(x[1]);
+    if (!d) return { valid: false, reason: 'inactive' };
+    if (!opts.honour) {
+      if (!/^yes$/i.test(String(x[6]).trim())) return { valid: false, reason: 'inactive' };
+      if (x[3] instanceof Date && ymdLocal_(x[3]) < ymdLocal_(new Date())) return { valid: false, reason: 'expired' };
+      const max = Math.round(num_(x[4]));
+      if (max && num_(x[5]) >= max) return { valid: false, reason: 'used up' };
+      const f = String(x[2] || '').trim().toLowerCase();
+      if (opts.for && f && f !== 'everything' && forKey_(opts.for) !== f) return { valid: false, reason: 'not for this', only: String(x[2]).trim() };
+    }
+    return Object.assign({ valid: true, kind: 'promo', code: String(x[0]).trim().toUpperCase(), row: i + 1, label: d.percent ? d.percent + '% off' : kes_(d.amount) + ' off' }, d);
+  }
+  const R = referrals_(), rrow = R.getDataRange().getValues();
+  const j = rrow.findIndex((x, k) => k > 0 && normRef_(x[0]) === normRef_(code));
+  if (j > 0) {
+    const x = rrow[j];
+    const own = opts.email && String(x[2]).trim().toLowerCase() === String(opts.email).trim().toLowerCase();
+    if (own) {
+      // The referrer's own code claims a reward they earned
+      const pct = Math.min(100, num_(setting_('Referral reward (%)')));
+      const claimedHere = opts.ref && String(x[8]).toUpperCase().indexOf('CLAIMED ON ' + String(opts.ref).toUpperCase()) > -1;
+      if (!pct || (!claimedHere && num_(x[6]) <= num_(x[7]))) return { valid: false, reason: 'own' };
+      return { valid: true, kind: 'reward', code: String(x[0]).trim(), row: j + 1, percent: pct, label: pct + '% referral reward' };
+    }
+    const pct = Math.min(100, num_(setting_('Referral discount for new clients (%)')));
+    if (!pct || (!opts.honour && /^no$/i.test(setting_('Referral programme')))) return { valid: false, reason: 'inactive' };
+    return { valid: true, kind: 'referral', code: String(x[0]).trim(), row: j + 1, percent: pct, label: pct + '% referral discount' };
+  }
+  return { valid: false, reason: 'unknown' };
+}
+
+// Website check while typing (nothing private is returned)
+function codeCheck_(q) {
+  const cache = CacheService.getScriptCache();
+  const misses = Number(cache.get('code-miss') || 0);
+  if (misses >= 60) return { valid: false, reason: 'busy' };
+  const c = codeInfo_(q.c, { for: q.for || '', email: q.email || '' });
+  if (!c.valid) { if (c.reason === 'unknown') cache.put('code-miss', String(misses + 1), 600); return { valid: false, reason: c.reason, only: c.only || '' }; }
+  return { valid: true, code: c.code, kind: c.kind, label: c.label, percent: c.percent || null, amount: c.amount || null };
+}
+
+// A code typed on a website form: counted and saved with the brief or reservation
+function useCode_(raw, opts) {
+  const typed = clean_(raw, 30);
+  if (!typed) return '';
+  const c = codeInfo_(typed, opts);
+  if (!c.valid) return '⚠ ' + typed.toUpperCase() + ' (not applied: ' + c.reason + ')';
+  if (c.kind === 'promo') { const P = promos_(); P.getRange(c.row, 6).setValue(num_(P.getRange(c.row, 6).getValue()) + 1); }
+  if (c.kind !== 'promo') {
+    const R = referrals_();
+    if (c.kind === 'referral') R.getRange(c.row, 6).setValue(num_(R.getRange(c.row, 6).getValue()) + 1);
+    addHistory_(R, c.row, (c.kind === 'referral' ? 'Used by ' : 'Reward requested by ') + (opts.name || 'a client') + ' (' + opts.ref + ')');
+  }
+  return c.code + ' · ' + c.label;
+}
+
+// The discount a code gives on an amount when a quote or invoice is sent
+function discountFor_(code, email, base, ref) {
+  const c = codeInfo_(code, { email: email, ref: ref, honour: true });
+  if (!c.valid || !(base > 0)) return null;
+  const amount = Math.min(base, Math.round(c.percent ? base * c.percent / 100 : c.amount));
+  return { label: c.label + ' (' + c.code + ')', amount: amount, reward: c.kind === 'reward' ? c.row : 0 };
+}
+const discountLabel_ = (code) => 'Discount' + (code ? ' (' + code + ')' : '');
+
+function claimReward_(row, ref) {
+  const R = referrals_();
+  if (String(R.getRange(row, 9).getValue()).toUpperCase().indexOf('CLAIMED ON ' + String(ref).toUpperCase()) > -1) return;
+  R.getRange(row, 8).setValue(num_(R.getRange(row, 8).getValue()) + 1);
+  addHistory_(R, row, 'Reward claimed on ' + ref);
+}
+
+// The code the client used on the website, for their first quote (or first invoice when there is no quote)
+function autoCode_(sh, row, type, ref) {
+  if (!ref) return '';
+  const n = normRef_(ref);
+  const b = subs_().getDataRange().getValues().slice(1).find((x) => normRef_(x[0]) === n);
+  const t = b ? null : trainees_().getDataRange().getValues().slice(1).find((x) => normRef_(x[0]) === n);
+  const code = codeOf_(b ? b[13] : t ? t[13] : '');
+  if (!code || type === 'Quote') return code;
+  const used = sh.getDataRange().getValues().some((x, k) => k > 0 && k !== row - 1 && normRef_(x[3]) === n &&
+    (String(x[1]).trim() === 'Quote' || /\(−KES/.test(String(x[15] || ''))));
+  return used ? '' : code;
+}
+
+// A delivered client's personal referral code (created once per email address)
+function referralFor_(name, email, ref) {
+  const R = referrals_(), rows = R.getDataRange().getValues();
+  const mine = rows.find((x, k) => k > 0 && String(x[2]).trim().toLowerCase() === String(email).trim().toLowerCase());
+  if (mine) return String(mine[0]).trim();
+  const taken = rows.map((x) => normRef_(x[0])).concat(promos_().getDataRange().getValues().map((x) => normRef_(x[0])));
+  const first = String(name || '').trim().split(/\s+/)[0].normalize('NFD').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 6) || 'NCS';
+  let code;
+  do {
+    code = first + '-' + Utilities.getUuid().replace(/[^a-z0-9]/gi, '').toUpperCase().replace(/[01OI]/g, '').slice(0, 4);
+  } while (taken.indexOf(normRef_(code)) > -1);
+  R.appendRow([code, name, email, ref, new Date(), 0, 0, 0, '']);
+  return code;
+}
+
+// After a referred client pays: the referrer earns a reward (once per project) and is thanked
+function referralPaid_(ref) {
+  if (/^no$/i.test(setting_('Referral programme'))) return;
+  const n = normRef_(ref);
+  const b = subs_().getDataRange().getValues().slice(1).find((x) => normRef_(x[0]) === n);
+  const t = b ? null : trainees_().getDataRange().getValues().slice(1).find((x) => normRef_(x[0]) === n);
+  const src = b ? { code: b[13], name: b[3], email: b[4] } : t ? { code: t[13], name: t[2], email: t[3] } : null;
+  const code = src && codeOf_(src.code);
+  if (!code) return;
+  const R = referrals_(), rows = R.getDataRange().getValues();
+  const j = rows.findIndex((x, k) => k > 0 && normRef_(x[0]) === normRef_(code));
+  if (j < 1) return;
+  const x = rows[j];
+  if (String(x[2]).trim().toLowerCase() === String(src.email).trim().toLowerCase()) return;   // their own reward, not a referral
+  if (String(x[8]).toUpperCase().indexOf('REWARD EARNED FROM ' + String(ref).toUpperCase()) > -1) return;
+  R.getRange(j + 1, 7).setValue(num_(x[6]) + 1);
+  addHistory_(R, j + 1, 'Reward earned from ' + ref + ' (' + src.name + ' paid)');
+  const pct = num_(setting_('Referral reward (%)'));
+  if (validEmail_(x[2]) && pct) {
+    const friend = String(src.name || '').trim().split(/\s+/)[0];
+    MailApp.sendEmail({ to: String(x[2]).trim(), name: SENDER, subject: 'Thank you for the referral! ' + pct + '% off your next project',
+      htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+        '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · REFERRAL REWARD</p>' +
+        '<p>Hello ' + html_(x[1]) + ',</p>' +
+        '<p>Thank you for recommending me' + (friend ? ' to <b>' + html_(friend) + '</b>' : '') + '! Their project has started, so you have earned <b>' + pct + '% off</b> your next project.</p>' +
+        '<p>To claim it, type your code <b style="font-size:16px;letter-spacing:1px">' + html_(x[0]) + '</b> in the "Discount or referral code" box on your next project brief. Your rewards add up: one for each friend who becomes a client.</p>' +
+        '<p><a href="' + SITE_URL + '#brief" style="background:#0e1a3a;color:#fff;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Start a new project</a></p>' +
+        '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p></div>',
+      body: 'Thank you for the referral! You have earned ' + pct + '% off your next project. Use your code ' + x[0] + ' on your next brief: ' + SITE_URL + '#brief' });
+  }
+}
+
+function referralBlock_(code) {
+  const give = num_(setting_('Referral discount for new clients (%)')), get = num_(setting_('Referral reward (%)'));
+  return '<div style="border:2px dashed #ffb627;border-radius:14px;padding:14px 16px;margin:18px 0">' +
+    '<b>Know someone who needs design work?</b><br>Share your personal code <b style="font-size:16px;letter-spacing:1px">' + html_(code) + '</b>.' +
+    (give ? ' They get <b>' + give + '% off</b> their first project' : '') + (get ? (give ? ', and' : '') + ' once they pay, you get <b>' + get + '% off</b> your next one' : '') + '.</div>';
+}
+
+/* ---------- Quotes the client accepts on the tracking page ---------- */
+// A quote for someone who didn't send a brief: listed in Submissions so the tracker knows it
+function quoteBrief_(ref, client, email, title) {
+  const n = normRef_(ref);
+  if (projects_().getDataRange().getValues().slice(1).some((x) => normRef_(x[0]) === n)) return;
+  const S = subs_(), rows = S.getDataRange().getValues();
+  const i = rows.findIndex((x, k) => k > 0 && normRef_(x[0]) === n);
+  if (i > 0) { if (/^(new|reviewing)$/i.test(String(rows[i][2]).trim())) S.getRange(i + 1, 3).setValue('Quote sent'); return; }
+  if (/^TRN/i.test(n)) return;
+  S.appendRow([ref, new Date(), 'Quote sent', client, email, '', '', title, '', '', 'Created from a quote sent in the Invoices tab', '', '', '']);
+}
+
+function quoteFor_(ref) {
+  const n = normRef_(ref);
+  const rows = invoices_().getDataRange().getValues().slice(1).filter((x) => x[0] && normRef_(x[3]) === n && String(x[1]).trim() === 'Quote' && String(x[10]).trim() === 'Sent');
+  if (!rows.length) return null;
+  const q = rows[rows.length - 1];
+  const acc = /^accepted\s*(.*)$/i.exec(String(q[14] || '').trim());
+  const date = q[2] instanceof Date ? q[2] : null;
+  const until = date ? new Date(date.getTime() + 30 * 864e5) : null;
+  const disc = /\(−KES ([\d,]+)\)/.exec(String(q[15] || ''));
+  return {
+    number: String(q[0]).trim(), date: ymd_(date), validUntil: until ? ymd_(until) : '',
+    total: num_(q[7]) || invoiceItems_(q[6]).reduce((a, it) => a + (it.amount || 0), 0),
+    items: invoiceItems_(q[6]).slice(0, 20),
+    discount: disc ? { label: discountLabel_(codeOf_(q[15])), amount: num_(disc[1]) } : null,
+    state: acc ? 'accepted' : until && Date.now() > until.getTime() + 864e5 ? 'expired' : 'open',
+    acceptedOn: acc ? acc[1] : ''
+  };
+}
+
+function acceptQuote_(p) {
+  const want = normRef_(p.ref), number = clean_(p.number, 30);
+  if (want.length < 6 || !number) return { ok: false, error: 'invalid' };
+  const cache = CacheService.getScriptCache();
+  const count = Number(cache.get('accept-count') || 0);
+  if (count >= 30) return { ok: false, error: 'busy' };
+  cache.put('accept-count', String(count + 1), 3600);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sh = invoices_(), rows = sh.getDataRange().getValues();
+    const i = rows.findIndex((x, k) => k > 0 && String(x[0]).trim() === number && normRef_(x[3]) === want && String(x[1]).trim() === 'Quote' && String(x[10]).trim() === 'Sent');
+    if (i < 1) return { ok: false };
+    const q = rows[i];
+    if (/^accepted/i.test(String(q[14]))) return { ok: true };
+    if (q[2] instanceof Date && Date.now() > q[2].getTime() + 31 * 864e5) return { ok: false, error: 'expired' };
+    const when = Utilities.formatDate(new Date(), 'Africa/Nairobi', 'd MMM yyyy');
+    sh.getRange(i + 1, 15).setValue('Accepted ' + when);
+    const ref = String(q[3]).trim(), items = invoiceItems_(q[6]);
+    const total = num_(q[7]) || items.reduce((a, it) => a + (it.amount || 0), 0);
+    const pctRaw = String(setting_('Deposit for accepted quotes (%)')).trim();
+    const pct = pctRaw === '' ? 50 : Math.max(0, Math.min(100, num_(pctRaw)));
+    const auto = !/^no$/i.test(setting_('Send the deposit invoice automatically'));
+    const deposit = pct > 0 && total > 0 ? Math.round(total * pct / 100) : 0;
+    // The project on the tracker
+    const P = projects_(), prow = P.getDataRange().getValues();
+    const j = prow.findIndex((x, k) => k > 0 && normRef_(x[0]) === want);
+    const S = subs_(), srow = S.getDataRange().getValues();
+    const k = srow.findIndex((x, n) => n > 0 && normRef_(x[0]) === want);
+    const b = k > 0 ? srow[k] : null;
+    const client = String(q[4] || '').trim() || (b ? String(b[3]) : ''), email = String(q[5] || '').trim() || (b ? String(b[4]) : '');
+    const title = (j > 0 && prow[j][1]) || (b && (b[7] || b[6])) || items[0].text;
+    const note = 'Quote ' + number + ' accepted on ' + when + '.' + (deposit ? (auto ? ' Your deposit invoice has been emailed to you.' : ' Your deposit invoice follows shortly.') : '');
+    if (j > 0) { P.getRange(j + 1, 7).setValue(note); P.getRange(j + 1, 11).setValue(new Date()); }
+    else if (!/^TRN/i.test(want)) P.appendRow([ref, title, client, 'Quote sent', 20, b ? b[9] || '' : '', note, deposit ? 'Due' : '', deposit || total, '', new Date(), email]);
+    if (k > 0) { S.getRange(k + 1, 3).setValue('Accepted'); if (!srow[k][12]) S.getRange(k + 1, 13).setValue('Yes, ' + when + ' (quote accepted)'); }
+    // The deposit invoice
+    if (deposit) {
+      sh.appendRow(['', 'Invoice', new Date(), ref, client, email, (pct >= 100 ? 'Full payment' : 'Deposit (' + pct + '%)') + ' for quote ' + number + ' - ' + deposit, deposit, 0,
+        'Thank you for accepting quote ' + number + ' (' + kes_(total) + '). ' + (pct >= 100 ? 'This payment confirms your project.' : 'This deposit confirms your project; the balance of ' + kes_(total - deposit) + ' is due on delivery.'),
+        'Draft', '', 'Drafted when the client accepted quote ' + number + (auto ? '' : ': check it, then set Action to Send'), '', '', 'None']);
+      if (auto && validEmail_(email)) sendInvoice_(sh, sh.getLastRow());
+    }
+    if ((!deposit || !auto) && validEmail_(email)) {
+      mail_(email, 'Quote ' + number + ' accepted: thank you!', client,
+        'Thank you for accepting quote <b>' + html_(number) + '</b> (' + kes_(total) + ') for <b>' + html_(title) + '</b>. ' + (deposit ? 'I will send your deposit invoice shortly.' : 'I will be in touch about the next steps.'),
+        'Quote sent', 20, '', ref);
+    }
+    const me = Session.getEffectiveUser().getEmail();
+    if (me) MailApp.sendEmail({ to: me, name: 'Nexus CAD Studio website', subject: '✅ Quote accepted: ' + number + ' · ' + client + ' · ' + kes_(total),
+      htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;color:#0e1a3a"><p><b>' + html_(client) + '</b> accepted quote <b>' + html_(number) + '</b> (' + kes_(total) + ') for <b>' + html_(title) + '</b> (' + html_(ref) + ').</p>' +
+        '<p>' + (deposit ? (auto ? 'The deposit invoice (' + kes_(deposit) + ') was emailed automatically.' : 'A deposit invoice (' + kes_(deposit) + ') is drafted in the Invoices tab: set its Action to Send.') : 'No deposit invoice (deposit set to 0% in Settings).') + ' The project is on the tracker.</p>' +
+        '<p><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Open your sheet</a></p></div>' });
+  } finally {
+    lock.releaseLock();
+  }
+  return { ok: true };
+}
+
+/* ---------- M-Pesa payments the client reports on the tracking page ---------- */
+const PAYMENTS = 'Payments';
+const PYHEAD = ['Received', 'Reference', 'Client', 'M-Pesa code', 'Amount (KES)', 'Paid from (name / number)', 'Status', 'Receipt (automatic)', 'Notes'];
+const PY_STATUS = ['To confirm', 'Confirmed', 'Not received'];
+
+function payments_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(PAYMENTS);
+  if (sh) return sh;
+  sh = ss.insertSheet(PAYMENTS);
+  sh.appendRow(PYHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, PYHEAD.length).setFontWeight('bold').setWrap(true);
+  sh.getRange('A2:A3000').setNumberFormat('d mmm yyyy, HH:mm');
+  sh.getRange('G2:G3000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(PY_STATUS, true).build());
+  [140, 160, 180, 140, 120, 200, 120, 220, 300].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+
+// Who a reference belongs to (project, brief or trainee)
+function clientOf_(ref) {
+  const n = normRef_(ref);
+  if (!n) return null;
+  const p = projects_().getDataRange().getValues().slice(1).find((x) => normRef_(x[0]) === n);
+  if (p) return { name: String(p[2] || ''), email: String(p[11] || '').trim(), title: String(p[1] || ''), balance: String(p[8]).trim() === '' ? null : num_(p[8]) };
+  const b = subs_().getDataRange().getValues().slice(1).find((x) => normRef_(x[0]) === n);
+  if (b) return { name: String(b[3] || ''), email: String(b[4] || '').trim(), title: String(b[7] || b[6] || ''), balance: null };
+  const t = trainees_().getDataRange().getValues().slice(1).find((x) => normRef_(x[0]) === n);
+  if (t) return { name: String(t[2] || ''), email: String(t[3] || '').trim(), title: String(t[5] || '') + ' training', balance: null };
+  return null;
+}
+
+const mpesaCode_ = (v) => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+function payment_(p) {
+  const want = normRef_(p.ref), code = mpesaCode_(p.code), amount = Math.round(num_(p.amount));
+  if (want.length < 6 || !/^[A-Z0-9]{8,12}$/.test(code) || !(amount > 0 && amount < 1e7)) return { ok: false, error: 'invalid' };
+  const cache = CacheService.getScriptCache();
+  const count = Number(cache.get('pay-count') || 0);
+  if (count >= 20) return { ok: false, error: 'busy' };
+  cache.put('pay-count', String(count + 1), 3600);
+  const who = clientOf_(want);
+  if (!who) return { ok: false };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  let ref;
+  try {
+    const sh = payments_(), rows = sh.getDataRange().getValues().slice(1);
+    if (rows.some((x) => mpesaCode_(x[3]) === code)) return { ok: true };            // sent twice
+    ref = String(p.ref).trim().toUpperCase();
+    sh.appendRow([new Date(), ref, who.name, code, amount, clean_(p.payer, 80), 'To confirm', '', '']);
+  } finally {
+    lock.releaseLock();
+  }
+  const me = Session.getEffectiveUser().getEmail();
+  if (me) MailApp.sendEmail({ to: me, name: 'Nexus CAD Studio website', subject: '💰 Payment to confirm: ' + kes_(amount) + ' from ' + (who.name || ref),
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;color:#0e1a3a"><p><b>' + html_(who.name || 'A client') + '</b> says they paid <b>' + kes_(amount) + '</b> by M-Pesa for <b>' + html_(who.title || ref) + '</b> (' + html_(ref) + ').</p>' +
+      '<p style="font-size:18px">M-Pesa code: <b style="letter-spacing:1px">' + html_(code) + '</b>' + (p.payer ? '<br><span style="font-size:13px;color:#555">Paid from: ' + html_(clean_(p.payer, 80)) + '</span>' : '') + '</p>' +
+      '<p>Check your M-Pesa messages for this code, then set its Status in the <b>Payments</b> tab to <b>Confirmed</b>: the receipt is created and emailed for you. If you can\'t find it, choose <b>Not received</b> and the client is asked to check.</p>' +
+      '<p><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Open your sheet</a></p></div>' });
+  return { ok: true };
+}
+
+function paymentChanged_(sh, row) {
+  const r = sh.getRange(row, 1, 1, PYHEAD.length).getValues()[0];
+  const status = String(r[6] || '').trim(), ref = String(r[1] || '').trim(), code = String(r[3] || '').trim(), amount = num_(r[4]);
+  const who = clientOf_(ref) || { name: String(r[2] || ''), email: '', title: '', balance: null };
+  const when = Utilities.formatDate(new Date(), 'Africa/Nairobi', 'd MMM yyyy');
+  if (status === 'Confirmed' && !String(r[7]).trim()) {
+    if (!amount) { sh.getRange(row, 9).setValue('⚠ Add the amount, then set Status to Confirmed again.'); return; }
+    const inv = invoices_(), rows = inv.getDataRange().getValues(), n = normRef_(ref);
+    // What it pays for: the latest sent invoice that is still open, else the project balance
+    let item = '', total = 0;
+    const invs = rows.filter((x, k) => k > 0 && n && normRef_(x[3]) === n && String(x[1]).trim() === 'Invoice' && String(x[10]).trim() === 'Sent');
+    const last = invs[invs.length - 1];
+    if (last) {
+      const since = rows.filter((x, k) => k > 0 && normRef_(x[3]) === n && String(x[1]).trim() === 'Receipt' && String(x[10]).trim() === 'Sent' &&
+        x[2] instanceof Date && last[2] instanceof Date && x[2] >= last[2]).reduce((a, x) => a + num_(x[8]), 0);
+      const owed = Math.max(0, num_(last[7]) - num_(last[8]) - since);
+      if (owed > 0) { item = 'Invoice ' + last[0] + ' - ' + owed; total = owed; }
+    }
+    if (!item && who.balance > 0) { item = 'Balance for ' + (who.title || ref) + ' - ' + who.balance; total = who.balance; }
+    if (!item) { item = 'Payment for ' + (who.title || ref) + ' - ' + amount; total = amount; }
+    inv.appendRow(['', 'Receipt', new Date(), ref, who.name, who.email, item, Math.max(total, amount), amount, 'M-Pesa confirmation code ' + code, 'Draft', '', 'Created from the Payments tab', '', '', 'None']);
+    const ir = inv.getLastRow();
+    if (!validEmail_(who.email)) { sh.getRange(row, 8).setValue('⚠ Receipt drafted in Invoices row ' + ir + ': add the client email there, then set Action to Send'); return; }
+    sendInvoice_(inv, ir);
+    sh.getRange(row, 8).setValue(String(inv.getRange(ir, 1).getValue()) + ' sent ' + when);
+  } else if (status === 'Not received' && !/client asked/i.test(String(r[8]))) {
+    if (validEmail_(who.email)) {
+      mail_(who.email, 'About your M-Pesa payment (' + ref + ')', who.name,
+        'Thank you for sending your M-Pesa code <b>' + html_(code) + '</b> (' + kes_(amount) + '). I couldn\'t find this payment in my M-Pesa messages yet. Please check the code in your M-Pesa confirmation SMS and send it again on your tracking page, or message me on WhatsApp so we can sort it out.',
+        '', null, '', ref);
+    }
+    sh.getRange(row, 9).setValue([String(r[8] || ''), 'Client asked to check ' + when].filter(Boolean).join(' · '));
+  }
+}
+
+function paymentsFor_(ref) {
+  const n = normRef_(ref);
+  return payments_().getDataRange().getValues().slice(1).filter((x) => normRef_(x[1]) === n).slice(-5).map((x) => ({
+    code: mpesaCode_(x[3]).replace(/^(.{3}).*(.{3})$/, '$1••••$2'), amount: num_(x[4]), date: ymd_(x[0]),
+    status: /^confirmed$/i.test(String(x[6]).trim()) ? 'confirmed' : /^not received$/i.test(String(x[6]).trim()) ? 'declined' : 'pending'
+  }));
+}
+
+/* ---------- Time log: hours per project ---------- */
+const TIMELOG = 'Time log';
+const TLHEAD = ['Date', 'Project reference', 'Hours (e.g. 1.5 or 1:30)', 'What you did', 'Project (automatic)'];
+
+function timelog_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(TIMELOG);
+  if (sh) return sh;
+  sh = ss.insertSheet(TIMELOG);
+  sh.appendRow(TLHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, TLHEAD.length).setFontWeight('bold').setWrap(true);
+  sh.getRange('A2:A10000').setNumberFormat('d mmm yyyy');
+  sh.getRange('C2:C10000').setNumberFormat('@');   // keep 1:30 as typed
+  [110, 170, 140, 380, 260].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+
+// "1.5", "1:30", "90m", "1h 30m", "2 h" → hours
+function hours_(v) {
+  if (v instanceof Date) return v.getHours() + v.getMinutes() / 60;
+  if (typeof v === 'number') return v > 0 ? v : 0;
+  const t = String(v || '').trim().toLowerCase();
+  let m;
+  if ((m = /^(\d+):(\d{1,2})$/.exec(t))) return +m[1] + +m[2] / 60;
+  if ((m = /^(?:(\d+(?:\.\d+)?)\s*h(?:ours?|rs?)?)?\s*(?:(\d+)\s*m(?:in(?:utes?|s)?)?)?$/.exec(t)) && (m[1] || m[2])) return (+m[1] || 0) + (+m[2] || 0) / 60;
+  return num_(t);
+}
+const round1_ = (n) => Math.round(n * 10) / 10;
+
+function fillTimelog_(sh, row) {
+  const who = clientOf_(sh.getRange(row, 2).getValue());
+  sh.getRange(row, 5).setValue(who ? who.title + (who.name ? ' · ' + who.name : '') : '⚠ Reference not found in Projects');
+  if (!sh.getRange(row, 1).getValue()) sh.getRange(row, 1).setValue(new Date());
+}
+
+// Hours, money in, costs and profit per project (from, to: optional period for "hours in period")
+function projectStats_(from, to) {
+  const inRange = (d) => !from || (d instanceof Date && d >= from && d < to);
+  const projects = projects_().getDataRange().getValues().slice(1).filter((r) => r[0] && !/^DEMO/i.test(String(r[0])));
+  const log = timelog_().getDataRange().getValues().slice(1).filter((x) => x[1]);
+  const receipts = invoices_().getDataRange().getValues().slice(1).filter((x) => String(x[1]).trim() === 'Receipt' && String(x[10]).trim() === 'Sent');
+  const exp = expenses_().getDataRange().getValues().slice(1).filter((x) => x[7]);
+  return projects.map((p) => {
+    const n = normRef_(p[0]);
+    const mine = log.filter((x) => normRef_(x[1]) === n);
+    const hours = mine.reduce((a, x) => a + hours_(x[2]), 0);
+    const paid = receipts.filter((x) => normRef_(x[3]) === n).reduce((a, x) => a + num_(x[8]), 0);
+    const costs = exp.filter((x) => normRef_(x[7]) === n).reduce((a, x) => a + num_(x[3]), 0);
+    return {
+      ref: String(p[0]), title: String(p[1] || p[0]), client: String(p[2] || ''), stage: String(p[3] || ''),
+      hours: round1_(hours), periodHours: round1_(mine.filter((x) => inRange(x[0])).reduce((a, x) => a + hours_(x[2]), 0)),
+      paid, costs, profit: paid - costs, perHour: hours ? Math.round((paid - costs) / hours) : null,
+      lastWork: mine.reduce((a, x) => (x[0] instanceof Date && x[0] > a ? x[0] : a), p[10] instanceof Date ? p[10] : new Date(0))
+    };
+  }).filter((s) => s.hours || s.paid || s.costs);
+}
+
+function projectsSection_(from, to) {
+  const stats = projectStats_(from, to).filter((s) => s.periodHours || s.paid);
+  if (!stats.length) return '';
+  const hours = stats.reduce((a, s) => a + s.periodHours, 0);
+  const rows = stats.sort((a, b) => b.periodHours - a.periodHours || b.paid - a.paid).slice(0, 15).map((s) =>
+    '<tr><td style="padding:5px 0"><b>' + html_(s.title) + '</b><br><span style="font-size:11px;color:#777">' + html_(s.ref) + (s.periodHours ? ' · ' + s.periodHours + ' h this month' : '') + '</span></td>' +
+    '<td style="padding:5px 6px;text-align:right">' + s.hours + ' h</td><td style="padding:5px 6px;text-align:right">' + kes_(s.profit) + '</td>' +
+    '<td style="padding:5px 0;text-align:right;font-weight:bold">' + (s.perHour === null ? '–' : kes_(s.perHour) + '/h') + '</td></tr>').join('');
+  return '<h3 style="margin:22px 0 6px;font-size:15px">Projects: time and profit</h3>' +
+    '<p style="margin:0 0 6px;font-size:13px;color:#555">Hours logged this month: <b>' + round1_(hours) + '</b>. Totals per project (all time): hours, profit (paid minus project costs) and what you earned per hour.</p>' +
+    '<table width="100%" style="font-size:13px"><tr style="color:#777;font-size:11px"><td>PROJECT</td><td style="text-align:right">HOURS</td><td style="text-align:right">PROFIT</td><td style="text-align:right">PER HOUR</td></tr>' + rows + '</table>';
+}
+
+/* ---------- Dashboard tab: charts and totals ---------- */
+const DASHBOARD = 'Dashboard';
+
+function dashboard_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(DASHBOARD);
+  if (sh) return sh;
+  sh = ss.insertSheet(DASHBOARD, 0);
+  [230, 140, 30, 110, 110, 110, 110, 30, 150, 80, 30, 160, 120, 30, 160, 90, 30, 90, 80].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+
+function refreshDashboard() {
+  const sh = dashboard_(), tz = 'Africa/Nairobi', now = new Date();
+  const month0 = new Date(now.getFullYear(), now.getMonth(), 1), year0 = new Date(now.getFullYear(), 0, 1), soon = new Date(now.getTime() + 1000);
+  const m = money_(month0, soon), y = money_(year0, soon);
+  const projects = projects_().getDataRange().getValues().slice(1).filter((r) => r[0] && !/^DEMO/i.test(String(r[0])));
+  const active = projects.filter((r) => !/^delivered$/i.test(String(r[3]).trim()));
+  const invRows = invoices_().getDataRange().getValues().slice(1);
+  const unpaid = invRows.filter((r) => String(r[1]).trim() === 'Invoice' && String(r[10]).trim() === 'Sent' && num_(r[7]) - num_(r[8]) > 0 && !invoicePaid_(r, invRows));
+  const toConfirm = payments_().getDataRange().getValues().slice(1).filter((r) => /^to confirm$/i.test(String(r[6]).trim()));
+  const reviews = sheet_().getDataRange().getValues().slice(1).filter((r) => r[1] && r[5] && !/^(hide|hidden|no|spam|delete)$/i.test(String(r[7]).trim()));
+  const avg = reviews.length ? reviews.reduce((a, r) => a + (Number(r[4]) || 5), 0) / reviews.length : 0;
+  const trainees = trainees_().getDataRange().getValues().slice(1).filter((r) => r[0] && r[1] instanceof Date && r[1] >= year0 && !/^cancelled$/i.test(String(r[8]).trim()));
+  const subs = subscribers_().getDataRange().getValues().slice(1).filter((r) => r[0] && !/^unsub/i.test(String(r[4])));
+  const stats = projectStats_(year0, soon);
+  const yHours = stats.reduce((a, s) => a + s.periodHours, 0);
+  const openQuotes = invRows.filter((r) => String(r[1]).trim() === 'Quote' && String(r[10]).trim() === 'Sent' && !r[14] && r[2] instanceof Date && now - r[2] < 30 * 864e5);
+
+  sh.getRange('A1:S80').clearContent();
+  sh.getRange('A1').setValue('Nexus CAD Studio dashboard').setFontWeight('bold').setFontSize(18);
+  sh.getRange('A2').setValue('Updated ' + Utilities.formatDate(now, tz, 'd MMM yyyy, HH:mm') + ' · refreshes every morning and when you open the sheet (or menu Website → Refresh the dashboard)').setFontColor('#666666');
+
+  const kpis = [
+    ['THIS MONTH', ''],
+    ['Income', m.income], ['Expenses', m.expenses], ['Profit', m.income - m.expenses],
+    ['THIS YEAR', ''],
+    ['Income', y.income], ['Expenses', y.expenses], ['Profit', y.income - y.expenses],
+    ['Hours logged', round1_(yHours)], ['Earned per hour (logged projects)', yHours ? Math.round(stats.reduce((a, s) => a + (s.periodHours ? s.profit : 0), 0) / yHours) : ''],
+    ['Trainees', trainees.length],
+    ['RIGHT NOW', ''],
+    ['Active projects', active.length], ['Balances to collect', active.reduce((a, r) => a + num_(r[8]), 0)],
+    ['Unpaid invoices', unpaid.length], ['Quotes waiting for an answer', openQuotes.length], ['Payments to confirm', toConfirm.length],
+    ['Average rating', reviews.length ? Math.round(avg * 10) / 10 + ' ★ (' + reviews.length + ' reviews)' : 'No reviews yet'],
+    ['Subscribers', subs.length]
+  ];
+  sh.getRange(4, 1, kpis.length, 2).setValues(kpis);
+  kpis.forEach((k, i) => { if (k[1] === '' && /^[A-Z ]+$/.test(k[0])) sh.getRange(4 + i, 1).setFontWeight('bold').setFontColor('#c4422a'); });
+  ['B5:B7', 'B9:B11', 'B13', 'B17'].forEach((a) => sh.getRange(a).setNumberFormat('"KES "#,##0'));
+
+  // Last 12 months
+  const months = [['Month', 'Income', 'Expenses', 'Profit']];
+  for (let k = 11; k >= 0; k--) {
+    const a = new Date(now.getFullYear(), now.getMonth() - k, 1), b = new Date(now.getFullYear(), now.getMonth() - k + 1, 1);
+    const x = money_(a, b);
+    months.push([Utilities.formatDate(a, tz, 'MMM yy'), x.income, x.expenses, x.income - x.expenses]);
+  }
+  sh.getRange(4, 4, 13, 4).setValues(months);
+  sh.getRange('E5:G16').setNumberFormat('#,##0');
+
+  const stages = [['Stage', 'Projects']].concat(STAGES.map((s) => [s, projects.filter((r) => String(r[3]).trim().toLowerCase() === s.toLowerCase()).length]));
+  sh.getRange(4, 9, stages.length, 2).setValues(stages);
+
+  const services = ['Engineering design', 'Graphic design', 'Training', 'Design projects', 'Other'];
+  sh.getRange(4, 12, 6, 2).setValues([['Service', 'Income this year']].concat(services.map((s) => [s, y.byService[s] || 0])));
+  sh.getRange('M5:M9').setNumberFormat('#,##0');
+
+  const courses = {};
+  trainees.forEach((r) => { const c = String(r[5] || 'Other').trim() || 'Other'; courses[c] = (courses[c] || 0) + 1; });
+  const crow = Object.keys(courses).sort((a, b) => courses[b] - courses[a]).slice(0, 10).map((c) => [c, courses[c]]);
+  while (crow.length < 10) crow.push(['', '']);
+  sh.getRange(4, 15, 11, 2).setValues([['Course', 'Trainees this year']].concat(crow));
+
+  sh.getRange(4, 18, 6, 2).setValues([['Rating', 'Reviews']].concat([5, 4, 3, 2, 1].map((n) => ['★'.repeat(n), reviews.filter((r) => (Number(r[4]) || 5) === n).length])));
+
+  // Profit per project
+  const prow = stats.sort((a, b) => b.lastWork - a.lastWork).slice(0, 15).map((s) => [s.title + ' (' + s.ref + ')', s.hours, s.paid, s.costs, s.profit, s.perHour === null ? '' : s.perHour]);
+  while (prow.length < 15) prow.push(['', '', '', '', '', '']);
+  sh.getRange(19, 4).setValue('Profit per project (all time)').setFontWeight('bold').setFontColor('#c4422a');
+  sh.getRange(20, 4, 16, 6).setValues([['Project', 'Hours', 'Paid', 'Costs', 'Profit', 'KES per hour']].concat(prow));
+  sh.getRange('F21:I35').setNumberFormat('#,##0');
+  [sh.getRange('D4:G4'), sh.getRange('I4:J4'), sh.getRange('L4:M4'), sh.getRange('O4:P4'), sh.getRange('R4:S4'), sh.getRange('D20:I20')].forEach((r) => r.setFontWeight('bold').setBackground('#f6f1e7'));
+
+  // Charts (made once; they follow the numbers above)
+  if (!sh.getCharts().length) {
+    const chart = (type, range, row, col, title, opts) => {
+      let b = sh.newChart().setChartType(type).addRange(sh.getRange(range)).setNumHeaders(1).setPosition(row, col, 0, 0)
+        .setOption('title', title).setOption('width', 560).setOption('height', 300).setOption('legend', { position: 'bottom' });
+      Object.keys(opts || {}).forEach((k) => { b = b.setOption(k, opts[k]); });
+      sh.insertChart(b.build());
+    };
+    chart(Charts.ChartType.COLUMN, 'D4:F16', 38, 1, 'Income and expenses (last 12 months, KES)', { colors: ['#13a89e', '#ff6b4a'] });
+    chart(Charts.ChartType.BAR, 'I4:J10', 38, 7, 'Projects by stage', { colors: ['#1f4fd1'], legend: { position: 'none' } });
+    chart(Charts.ChartType.PIE, 'L4:M9', 54, 1, 'Income by service (this year)', { pieHole: 0.45, colors: ['#1f4fd1', '#ff6b4a', '#13a89e', '#ffb627', '#7457f2'] });
+    chart(Charts.ChartType.COLUMN, 'R4:S9', 54, 7, 'Reviews by rating', { colors: ['#ffb627'], legend: { position: 'none' } });
+    chart(Charts.ChartType.BAR, 'O4:P14', 70, 1, 'Trainees per course (this year)', { colors: ['#13a89e'], legend: { position: 'none' } });
+  }
+}
+
+/* ---------- Free downloads in exchange for an email address ---------- */
+const DOWNLOADS = 'Downloads';
+const DLHEAD = ['Title', 'Description', 'File (a website file such as pdfs/x.pdf, or a Google Drive link shared with "Anyone with the link")', 'Show on website', 'Requests (automatic)'];
+const SEED_DOWNLOADS = [
+  ['AutoCAD shortcuts cheat sheet', 'The command aliases, function keys and object snaps I teach in every AutoCAD class, on one printable page.', 'pdfs/autocad-shortcuts-cheat-sheet.pdf', 'Yes', 0],
+  ['SolidWorks shortcuts cheat sheet', 'View, selection and sketching shortcuts plus mouse gestures that make SolidWorks faster, on one printable page.', 'pdfs/solidworks-shortcuts-cheat-sheet.pdf', 'Yes', 0]
+];
+const downloads_ = () => listTab_(DOWNLOADS, DLHEAD, SEED_DOWNLOADS, [260, 420, 380, 110, 110], null, 4);
+const fileUrl_ = (f) => { const t = String(f || '').trim(); return /^https?:\/\//i.test(t) ? t : t ? SITE_URL + t.replace(/^\/+/, '') : ''; };
+
+function download_(p) {
+  const email = clean_(p.email, 120).toLowerCase(), want = slug_(p.item);
+  if (!validEmail_(email) || !want) return { ok: false, error: 'invalid' };
+  const cache = CacheService.getScriptCache();
+  const count = Number(cache.get('dl-count') || 0);
+  if (count >= 60) return { ok: false, error: 'busy' };
+  cache.put('dl-count', String(count + 1), 3600);
+  const sh = downloads_(), rows = sh.getDataRange().getValues();
+  const i = rows.findIndex((r, k) => k > 0 && shown_(r, 3) && slug_(r[0]) === want);
+  if (i < 1 || !fileUrl_(rows[i][2])) return { ok: false };
+  const title = String(rows[i][0]).trim(), url = fileUrl_(rows[i][2]), name = clean_(p.name, 80);
+  const join = !/^no$/i.test(String(p.subscribe || '').trim());
+  if (join) subscribe_({ email: email, name: name, source: 'Free download: ' + title });
+  sh.getRange(i + 1, 5).setValue(num_(rows[i][4]) + 1);
+  const unsub = unsubLink_(email);
+  MailApp.sendEmail({ to: email, name: SENDER, subject: 'Your free download: ' + title,
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+      '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">CAD TIPS · NEXUS CAD STUDIO</p>' +
+      '<p>Hello' + (name ? ' ' + html_(name) : '') + ',</p>' +
+      '<p>Here is your free <b>' + html_(title) + '</b>. Print it and keep it next to your keyboard!</p>' +
+      '<p><a href="' + html_(url) + '" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Download ' + html_(title) + '</a></p>' +
+      '<p>Want to go further? I run a free weekly AutoCAD webinar and hands-on <a href="' + SITE_URL + 'training/">CAD training</a> in AutoCAD, SolidWorks, Inventor and Fusion 360.</p>' +
+      (join ? '<p>You will also get my occasional CAD tips by email.</p>' : '') +
+      '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p>' +
+      (join ? '<p style="margin-top:24px;font-size:11px;color:#888"><a href="' + unsub + '" style="color:#888">Unsubscribe from CAD tips</a></p>' : '') + '</div>',
+    body: 'Here is your free ' + title + ': ' + url + (join ? '\n\nUnsubscribe: ' + unsub : '') });
+  return { ok: true };
 }
 
 /* ---------- Payment reminders for unpaid invoices (daily, 9am) ---------- */
@@ -693,7 +1363,7 @@ function reminderJob() {
 
 /* ---------- Training: seats, trainees and certificates ---------- */
 const TRAINEES = 'Trainees';
-const THEAD = ['Trainee ID (automatic)', 'Registered', 'Name', 'Email', 'Phone / WhatsApp', 'Course', 'Class', 'Format', 'Status', 'Completed on', 'Certificate code (automatic)', 'Certificate (automatic)', 'Notes'];
+const THEAD = ['Trainee ID (automatic)', 'Registered', 'Name', 'Email', 'Phone / WhatsApp', 'Course', 'Class', 'Format', 'Status', 'Completed on', 'Certificate code (automatic)', 'Certificate (automatic)', 'Notes', 'Discount / referral code (automatic)'];
 const T_STATUS = ['Reserved', 'Waiting list', 'Confirmed', 'Paid', 'In training', 'Completed', 'Cancelled'];
 
 function trainees_() {
@@ -707,7 +1377,7 @@ function trainees_() {
   sh.getRange('I2:I2000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(T_STATUS, true).build());
   sh.getRange('B2:B2000').setNumberFormat('d mmm yyyy');
   sh.getRange('J2:J2000').setNumberFormat('d mmm yyyy');
-  [150, 110, 180, 220, 150, 160, 220, 130, 120, 120, 170, 200, 260].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  [150, 110, 180, 220, 150, 160, 220, 130, 120, 120, 170, 200, 260, 200].forEach((w, i) => sh.setColumnWidth(i + 1, w));
   return sh;
 }
 
@@ -747,8 +1417,9 @@ function reserve_(p) {
       String(r[6]).trim() === klass && !/^cancelled$/i.test(String(r[8]).trim()));
     if (dup) return { ok: true };
     id = newId_('TRN');
+    const code = useCode_(p['Discount code'] || p.code, { for: 'Training', email: email, name: name, ref: id });
     const notes = [p.Level ? 'Level: ' + clean_(p.Level, 60) : '', p['Preferred schedule'] ? 'Prefers: ' + clean_(p['Preferred schedule'], 80) : '', p.Message ? clean_(p.Message, 600) : ''].filter(Boolean).join(' · ');
-    sh.appendRow([id, new Date(), name, email, clean_(p['Phone / WhatsApp'] || p.phone, 40), c ? c.name : course, klass, clean_(p.Format, 60), status, '', '', '', notes]);
+    sh.appendRow([id, new Date(), name, email, clean_(p['Phone / WhatsApp'] || p.phone, 40), c ? c.name : course, klass, clean_(p.Format, 60), status, '', '', '', notes, code]);
   } finally {
     lock.releaseLock();
   }
@@ -784,7 +1455,7 @@ function traineeChanged_(sh, row) {
     const inv = invoices_(), invRows = inv.getDataRange().getValues();
     if (!invRows.some((x) => normRef_(x[3]) === normRef_(id))) {
       const price = num_(setting_('Training starting price (KES)'));
-      inv.appendRow(['', 'Invoice', new Date(), id, name, email, course + ' training' + (r[6] ? ' (' + r[6] + ')' : '') + (price ? ' - ' + price : ''), '', '', '', 'Draft', '', 'Drafted from the Trainees tab: check it, then set Action to Send', '']);
+      inv.appendRow(['', 'Invoice', new Date(), id, name, email, course + ' training' + (r[6] ? ' (' + r[6] + ')' : '') + (price ? ' - ' + price : ''), '', '', '', 'Draft', '', 'Drafted from the Trainees tab: check it, then set Action to Send', '', '', codeOf_(r[13])]);
     }
     sh.getRange(row, 13).setValue([String(r[12] || ''), 'Invoice drafted in the Invoices tab'].filter(Boolean).join(' · '));
     if (validEmail_(email)) traineeMail_(email, name, 'Good news: your seat for <b>' + html_(course) + '</b> training' + (r[6] ? ' (' + html_(r[6]) + ')' : '') + ' is <b>confirmed</b>. Your invoice follows shortly.', 'Seat confirmed: ' + course, id);
@@ -893,7 +1564,7 @@ function feedback_(p) {
 
 /* ---------- Money: expenses and the monthly report ---------- */
 const EXPENSES = 'Expenses';
-const EHEAD = ['Date', 'Category', 'Description', 'Amount (KES)', 'Paid with', 'Receipt / proof (link, optional)', 'Notes'];
+const EHEAD = ['Date', 'Category', 'Description', 'Amount (KES)', 'Paid with', 'Receipt / proof (link, optional)', 'Notes', 'Project reference (optional)'];
 const E_CATS = ['Software & subscriptions', 'Printing & materials', 'Transport', 'Data & airtime', 'Equipment', 'Marketing & ads', 'Training costs', 'Fees & charges', 'Other'];
 
 function expenses_() {
@@ -907,7 +1578,7 @@ function expenses_() {
   sh.getRange('A2:A5000').setNumberFormat('d mmm yyyy');
   sh.getRange('B2:B5000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(E_CATS, true).setAllowInvalid(true).build());
   sh.getRange('E2:E5000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['M-Pesa', 'Cash', 'Bank', 'Card'], true).setAllowInvalid(true).build());
-  [110, 190, 300, 120, 110, 260, 260].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  [110, 190, 300, 120, 110, 260, 260, 170].forEach((w, i) => sh.setColumnWidth(i + 1, w));
   return sh;
 }
 
@@ -950,6 +1621,7 @@ function moneyEmail_(title, from, to) {
     '<table width="100%" cellspacing="6"><tr>' + stat(kes_(m.income), 'income (' + m.receipts + ' receipt' + (m.receipts === 1 ? '' : 's') + ')') + stat(kes_(m.expenses), 'expenses') + stat(kes_(profit), 'profit', profit >= 0 ? '#137a49' : '#b23a22') + '</tr></table>' +
     '<h3 style="margin:22px 0 6px;font-size:15px">Income by service</h3><table width="100%">' + rows(m.byService) + '</table>' +
     '<h3 style="margin:22px 0 6px;font-size:15px">Expenses by category</h3><table width="100%">' + rows(m.byCat) + '</table>' +
+    projectsSection_(from, to) +
     '<p style="margin-top:22px">This year so far: income <b>' + kes_(y.income) + '</b> · expenses <b>' + kes_(y.expenses) + '</b> · profit <b>' + kes_(y.income - y.expenses) + '</b></p>' +
     '<p style="font-size:12px;color:#888">Income counts the receipts you sent from the Invoices tab; expenses come from the Expenses tab.</p>' +
     '<p><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '" style="background:#0e1a3a;color:#fff;padding:11px 18px;border-radius:99px;text-decoration:none;font-weight:bold">Open your sheet</a></p></div>';
@@ -987,26 +1659,29 @@ function followUpJob() {
     if (!validEmail_(email) || MailApp.getRemainingDailyQuota() <= 10) return;
     const delivered = new Date(m[1] + 'T09:00:00+03:00');
     let note = f;
-    // 1. Review request, the day after delivery (skipped if this client already left a review)
-    if (!/review asked|reviewed/i.test(f) && today > m[1] && !/^no$/i.test(setting_('Ask delivered clients for a review'))) {
+    // 1. Thank-you the day after delivery: a review request (unless they already left one) and their referral code
+    if (!/review asked|reviewed|thanked/i.test(f) && today > m[1]) {
       const already = reviews.some((x) => (name && String(x[1]).trim().toLowerCase() === name.toLowerCase()) || (x[6] && String(x[6]).trim().toLowerCase() === title.toLowerCase()));
-      if (already) note += ' · Reviewed';
-      else {
+      const ask = !already && !/^no$/i.test(setting_('Ask delivered clients for a review'));
+      const code = !/^no$/i.test(setting_('Referral programme')) ? referralFor_(name, email, String(r[0])) : '';
+      if (ask || code) {
         const b = subs_().getDataRange().getValues().slice(1).find((x) => normRef_(x[0]) === normRef_(r[0]));
         const service = b && /graphic/i.test(b[6]) ? 'Graphic Design' : 'Engineering Design';
         const link = SITE_URL + '?review=1&name=' + encodeURIComponent(name) + '&project=' + encodeURIComponent(title) + '&service=' + encodeURIComponent(service) + '#reviews';
-        MailApp.sendEmail({ to: email, name: SENDER, subject: 'How did ' + title + ' turn out?',
+        MailApp.sendEmail({ to: email, name: SENDER, subject: ask ? 'How did ' + title + ' turn out?' : 'Thank you for choosing Nexus CAD Studio',
           htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
             '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · THANK YOU</p>' +
             '<p>Hello' + (name ? ' ' + html_(name) : '') + ',</p>' +
             '<p>Thank you for choosing Nexus CAD Studio for <b>' + html_(title) + '</b>. I hope everything is working well for you.</p>' +
-            '<p>If you have a minute, a short review would mean a lot and helps other clients decide. It takes less than a minute:</p>' +
-            '<p><a href="' + link + '" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">★ Leave a review</a></p>' +
+            (ask ? '<p>If you have a minute, a short review would mean a lot and helps other clients decide. It takes less than a minute:</p>' +
+              '<p><a href="' + link + '" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">★ Leave a review</a></p>' : '') +
+            (code ? referralBlock_(code) : '') +
             '<p style="font-size:13px;color:#555">If anything needs adjusting, just reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
             '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p></div>',
-          body: 'Thank you for choosing Nexus CAD Studio for ' + title + '. A short review would mean a lot: ' + link });
-        note += ' · Review asked ' + today;
+          body: 'Thank you for choosing Nexus CAD Studio for ' + title + '.' + (ask ? ' A short review would mean a lot: ' + link : '') + (code ? ' Your referral code: ' + code : '') });
+        note += ask ? ' · Review asked ' + today : ' · Thanked ' + today;
       }
+      if (already) note += ' · Reviewed';
     }
     // 2. One year later: a friendly check-in
     const year = new Date(delivered.getTime()); year.setFullYear(year.getFullYear() + 1);
@@ -1017,6 +1692,7 @@ function followUpJob() {
           '<p>Hello' + (name ? ' ' + html_(name) : '') + ',</p>' +
           '<p>It is one year since we completed <b>' + html_(title) + '</b> together. Thank you again for your trust!</p>' +
           '<p>If you have a new design, drawings, simulation, poster or training need, I would be glad to help. As a returning client, just mention this email when you get in touch.</p>' +
+          (function () { const c = /^no$/i.test(setting_('Referral programme')) ? '' : referralFor_(name, email, String(r[0])); return c ? referralBlock_(c) : ''; })() +
           '<p><a href="' + SITE_URL + '#brief" style="background:#0e1a3a;color:#fff;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Start a new project</a></p>' +
           '<p style="font-size:13px;color:#555">Or simply <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
           '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p></div>',
@@ -1031,6 +1707,7 @@ function followUpJob() {
 function dailyJob() {
   try { reminderJob(); } catch (err) { console.error('reminders: ' + err); }
   try { followUpJob(); } catch (err) { console.error('follow-ups: ' + err); }
+  try { refreshDashboard(); } catch (err) { console.error('dashboard: ' + err); }
   if (Utilities.formatDate(new Date(), 'Africa/Nairobi', 'd') === '1') { try { monthlyReport(); } catch (err) { console.error('money report: ' + err); } }
 }
 
@@ -1187,6 +1864,8 @@ function weeklySummary() {
   const owedTotal = owed.reduce((a, r) => a + num_(r[8]), 0);
   const invRows = invoices_().getDataRange().getValues().slice(1);
   const unpaid = invRows.filter((r) => String(r[1]).trim() === 'Invoice' && String(r[10]).trim() === 'Sent' && num_(r[7]) - num_(r[8]) > 0 && !invoicePaid_(r, invRows));
+  const toConfirm = payments_().getDataRange().getValues().slice(1).filter((r) => /^to confirm$/i.test(String(r[6]).trim()));
+  const openQuotes = invRows.filter((r) => String(r[1]).trim() === 'Quote' && String(r[10]).trim() === 'Sent' && !r[14] && r[2] instanceof Date && now - r[2] < 30 * 864e5);
 
   const stat = (n, label) => '<td style="padding:12px;background:#f6f1e7;border-radius:12px;text-align:center"><div style="font-size:22px;font-weight:bold">' + n + '</div><div style="font-size:11px;color:#666">' + label + '</div></td>';
   const html = '<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#0e1a3a">' +
@@ -1198,6 +1877,8 @@ function weeklySummary() {
     section('Due within 7 days or overdue', due.map((r) => '<b>' + html_(r[1] || r[0]) + '</b> · ' + html_(r[2]) + ' · due ' + fmt(r[5]) + (r[5] < now ? ' <b style="color:#c4422a">overdue</b>' : '') + ' · ' + html_(r[3])), 'Nothing due this week.') +
     section('Active projects', projects.map((r) => '<b>' + html_(r[1] || r[0]) + '</b> · ' + html_(r[2]) + ' · ' + html_(r[3]) + (r[5] instanceof Date ? ' · due ' + fmt(r[5]) : '')), 'No active projects.') +
     section('Balances to collect', owed.map((r) => '<b>' + html_(r[1] || r[0]) + '</b> · ' + html_(r[2]) + ' · ' + kes_(r[8])), 'All paid up.') +
+    section('M-Pesa payments to confirm', toConfirm.map((r) => '<b>' + kes_(r[4]) + '</b> · ' + html_(r[2] || r[1]) + ' · code ' + html_(r[3]) + ' · ' + fmt(r[0])), 'None waiting.') +
+    section('Quotes waiting for an answer', openQuotes.map((r) => '<b>' + html_(r[0]) + '</b> · ' + html_(r[4]) + ' · ' + kes_(r[7]) + ' · sent ' + fmt(r[2])), 'None.') +
     section('Unpaid invoices', unpaid.map((r) => '<b>' + html_(r[0]) + '</b> · ' + html_(r[4]) + ' · ' + kes_(num_(r[7]) - num_(r[8])) + ' · sent ' + fmt(r[2]) + (r[13] ? ' <span style="color:#777">(' + html_(r[13]) + ')</span>' : '')), 'No unpaid invoices.') +
     section('New reviews', reviews.map((r) => '★'.repeat(Math.min(5, Number(r[4]) || 5)) + ' <b>' + html_(r[1]) + '</b>: “' + html_(String(r[5]).slice(0, 140)) + (String(r[5]).length > 140 ? '…' : '') + '”'), 'No new reviews this week.') +
     '<p style="margin-top:22px">Subscribers: <b>' + subsAll.length + '</b> (' + subsNew.length + ' new this week)</p>' +
@@ -1225,7 +1906,12 @@ const SROWS = [
   ['Monthly money report', 'Yes', 'Yes = on the 1st of each month you get last month\'s income, expenses and profit by email'],
   ['Ask delivered clients for a review', 'Yes', 'Yes = a day after a project is Delivered, the client gets a friendly review request'],
   ['One-year follow-up email', 'Yes', 'Yes = a year after delivery, past clients get a short "anything new we can help with?" email'],
-  ['Weekly sheet backup', 'Yes', 'Yes = every Sunday a copy of this sheet is saved to the Drive folder "Nexus CAD Studio sheet backups"']
+  ['Weekly sheet backup', 'Yes', 'Yes = every Sunday a copy of this sheet is saved to the Drive folder "Nexus CAD Studio sheet backups"'],
+  ['Deposit for accepted quotes (%)', '50', 'When a client accepts a quote on the tracking page, a deposit invoice for this % of the total is made (0 = none, 100 = full payment)'],
+  ['Send the deposit invoice automatically', 'Yes', 'Yes = the deposit invoice is emailed straight away. No = it waits in the Invoices tab for you to check and send'],
+  ['Referral programme', 'Yes', 'Yes = delivered clients get a personal referral code in their thank-you email'],
+  ['Referral discount for new clients (%)', '10', 'Discount a new client gets on their first quote when they use a referral code'],
+  ['Referral reward (%)', '10', 'Discount the referring client earns (once their friend pays), claimed by using their own code on their next brief']
 ];
 
 function settings_() {
@@ -1286,7 +1972,17 @@ function setup() {
   if (!p.getRange(1, 13).getValue()) p.getRange(1, 13, 1, 2).setValues([[PHEAD[12], PHEAD[13]]]).setFontWeight('bold');
   if (!p.getRange(1, 15).getValue()) p.getRange(1, 15).setValue(PHEAD[14]).setFontWeight('bold').setWrap(true);
   faq_();
-  expenses_();
+  const ex = expenses_();
+  if (!ex.getRange(1, 8).getValue()) ex.getRange(1, 8).setValue(EHEAD[7]).setFontWeight('bold');
+  const sb = subs_();
+  if (!sb.getRange(1, 14).getValue()) sb.getRange(1, 14).setValue(SHEAD[13]).setFontWeight('bold');
+  const tn = trainees_();
+  if (!tn.getRange(1, 14).getValue()) tn.getRange(1, 14).setValue(THEAD[13]).setFontWeight('bold').setWrap(true);
+  promos_();
+  referrals_();
+  payments_();
+  timelog_();
+  downloads_();
   const co = courses_();
   if (!co.getRange(1, 6).getValue()) co.getRange(1, 6, 1, 2).setValues([[COHEAD[5], COHEAD[6]]]).setFontWeight('bold').setWrap(true);
   trainees_();
@@ -1300,6 +1996,7 @@ function setup() {
   recordings_();
   const inv = invoices_();
   if (!inv.getRange(1, 14).getValue()) inv.getRange(1, 14).setValue(IHEAD[13]).setFontWeight('bold').setWrap(true);
+  if (!inv.getRange(1, 15).getValue()) inv.getRange(1, 15, 1, 2).setValues([[IHEAD[14], IHEAD[15]]]).setFontWeight('bold').setWrap(true);
   subscribers_();
   const a = articles_();
   if (!a.getRange(1, 9).getValue()) {
@@ -1316,6 +2013,7 @@ function setup() {
   ScriptApp.newTrigger('weeklySummary').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(7).inTimezone('Africa/Nairobi').create();
   ScriptApp.newTrigger('newsletterJob').timeBased().everyHours(1).create();
   ScriptApp.newTrigger('dailyJob').timeBased().everyDays(1).atHour(9).inTimezone('Africa/Nairobi').create();
+  try { refreshDashboard(); } catch (err) { console.error('dashboard: ' + err); }
   ScriptApp.newTrigger('backupJob').timeBased().onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(2).inTimezone('Africa/Nairobi').create();
 }
 
@@ -1326,9 +2024,11 @@ function onOpen() {
     .addItem('Email new articles to subscribers now', 'newsletterJob')
     .addItem('Send me this month\'s money report so far', 'moneyReportNow')
     .addItem('Back up this sheet now', 'backupNow')
+    .addItem('Refresh the dashboard', 'refreshDashboard')
     .addSeparator()
     .addItem('Set up / repair (run after updating the script)', 'setup')
     .addToUi();
+  try { refreshDashboard(); } catch (err) { /* first run: setup creates it */ }
 }
 
 /* ---------- Automatic email to the client when you change a project's Stage ---------- */
@@ -1365,6 +2065,7 @@ function notifyClient(e) {
   if (sh.getName() === SUBS && e.range.getColumn() === 3) return submissionChanged_(sh, e.range.getRow());
   if (sh.getName() === INVOICES && e.range.getColumn() === 11 && /^send$/i.test(String(e.value || ''))) return sendInvoice_(sh, e.range.getRow());
   if (sh.getName() === TRAINEES && e.range.getColumn() === 9) return traineeChanged_(sh, e.range.getRow());
+  if (sh.getName() === PAYMENTS && e.range.getColumn() === 7) return paymentChanged_(sh, e.range.getRow());
   if (sh.getName() !== PROJECTS || e.range.getColumn() !== 4) return;
   if (/^delivered$/i.test(String(e.value || '').trim())) markDelivered_(sh, e.range.getRow());
   const r = sh.getRange(e.range.getRow(), 1, 1, 12).getValues()[0];
@@ -1408,6 +2109,7 @@ function submissionChanged_(sh, row) {
 function onEdit(e) {
   const sh = e.range.getSheet();
   if (sh.getName() === INVOICES && e.range.getColumn() === 4 && e.range.getRow() > 1) return fillInvoice_(sh, e.range.getRow());
+  if (sh.getName() === TIMELOG && e.range.getColumn() === 2 && e.range.getRow() > 1 && e.range.getNumRows() === 1) return fillTimelog_(sh, e.range.getRow());
   if (sh.getName() !== PROJECTS || e.range.getRow() < 2 || e.range.getColumn() === 11) return;
   sh.getRange(e.range.getRow(), 11).setValue(new Date());
 }
@@ -1426,7 +2128,7 @@ function track_(ref) {
   const r = rows.find((x) => x[0] && normRef_(x[0]) === want);
   if (!r) {
     const sub = subs_().getDataRange().getValues().slice(1).find((x) => x[0] && normRef_(x[0]) === want);
-    if (sub) return { found: true, project: fromSubmission_(sub) };
+    if (sub) return { found: true, project: extras_(fromSubmission_(sub)) };
     cache.put('track-miss', String(misses + 1), 600);
     return { found: false };
   }
@@ -1448,7 +2150,18 @@ function track_(ref) {
   if (r[8] !== '' && !isNaN(Number(r[8]))) p.amountDue = Number(r[8]);
   const appr = String(r[12] || '');
   if (appr) p.approval = { state: /^approved/i.test(appr) ? 'approved' : 'changes', date: (/·\s*(.+)$/.exec(appr) || [])[1] || '' };
-  return { found: true, project: p };
+  return { found: true, project: extras_(p) };
+}
+
+// The latest quote (to accept) and reported M-Pesa payments, for the tracking page
+function extras_(p) {
+  try {
+    const q = quoteFor_(p.ref);
+    if (q && !p.declined && (q.state !== 'accepted' || (+p.stage || 0) < 2)) p.quote = q;
+    const pay = paymentsFor_(p.ref);
+    if (pay.length) p.payments = pay;
+  } catch (err) { console.error('tracker extras: ' + err); }
+  return p;
 }
 
 function reviews_() {
@@ -1502,6 +2215,7 @@ function doGet(e) {
   if (q.action === 'unsubscribe') return unsubscribePage_(q);
   if (q.action === 'training') return out_(trainingInfo_());
   if (q.action === 'verify') return out_(verify_(q.code));
+  if (q.action === 'code') return out_(codeCheck_(q));
   return out_(reviews_());
 }
 

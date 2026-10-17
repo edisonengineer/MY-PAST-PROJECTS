@@ -268,7 +268,8 @@
                             project: data['Project name'] || '',
                             budget: data.Budget || '',
                             deadline: data['Due date'] || '',
-                            details: Object.keys(data).map((k) => (LABELS[k] || k) + ': ' + data[k]).join('\n')
+                            details: Object.keys(data).map((k) => (LABELS[k] || k) + ': ' + data[k]).join('\n'),
+                            code: data['Discount code'] || ''
                         })
                     }));
                 }
@@ -620,7 +621,11 @@
             setLoading(submit, true);
             try {
                 await sendToWeb3Forms(Object.assign({ subject, from_name: f.dataset.from || 'Portfolio', replyto: data.email }, data));
-                subscribe(data, f.dataset.track === 'newsletter-signup' ? 'Newsletter' : 'Webinar sign-up');
+                const api = CONFIG.trackerApi || CONFIG.reviewsApi;
+                if (f.dataset.download && api) {
+                    // Free download: the sheet emails a copy, counts it and adds them to the Subscribers tab
+                    fetch(api, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'download', item: f.dataset.download, email: data.email, name: data.name || '', subscribe: data['Webinar updates'] === 'Yes' ? 'Yes' : 'No' }) }).catch(() => {});
+                } else subscribe(data, f.dataset.track === 'newsletter-signup' ? 'Newsletter' : 'Webinar sign-up');
                 track(f.dataset.track || 'form-submitted');
                 f.reset();
                 f.hidden = true;

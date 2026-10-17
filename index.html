@@ -36,7 +36,7 @@
     <link rel="preload" href="fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 
-    <link rel="stylesheet" href="css/style.css?v=24">
+    <link rel="stylesheet" href="css/style.css?v=25">
     <script>
         document.documentElement.classList.add('js');
         (function () {
@@ -1154,6 +1154,11 @@
                                     <option value="Other">Other</option>
                                 </select>
                             </div>
+                            <div class="field discount-field">
+                                <label for="c-code">Discount or referral code <small>(optional)</small></label>
+                                <input id="c-code" name="Discount code" type="text" maxlength="30" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. AMINA-7K3P" data-discount data-discount-for-radio="Service type" data-discount-email="#c-email">
+                                <p class="discount-msg" aria-live="polite" hidden></p>
+                            </div>
 
                             <div class="summary" id="brief-summary" aria-live="polite"></div>
                         </fieldset>
@@ -1483,7 +1488,7 @@
         <div class="modal-panel form-panel">
             <button class="modal-close" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
             <form id="freebie-form" class="web3-form" novalidate
-                  data-subject="Cheat sheet download: {name}" data-from="Portfolio: Free Download" data-track="cheatsheet-downloaded">
+                  data-subject="Cheat sheet download: {name}" data-from="Portfolio: Free Download" data-track="cheatsheet-downloaded" data-download="autocad-shortcuts-cheat-sheet">
                 <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
                 <input type="hidden" name="Download" value="AutoCAD Shortcuts Cheat Sheet">
                 <p class="kicker">Free download</p>
@@ -1508,6 +1513,7 @@
                 <div class="done-actions">
                     <a class="btn btn-sun btn-lg" href="pdfs/autocad-shortcuts-cheat-sheet.pdf" download data-autodownload><svg><use href="#i-doc"/></svg> Download PDF</a>
                 </div>
+                <p class="dl-more">A copy is on its way to your inbox too. <a href="blog/index.html#downloads">More free downloads</a>, including a SolidWorks cheat sheet.</p>
             </div>
         </div>
     </div>
@@ -1564,6 +1570,11 @@
                         <label for="cart-notes">Notes <small>(optional)</small></label>
                         <textarea id="cart-notes" name="Notes" rows="3" placeholder="Deadlines, references, anything I should know..."></textarea>
                     </div>
+                    <div class="field discount-field">
+                        <label for="cart-code">Discount or referral code <small>(optional)</small></label>
+                        <input id="cart-code" name="Discount code" type="text" maxlength="30" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. WELCOME10" data-discount data-discount-email="#cart-email">
+                        <p class="discount-msg" aria-live="polite" hidden></p>
+                    </div>
                     <p class="form-error" id="cart-error" role="alert" hidden></p>
                     <button type="submit" class="btn btn-sun btn-lg btn-block" id="cart-send">Send quote request</button>
                     <button type="button" class="btn btn-green btn-block" id="cart-wa"><svg><use href="#i-whatsapp"/></svg> Send on WhatsApp instead</button>
@@ -1573,6 +1584,12 @@
                     <span class="done-icon"><svg><use href="#i-check"/></svg></span>
                     <h3>Quote request sent!</h3>
                     <p>Thanks! I'll review everything and reply with a detailed quote as soon as possible.</p>
+                    <div class="brief-ref" id="cart-ref" hidden>
+                        <span class="brief-ref-label">Your project reference</span>
+                        <strong class="brief-ref-code" id="cart-ref-code" data-no-i18n></strong>
+                        <span class="brief-ref-hint">Save it: your quote will appear on your tracking page, where you can accept it.</span>
+                        <a class="btn btn-navy" id="cart-track" href="track/"><svg><use href="#i-chart"/></svg> Track your project</a>
+                    </div>
                     <p class="pay-hint" data-payment hidden>Already agreed on a quote? <button type="button" class="inline-link" data-open-modal="pay-modal">Pay your deposit</button></p>
                     <button type="button" class="btn btn-outline" data-cart-close>Close</button>
                 </div>
@@ -1762,11 +1779,12 @@
     <script defer src="js/certificates.js?v=5"></script>
     <script defer src="js/sheet-data.js"></script>
     <script defer src="js/rates.js?v=2"></script>
-    <script defer src="js/i18n.js?v=4" data-fr="js/i18n-fr.js?v=24" data-sw="js/i18n-sw.js?v=21"></script>
+    <script defer src="js/i18n.js?v=4" data-fr="js/i18n-fr.js?v=25" data-sw="js/i18n-sw.js?v=22"></script>
     <script defer src="js/main.js?v=9"></script>
-    <script defer src="js/forms.js?v=11"></script>
+    <script defer src="js/discount.js?v=1"></script>
+    <script defer src="js/forms.js?v=12"></script>
     <script defer src="js/instagram-snapshot.js?v=1"></script>
-    <script defer src="js/shop.js?v=4"></script>
+    <script defer src="js/shop.js?v=5"></script>
     <script defer src="js/extras.js?v=8"></script>
     <script defer src="js/analytics.js?v=1"></script>
     <script defer src="js/search.js?v=1"></script>

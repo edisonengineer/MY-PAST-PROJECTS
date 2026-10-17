@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=24';
+const CSS_V = 'css/style.css?v=25';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
@@ -88,6 +88,53 @@ function newsletter() {
                     </form>
                     <div class="form-done newsletter-done" hidden tabindex="-1">${icon('check')} <span>You're subscribed. Thank you!</span></div>
                 </div>
+            </div>
+        </section>
+`;
+}
+
+/* ---------- Free downloads (Downloads tab of the Google Sheet) ---------- */
+const DEFAULT_DOWNLOADS = [
+    { id: 'autocad-shortcuts-cheat-sheet', title: 'AutoCAD shortcuts cheat sheet', description: 'The command aliases, function keys and object snaps I teach in every AutoCAD class, on one printable page.', file: 'pdfs/autocad-shortcuts-cheat-sheet.pdf' },
+    { id: 'solidworks-shortcuts-cheat-sheet', title: 'SolidWorks shortcuts cheat sheet', description: 'View, selection and sketching shortcuts plus mouse gestures that make SolidWorks faster, on one printable page.', file: 'pdfs/solidworks-shortcuts-cheat-sheet.pdf' }
+];
+const DOWNLOADS = (() => {
+    const ctx = { window: {} };
+    try { vm.runInNewContext(read('js/sheet-data.js'), ctx); } catch (e) { /* no sheet data yet */ }
+    const list = Array.isArray(ctx.window.SITE_DOWNLOADS) ? ctx.window.SITE_DOWNLOADS : DEFAULT_DOWNLOADS;
+    return list.filter((d) => d && d.id && d.title && d.file);
+})();
+
+function downloadsBand(prefix) {
+    const api = CFG.trackerApi || CFG.reviewsApi;
+    if (!DOWNLOADS.length || !api) return '';
+    const href = (f) => (/^https?:\/\//.test(f) ? f.replace(SITE, prefix) : prefix + f);
+    return `
+        <section class="section downloads-band" id="downloads">
+            <div class="container">
+                <header class="section-head center">
+                    <p class="kicker">Free downloads</p>
+                    <h2 class="section-title">Free CAD <em>resources</em>.</h2>
+                    <p class="section-lede">Printable guides from my training sessions. Enter your email to download, and I'll send you a copy too.</p>
+                </header>
+                <div class="dl-grid">
+${DOWNLOADS.map((d) => `                    <article class="dl-card">
+                        <span class="dl-icon">${icon('doc')}</span>
+                        <h3 data-no-i18n>${esc(d.title)}</h3>
+                        ${d.description ? `<p data-no-i18n>${esc(d.description)}</p>` : ''}
+                        <form class="dl-form" data-download="${esc(d.id)}" data-sheet="${esc(api)}" novalidate>
+                            <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                            <div class="field"><label class="sr-only" for="dl-${esc(d.id)}">Email address</label><input id="dl-${esc(d.id)}" name="email" type="email" autocomplete="email" placeholder="Your email address" required></div>
+                            <button type="submit" class="btn btn-sun">${icon('doc')} Get it free</button>
+                            <p class="form-error" role="alert" hidden></p>
+                        </form>
+                        <div class="dl-done" hidden tabindex="-1">
+                            <p>${icon('check')} <span>Thank you! A copy is on its way to your inbox.</span></p>
+                            <a class="btn btn-navy" href="${esc(href(d.file))}" target="_blank" rel="noopener" download>${icon('doc')} Download now</a>
+                        </div>
+                    </article>`).join('\n')}
+                </div>
+                <p class="dl-note">You'll also get occasional CAD tips by email. Unsubscribe any time.</p>
             </div>
         </section>
 `;
@@ -238,8 +285,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=4" data-fr="../js/i18n-fr.js?v=24" data-sw="../js/i18n-sw.js?v=21"></script>
-    <script defer src="../js/pages.js?v=10"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=4" data-fr="../js/i18n-fr.js?v=25" data-sw="../js/i18n-sw.js?v=22"></script>
+    <script defer src="../js/pages.js?v=11"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -450,7 +497,7 @@ ${others.length ? `
                 </div>
             </div>
         </section>
-` : ''}${newsletter()}    </main>
+` : ''}${downloadsBand('../')}${newsletter()}    </main>
 ` + footer();
 }
 
@@ -486,7 +533,7 @@ function blogIndex(posts) {
                 </div>
             </div>
         </section>
-${newsletter()}    </main>
+${downloadsBand('../')}${newsletter()}    </main>
 ` + footer();
 }
 
@@ -629,6 +676,7 @@ ${T.faq.map(([q, a], i) => `                        <details class="faq-item"${i
                             </div>
                         </div>
                         <div class="field"><label for="tr-notes">Anything else? <small>(optional)</small></label><textarea id="tr-notes" name="Message" rows="3" placeholder="Your goals, e.g. CSWA exam, a school project, a new job..."></textarea></div>
+                        <div class="field discount-field"><label for="tr-code">Discount or referral code <small>(optional)</small></label><input id="tr-code" name="Discount code" type="text" maxlength="30" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. TRAIN20" data-discount data-discount-for="Training" data-discount-email="#tr-email" data-discount-price="${T.price}"><p class="discount-msg" aria-live="polite" hidden></p></div>
                         <p class="form-error" role="alert" hidden></p>
                         <button type="submit" class="btn btn-sun btn-lg btn-block">Reserve my seat</button>
                         <button type="button" class="btn btn-green btn-block" data-wa-form>${icon('whatsapp')} Send on WhatsApp instead</button>
@@ -643,6 +691,7 @@ ${T.faq.map(([q, a], i) => `                        <details class="faq-item"${i
             </div>
         </section>
 
+${downloadsBand('../')}
         <section class="section verify-band">
             <div class="container verify-cta">
                 <span class="verify-cta-icon">${icon('award')}</span>
@@ -654,7 +703,7 @@ ${T.faq.map(([q, a], i) => `                        <details class="faq-item"${i
             </div>
         </section>
 ${newsletter()}    </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=1"></script>\n    <script defer src="../js/discount.js?v=1"></script>\n');
 }
 
 /* ---------- Free tools (calculators) ---------- */
@@ -1017,7 +1066,7 @@ function trackPage() {
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=6"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=7"></script>\n');
 }
 
 /* ---------- Certificate verification ---------- */

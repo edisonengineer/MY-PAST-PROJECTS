@@ -2276,3 +2276,58 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 .track-review.is-approved { display: flex; align-items: flex-start; gap: 10px; border-color: rgba(31, 174, 106, 0.5); background: rgba(31, 174, 106, 0.08); }
 .track-review.is-approved > svg { flex: none; width: 22px; height: 22px; color: #137a49; margin-top: 2px; }
 .track-review.is-approved p { margin: 0; color: var(--text); }
+
+/* ---------- Quote acceptance and M-Pesa payment on the tracking page ---------- */
+.tq-table { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 0.95rem; }
+.tq-table td { padding: 8px 0; border-bottom: 1px solid var(--line); color: var(--text); vertical-align: top; }
+.tq-table td:last-child { text-align: right; white-space: nowrap; padding-left: 12px; }
+.tq-table .tq-disc td { color: #137a49; }
+.tq-table .tq-total td { border-bottom: 0; padding-top: 10px; font-weight: 800; color: var(--heading); font-size: 1.05rem; }
+.tq-note { margin-top: 8px; color: var(--text-soft); font-size: 0.9rem; }
+.tq-note svg { width: 16px; height: 16px; vertical-align: -3px; margin-right: 2px; }
+.track-pay { margin-top: 18px; padding: 18px 20px; border-radius: 18px; border: 1px solid var(--line); background: var(--paper); }
+.track-pay h3 { display: flex; align-items: center; gap: 8px; font-family: var(--serif); font-weight: 600; font-size: 1.2rem; color: var(--heading); }
+.track-pay h3 svg { width: 22px; height: 22px; color: var(--green); }
+.track-pay > p { margin-top: 6px; color: var(--text-soft); }
+.track-pay > p strong { color: var(--heading); letter-spacing: 0.04em; }
+.tp-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; margin-top: 10px; }
+.tp-fields .tp-wide { grid-column: 1 / -1; }
+.tp-fields .field { margin-top: 8px; }
+.tp-list { list-style: none; margin-top: 10px; display: grid; gap: 6px; }
+.tp-list li { padding: 8px 12px; border-radius: 12px; background: var(--cream); font-size: 0.92rem; color: var(--text); }
+.tp-list em { font-style: normal; font-weight: 700; margin-left: 4px; color: #a46a00; }
+.tp-list .is-confirmed em { color: #137a49; }
+.tp-list .is-declined em { color: #b23a22; }
+@media (max-width: 520px) { .tp-fields { grid-template-columns: 1fr; } }
+
+/* ---------- Discount and referral codes ---------- */
+.discount-field input { text-transform: uppercase; letter-spacing: 0.04em; }
+.discount-field input::placeholder { text-transform: none; letter-spacing: 0; }
+.discount-msg { margin-top: 6px; font-size: 0.88rem; color: var(--text-soft); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.discount-msg svg { width: 16px; height: 16px; flex: none; }
+.discount-msg.is-good { color: #137a49; }
+.discount-msg.is-good s { color: var(--text-soft); }
+.discount-msg.is-bad { color: #b23a22; }
+.discount-msg .spinner { width: 14px; height: 14px; }
+.cart-total .cart-disc { color: #6ee7a8; font-weight: 700; }
+
+/* ---------- Free downloads ---------- */
+.downloads-band { background: var(--cream); }
+.dl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; max-width: 900px; margin: 0 auto; }
+.dl-card { display: flex; flex-direction: column; padding: 24px; border-radius: 22px; background: var(--paper); border: 1px solid var(--line); }
+.dl-icon { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: var(--sun); color: #0f1b3d; }
+.dl-icon svg { width: 22px; height: 22px; }
+.dl-card h3 { margin-top: 14px; font-family: var(--serif); font-weight: 600; font-size: 1.25rem; color: var(--heading); }
+.dl-card > p { margin-top: 6px; color: var(--text-soft); flex: 1; }
+.dl-form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.dl-form .field { flex: 1 1 180px; margin: 0; }
+.dl-form .form-error { flex-basis: 100%; }
+.dl-done { margin-top: 16px; }
+.dl-done p { display: flex; align-items: center; gap: 8px; color: #137a49; font-weight: 600; margin-bottom: 12px; }
+.dl-done svg { width: 18px; height: 18px; flex: none; }
+.dl-note { margin-top: 18px; text-align: center; font-size: 0.88rem; color: var(--text-soft); }
+.dl-more { margin-top: 14px; font-size: 0.9rem; color: var(--text-soft); text-align: center; }
+.dl-more a { color: var(--blue); font-weight: 600; }
+[data-theme="dark"] .discount-msg.is-good, [data-theme="dark"] .tq-table .tq-disc td, [data-theme="dark"] .tp-list .is-confirmed em, [data-theme="dark"] .dl-done p { color: #6ee7a8; }
+[data-theme="dark"] .discount-msg.is-bad, [data-theme="dark"] .tp-list .is-declined em { color: #ff9a85; }
+[data-theme="dark"] .tp-list em { color: #ffc95c; }
