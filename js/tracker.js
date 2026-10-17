@@ -163,6 +163,12 @@
             '</div>';
     }
 
+    function notSaved(sel, msg) {
+        const box = $(sel), errEl = box && $('.form-error', box);
+        if (!errEl) return;
+        errEl.textContent = t(msg);
+        errEl.hidden = false;
+    }
     const post = (fields) => fetch(sheetApi, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(fields) });
     out.addEventListener('click', (e) => {
         const acc = e.target.closest('[data-accept]');
@@ -172,7 +178,12 @@
             $$('button', box).forEach((x) => { x.disabled = true; });
             acc.innerHTML = '<span class="spinner" aria-hidden="true"></span> ' + t('Accepting…');
             post({ action: 'accept', ref: shownRef, number: acc.dataset.accept })
-                .then(() => { if (typeof window.track === 'function') window.track('quote-accepted'); return lookup(shownRef, true); })
+                .then(() => lookup(shownRef, true))
+                .then(() => {
+                    // Check the sheet really saved it (the request can't be read directly)
+                    if (/You accepted quote/.test(out.textContent)) { if (typeof window.track === 'function') window.track('quote-accepted'); return; }
+                    notSaved('#track-quote', "Your acceptance couldn't be saved just now. Please try again in a minute, or message me on WhatsApp.");
+                })
                 .catch(() => {
                     $$('button', box).forEach((x) => { x.disabled = false; });
                     acc.innerHTML = icon('check') + ' ' + t('Accept quote');
@@ -192,7 +203,13 @@
             pay.disabled = true;
             pay.innerHTML = '<span class="spinner" aria-hidden="true"></span> ' + t('Sending…');
             post({ action: 'payment', ref: shownRef, code, amount, payer: $('#tp-payer', box).value.trim() })
-                .then(() => { if (typeof window.track === 'function') window.track('payment-reported'); return lookup(shownRef, true); })
+                .then(() => lookup(shownRef, true))
+                .then(() => {
+                    const list = $('#track-pay .tp-list');
+                    if (list && list.textContent.indexOf(code.slice(0, 3) + '••••' + code.slice(-3)) > -1) { if (typeof window.track === 'function') window.track('payment-reported'); return; }
+                    notSaved('#track-pay', "Your payment code couldn't be saved just now. Please try again in a minute, or send it to me on WhatsApp.");
+                    const c = $('#tp-code'); if (c) c.value = code;
+                })
                 .catch(() => {
                     pay.disabled = false;
                     pay.innerHTML = icon('check') + ' ' + t('Send payment code');
