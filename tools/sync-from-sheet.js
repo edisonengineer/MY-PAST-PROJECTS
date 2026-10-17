@@ -244,14 +244,16 @@ async function siteLists(site) {
             return { id: String(c.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'course-' + (i + 1), name: c.name, theme: st[0], icon: st[1], tagline: c.tagline || '', levels: c.levels || '', topics: c.topics || [] };
         });
     }
+    if (Array.isArray(site.faq)) out.faq = site.faq.filter((f) => f && f.q && f.a).map((f) => ({ q: String(f.q).trim(), a: String(f.a).trim() }));
     if (Array.isArray(site.recordings)) out.recordings = site.recordings.filter((r) => /^[\w-]{6,}$/.test(r.id)).map((r) => ({ id: r.id, title: r.title || 'Webinar recording' }));
     if (site.training) out.training = { intake: String(site.training.intake || ''), price: Number(site.training.price) || null };
 
-    const js = '/* Generated from the Google Sheet (Pricing, Certificates, Courses, Recordings and Settings tabs)\n' +
+    const js = '/* Generated from the Google Sheet (Pricing, Certificates, Courses, Recordings, FAQ and Settings tabs)\n' +
         '   by tools/sync-from-sheet.js: edit the sheet, not this file. A list missing here keeps the website\'s built-in one. */\n' +
         '(function (d) {\n' +
         '    if (d.packages) window.PACKAGES = d.packages;\n' +
         '    if (d.certificates) window.CERTIFICATES = d.certificates;\n' +
+        '    if (d.faq) window.SITE_FAQ = d.faq;\n' +
         '    if (d.recordings && window.SITE_CONFIG) (window.SITE_CONFIG.webinar = window.SITE_CONFIG.webinar || {}).recordings = d.recordings;\n' +
         '    if (window.TRAINING) {\n' +
         '        if (d.courses) window.TRAINING.courses = d.courses;\n' +
@@ -259,7 +261,7 @@ async function siteLists(site) {
         '    }\n' +
         '})(' + JSON.stringify(out, null, 2) + ');\n';
     if (!fs.existsSync(abs(SHEET_DATA)) || fs.readFileSync(abs(SHEET_DATA), 'utf8') !== js) { fs.writeFileSync(abs(SHEET_DATA), js); console.log('wrote', SHEET_DATA); }
-    console.log('Lists: ' + ['packages', 'certificates', 'courses', 'recordings'].map((k) => k + ' ' + (out[k] ? out[k].length : 'built-in')).join(', '));
+    console.log('Lists: ' + ['packages', 'certificates', 'courses', 'recordings', 'faq'].map((k) => k + ' ' + (out[k] ? out[k].length : 'built-in')).join(', '));
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });

@@ -3,6 +3,7 @@
 (function (d) {
     if (d.packages) window.PACKAGES = d.packages;
     if (d.certificates) window.CERTIFICATES = d.certificates;
+    if (d.faq) window.SITE_FAQ = d.faq;
     if (d.recordings && window.SITE_CONFIG) (window.SITE_CONFIG.webinar = window.SITE_CONFIG.webinar || {}).recordings = d.recordings;
     if (window.TRAINING) {
         if (d.courses) window.TRAINING.courses = d.courses;

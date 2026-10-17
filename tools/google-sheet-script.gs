@@ -53,6 +53,21 @@
    can approve it or request changes on their tracking page. You get an
    email, and the Projects tab shows their decision and comments.
 
+   FAQ tab: the website's questions and answers. Formatting in answers:
+   **bold**, [link text](#brief) or [link text](https://...). The site
+   updates within about 30 minutes.
+
+   EXPENSES tab: what you spend on the business. On the 1st of every month
+   you get an email with last month's income (from receipts), expenses and
+   profit, by service; this year's totals are in the Monday summary.
+
+   FOLLOW-UPS: a day after you set a project to "Delivered", the client is
+   asked for a review; a year later they get a friendly "anything new?"
+   email. Type Off in the project's Follow-ups cell to skip both.
+
+   BACKUPS: every Sunday a copy of this whole sheet is saved in your Drive
+   folder "Nexus CAD Studio sheet backups" (the last 8 are kept).
+
    SUBSCRIBERS tab: people who signed up for CAD tips by email. When an
    article goes live, it is emailed to them automatically (each email has
    an unsubscribe link).
@@ -128,7 +143,7 @@ function doPost(e) {
 /* ---------- Client project tracker ---------- */
 const PROJECTS = 'Projects';
 const STAGES = ['Brief received', 'Quote sent', 'Deposit received', 'Design in progress', 'Review & revisions', 'Delivered'];
-const PHEAD = ['Reference', 'Project', 'Client', 'Stage', 'Progress %', 'Due date', 'Note to client', 'Deposit', 'Balance due (KES)', 'Files link', 'Last updated', 'Client email', 'Client approval (automatic)', 'Client feedback (automatic)'];
+const PHEAD = ['Reference', 'Project', 'Client', 'Stage', 'Progress %', 'Due date', 'Note to client', 'Deposit', 'Balance due (KES)', 'Files link', 'Last updated', 'Client email', 'Client approval (automatic)', 'Client feedback (automatic)', 'Follow-ups (automatic; type Off to skip)'];
 const SITE_URL = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
 const SENDER = 'Edison Ochieng · Nexus CAD Studio';
@@ -418,6 +433,10 @@ const pricing_ = () => listTab_(PRICING, PRHEAD, SEED_PRICING, [200, 140, 110, 1
 const certs_ = () => listTab_(CERTS, CEHEAD, SEED_CERTS, [320, 160, 320, 300, 110]);
 const courses_ = () => listTab_(COURSES, COHEAD, SEED_COURSES, [180, 260, 180, 420, 110, 260, 120], null, 5);
 const recordings_ = () => listTab_(RECORDINGS, REHEAD, SEED_RECORDINGS, [340, 340, 110]);
+const FAQ = 'FAQ';
+const FQHEAD = ['Question', 'Answer (**bold**, [link text](#brief or https://...))', 'Show on website'];
+const SEED_FAQ = [["What services do you offer?", "Two kinds of work through Nexus CAD Studio. **Engineering design:** 3D CAD modelling, 2D manufacturing drawings, FEA/CFD simulation, sheet metal and fabrication design, product renders and CAD training. **Graphic design:** posters, branding, certificates, social media graphics, print layouts and motion graphics.", "Yes"], ["Which software do you work with?", "For engineering: SolidWorks (including CSWA exam preparation), Autodesk Inventor, AutoCAD, Fusion 360, Revit and Abaqus. For graphics: Adobe Illustrator, Photoshop, InDesign and Premiere Pro. If you need files in a specific program, just tell me in the project brief.", "Yes"], ["How do I start a project?", "Fill in the [project brief](#brief) above. It takes about two minutes and covers everything I need to understand your project. You can also message me directly on WhatsApp.", "Yes"], ["How much will my project cost?", "Pricing depends on complexity, the files you need and how soon you need them. Once I have your brief, I'll send a clear quote before any work starts, so there are no surprises.", "Yes"], ["How long does a project take?", "It depends on the scope. A single poster is much quicker than a full assembly with simulation. We agree on a timeline together when I send your quote, and I'll keep you updated along the way.", "Yes"], ["Can you work from my sketches, photos or existing files?", "Yes. Hand sketches with dimensions, photos, physical samples or existing CAD files are all great starting points. The more detail you share, the faster and more accurate the result.", "Yes"], ["What files will I receive?", "Whatever suits your project. For engineering: native CAD files, STEP/IGES, STL for 3D printing, DWG/DXF and PDF drawings. For graphics: print-ready PDFs and high-resolution PNG/JPG, with source files available on request.", "Yes"], ["Do you include revisions?", "Yes. Revisions are agreed as part of your quote, so we can refine the design until it's right for you.", "Yes"], ["How do I pay?", "Once you accept your quote, you pay the deposit shown on it to confirm your project, by M-Pesa to Buy Goods Till **8438334** (EDISON OCHIENG). Tap [Pay a deposit](#open:pay-modal) for the till number and QR code. International clients can pay by card or bank transfer: just ask me on WhatsApp.", "Yes"], ["Can I see your work in 3D before I hire you?", "Yes. Projects with a 3D badge have interactive models you can rotate and zoom in your browser (use the [3D models](#work) filter in my work). On a phone, tap **View in your room** to place the model in your own space at its real size.", "Yes"], ["Do you offer CAD training?", "Yes. I teach AutoCAD, SolidWorks (including CSWA exam preparation), Inventor and Fusion 360, one-on-one, in small groups or for company teams, online or in person in Nairobi. See the [training page](training/index.html) to reserve a seat.", "Yes"], ["Do you work with clients outside Nairobi?", "Yes. I work with clients remotely: briefs, files and reviews are shared online, and training can be delivered online or in person in Nairobi.", "Yes"], ["How do I join the free AutoCAD webinar?", "Tap [Reserve a seat](#open:webinar-modal), fill in the short form, and I'll send you the details for the next weekly session.", "Yes"]];
+const faq_ = () => listTab_(FAQ, FQHEAD, SEED_FAQ, [320, 640, 110]);
 
 const shown_ = (r, col) => String(r[0]).trim() && !/^no$/i.test(String(r[col]).trim());
 const lines_ = (t) => String(t || '').split(/\n+/).map((x) => x.replace(/^[-•*]\s*/, '').trim()).filter(Boolean);
@@ -447,6 +466,7 @@ function siteLists_() {
     name: String(r[0]).trim(), tagline: String(r[1] || '').trim(), levels: String(r[2] || '').trim(), topics: lines_(r[3])
   }));
   const recordings = rows(recordings_()).filter((r) => shown_(r, 2) && ytId_(r[0])).map((r) => ({ id: ytId_(r[0]), title: String(r[1] || '').trim() || 'Webinar recording' }));
+  const faq = rows(faq_()).filter((r) => shown_(r, 2) && String(r[1]).trim()).map((r) => ({ q: String(r[0]).trim(), a: String(r[1]).trim() }));
   const S = {};
   settings_().getDataRange().getValues().slice(1).forEach((r) => { S[String(r[0]).trim().toLowerCase()] = r[1]; });
   const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
@@ -457,6 +477,7 @@ function siteLists_() {
     certificates: certificates.length ? certificates : null,
     courses: courses.length ? courses : null,
     recordings: recordings.length ? recordings : null,
+    faq: faq.length ? faq : null,
     training: { intake: intake, price: price > 0 ? Math.round(price) : null }
   };
 }
@@ -870,6 +891,168 @@ function feedback_(p) {
   return { ok: true };
 }
 
+/* ---------- Money: expenses and the monthly report ---------- */
+const EXPENSES = 'Expenses';
+const EHEAD = ['Date', 'Category', 'Description', 'Amount (KES)', 'Paid with', 'Receipt / proof (link, optional)', 'Notes'];
+const E_CATS = ['Software & subscriptions', 'Printing & materials', 'Transport', 'Data & airtime', 'Equipment', 'Marketing & ads', 'Training costs', 'Fees & charges', 'Other'];
+
+function expenses_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(EXPENSES);
+  if (sh) return sh;
+  sh = ss.insertSheet(EXPENSES);
+  sh.appendRow(EHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, EHEAD.length).setFontWeight('bold');
+  sh.getRange('A2:A5000').setNumberFormat('d mmm yyyy');
+  sh.getRange('B2:B5000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(E_CATS, true).setAllowInvalid(true).build());
+  sh.getRange('E2:E5000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['M-Pesa', 'Cash', 'Bank', 'Card'], true).setAllowInvalid(true).build());
+  [110, 190, 300, 120, 110, 260, 260].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+
+// Which service a payment belongs to (from its reference)
+function serviceOf_(ref) {
+  const n = normRef_(ref);
+  if (/^TRN/.test(n)) return 'Training';
+  if (!n) return 'Other';
+  const b = subs_().getDataRange().getValues().slice(1).find((r) => normRef_(r[0]) === n);
+  if (b && /graphic/i.test(b[6])) return 'Graphic design';
+  if (b && /engineer/i.test(b[6])) return 'Engineering design';
+  return 'Design projects';
+}
+
+// Income (receipts sent) and expenses between two dates
+function money_(from, to) {
+  const inRange = (d) => d instanceof Date && d >= from && d < to;
+  const receipts = invoices_().getDataRange().getValues().slice(1).filter((r) => String(r[1]).trim() === 'Receipt' && String(r[10]).trim() === 'Sent' && inRange(r[2]));
+  const byService = {};
+  receipts.forEach((r) => { const k = serviceOf_(r[3]); byService[k] = (byService[k] || 0) + num_(r[8]); });
+  const exp = expenses_().getDataRange().getValues().slice(1).filter((r) => inRange(r[0]) && num_(r[3]) > 0);
+  const byCat = {};
+  exp.forEach((r) => { const k = String(r[1] || 'Other').trim() || 'Other'; byCat[k] = (byCat[k] || 0) + num_(r[3]); });
+  return {
+    income: receipts.reduce((a, r) => a + num_(r[8]), 0), receipts: receipts.length, byService,
+    expenses: exp.reduce((a, r) => a + num_(r[3]), 0), byCat
+  };
+}
+
+function moneyEmail_(title, from, to) {
+  const me = Session.getEffectiveUser().getEmail();
+  if (!me) return;
+  const m = money_(from, to), profit = m.income - m.expenses;
+  const y = money_(new Date(from.getFullYear(), 0, 1), to);
+  const rows = (obj) => Object.keys(obj).sort((a, b) => obj[b] - obj[a]).map((k) => '<tr><td style="padding:5px 0">' + html_(k) + '</td><td style="padding:5px 0;text-align:right">' + kes_(obj[k]) + '</td></tr>').join('') || '<tr><td style="color:#777;padding:5px 0">None</td><td></td></tr>';
+  const stat = (n, label, color) => '<td style="padding:12px;background:#f6f1e7;border-radius:12px;text-align:center"><div style="font-size:20px;font-weight:bold' + (color ? ';color:' + color : '') + '">' + n + '</div><div style="font-size:11px;color:#666">' + label + '</div></td>';
+  const html = '<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#0e1a3a">' +
+    '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · MONEY REPORT</p>' +
+    '<h2 style="margin:0 0 14px">' + html_(title) + '</h2>' +
+    '<table width="100%" cellspacing="6"><tr>' + stat(kes_(m.income), 'income (' + m.receipts + ' receipt' + (m.receipts === 1 ? '' : 's') + ')') + stat(kes_(m.expenses), 'expenses') + stat(kes_(profit), 'profit', profit >= 0 ? '#137a49' : '#b23a22') + '</tr></table>' +
+    '<h3 style="margin:22px 0 6px;font-size:15px">Income by service</h3><table width="100%">' + rows(m.byService) + '</table>' +
+    '<h3 style="margin:22px 0 6px;font-size:15px">Expenses by category</h3><table width="100%">' + rows(m.byCat) + '</table>' +
+    '<p style="margin-top:22px">This year so far: income <b>' + kes_(y.income) + '</b> · expenses <b>' + kes_(y.expenses) + '</b> · profit <b>' + kes_(y.income - y.expenses) + '</b></p>' +
+    '<p style="font-size:12px;color:#888">Income counts the receipts you sent from the Invoices tab; expenses come from the Expenses tab.</p>' +
+    '<p><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '" style="background:#0e1a3a;color:#fff;padding:11px 18px;border-radius:99px;text-decoration:none;font-weight:bold">Open your sheet</a></p></div>';
+  MailApp.sendEmail({ to: me, name: 'Nexus CAD Studio website', subject: title + ': profit ' + kes_(profit), htmlBody: html });
+}
+
+function monthlyReport() {
+  if (/^no$/i.test(setting_('Monthly money report'))) return;
+  const now = new Date(), from = new Date(now.getFullYear(), now.getMonth() - 1, 1), to = new Date(now.getFullYear(), now.getMonth(), 1);
+  moneyEmail_('Money report for ' + Utilities.formatDate(from, 'Africa/Nairobi', 'MMMM yyyy'), from, to);
+}
+function moneyReportNow() {
+  const now = new Date();
+  moneyEmail_('Money report for ' + Utilities.formatDate(now, 'Africa/Nairobi', 'MMMM yyyy') + ' (so far)', new Date(now.getFullYear(), now.getMonth(), 1), new Date(now.getTime() + 1000));
+}
+
+/* ---------- Follow-ups after delivery: review request (next day) and one-year check-in ---------- */
+const ymdLocal_ = (d) => Utilities.formatDate(d, 'Africa/Nairobi', 'yyyy-MM-dd');
+
+function markDelivered_(sh, row) {
+  const cell = sh.getRange(row, 15), cur = String(cell.getValue() || '').trim();
+  if (/^off/i.test(cur) || /delivered \d{4}-\d{2}-\d{2}/i.test(cur)) return;
+  cell.setValue('Delivered ' + ymdLocal_(new Date()));
+}
+
+function followUpJob() {
+  const sh = projects_(), rows = sh.getDataRange().getValues().slice(1);
+  const today = ymdLocal_(new Date());
+  const reviews = sheet_().getDataRange().getValues().slice(1);
+  rows.forEach((r, i) => {
+    const row = i + 2, f = String(r[14] || '').trim();
+    const m = /delivered (\d{4}-\d{2}-\d{2})/i.exec(f);
+    if (!m || /^off/i.test(f) || !/^delivered$/i.test(String(r[3]).trim())) return;
+    const email = String(r[11] || '').trim(), name = String(r[2] || '').trim(), title = String(r[1] || r[0]);
+    if (!validEmail_(email) || MailApp.getRemainingDailyQuota() <= 10) return;
+    const delivered = new Date(m[1] + 'T09:00:00+03:00');
+    let note = f;
+    // 1. Review request, the day after delivery (skipped if this client already left a review)
+    if (!/review asked|reviewed/i.test(f) && today > m[1] && !/^no$/i.test(setting_('Ask delivered clients for a review'))) {
+      const already = reviews.some((x) => (name && String(x[1]).trim().toLowerCase() === name.toLowerCase()) || (x[6] && String(x[6]).trim().toLowerCase() === title.toLowerCase()));
+      if (already) note += ' · Reviewed';
+      else {
+        const b = subs_().getDataRange().getValues().slice(1).find((x) => normRef_(x[0]) === normRef_(r[0]));
+        const service = b && /graphic/i.test(b[6]) ? 'Graphic Design' : 'Engineering Design';
+        const link = SITE_URL + '?review=1&name=' + encodeURIComponent(name) + '&project=' + encodeURIComponent(title) + '&service=' + encodeURIComponent(service) + '#reviews';
+        MailApp.sendEmail({ to: email, name: SENDER, subject: 'How did ' + title + ' turn out?',
+          htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+            '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · THANK YOU</p>' +
+            '<p>Hello' + (name ? ' ' + html_(name) : '') + ',</p>' +
+            '<p>Thank you for choosing Nexus CAD Studio for <b>' + html_(title) + '</b>. I hope everything is working well for you.</p>' +
+            '<p>If you have a minute, a short review would mean a lot and helps other clients decide. It takes less than a minute:</p>' +
+            '<p><a href="' + link + '" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">★ Leave a review</a></p>' +
+            '<p style="font-size:13px;color:#555">If anything needs adjusting, just reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
+            '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p></div>',
+          body: 'Thank you for choosing Nexus CAD Studio for ' + title + '. A short review would mean a lot: ' + link });
+        note += ' · Review asked ' + today;
+      }
+    }
+    // 2. One year later: a friendly check-in
+    const year = new Date(delivered.getTime()); year.setFullYear(year.getFullYear() + 1);
+    if (!/year check-in/i.test(note) && new Date() >= year && !/^no$/i.test(setting_('One-year follow-up email'))) {
+      MailApp.sendEmail({ to: email, name: SENDER, subject: 'One year since ' + title + '!',
+        htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+          '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO</p>' +
+          '<p>Hello' + (name ? ' ' + html_(name) : '') + ',</p>' +
+          '<p>It is one year since we completed <b>' + html_(title) + '</b> together. Thank you again for your trust!</p>' +
+          '<p>If you have a new design, drawings, simulation, poster or training need, I would be glad to help. As a returning client, just mention this email when you get in touch.</p>' +
+          '<p><a href="' + SITE_URL + '#brief" style="background:#0e1a3a;color:#fff;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Start a new project</a></p>' +
+          '<p style="font-size:13px;color:#555">Or simply <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
+          '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p></div>',
+        body: 'It is one year since we completed ' + title + '. If you have a new project, I would be glad to help: ' + SITE_URL + '#brief' });
+      note += ' · Year check-in ' + today;
+    }
+    if (note !== f) sh.getRange(row, 15).setValue(note);
+  });
+}
+
+/* ---------- Daily (9am) and weekly jobs ---------- */
+function dailyJob() {
+  try { reminderJob(); } catch (err) { console.error('reminders: ' + err); }
+  try { followUpJob(); } catch (err) { console.error('follow-ups: ' + err); }
+  if (Utilities.formatDate(new Date(), 'Africa/Nairobi', 'd') === '1') { try { monthlyReport(); } catch (err) { console.error('money report: ' + err); } }
+}
+
+function backupFolder_() {
+  const name = 'Nexus CAD Studio sheet backups';
+  const it = DriveApp.getFoldersByName(name);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(name);
+}
+function backupNow() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet(), folder = backupFolder_();
+  DriveApp.getFileById(ss.getId()).makeCopy(ss.getName() + ' (backup ' + ymdLocal_(new Date()) + ')', folder);
+  // Keep the newest 8 copies
+  const files = [];
+  const it = folder.searchFiles('trashed = false');
+  while (it.hasNext()) files.push(it.next());
+  files.sort((a, b) => b.getDateCreated() - a.getDateCreated()).slice(8).forEach((f) => f.setTrashed(true));
+}
+function backupJob() {
+  if (/^no$/i.test(setting_('Weekly sheet backup'))) return;
+  backupNow();
+}
+
 /* ---------- Newsletter: subscribers and emailing new articles ---------- */
 const SUBSCRIBERS = 'Subscribers';
 const NHEAD = ['Email', 'Name', 'Subscribed on', 'Source', 'Status'];
@@ -1018,6 +1201,7 @@ function weeklySummary() {
     section('Unpaid invoices', unpaid.map((r) => '<b>' + html_(r[0]) + '</b> · ' + html_(r[4]) + ' · ' + kes_(num_(r[7]) - num_(r[8])) + ' · sent ' + fmt(r[2]) + (r[13] ? ' <span style="color:#777">(' + html_(r[13]) + ')</span>' : '')), 'No unpaid invoices.') +
     section('New reviews', reviews.map((r) => '★'.repeat(Math.min(5, Number(r[4]) || 5)) + ' <b>' + html_(r[1]) + '</b>: “' + html_(String(r[5]).slice(0, 140)) + (String(r[5]).length > 140 ? '…' : '') + '”'), 'No new reviews this week.') +
     '<p style="margin-top:22px">Subscribers: <b>' + subsAll.length + '</b> (' + subsNew.length + ' new this week)</p>' +
+    (function () { const y = money_(new Date(now.getFullYear(), 0, 1), now); return '<p>This year so far: income <b>' + kes_(y.income) + '</b> · expenses <b>' + kes_(y.expenses) + '</b> · profit <b style="color:' + (y.income - y.expenses >= 0 ? '#137a49' : '#b23a22') + '">' + kes_(y.income - y.expenses) + '</b></p>'; })() +
     '<p style="margin-top:22px"><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '" style="background:#0e1a3a;color:#fff;padding:11px 18px;border-radius:99px;text-decoration:none;font-weight:bold">Open your sheet</a></p>' +
     '<p style="font-size:11px;color:#888;margin-top:20px">Turn this email off in the Settings tab (Monday summary email: No).</p></div>';
   MailApp.sendEmail({ to: me, subject: 'Your week: ' + newBriefs.length + ' new brief' + (newBriefs.length === 1 ? '' : 's') + ', ' + projects.length + ' active project' + (projects.length === 1 ? '' : 's'), htmlBody: html, name: 'Nexus CAD Studio website' });
@@ -1037,7 +1221,11 @@ const SROWS = [
   ['Training starting price (KES)', SEED_TRAINING.price, 'Training page: starting price per trainee, e.g. 4500'],
   ['Monday summary email', 'Yes', 'Yes = every Monday morning you get an email summary of briefs, projects, balances, reviews and subscribers'],
   ['Email new articles to subscribers', 'Yes', 'Yes = each new article is emailed to the Subscribers tab once it is live on the website'],
-  ['Payment reminders', 'Yes', 'Yes = unpaid invoices get a polite reminder email after 7 and 14 days (stops once you send a receipt)']
+  ['Payment reminders', 'Yes', 'Yes = unpaid invoices get a polite reminder email after 7 and 14 days (stops once you send a receipt)'],
+  ['Monthly money report', 'Yes', 'Yes = on the 1st of each month you get last month\'s income, expenses and profit by email'],
+  ['Ask delivered clients for a review', 'Yes', 'Yes = a day after a project is Delivered, the client gets a friendly review request'],
+  ['One-year follow-up email', 'Yes', 'Yes = a year after delivery, past clients get a short "anything new we can help with?" email'],
+  ['Weekly sheet backup', 'Yes', 'Yes = every Sunday a copy of this sheet is saved to the Drive folder "Nexus CAD Studio sheet backups"']
 ];
 
 function settings_() {
@@ -1096,6 +1284,9 @@ function setup() {
   const p = projects_();
   if (!p.getRange(1, 12).getValue()) p.getRange(1, 12).setValue('Client email').setFontWeight('bold');
   if (!p.getRange(1, 13).getValue()) p.getRange(1, 13, 1, 2).setValues([[PHEAD[12], PHEAD[13]]]).setFontWeight('bold');
+  if (!p.getRange(1, 15).getValue()) p.getRange(1, 15).setValue(PHEAD[14]).setFontWeight('bold').setWrap(true);
+  faq_();
+  expenses_();
   const co = courses_();
   if (!co.getRange(1, 6).getValue()) co.getRange(1, 6, 1, 2).setValues([[COHEAD[5], COHEAD[6]]]).setFontWeight('bold').setWrap(true);
   trainees_();
@@ -1119,12 +1310,13 @@ function setup() {
     a.getRange(2, 9, 999, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(YESNO, true).build());
   }
   ScriptApp.getProjectTriggers()
-    .filter((t) => ['notifyClient', 'weeklySummary', 'newsletterJob', 'reminderJob'].indexOf(t.getHandlerFunction()) > -1)
+    .filter((t) => ['notifyClient', 'weeklySummary', 'newsletterJob', 'reminderJob', 'dailyJob', 'backupJob'].indexOf(t.getHandlerFunction()) > -1)
     .forEach((t) => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('notifyClient').forSpreadsheet(SpreadsheetApp.getActive()).onEdit().create();
   ScriptApp.newTrigger('weeklySummary').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(7).inTimezone('Africa/Nairobi').create();
   ScriptApp.newTrigger('newsletterJob').timeBased().everyHours(1).create();
-  ScriptApp.newTrigger('reminderJob').timeBased().everyDays(1).atHour(9).inTimezone('Africa/Nairobi').create();
+  ScriptApp.newTrigger('dailyJob').timeBased().everyDays(1).atHour(9).inTimezone('Africa/Nairobi').create();
+  ScriptApp.newTrigger('backupJob').timeBased().onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(2).inTimezone('Africa/Nairobi').create();
 }
 
 // "Website" menu at the top of the sheet
@@ -1132,6 +1324,8 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('Website')
     .addItem('Send me the weekly summary now', 'weeklySummary')
     .addItem('Email new articles to subscribers now', 'newsletterJob')
+    .addItem('Send me this month\'s money report so far', 'moneyReportNow')
+    .addItem('Back up this sheet now', 'backupNow')
     .addSeparator()
     .addItem('Set up / repair (run after updating the script)', 'setup')
     .addToUi();
@@ -1172,6 +1366,7 @@ function notifyClient(e) {
   if (sh.getName() === INVOICES && e.range.getColumn() === 11 && /^send$/i.test(String(e.value || ''))) return sendInvoice_(sh, e.range.getRow());
   if (sh.getName() === TRAINEES && e.range.getColumn() === 9) return traineeChanged_(sh, e.range.getRow());
   if (sh.getName() !== PROJECTS || e.range.getColumn() !== 4) return;
+  if (/^delivered$/i.test(String(e.value || '').trim())) markDelivered_(sh, e.range.getRow());
   const r = sh.getRange(e.range.getRow(), 1, 1, 12).getValues()[0];
   const to = String(r[11] || '').trim();
   const stage = String(r[3] || '').trim();
