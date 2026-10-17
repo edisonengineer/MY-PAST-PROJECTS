@@ -285,7 +285,7 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=4" data-fr="../js/i18n-fr.js?v=25" data-sw="../js/i18n-sw.js?v=22"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=4" data-fr="../js/i18n-fr.js?v=26" data-sw="../js/i18n-sw.js?v=23"></script>
     <script defer src="../js/pages.js?v=11"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
@@ -1066,7 +1066,7 @@ function trackPage() {
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=7"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=8"></script>\n');
 }
 
 /* ---------- Certificate verification ---------- */

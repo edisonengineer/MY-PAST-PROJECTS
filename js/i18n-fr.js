@@ -1269,7 +1269,9 @@ window.I18N_FR = {
     "e.g. AMINA-7K3P": "ex. AMINA-7K3P",
     "e.g. WELCOME10": "ex. WELCOME10",
     "e.g. TRAIN20": "ex. TRAIN20",
-    "e.g. SJK7ABC12D": "ex. SJK7ABC12D"
+    "e.g. SJK7ABC12D": "ex. SJK7ABC12D",
+    "Your acceptance couldn't be saved just now. Please try again in a minute, or message me on WhatsApp.": "Votre acceptation n’a pas pu être enregistrée pour l’instant. Réessayez dans une minute ou écrivez-moi sur WhatsApp.",
+    "Your payment code couldn't be saved just now. Please try again in a minute, or send it to me on WhatsApp.": "Votre code de paiement n’a pas pu être enregistré pour l’instant. Réessayez dans une minute ou envoyez-le-moi sur WhatsApp."
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

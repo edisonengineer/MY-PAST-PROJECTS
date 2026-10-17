@@ -1269,7 +1269,9 @@ window.I18N_SW = {
     "e.g. AMINA-7K3P": "mf. AMINA-7K3P",
     "e.g. WELCOME10": "mf. WELCOME10",
     "e.g. TRAIN20": "mf. TRAIN20",
-    "e.g. SJK7ABC12D": "mf. SJK7ABC12D"
+    "e.g. SJK7ABC12D": "mf. SJK7ABC12D",
+    "Your acceptance couldn't be saved just now. Please try again in a minute, or message me on WhatsApp.": "Ukubali wako haukuweza kuhifadhiwa sasa hivi. Jaribu tena baada ya dakika moja, au niandikie kwenye WhatsApp.",
+    "Your payment code couldn't be saved just now. Please try again in a minute, or send it to me on WhatsApp.": "Msimbo wako wa malipo haukuweza kuhifadhiwa sasa hivi. Jaribu tena baada ya dakika moja, au nitumie kwenye WhatsApp."
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
