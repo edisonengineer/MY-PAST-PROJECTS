@@ -212,6 +212,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "Verify a certificate",
+  "d": "Check a Nexus CAD Studio training certificate with its code.",
+  "u": "verify/index.html",
+  "x": "verify certificate code training trainee check authentic employer"
+ },
+ {
+  "k": "page",
   "t": "Track your project",
   "d": "Check the status of your project with your reference.",
   "u": "track/index.html",

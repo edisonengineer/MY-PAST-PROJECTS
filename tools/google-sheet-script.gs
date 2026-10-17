@@ -43,6 +43,16 @@
    stamp. Unpaid invoices get a polite reminder email after 7 and 14 days
    (type Off in the reminders column to stop them for one invoice).
 
+   TRAINEES tab: seat reservations from the training page land here, and
+   each course's seats are counted (set "Next class" and "Seats" in the
+   Courses tab; a full class shows "Fully booked" on the website). Set
+   Status to "Confirmed" to draft their invoice, and to "Completed" to
+   email them a certificate with a code anyone can check at /verify/.
+
+   CLIENT APPROVALS: when a project is at "Review & revisions", the client
+   can approve it or request changes on their tracking page. You get an
+   email, and the Projects tab shows their decision and comments.
+
    SUBSCRIBERS tab: people who signed up for CAD tips by email. When an
    article goes live, it is emailed to them automatically (each email has
    an unsubscribe link).
@@ -90,6 +100,8 @@ function doPost(e) {
   if (p.botcheck) return out_({ ok: true });                       // bots fill the hidden box
   if (p.action === 'brief') return out_(brief_(p));
   if (p.action === 'subscribe') return out_(subscribe_(p));
+  if (p.action === 'reserve') return out_(reserve_(p));
+  if (p.action === 'feedback') return out_(feedback_(p));
   const name = clean_(p.name, 80);
   const text = clean_(p.text, 1500);
   const rating = Math.round(Number(p.rating));
@@ -116,7 +128,7 @@ function doPost(e) {
 /* ---------- Client project tracker ---------- */
 const PROJECTS = 'Projects';
 const STAGES = ['Brief received', 'Quote sent', 'Deposit received', 'Design in progress', 'Review & revisions', 'Delivered'];
-const PHEAD = ['Reference', 'Project', 'Client', 'Stage', 'Progress %', 'Due date', 'Note to client', 'Deposit', 'Balance due (KES)', 'Files link', 'Last updated', 'Client email'];
+const PHEAD = ['Reference', 'Project', 'Client', 'Stage', 'Progress %', 'Due date', 'Note to client', 'Deposit', 'Balance due (KES)', 'Files link', 'Last updated', 'Client email', 'Client approval (automatic)', 'Client feedback (automatic)'];
 const SITE_URL = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
 const SENDER = 'Edison Ochieng · Nexus CAD Studio';
@@ -381,29 +393,30 @@ const YESNO = ['Yes', 'No'];
 const PRICING = 'Pricing', CERTS = 'Certificates', COURSES = 'Courses', RECORDINGS = 'Recordings';
 const PRHEAD = ['Package', 'Category', 'Price (KES)', 'Starting from?', 'Description', "What's included (one per line)", 'Icon', 'Show on website'];
 const CEHEAD = ['Certificate', 'Issued by', 'Credential link', 'Certificate image (Google Drive link, optional)', 'Show on website'];
-const COHEAD = ['Course', 'Tagline', 'Level', 'Topics (one per line)', 'Show on website'];
+const COHEAD = ['Course', 'Tagline', 'Level', 'Topics (one per line)', 'Show on website', 'Next class (e.g. Saturdays from 7 Nov 2026)', 'Seats (empty = no limit)'];
 const REHEAD = ['YouTube link', 'Title', 'Show on website'];
 const ICONS = ['cube', 'gear', 'chart', 'image', 'layout', 'brush', 'cap', 'hub', 'battery', 'leaf', 'pen', 'award', 'play', 'users', 'doc'];
 
-function listTab_(name, head, seed, widths, rules) {
+function listTab_(name, head, seed, widths, rules, showCol) {
+  showCol = showCol || head.length;
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sh = ss.getSheetByName(name);
   if (sh) return sh;
   sh = ss.insertSheet(name);
   sh.appendRow(head);
-  if (seed.length) sh.getRange(2, 1, seed.length, head.length).setValues(seed);
+  if (seed.length) sh.getRange(2, 1, seed.length, head.length).setValues(seed.map((r) => r.concat(Array(Math.max(0, head.length - r.length)).fill(''))));
   sh.setFrozenRows(1);
   sh.getRange(1, 1, 1, head.length).setFontWeight('bold').setWrap(true);
   sh.getRange(2, 1, 499, head.length).setVerticalAlignment('top').setWrap(true);
   widths.forEach((w, i) => sh.setColumnWidth(i + 1, w));
-  sh.getRange(2, head.length, 499, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(YESNO, true).build());
+  sh.getRange(2, showCol, 499, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(YESNO, true).build());
   (rules || []).forEach((r) => sh.getRange(r[0]).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(r[1], true).build()));
   return sh;
 }
 const pricing_ = () => listTab_(PRICING, PRHEAD, SEED_PRICING, [200, 140, 110, 110, 320, 320, 90, 110],
   [['B2:B500', ['Engineering', 'Graphic Design', 'Training']], ['D2:D500', YESNO], ['G2:G500', ICONS]]);
 const certs_ = () => listTab_(CERTS, CEHEAD, SEED_CERTS, [320, 160, 320, 300, 110]);
-const courses_ = () => listTab_(COURSES, COHEAD, SEED_COURSES, [180, 260, 180, 420, 110]);
+const courses_ = () => listTab_(COURSES, COHEAD, SEED_COURSES, [180, 260, 180, 420, 110, 260, 120], null, 5);
 const recordings_ = () => listTab_(RECORDINGS, REHEAD, SEED_RECORDINGS, [340, 340, 110]);
 
 const shown_ = (r, col) => String(r[0]).trim() && !/^no$/i.test(String(r[col]).trim());
@@ -476,7 +489,8 @@ function fillInvoice_(sh, row) {
   if (!ref) return;
   const p = projects_().getDataRange().getValues().slice(1).find((r) => normRef_(r[0]) === ref);
   const b = p ? null : subs_().getDataRange().getValues().slice(1).find((r) => normRef_(r[0]) === ref);
-  const name = p ? p[2] : b ? b[3] : '', email = p ? p[11] : b ? b[4] : '';
+  const t = p || b ? null : trainees_().getDataRange().getValues().slice(1).find((r) => normRef_(r[0]) === ref);
+  const name = p ? p[2] : b ? b[3] : t ? t[2] : '', email = p ? p[11] : b ? b[4] : t ? t[3] : '';
   if (name && !sh.getRange(row, 5).getValue()) sh.getRange(row, 5).setValue(name);
   if (email && !sh.getRange(row, 6).getValue()) sh.getRange(row, 6).setValue(email);
   if (!sh.getRange(row, 2).getValue()) sh.getRange(row, 2).setValue('Invoice');
@@ -591,6 +605,11 @@ function sendInvoice_(sh, row) {
       else if (!rows[i][7]) P.getRange(i + 1, 8).setValue('Due');
       P.getRange(i + 1, 11).setValue(new Date());
     }
+    if (type === 'Receipt' && i < 1) {
+      const T = trainees_(), tr = T.getDataRange().getValues();
+      const j = tr.findIndex((x, k) => k > 0 && normRef_(x[0]) === normRef_(d.ref));
+      if (j > 0 && /^(reserved|waiting list|confirmed)$/i.test(String(tr[j][8]).trim())) T.getRange(j + 1, 9).setValue('Paid');
+    }
   }
 }
 
@@ -649,6 +668,206 @@ function reminderJob() {
     MailApp.sendEmail(mail);
     sh.getRange(row, 14).setValue('Reminder ' + (sent + 1) + ' sent ' + Utilities.formatDate(now, tz, 'd MMM yyyy'));
   });
+}
+
+/* ---------- Training: seats, trainees and certificates ---------- */
+const TRAINEES = 'Trainees';
+const THEAD = ['Trainee ID (automatic)', 'Registered', 'Name', 'Email', 'Phone / WhatsApp', 'Course', 'Class', 'Format', 'Status', 'Completed on', 'Certificate code (automatic)', 'Certificate (automatic)', 'Notes'];
+const T_STATUS = ['Reserved', 'Waiting list', 'Confirmed', 'Paid', 'In training', 'Completed', 'Cancelled'];
+
+function trainees_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(TRAINEES);
+  if (sh) return sh;
+  sh = ss.insertSheet(TRAINEES);
+  sh.appendRow(THEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, THEAD.length).setFontWeight('bold').setWrap(true);
+  sh.getRange('I2:I2000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(T_STATUS, true).build());
+  sh.getRange('B2:B2000').setNumberFormat('d mmm yyyy');
+  sh.getRange('J2:J2000').setNumberFormat('d mmm yyyy');
+  [150, 110, 180, 220, 150, 160, 220, 130, 120, 120, 170, 200, 260].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+
+const newId_ = (prefix) => prefix + '-' + Utilities.formatDate(new Date(), 'Africa/Nairobi', 'yyMM') + '-' +
+  Utilities.getUuid().replace(/[^a-z0-9]/gi, '').toUpperCase().replace(/[01OI]/g, '').slice(0, 5);
+
+// Each shown course with its next class and seats (seats are counted per class)
+function classes_() {
+  const fallback = setting_('Training next intake');
+  const trainees = trainees_().getDataRange().getValues().slice(1);
+  return courses_().getDataRange().getValues().slice(1).filter((r) => shown_(r, 4)).map((r) => {
+    const name = String(r[0]).trim(), nextClass = String(r[5] || '').trim() || fallback;
+    const seats = Math.round(num_(r[6]));
+    const taken = trainees.filter((t) => String(t[5]).trim().toLowerCase() === name.toLowerCase() &&
+      String(t[6]).trim() === nextClass && !/^(cancelled|waiting list)$/i.test(String(t[8]).trim())).length;
+    return { name, nextClass, seats, taken, left: seats ? Math.max(0, seats - taken) : null, full: !!seats && taken >= seats };
+  });
+}
+const trainingInfo_ = () => ({ courses: classes_().map((c) => ({ name: c.name, nextClass: c.nextClass, seats: c.seats || null, left: c.left, full: c.full })) });
+
+function reserve_(p) {
+  const name = clean_(p.name, 80), email = clean_(p.email, 120).toLowerCase(), course = clean_(p.Course || p.course, 80);
+  if (!name || !validEmail_(email) || !course) return { ok: false, error: 'invalid' };
+  const cache = CacheService.getScriptCache();
+  const count = Number(cache.get('reserve-count') || 0);
+  if (count >= 40) return { ok: false, error: 'busy' };
+  cache.put('reserve-count', String(count + 1), 3600);
+  const c = classes_().find((x) => x.name.toLowerCase() === course.toLowerCase());
+  const klass = c ? c.nextClass : '';
+  const status = c && c.full ? 'Waiting list' : 'Reserved';
+  let id;
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sh = trainees_(), rows = sh.getDataRange().getValues().slice(1);
+    const dup = rows.find((r) => String(r[3]).trim().toLowerCase() === email && String(r[5]).trim().toLowerCase() === course.toLowerCase() &&
+      String(r[6]).trim() === klass && !/^cancelled$/i.test(String(r[8]).trim()));
+    if (dup) return { ok: true };
+    id = newId_('TRN');
+    const notes = [p.Level ? 'Level: ' + clean_(p.Level, 60) : '', p['Preferred schedule'] ? 'Prefers: ' + clean_(p['Preferred schedule'], 80) : '', p.Message ? clean_(p.Message, 600) : ''].filter(Boolean).join(' · ');
+    sh.appendRow([id, new Date(), name, email, clean_(p['Phone / WhatsApp'] || p.phone, 40), c ? c.name : course, klass, clean_(p.Format, 60), status, '', '', '', notes]);
+  } finally {
+    lock.releaseLock();
+  }
+  try {
+    traineeMail_(email, name, status === 'Waiting list'
+      ? 'Thank you for your interest in <b>' + html_(course) + '</b> training. The next class' + (klass ? ' (' + html_(klass) + ')' : '') + ' is full, so you are on the <b>waiting list</b>. I will contact you as soon as a seat opens or the next class is scheduled.'
+      : 'Thank you for reserving a seat for <b>' + html_(course) + '</b> training' + (klass ? ' (' + html_(klass) + ')' : '') + '. I will confirm the schedule and fees within a day.',
+      'Seat request received: ' + course, id);
+  } catch (err) { /* email quota: the reservation is still saved */ }
+  return { ok: true };
+}
+
+function traineeMail_(to, name, message, subject, id, attachment) {
+  const body = '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+    '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · CAD TRAINING</p>' +
+    '<p>Hello ' + html_(name) + ',</p><p>' + message + '</p>' +
+    (id ? '<p style="font-size:13px;color:#555">Your trainee ID: <b>' + html_(id) + '</b></p>' : '') +
+    '<p style="font-size:13px;color:#555">Questions? Reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
+    '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">CAD Trainer · Nexus CAD Studio</span></p></div>';
+  const mail = { to: to, name: SENDER, subject: subject, htmlBody: body, body: message.replace(/<[^>]+>/g, '') };
+  if (attachment) mail.attachments = [attachment];
+  MailApp.sendEmail(mail);
+}
+
+function traineeChanged_(sh, row) {
+  const r = sh.getRange(row, 1, 1, THEAD.length).getValues()[0];
+  const status = String(r[8] || '').trim(), name = String(r[2] || '').trim(), email = String(r[3] || '').trim(), course = String(r[5] || '').trim();
+  let id = String(r[0] || '').trim();
+  if (!id) { id = newId_('TRN'); sh.getRange(row, 1).setValue(id); }
+  if (!sh.getRange(row, 2).getValue()) sh.getRange(row, 2).setValue(new Date());
+  if (status === 'Confirmed') {
+    // Draft the invoice once (you check the price and set Action to Send)
+    const inv = invoices_(), invRows = inv.getDataRange().getValues();
+    if (!invRows.some((x) => normRef_(x[3]) === normRef_(id))) {
+      const price = num_(setting_('Training starting price (KES)'));
+      inv.appendRow(['', 'Invoice', new Date(), id, name, email, course + ' training' + (r[6] ? ' (' + r[6] + ')' : '') + (price ? ' - ' + price : ''), '', '', '', 'Draft', '', 'Drafted from the Trainees tab: check it, then set Action to Send', '']);
+    }
+    sh.getRange(row, 13).setValue([String(r[12] || ''), 'Invoice drafted in the Invoices tab'].filter(Boolean).join(' · '));
+    if (validEmail_(email)) traineeMail_(email, name, 'Good news: your seat for <b>' + html_(course) + '</b> training' + (r[6] ? ' (' + html_(r[6]) + ')' : '') + ' is <b>confirmed</b>. Your invoice follows shortly.', 'Seat confirmed: ' + course, id);
+  } else if (status === 'Completed') {
+    issueCertificate_(sh, row);
+  }
+}
+
+function certCode_() {
+  const raw = Utilities.getUuid().replace(/[^a-z0-9]/gi, '').toUpperCase().replace(/[01OI]/g, '');
+  return 'NCS-' + raw.slice(0, 4) + '-' + raw.slice(4, 8);
+}
+
+function certificateHtml_(c) {
+  const verify = SITE_URL + 'verify/?code=' + encodeURIComponent(c.code);
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:A4 landscape;margin:0}table{font-size:13px;color:#0e1a3a}</style></head>' +
+    '<body style="margin:0;font-family:Georgia,\'Times New Roman\',serif;color:#0e1a3a">' +
+    '<table width="100%" cellspacing="0" cellpadding="0" style="border:14px solid #0e1a3a;height:790px"><tr><td style="border:3px solid #ffb627;padding:40px 50px;text-align:center;vertical-align:middle">' +
+      '<table cellspacing="0" cellpadding="0" style="margin:0 auto"><tr><td style="background:#ffb627;color:#0e1a3a;font-family:Arial,sans-serif;font-weight:bold;font-size:18px;width:46px;height:46px;text-align:center">EO</td>' +
+      '<td style="padding-left:12px;text-align:left;font-family:Arial,sans-serif"><div style="font-size:18px;font-weight:bold">Nexus CAD Studio</div><div style="font-size:10px;letter-spacing:2px;color:#666">CAD TRAINING · NAIROBI, KENYA</div></td></tr></table>' +
+      '<div style="margin-top:40px;font-family:Arial,sans-serif;font-size:14px;letter-spacing:6px;color:#c4422a;font-weight:bold">CERTIFICATE OF COMPLETION</div>' +
+      '<div style="margin-top:34px;font-size:16px;color:#555;font-style:italic">This certifies that</div>' +
+      '<div style="margin-top:12px;font-size:44px;font-weight:bold;letter-spacing:.5px">' + html_(c.name) + '</div>' +
+      '<div style="width:60%;margin:8px auto 0;border-top:2px solid #ffb627"></div>' +
+      '<div style="margin-top:16px;font-size:15px;color:#555;font-style:italic">has successfully completed the</div>' +
+      '<div style="margin-top:8px;font-size:26px;font-weight:bold;color:#1f4fd1">' + html_(c.course) + ' training course</div>' +
+      (c.klass ? '<div style="margin-top:6px;font-family:Arial,sans-serif;font-size:12px;color:#666">' + html_(c.klass) + '</div>' : '') +
+      '<table width="100%" cellspacing="0" cellpadding="0" style="margin-top:56px;font-family:Arial,sans-serif"><tr>' +
+        '<td style="width:33%;text-align:center;vertical-align:bottom"><div style="font-size:14px;font-weight:bold">' + html_(c.date) + '</div><div style="border-top:1px solid #999;margin:6px 20px 0;padding-top:4px;font-size:10px;letter-spacing:2px;color:#666">DATE OF COMPLETION</div></td>' +
+        '<td style="width:34%;text-align:center;vertical-align:bottom"><div style="display:inline-block;padding:8px 14px;border:3px solid #1fae6a;border-radius:50%;color:#1fae6a;font-size:11px;font-weight:bold;letter-spacing:1px;line-height:1.3">VERIFIED<br>NEXUS CAD<br>STUDIO</div></td>' +
+        '<td style="width:33%;text-align:center;vertical-align:bottom"><div style="font-family:Georgia,serif;font-size:20px;font-style:italic">Edison Ochieng</div><div style="border-top:1px solid #999;margin:6px 20px 0;padding-top:4px;font-size:10px;letter-spacing:2px;color:#666">LEAD CAD TRAINER</div></td>' +
+      '</tr></table>' +
+      '<div style="margin-top:40px;font-family:Arial,sans-serif;font-size:11px;color:#666">Certificate code <b style="color:#0e1a3a">' + html_(c.code) + '</b> · Verify at ' + html_(verify) + '</div>' +
+    '</td></tr></table></body></html>';
+}
+
+function certFolder_() {
+  const name = 'Nexus CAD Studio certificates';
+  const it = DriveApp.getFoldersByName(name);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(name);
+}
+
+function issueCertificate_(sh, row) {
+  const r = sh.getRange(row, 1, 1, THEAD.length).getValues()[0];
+  const name = String(r[2] || '').trim(), email = String(r[3] || '').trim(), course = String(r[5] || '').trim();
+  if (!name || !course) { sh.getRange(row, 13).setValue('⚠ Add the trainee name and course, then set Status to Completed again.'); return; }
+  const done = r[9] instanceof Date ? r[9] : new Date();
+  if (!(r[9] instanceof Date)) sh.getRange(row, 10).setValue(done);
+  const code = String(r[10] || '').trim() || certCode_();
+  sh.getRange(row, 11).setValue(code);
+  const c = { name, course, klass: String(r[6] || '').trim(), code, date: Utilities.formatDate(done, 'Africa/Nairobi', 'd MMMM yyyy') };
+  const pdf = Utilities.newBlob(certificateHtml_(c), 'text/html', code + '.html').getAs('application/pdf').setName('Certificate - ' + name + ' - ' + course + '.pdf');
+  const file = certFolder_().createFile(pdf);
+  sh.getRange(row, 12).setValue(file.getUrl());
+  if (validEmail_(email)) {
+    traineeMail_(email, name, 'Congratulations on completing <b>' + html_(course) + '</b> training! Your certificate is attached.<br><br>' +
+      'Certificate code: <b>' + html_(code) + '</b><br>Anyone, such as an employer, can confirm it at <a href="' + SITE_URL + 'verify/?code=' + encodeURIComponent(code) + '">' + SITE_URL.replace(/^https:\/\//, '') + 'verify/</a>.<br><br>' +
+      'If you enjoyed the course, I would be grateful for a short review: <a href="' + SITE_URL + '?review=1&name=' + encodeURIComponent(name) + '&service=' + encodeURIComponent('CAD Training / Webinar') + '#reviews">leave a review</a>.',
+      'Your certificate: ' + course + ' training', String(r[0] || ''), pdf);
+  }
+}
+
+// Public check of a certificate code (only Completed trainees; nothing else is shared)
+function verify_(code) {
+  const want = normRef_(code);
+  if (want.length < 8) return { valid: false };
+  const cache = CacheService.getScriptCache();
+  const misses = Number(cache.get('verify-miss') || 0);
+  if (misses >= 40) return { error: 'busy' };
+  const r = trainees_().getDataRange().getValues().slice(1).find((x) => x[10] && normRef_(x[10]) === want && /^completed$/i.test(String(x[8]).trim()));
+  if (!r) { cache.put('verify-miss', String(misses + 1), 600); return { valid: false }; }
+  return { valid: true, code: String(r[10]), name: String(r[2]), course: String(r[5]), date: r[9] instanceof Date ? Utilities.formatDate(r[9], 'Africa/Nairobi', 'd MMMM yyyy') : '' };
+}
+
+/* ---------- Client approval from the tracking page ---------- */
+function feedback_(p) {
+  const want = normRef_(p.ref), decision = /^approve/i.test(p.decision) ? 'approve' : 'changes';
+  const message = String(p.message || '').replace(/[\u0000-\u0008\u000b-\u001f<>]/g, ' ').trim().slice(0, 1500);
+  if (want.length < 6 || (decision === 'changes' && message.length < 3)) return { ok: false, error: 'invalid' };
+  const cache = CacheService.getScriptCache();
+  const count = Number(cache.get('feedback-count') || 0);
+  if (count >= 30) return { ok: false, error: 'busy' };
+  cache.put('feedback-count', String(count + 1), 3600);
+  const sh = projects_(), rows = sh.getDataRange().getValues();
+  const i = rows.findIndex((x, k) => k > 0 && x[0] && normRef_(x[0]) === want);
+  if (i < 1) return { ok: false };
+  const r = rows[i], tz = 'Africa/Nairobi', when = Utilities.formatDate(new Date(), tz, 'd MMM yyyy');
+  const label = decision === 'approve' ? 'Approved' : 'Changes requested';
+  sh.getRange(i + 1, 13).setValue(label + ' · ' + when);
+  const history = String(r[13] || '');
+  sh.getRange(i + 1, 14).setValue(('[' + Utilities.formatDate(new Date(), tz, 'd MMM, HH:mm') + '] ' + label + (message ? ': ' + message : '') + (history ? '\n' + history : '')).slice(0, 5000));
+  sh.getRange(i + 1, 11).setValue(new Date());
+  const me = Session.getEffectiveUser().getEmail();
+  if (me) {
+    MailApp.sendEmail({
+      to: me, name: 'Nexus CAD Studio website',
+      subject: (decision === 'approve' ? '✅ Approved: ' : '✏️ Changes requested: ') + String(r[1] || r[0]),
+      htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;color:#0e1a3a"><p><b>' + html_(r[2] || 'Your client') + '</b> ' +
+        (decision === 'approve' ? 'approved' : 'requested changes on') + ' <b>' + html_(r[1] || r[0]) + '</b> (' + html_(r[0]) + ').</p>' +
+        (message ? '<p style="border-left:4px solid #ffb627;background:#fbf6ec;padding:10px 12px">' + html_(message).replace(/\n/g, '<br>') + '</p>' : '') +
+        '<p><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Open your sheet</a></p></div>'
+    });
+  }
+  return { ok: true };
 }
 
 /* ---------- Newsletter: subscribers and emailing new articles ---------- */
@@ -876,6 +1095,10 @@ function setup() {
   sheet_();
   const p = projects_();
   if (!p.getRange(1, 12).getValue()) p.getRange(1, 12).setValue('Client email').setFontWeight('bold');
+  if (!p.getRange(1, 13).getValue()) p.getRange(1, 13, 1, 2).setValues([[PHEAD[12], PHEAD[13]]]).setFontWeight('bold');
+  const co = courses_();
+  if (!co.getRange(1, 6).getValue()) co.getRange(1, 6, 1, 2).setValues([[COHEAD[5], COHEAD[6]]]).setFontWeight('bold').setWrap(true);
+  trainees_();
   settings_();
   subs_();
   articles_();
@@ -947,6 +1170,7 @@ function notifyClient(e) {
   if (e.oldValue !== undefined && String(e.oldValue) === String(e.value)) return;
   if (sh.getName() === SUBS && e.range.getColumn() === 3) return submissionChanged_(sh, e.range.getRow());
   if (sh.getName() === INVOICES && e.range.getColumn() === 11 && /^send$/i.test(String(e.value || ''))) return sendInvoice_(sh, e.range.getRow());
+  if (sh.getName() === TRAINEES && e.range.getColumn() === 9) return traineeChanged_(sh, e.range.getRow());
   if (sh.getName() !== PROJECTS || e.range.getColumn() !== 4) return;
   const r = sh.getRange(e.range.getRow(), 1, 1, 12).getValues()[0];
   const to = String(r[11] || '').trim();
@@ -1027,6 +1251,8 @@ function track_(ref) {
   };
   if (r[4] !== '' && !isNaN(Number(r[4]))) p.progress = Number(r[4]);
   if (r[8] !== '' && !isNaN(Number(r[8]))) p.amountDue = Number(r[8]);
+  const appr = String(r[12] || '');
+  if (appr) p.approval = { state: /^approved/i.test(appr) ? 'approved' : 'changes', date: (/·\s*(.+)$/.exec(appr) || [])[1] || '' };
   return { found: true, project: p };
 }
 
@@ -1079,6 +1305,8 @@ function doGet(e) {
   if (q.action === 'content') return out_(content_());          // used by the website's GitHub automation
   if (q.action === 'image') return out_(image_(q));
   if (q.action === 'unsubscribe') return unsubscribePage_(q);
+  if (q.action === 'training') return out_(trainingInfo_());
+  if (q.action === 'verify') return out_(verify_(q.code));
   return out_(reviews_());
 }
 

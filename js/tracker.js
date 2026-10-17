@@ -9,6 +9,7 @@
     'use strict';
 
     const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const t = (s) => (window.I18N && window.I18N.t ? window.I18N.t(s) : s);
     const icon = (n) => '<svg aria-hidden="true"><use href="#i-' + n + '"/></svg>';
@@ -65,7 +66,52 @@
     const day = (d) => { try { return new Date(d + 'T12:00:00').toLocaleDateString(document.documentElement.lang === 'en' ? 'en-GB' : document.documentElement.lang, { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { return d; } };
     const money = (n) => (window.Currency ? window.Currency.fmt(n) : 'KES ' + Number(n).toLocaleString('en-US'));
 
+    // At "Review & revisions" the client can approve the design or ask for changes (saved to the Google Sheet)
+    const sheetApi = (window.SITE_CONFIG || {}).trackerApi || (window.SITE_CONFIG || {}).reviewsApi;
+    let shownRef = '';
+    function reviewBox(p) {
+        if (p.declined || +p.stage !== 4 || !sheetApi || !p.ref) return '';
+        const a = p.approval || {};
+        if (a.state === 'approved') {
+            return '<div class="track-review is-approved">' + icon('check') + '<p><strong>You approved this design</strong>' +
+                (a.date ? ' <span>on</span> <span data-no-i18n>' + esc(a.date) + '</span>' : '') + '. <span>Thank you!</span></p></div>';
+        }
+        return '<div class="track-review" id="track-review">' +
+            '<h3>Ready for your review</h3>' +
+            '<p>' + (a.state === 'changes'
+                ? '<span>You requested changes</span>' + (a.date ? ' <span>on</span> <span data-no-i18n>' + esc(a.date) + '</span>' : '') + '. <span>Once the design is updated, you can approve it here.</span>'
+                : '<span>Take a look at the latest design, then approve it or tell me what to change.</span>') + '</p>' +
+            '<label for="tr-msg">Comments <small>(needed when you request changes)</small></label>' +
+            '<textarea id="tr-msg" rows="3" maxlength="1500" placeholder="e.g. Please make the flange 2 mm thicker"></textarea>' +
+            '<div class="tr-actions">' +
+                '<button type="button" class="btn btn-green" data-decision="approve">' + icon('check') + ' Approve design</button>' +
+                '<button type="button" class="btn btn-outline" data-decision="changes">Request changes</button>' +
+            '</div><p class="form-error" role="alert" hidden></p></div>';
+    }
+    out.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-decision]');
+        if (!b) return;
+        const box = $('#track-review'), msgEl = $('#tr-msg', box), errEl = $('.form-error', box);
+        const decision = b.dataset.decision, message = msgEl.value.trim();
+        errEl.hidden = true;
+        if (decision === 'changes' && message.length < 3) { errEl.textContent = t('Please describe the changes you would like.'); errEl.hidden = false; msgEl.focus(); return; }
+        if (decision === 'approve' && !window.confirm(t('Approve this design? Edison will be notified and will prepare your final files.'))) return;
+        $$('button', box).forEach((x) => { x.disabled = true; });
+        fetch(sheetApi, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'feedback', ref: shownRef, decision, message }) })
+            .then(() => {
+                box.className = 'track-review is-approved';
+                box.innerHTML = icon('check') + '<p><strong>' + (decision === 'approve' ? 'Thank you for approving the design!' : 'Thank you, your changes have been sent.') + '</strong> <span>Edison has been notified and will get back to you.</span></p>';
+                if (typeof window.track === 'function') window.track(decision === 'approve' ? 'design-approved' : 'changes-requested');
+            })
+            .catch(() => {
+                $$('button', box).forEach((x) => { x.disabled = false; });
+                errEl.textContent = t("This couldn't be sent just now. Please try again, or message me on WhatsApp.");
+                errEl.hidden = false;
+            });
+    });
+
     function render(p) {
+        shownRef = p.ref || '';
         const stage = Math.max(0, Math.min(STAGES.length - 1, +p.stage || 0));
         const done = stage === STAGES.length - 1;
         const progress = typeof p.progress === 'number' ? Math.max(0, Math.min(100, p.progress)) : Math.round(stage / (STAGES.length - 1) * 100);
@@ -88,6 +134,7 @@
                     (typeof p.amountDue === 'number' && p.amountDue > 0 ? '<div><dt>Balance due</dt><dd data-kes="' + p.amountDue + '">' + esc(money(p.amountDue)) + '</dd></div>' : '') +
                 '</dl>' +
                 (p.note ? '<div class="track-note"><span>Latest update from Edison</span><p data-no-i18n>' + esc(p.note) + '</p></div>' : '') +
+                reviewBox(p) +
                 '<div class="pm-actions">' +
                     (p.files ? '<a class="btn btn-sun" href="' + esc(p.files) + '" target="_blank" rel="noopener">' + icon('doc') + ' Download your files</a>' : '') +
                     (p.deposit === 'due' || (typeof p.amountDue === 'number' && p.amountDue > 0) ? '<a class="btn btn-navy" href="../index.html#pay">' + icon('wallet') + ' Pay by M-Pesa</a>' : '') +
