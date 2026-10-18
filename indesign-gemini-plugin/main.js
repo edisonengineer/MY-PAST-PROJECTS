@@ -418,6 +418,10 @@ async function generateImage(prompt, aspect) {
 }
 
 function friendlyError(e, forImage) {
+  if (forImage && /free_tier[\s\S]*limit: 0/.test(e.message)) {
+    return "Image generation isn't included in the free tier for your API key, so waiting won't help. " +
+      "To use images, turn on billing for the key in Google AI Studio. Text keeps working for free.";
+  }
   if (e.status === 429 || /quota|exhausted/i.test(e.message)) {
     return forImage
       ? "Image limit reached. Image generation may not be in the free tier for your key: try later, or turn on billing. (" + e.message + ")"
