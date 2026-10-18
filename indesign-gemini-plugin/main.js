@@ -370,28 +370,70 @@ function emptyReason(data, candidate) {
     (data.promptFeedback && data.promptFeedback.blockReason) || "empty response";
 }
 
+// One text request, stepping down the thinking level if the model rejects it.
+// Gemini 3 models think at "high" by default, which is slow.
+async function textRequest(key, model, prompt) {
+  const temperature = parseFloat($("temperature").value) || 0.7;
+  const levels = [$("speed").value || "minimal", "low", null].filter((v, i, a) => a.indexOf(v) === i);
+  for (let i = 0; ; i++) {
+    const generationConfig = { temperature };
+    if (levels[i]) generationConfig.thinkingConfig = { thinkingLevel: levels[i] };
+    try {
+      return await requestGemini(key, model, {
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig,
+      });
+    } catch (e) {
+      if (e.status !== 400 || !/think/i.test(e.message) || i === levels.length - 1) throw e;
+    }
+  }
+}
+
+// A free-tier limit that won't clear within a minute (daily limit, or limit 0).
+function isLongFreeLimit(e) {
+  if (e.status !== 429 || !/free_tier/i.test(e.message)) return false;
+  const wait = /retry in\s+([\dhms.]+)/i.exec(e.message);
+  return !wait || /[hm]/.test(wait[1]);
+}
+
+// Flash-Lite models usually have a much larger free allowance. Newest first.
+async function liteModels(key) {
+  const res = await fetch(`${API_BASE}?pageSize=200`, { headers: { "x-goog-api-key": key } });
+  const data = await res.json().catch(() => ({}));
+  const version = (name) => parseFloat((/gemini-([\d.]+)/.exec(name) || [0, 0])[1]);
+  return (data.models || [])
+    .filter((m) => /flash-lite/.test(m.name) && !/image|tts|audio/.test(m.name) &&
+      (m.supportedGenerationMethods || []).includes("generateContent"))
+    .map((m) => m.name.replace(/^models\//, ""))
+    .sort((a, b) => version(b) - version(a) || /preview/.test(a) - /preview/.test(b));
+}
+
+let switchedModel = null; // set when generateText moves to a Lite model
+
 async function generateText(prompt) {
   const key = await getKey();
-  const temperature = parseFloat($("temperature").value) || 0.7;
-  // Gemini 3 models think at "high" by default, which is slow. If the model
-  // rejects the chosen level, step down to "low" and then to no setting at all.
-  const levels = [$("speed").value || "minimal", "low", null].filter((v, i, a) => a.indexOf(v) === i);
-
-  const data = await withModel("model", SETTINGS.model, TEXT_MODELS, async (model) => {
-    for (let i = 0; ; i++) {
-      const generationConfig = { temperature };
-      if (levels[i]) generationConfig.thinkingConfig = { thinkingLevel: levels[i] };
+  switchedModel = null;
+  let data;
+  try {
+    data = await withModel("model", SETTINGS.model, TEXT_MODELS, (model) => textRequest(key, model, prompt));
+  } catch (e) {
+    if (!isLongFreeLimit(e)) throw e;
+    const current = $("model").value.trim();
+    const candidates = (await liteModels(key).catch(() => [])).filter((m) => m !== current);
+    for (const model of candidates) {
       try {
-        return await requestGemini(key, model, {
-          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig,
-        });
-      } catch (e) {
-        if (e.status !== 400 || !/think/i.test(e.message) || i === levels.length - 1) throw e;
+        data = await textRequest(key, model, prompt);
+        $("model").value = model;
+        localStorage.setItem(SETTINGS.model, model);
+        switchedModel = model;
+        break;
+      } catch (err) {
+        if (!isLongFreeLimit(err) && err.status !== 404) throw err;
       }
     }
-  });
+    if (!data) throw e;
+  }
 
   const { candidate, text } = partsFromResponse(data);
   if (!text) throw new GeminiError(`Gemini returned no text (${emptyReason(data, candidate)}).`);
@@ -423,9 +465,15 @@ function friendlyError(e, forImage) {
       "To use images, turn on billing for the key in Google AI Studio. Text keeps working for free.";
   }
   if (e.status === 429 || /quota|exhausted/i.test(e.message)) {
-    return forImage
-      ? "Image limit reached. Image generation may not be in the free tier for your key: try later, or turn on billing. (" + e.message + ")"
-      : "Free limit reached. Wait a minute and try again. (" + e.message + ")";
+    const wait = /retry in\s+(?:(\d+)h)?(?:(\d+)m)?/i.exec(e.message);
+    const limit = /limit: (\d+)/.exec(e.message);
+    if (isLongFreeLimit(e) && wait && (wait[1] || wait[2])) {
+      const when = wait[1] ? `about ${wait[1]} hours` : `about ${wait[2]} minutes`;
+      return (forImage ? "Daily free image limit used up" : "Daily free text limit used up") +
+        (limit ? ` (${limit[1]} requests per day)` : "") +
+        `. It resets in ${when}. To keep working now, turn on billing for the key, or set another model in Settings.`;
+    }
+    return "Too many requests in a short time. Wait a minute and try again.";
   }
   return e.message;
 }
@@ -477,7 +525,9 @@ $("generate").addEventListener("click", async () => {
   }
   try {
     $("result").value = await busy($("generate"), "Writing", () => generateText(ACTIONS[action](prompt, selected)));
-    setStatus("Done. Review the result, then insert it.", "ok");
+    setStatus(switchedModel
+      ? `Done. The daily free limit ran out, so the plugin switched to ${switchedModel} (change it in Settings).`
+      : "Done. Review the result, then insert it.", "ok");
   } catch (e) {
     setStatus(friendlyError(e, false), "error");
   }
