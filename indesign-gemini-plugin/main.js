@@ -3,6 +3,7 @@ const { storage } = require("uxp");
 
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta/models/";
 const KEY_NAME = "gemini-api-key";
+const DEFAULT_MODEL = "gemini-3.8-flash";
 
 const SYSTEM_PROMPT =
   "You write copy that will be placed directly into an Adobe InDesign layout. " +
@@ -189,7 +190,20 @@ function undoable(name, fn) {
 async function callGemini(prompt) {
   const key = $("apiKey").value.trim() || (await loadKey());
   if (!key) throw new Error("Add your Gemini API key in Settings.");
-  const model = $("model").value.trim() || "gemini-2.5-flash";
+  const model = $("model").value.trim() || DEFAULT_MODEL;
+  try {
+    return await requestGemini(key, model, prompt);
+  } catch (e) {
+    // Google retires models and names the replacement in the error; switch to it once.
+    const m = /no longer available.*?use models\/([\w.-]+)/i.exec(e.message);
+    if (!m || m[1] === model) throw e;
+    $("model").value = m[1];
+    localStorage.setItem("gemini-model", m[1]);
+    return await requestGemini(key, m[1], prompt);
+  }
+}
+
+async function requestGemini(key, model, prompt) {
 
   let res;
   try {

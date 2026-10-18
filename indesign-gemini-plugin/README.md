@@ -38,7 +38,7 @@ For **Translate**, put the target language in the instructions box (e.g. `Swahil
 
 ## Changing the model
 
-Type any Gemini model id in Settings (default `gemini-2.5-flash`; use e.g. `gemini-2.5-pro` for higher quality). See https://ai.google.dev/gemini-api/docs/models for current ids.
+Type any Gemini model id in Settings (default `gemini-3.8-flash`; or a Pro model for higher quality. If Google retires the model you set, the plugin switches to the replacement Google names in its error). See https://ai.google.dev/gemini-api/docs/models for current ids.
 
 ## Packaging for others
 
