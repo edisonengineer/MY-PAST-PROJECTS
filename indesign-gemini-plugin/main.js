@@ -33,9 +33,21 @@ const TEXT_TYPES = [
 
 const $ = (id) => document.getElementById(id);
 
-function setStatus(msg, isError = false) {
+function setStatus(msg, kind = "") {
   $("status").textContent = msg;
-  $("status").className = isError ? "error" : "";
+  $("status").className = kind === true ? "error" : kind;
+  if (kind === true || kind === "error") console.error("[Gemini Writer]", msg);
+}
+
+const HINTS = {
+  generate: "Type what you want written. No selection needed.",
+  translate: "Select text in the document, then type the target language (e.g. Swahili).",
+};
+const DEFAULT_HINT = "Select text or a text frame in the document first.";
+
+function showSettings(show) {
+  $("settings").style.display = show ? "block" : "none";
+  $("toggleSettings").textContent = show ? "Hide settings" : "Settings";
 }
 
 // ---------- settings ----------
@@ -61,21 +73,38 @@ async function loadKey() {
 async function initSettings() {
   $("apiKey").value = await loadKey();
   $("model").value = localStorage.getItem("gemini-model") || $("model").value;
-  $("temperature").value = localStorage.getItem("gemini-temp") || $("temperature").value;
-  $("tempValue").textContent = $("temperature").value;
-  if (!$("apiKey").value) $("settings").open = true;
+  $("temperature").value = localStorage.getItem("gemini-temp") || "0.7";
+  showSettings(!$("apiKey").value);
+  updateHint();
 }
 
-$("temperature").addEventListener("input", () => {
-  $("tempValue").textContent = $("temperature").value;
+function updateHint() {
+  $("actionHint").textContent = HINTS[$("action").value] || DEFAULT_HINT;
+}
+
+$("action").addEventListener("change", updateHint);
+
+$("toggleSettings").addEventListener("click", () => {
+  showSettings($("settings").style.display === "none");
 });
 
 $("saveSettings").addEventListener("click", async () => {
   await saveKey($("apiKey").value.trim());
   localStorage.setItem("gemini-model", $("model").value.trim());
   localStorage.setItem("gemini-temp", $("temperature").value);
-  $("settings").open = false;
-  setStatus("Settings saved.");
+  showSettings(false);
+  setStatus("Settings saved.", "ok");
+});
+
+$("testKey").addEventListener("click", async () => {
+  setStatus("Testing connection…");
+  try {
+    await saveKey($("apiKey").value.trim());
+    const reply = await callGemini("Reply with the single word: OK");
+    setStatus(`Connected. Gemini replied: ${reply}`, "ok");
+  } catch (e) {
+    setStatus(e.message, true);
+  }
 });
 
 // ---------- InDesign selection helpers ----------
@@ -162,15 +191,20 @@ async function callGemini(prompt) {
   if (!key) throw new Error("Add your Gemini API key in Settings.");
   const model = $("model").value.trim() || "gemini-2.5-flash";
 
-  const res = await fetch(`${API_BASE}${encodeURIComponent(model)}:generateContent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: parseFloat($("temperature").value) },
-    }),
-  });
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${encodeURIComponent(model)}:generateContent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: parseFloat($("temperature").value) || 0.7 },
+      }),
+    });
+  } catch (e) {
+    throw new Error("Could not reach Gemini. Check your internet connection. (" + e.message + ")");
+  }
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -203,7 +237,7 @@ $("generate").addEventListener("click", async () => {
   const selected = $("useSelection").checked || action !== "generate" ? getSelectedText() : "";
 
   if (action !== "generate" && !selected) {
-    setStatus("Select some text or a text frame first.", true);
+    setStatus('This action needs text selected in the document. Select text or a text frame, or switch Action to "Write new text".', true);
     return;
   }
   if (action === "generate" && !prompt) {
@@ -215,7 +249,7 @@ $("generate").addEventListener("click", async () => {
   setStatus("Asking Gemini…");
   try {
     $("result").value = await callGemini(ACTIONS[action](prompt, selected));
-    setStatus("Done. Review the result, then insert it.");
+    setStatus("Done. Review the result below, then insert it.", "ok");
   } catch (e) {
     setStatus(e.message, true);
   } finally {
@@ -230,10 +264,10 @@ $("insert").addEventListener("click", () => {
     return;
   }
   try {
-    setStatus(undoable("Insert Gemini text", () => insertText(text, $("insertMode").value)));
+    setStatus(undoable("Insert Gemini text", () => insertText(text, $("insertMode").value)), "ok");
   } catch (e) {
     setStatus(e.message, true);
   }
 });
 
-initSettings();
+initSettings().catch((e) => setStatus("Startup error: " + e.message, true));

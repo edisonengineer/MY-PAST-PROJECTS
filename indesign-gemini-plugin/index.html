@@ -5,20 +5,25 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <details id="settings">
-    <summary>Settings</summary>
+  <button id="toggleSettings">Settings</button>
+  <div id="settings">
     <label for="apiKey">Gemini API key</label>
     <input id="apiKey" type="password" placeholder="Paste key from aistudio.google.com" />
     <label for="model">Model</label>
     <input id="model" type="text" value="gemini-2.5-flash" />
-    <label for="temperature">Creativity (temperature): <span id="tempValue">0.7</span></label>
-    <input id="temperature" type="range" min="0" max="2" step="0.1" value="0.7" />
+    <label for="temperature">Style</label>
+    <select id="temperature">
+      <option value="0.2">Precise</option>
+      <option value="0.7" selected>Balanced</option>
+      <option value="1.0">Creative</option>
+    </select>
     <button id="saveSettings">Save settings</button>
-  </details>
+    <button id="testKey">Test connection</button>
+  </div>
 
   <label for="action">Action</label>
   <select id="action">
-    <option value="generate">Write new text</option>
+    <option value="generate" selected>Write new text</option>
     <option value="rewrite">Rewrite selection</option>
     <option value="shorten">Shorten selection</option>
     <option value="expand">Expand selection</option>
@@ -26,16 +31,18 @@
     <option value="translate">Translate selection</option>
     <option value="headline">Headlines for selection</option>
   </select>
+  <p id="actionHint" class="hint"></p>
 
   <label for="prompt">Instructions</label>
-  <textarea id="prompt" rows="5" placeholder="e.g. A 120-word intro for a brochure about solar water pumps, friendly tone"></textarea>
+  <textarea id="prompt" placeholder="e.g. A 120-word intro for a brochure about solar water pumps, friendly tone"></textarea>
 
-  <label class="inline"><input id="useSelection" type="checkbox" checked /> Send selected text as context</label>
+  <label class="inline"><input id="useSelection" type="checkbox" /> Use selected text as context</label>
 
   <button id="generate" class="primary">Generate</button>
+  <p id="status"></p>
 
   <label for="result">Result (edit before inserting)</label>
-  <textarea id="result" rows="10"></textarea>
+  <textarea id="result" class="tall"></textarea>
 
   <label for="insertMode">Insert</label>
   <select id="insertMode">
@@ -44,8 +51,6 @@
     <option value="frame">In a new text frame</option>
   </select>
   <button id="insert">Insert into document</button>
-
-  <p id="status"></p>
 
   <script src="main.js"></script>
 </body>

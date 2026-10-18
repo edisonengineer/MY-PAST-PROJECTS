@@ -10,14 +10,20 @@ label {
 }
 label.inline {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 6px;
 }
 input[type="text"],
 input[type="password"],
 select,
 textarea {
   width: 100%;
+}
+textarea {
+  height: 80px;
+}
+textarea.tall {
+  height: 180px;
 }
 button {
   width: 100%;
@@ -26,19 +32,25 @@ button {
 button.primary {
   font-weight: bold;
 }
-summary {
-  cursor: pointer;
-  font-weight: bold;
-}
 #settings {
   margin-bottom: 8px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--uxp-host-border-color);
 }
+.hint {
+  margin: 4px 0 0;
+  opacity: 0.7;
+}
 #status {
-  margin-top: 10px;
+  margin: 8px 0 0;
+  padding: 6px;
   min-height: 16px;
+  border-radius: 4px;
 }
 #status.error {
-  color: #e34850;
+  color: #fff;
+  background-color: #c9252d;
+}
+#status.ok {
+  background-color: rgba(45, 157, 120, 0.35);
 }
