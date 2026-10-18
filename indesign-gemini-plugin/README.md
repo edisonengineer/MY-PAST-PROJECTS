@@ -1,6 +1,6 @@
 # Gemini Writer for Adobe InDesign
 
-A UXP panel plugin that uses Google Gemini to write and edit text directly inside InDesign.
+A UXP panel plugin that uses Google Gemini to write and edit text, and generate images, directly inside InDesign.
 
 ## What it does
 
@@ -11,6 +11,7 @@ A UXP panel plugin that uses Google Gemini to write and edit text directly insid
   - replace the selection / insert at the text cursor
   - insert after the selection
   - place it in a new text frame on the active page (also used when nothing is selected)
+- **Image tab:** generate an image from a description and place it in the selected graphic frame (filled and centered) or a new frame on the page. Shape can match the selected frame. Images are embedded by default; files are kept in the plugin's data folder.
 - Each insert is a single undo step (Ctrl/Cmd+Z)
 
 ## Requirements
@@ -35,6 +36,14 @@ The key is kept in UXP secure storage on your machine and only sent to `generati
 3. Edit the result if needed, choose an insert mode, click **Insert into document**.
 
 For **Translate**, put the target language in the instructions box (e.g. `Swahili`).
+
+## Speed
+
+Gemini 3 models "think" before answering, which is slow by default. **Settings → Speed** controls this: *Fastest* (default) for everyday copy, *Best quality* for harder writing.
+
+## Image generation and the free tier
+
+Image models may have no free API allowance. If you see "Image limit reached", the key needs billing turned on (or try later). Default image model: `gemini-3.1-flash-image`; the plugin falls back to `gemini-3.1-flash-image-preview` and `gemini-2.5-flash-image` if it isn't available.
 
 ## Changing the model
 
