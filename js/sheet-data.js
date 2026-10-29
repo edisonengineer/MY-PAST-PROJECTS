@@ -249,6 +249,24 @@
         "Introduction to simulation",
         "Cloud collaboration and sharing designs"
       ]
+    },
+    {
+      "id": "adobe-illustrator",
+      "name": "Adobe Illustrator",
+      "theme": "rose",
+      "icon": "brush",
+      "tagline": "Vector graphics, logos, and illustration for print and digital",
+      "levels": "Beginner to intermediate",
+      "topics": [
+        "Workspace, artboards, and essential vector tools",
+        "Pen tool mastery and vector path editing",
+        "Shape builder, pathfinder, and vector transformation",
+        "Color palettes, gradients, and global swatches",
+        "Typography, character styling, and text effects",
+        "Creating logos, brand assets, and custom icons",
+        "Preparing vector art for print, web, and laser cutting (SVG/DXF)",
+        "Exporting assets for UI, print production, and social media"
+      ]
     }
   ],
   "downloads": [

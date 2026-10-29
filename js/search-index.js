@@ -176,6 +176,13 @@ window.SEARCH_INDEX = [
   "x": "A bold, widescreen event graphic announcing a daily evening sermon series. Illustrator Social media Event Gradient headline typography paired with photography Adobe Illustrator graphic"
  },
  {
+  "k": "project",
+  "t": "A Journal of Becoming (Mackrine Natasha Awuor Birthday Journal)",
+  "d": "Client Project 2026",
+  "u": "projects/a-journal-of-becoming-mackrine-natasha-awuor-birthday-journal.html",
+  "x": "A 120-page personalised birthday journal, designed in InDesign for a long-standing client’s 22nd October 2026 birthday. It guides her through reflection, dreams and future planning in a refined white-and-gold style. Indesign Illustrator 120-page print-ready journal in Adobe InDesign Three sections: About Me, Dreams & Visions, and The Woman Called Mackrine Custom layouts for vision boards, travel plans and a dream-career page Cohesive Great Vibes, Cormorant Garamond and Montserrat typography Graphic design 2026 graphic"
+ },
+ {
   "k": "page",
   "t": "CAD training courses",
   "d": "AutoCAD, SolidWorks, Inventor and Fusion 360 training. Reserve a seat.",
