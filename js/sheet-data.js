@@ -267,6 +267,90 @@
         "Preparing vector art for print, web, and laser cutting (SVG/DXF)",
         "Exporting assets for UI, print production, and social media"
       ]
+    },
+    {
+      "id": "adobe-photoshop",
+      "name": "Adobe Photoshop",
+      "theme": "rose",
+      "icon": "brush",
+      "tagline": "Image editing, photo retouching, graphic design, and digital compositing",
+      "levels": "Beginner to intermediate",
+      "topics": [
+        "Workspace, layers, masks, and non-destructive editing workflows",
+        "Selection tools, subject masking, and precision cutouts",
+        "Color adjustment layers, tone curve correction, and grading",
+        "Photo retouching, spot healing, clone stamp, and skin enhancement",
+        "Blending modes, smart objects, and creative filters",
+        "Creating social media graphics, posters, and web banners",
+        "Preparing high-resolution raster assets for print and web export"
+      ]
+    },
+    {
+      "id": "adobe-indesign",
+      "name": "Adobe InDesign",
+      "theme": "rose",
+      "icon": "brush",
+      "tagline": "Page layout, editorial design, multi-page document formatting, and publishing",
+      "levels": "Beginner to intermediate",
+      "topics": [
+        "Workspace, document setup, margins, bleed, and column grids",
+        "Master pages, page numbering, and parent layout management",
+        "Typography, paragraph styles, character styles, and hierarchy",
+        "Placing and fitting vector art, graphics, and images seamlessly",
+        "Creating multi-page booklets, journals, brochures, and reports",
+        "Auto-generating table of contents, headers, and footers",
+        "Exporting print-ready PDF/X files and interactive digital PDFs"
+      ]
+    },
+    {
+      "id": "autodesk-revit",
+      "name": "Autodesk Revit",
+      "theme": "green",
+      "icon": "layout",
+      "tagline": "Building Information Modeling (BIM), 3D floor plans, architectural design, and structural detailing",
+      "levels": "Beginner to intermediate",
+      "topics": [
+        "User interface, levels, grids, and project setup",
+        "Wall modeling, doors, windows, and custom parametric families",
+        "Floors, roofs, ceilings, and stair creation",
+        "Generating elevations, sections, and 3D architectural views",
+        "Creating schedules, material take-offs, and room documentation",
+        "Introduction to Revit Structure and MEP coordination",
+        "Exporting sheets to PDF and DWG formats"
+      ]
+    },
+    {
+      "id": "adobe-premiere-pro-after-effects",
+      "name": "Adobe Premiere Pro & After Effects",
+      "theme": "violet",
+      "icon": "gear",
+      "tagline": "Video editing, motion graphics, 2D animation, and promotional video production",
+      "levels": "Beginner to intermediate",
+      "topics": [
+        "Premiere Pro timeline, cutting, trimming, and multi-track editing",
+        "Color grading, audio cleaning, and transition effects",
+        "After Effects keyframing, motion graphics, and typography animation",
+        "Lower thirds, title cards, and logo reveal animations",
+        "Chroma keying (green screen), masking, and video compositing",
+        "Rendering and exporting optimized video formats for web and broadcast"
+      ]
+    },
+    {
+      "id": "software-installation-setup",
+      "name": "Software Installation & Setup",
+      "theme": "teal",
+      "icon": "hub",
+      "tagline": "Engineering & design software installation, licensing setup, and environment configuration",
+      "levels": "All levels",
+      "topics": [
+        "Clean installation of CAD, CAE, and Adobe design software suite",
+        "System requirement check, graphics driver optimization, and compatibility setup",
+        "Student, educational, and commercial licensing activation",
+        "Library setup: structural profiles, material databases, and standard hardware",
+        "Toolbars, workspace customization, and performance tuning",
+        "Troubleshooting software crashes, missing DLLs, and startup errors",
+        "Backup and migration of custom settings, templates, and keybindings"
+      ]
     }
   ],
   "downloads": [
