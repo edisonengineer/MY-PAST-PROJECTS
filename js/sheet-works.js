@@ -3,7 +3,7 @@ window.PROJECTS = (window.PROJECTS || []).concat([
   {
     "id": "a-journal-of-becoming-mackrine-natasha-awuor-birthday-journal",
     "title": "A Journal of Becoming (Mackrine Natasha Awuor Birthday Journal)",
-    "subtitle": "Client Project 2026",
+    "subtitle": "Birthday Journal",
     "category": "graphic",
     "theme": "blue",
     "icon": "brush",
