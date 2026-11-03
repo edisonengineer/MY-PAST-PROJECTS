@@ -162,7 +162,7 @@
       "tone": "coral",
       "icon": "award",
       "file": "",
-      "verify": ""
+      "verify": "https://drive.google.com/file/d/13w7VcMgF_2Go1iSWp1bjY7TX8tuv237x/view?usp=sharing"
     },
     {
       "title": "SOLIDWORKS 2024 Essential Training",
