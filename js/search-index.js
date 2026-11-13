@@ -240,6 +240,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "article",
+  "t": "Designing for Manufacturability: 5 CAD Tips to Reduce Machining Costs",
+  "d": "Designing for Manufacturability: 5 CAD Tips to Reduce Machining Costs When transitioning a mechanical concept from a 3D CAD model to a physical prototype,…",
+  "u": "blog/designing-for-manufacturability-5-cad-tips-to-reduce-machining-costs.html",
+  "x": "CAD Design for Manufacturability CNC Machining SolidWorks Mechanical Engineering Designing for Manufacturability: 5 CAD Tips to Reduce Machining Costs When transitioning a mechanical concept from a 3D CAD model to a physical prototype, one of the most common friction points is manufacturing cost. A design that looks flawless in SolidWorks or Autodesk Inventor can become surprisingly expensive if it doesn't account for how CNC milling machines, lathes, or laser cutters actually remove material. By applying core Design for Manufacturability (DFM) principles during the modeling stage, you can optimize parts for faster production, reduced tool wear, and significantly lower costs. Match Internal Corner Radii to Standard End Mill Sizes Sharp internal vertical corners cannot be produced by round, rotating CNC drill bits. Always add fillets to internal vertical edges. To keep tool changes minimal: Make the corner radius slightly larger than the standard milling tool radius (e.g., use a 3.2 mm radius for a 6 mm end mill). This allows the tool to turn smoothly without grinding into the corner. Avoid Overly Deep and Narrow Pockets. Deep cavities require long, slender cutting tools that are prone to deflection, chatter, and tool breakage: Limit pocket depth to no more than"
+ },
+ {
+  "k": "article",
   "t": "How I designed an emergency hygiene station in Fusion 360",
   "d": "My Autodesk Designathon 2026 entry: a compact station for disaster zones that stores, filters and supplies water for handwashing, and keeps the wastewater separate.",
   "u": "blog/designing-an-emergency-hygiene-station.html",
