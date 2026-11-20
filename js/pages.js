@@ -254,6 +254,8 @@
                     }
                     done.hidden = false;
                     done.focus();
+                    form.reset();   // the details are sent: clear them (a new reservation gets a new reference)
+                    if (refField) refField.value = '';
                     if (typeof window.track === 'function') window.track('training-seat-request');
                 })
                 .catch(() => showError('Sorry, that didn\'t go through. Please try again or send it on WhatsApp.'))
@@ -293,6 +295,7 @@
                 .catch(() => { /* the download link still works */ })
                 .finally(() => {
                     form.hidden = true;
+                    form.reset();
                     done.hidden = false;
                     done.focus();
                     if (typeof window.track === 'function') window.track('download-' + form.dataset.download);
@@ -336,6 +339,7 @@
                 .catch(() => { /* recorded on WhatsApp instead if needed */ })
                 .finally(() => {
                     form.hidden = true;
+                    form.reset();
                     dep.querySelector('.seat-later').hidden = true;
                     const ok = dep.querySelector('.seat-paid');
                     ok.hidden = false;
@@ -361,6 +365,7 @@
                 .catch(() => { /* the direct download link still works */ })
                 .finally(() => {
                     form.hidden = true;
+                    form.reset();
                     box.querySelector('.syl-get-copy').hidden = true;
                     done.hidden = false;
                     done.focus();

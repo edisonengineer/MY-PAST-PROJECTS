@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=35';
+const CSS_V = 'css/style.css?v=36';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
@@ -325,7 +325,7 @@ function footer(extraScripts = '') {
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
 ${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=34" data-sw="../js/i18n-sw.js?v=31" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
-    <script defer src="../js/pages.js?v=15"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=2" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
+    <script defer src="../js/pages.js?v=16"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=2" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
