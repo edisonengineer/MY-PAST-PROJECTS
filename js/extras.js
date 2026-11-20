@@ -169,7 +169,7 @@
         const status = ['available', 'limited', 'booked'].indexOf(av.status) > -1 ? av.status : 'available';
         const msg = av.text || (status === 'limited' ? 'Limited availability: a few slots left this month'
             : status === 'booked' ? (av.from ? 'Fully booked. New projects from ' + av.from : 'Fully booked for now. Message me to join the waiting list')
-            : 'Available for projects & full-time roles');
+            : 'Taking on new CAD projects & trainees');
         $('.pill-text', pill).textContent = msg;
         pill.classList.remove('is-available', 'is-limited', 'is-booked');
         if (status !== 'available' || av.text) pill.classList.add('is-' + status);

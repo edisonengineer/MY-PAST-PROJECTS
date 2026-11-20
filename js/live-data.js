@@ -1,13 +1,14 @@
 /* =========================================================================
    Live data from the Google Sheet (js/config.js → reviewsApi):
-   reviews + Settings tab (availability, webinar, announcement), fetched once
-   per page and shared. Pages work normally if the sheet can't be reached.
-   window.LiveData: a Promise of { reviews: [], settings: {} | null }
+   reviews + Settings tab (availability, webinar, announcement) + the current
+   campaign popup (Campaigns tab), fetched once per page and shared. Pages work
+   normally if the sheet can't be reached.
+   window.LiveData: a Promise of { reviews: [], settings: {} | null, campaign: {} | null }
    ========================================================================= */
 (function () {
     'use strict';
     const api = (window.SITE_CONFIG || {}).reviewsApi;
-    const KEY = 'live-data-v1';
+    const KEY = 'live-data-v2';   // v2: includes the campaign
     const MAX_AGE = 60 * 1000; // re-ask the sheet at most once a minute per visitor
 
     function fromSession() {
@@ -18,7 +19,7 @@
     }
 
     window.LiveData = new Promise((resolve) => {
-        const empty = { reviews: [], settings: null };
+        const empty = { reviews: [], settings: null, campaign: null };
         if (!api) return resolve(empty);
         const cached = fromSession();
         if (cached) return resolve(cached);
@@ -28,8 +29,8 @@
             .then((r) => r.json())
             .then((data) => {
                 // Older script versions answer with just the list of reviews
-                const d = Array.isArray(data) ? { reviews: data, settings: null }
-                    : { reviews: Array.isArray(data && data.reviews) ? data.reviews : [], settings: (data && data.settings) || null };
+                const d = Array.isArray(data) ? { reviews: data, settings: null, campaign: null }
+                    : { reviews: Array.isArray(data && data.reviews) ? data.reviews : [], settings: (data && data.settings) || null, campaign: (data && data.campaign) || null };
                 try { sessionStorage.setItem(KEY, JSON.stringify({ t: Date.now(), d })); } catch (e) { /* private mode */ }
                 resolve(d);
             })

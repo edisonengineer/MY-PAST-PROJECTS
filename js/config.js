@@ -9,7 +9,7 @@ window.SITE_CONFIG = {
     whatsapp: '254708639473',
 
     // Availability shown at the top of the homepage:
-    //   'available'  green: "Available for projects & full-time roles"
+    //   'available'  green: "Taking on new CAD projects & trainees"
     //   'limited'    amber: "Limited availability: a few slots left this month"
     //   'booked'     red:   "Fully booked. New projects from <from>" (or a waiting-list message if from is '')
     // text: optional custom message that replaces the default one.

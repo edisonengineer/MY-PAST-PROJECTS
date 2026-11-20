@@ -256,7 +256,7 @@ function brief_(p) {
 const ARTICLES = 'Articles';
 const AHEAD = ['Title', 'Status', 'Date', 'Google Doc link', 'Summary (1–2 sentences)', 'Cover photo (Google Drive link)', 'Tags (comma separated)', 'Web address (automatic)', 'Email to subscribers?', 'Emailed (automatic)'];
 const WORKS = 'Works';
-const WHEAD = ['Title', 'Status', 'Category', 'Subtitle', 'Year', 'Summary', 'Highlights (one per line)', 'Software / tags (comma separated)', 'Photos (Drive folder link, or Drive photo links one per line)', 'Web address (automatic)', 'Job portfolio (Yes/No; empty = Yes)'];
+const WHEAD = ['Title', 'Status', 'Category', 'Subtitle', 'Year', 'Summary', 'Highlights (one per line)', 'Software / tags (comma separated)', 'Photos (Drive folder link, or Drive photo links one per line)', 'Web address (automatic)', 'Job portfolio (Yes/No; empty = Yes)', 'Client deliverables (comma separated, e.g. 3D assembly, Drawings, Renders)', 'Outcome (one line shown on the card)'];
 
 function contentTab_(name, head, widths, example) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -409,10 +409,12 @@ function content_() {
       points: String(r[6] || '').split(/\n+/).map((t) => t.replace(/^[-•*]\s*/, '').trim()).filter(Boolean),
       tags: String(r[7] || '').split(',').map((t) => t.trim()).filter(Boolean),
       photos: photos, error: error,
-      portfolio: !/^no$/i.test(String(r[10] == null ? '' : r[10]).trim())   // "No" = main site only, hidden from the job-application portfolio
+      portfolio: !/^no$/i.test(String(r[10] == null ? '' : r[10]).trim()),   // "No" = main site only, hidden from the job-application portfolio
+      deliverables: String(r[11] || '').split(',').map((t) => t.trim()).filter(Boolean),
+      outcome: String(r[12] || '').trim()
     };
   });
-  return { articles: articles, works: works, site: siteLists_(), translations: translationsOut_() };
+  return { articles: articles, works: works, site: siteLists_(), translations: translationsOut_(), campaign: campaignSafe_(true) };
 }
 
 // A photo, only if it belongs to something Published (nothing else in your Drive can be fetched)
@@ -424,7 +426,8 @@ function image_(q) {
   } else if (q.id) {
     const ok = arts.some((r) => driveId_(r[5]) === q.id) ||
       certs_().getDataRange().getValues().slice(1).some((r) => shown_(r, 4) && driveId_(r[3]) === q.id) ||
-      works_().getDataRange().getValues().slice(1).filter(published_).some((r) => photoIds_(r[8]).some((p) => p.id === q.id));
+      works_().getDataRange().getValues().slice(1).filter(published_).some((r) => photoIds_(r[8]).some((p) => p.id === q.id)) ||
+      campaignRows_(false).some((c) => driveId_(c.r[7]) === q.id);
     if (ok) blob = DriveApp.getFileById(q.id).getBlob();
   }
   if (!blob) return { ok: false };
@@ -576,6 +579,8 @@ function sheetStrings_() {
     [r[0], r[3], r[5]].forEach((t) => add(t, w));
     lines_(r[6]).forEach((t) => add(t, w));
     String(r[7] || '').split(',').forEach((t) => add(t, w));
+    String(r[11] || '').split(',').forEach((t) => add(t, w));
+    add(r[12], w);
   });
   rows(articles_()).filter(published_).forEach((r) => {
     const w = 'Articles: ' + String(r[0]).trim();
@@ -592,6 +597,11 @@ function sheetStrings_() {
   rows(downloads_()).filter((r) => shown_(r, 3)).forEach((r) => { add(r[0], 'Free downloads'); add(r[1], 'Free downloads'); });
   const S = readSettings_();
   add(S.availability.text, 'Settings'); add(S.announcement.text, 'Settings');
+  campaignRows_(true).forEach((c) => {
+    const w = 'Campaigns: ' + String(c.r[0]).trim();
+    [c.r[4], c.r[5], c.r[6], c.r[8]].forEach((t) => add(t, w));
+    String(c.r[6] || '').split(/\n+/).forEach((t) => add(t, w));
+  });
   return found;
 }
 
@@ -656,6 +666,92 @@ function translationsOut_() {
   sh.getDataRange().getValues().slice(1).forEach((r) => {
     const k = trKey_(r[0]);
     if (!k || String(r[4]).trim() !== 'Yes') return;
+    TR_LANGS.forEach((l, c) => { const t = trKey_(r[1 + c]); if (t && t !== k) out[l][k] = t; });
+  });
+  return out;
+}
+
+/* ---------- Campaigns: the popup poster on the website's homepage ----------
+   One row per campaign (Black November, a new training cohort, a special offer...).
+   The website shows the first row that is Active = Yes and within its dates. It arrives
+   with the reviews and Settings the homepage already loads, so it costs no extra request.
+   Its text is translated into French and Kiswahili by translateJob, like the rest.
+   Test a campaign before its start date by opening the website with ?promo=preview. */
+const CAMPAIGNS = 'Campaigns';
+const CAHEAD = ['Campaign name (yours, not shown)', 'Active', 'Start date (empty = now)', 'End date (empty = no end)', 'Badge (e.g. Black November)',
+  'Title', 'Message', 'Poster image (Google Drive link shared "Anyone with the link", a website file such as images/promos/x.jpg, or an https link; optional)',
+  'Button text', 'Button link (#brief, #pricing, training/index.html, whatsapp, or https://...)', 'Show it', 'Delay (seconds)'];
+const CA_SHOW = ['Once per visit', 'Once a day', 'Once a week', 'Every page view'];
+const SEED_CAMPAIGNS = [['Example: Black November', 'No', '', '', 'Black November', '20% off all CAD projects',
+  'Book any 3D modelling, drawing or simulation project in November and save 20%. Mention BLACKNOV in your brief.', '', 'Start a project', '#brief', 'Once a day', 3]];
+
+const campaigns_ = () => {
+  const sh = listTab_(CAMPAIGNS, CAHEAD, SEED_CAMPAIGNS, [200, 80, 130, 130, 170, 260, 380, 340, 160, 260, 140, 90], [['K2:K500', CA_SHOW]], 2);
+  sh.getRange('C2:D500').setNumberFormat('d mmm yyyy');
+  return sh;
+};
+
+const caDate_ = (d, tz) => (d instanceof Date && !isNaN(d) ? Utilities.formatDate(d, tz, 'yyyy-MM-dd') : '');
+
+// Website-safe link: in-page anchors, site pages, whatsapp, or https
+function campaignLink_(raw) {
+  const t = String(raw || '').trim();
+  if (/^whats ?app$/i.test(t)) return 'whatsapp';
+  if (/^#[\w:-]*$/.test(t) || /^https:\/\/\S+$/i.test(t) || /^[\w][\w./-]*\.html(#[\w-]*)?$/.test(t)) return t;
+  return '#brief';
+}
+// Drive links become a public thumbnail URL; site files and https links are kept as they are
+function campaignImage_(raw) {
+  const t = String(raw || '').trim();
+  const id = driveId_(t);
+  if (id) return { url: 'https://drive.google.com/thumbnail?id=' + id + '&sz=w1600', id: id };
+  if (/^https:\/\/\S+$/i.test(t) || /^[\w][\w./-]*\.(jpe?g|png|webp|gif)$/i.test(t)) return { url: t, id: '' };
+  return null;
+}
+
+// Campaign rows that are switched on and not over yet. now = today's yyyy-MM-dd in the sheet's time zone
+function campaignRows_(includeUpcoming) {
+  const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const today = Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd');
+  return campaigns_().getDataRange().getValues().slice(1)
+    .filter((r) => String(r[0]).trim() && /^yes$/i.test(String(r[1]).trim()) && (String(r[5]).trim() || String(r[7]).trim()))
+    .map((r) => ({ r: r, start: caDate_(r[2], tz), end: caDate_(r[3], tz) }))
+    .filter((c) => (!c.end || c.end >= today) && (includeUpcoming || !c.start || c.start <= today));
+}
+
+// The campaign for the website right now (or null), with its translations.
+// withFile: also the poster's Drive file details, so the automation can save a copy for the shareable offer page
+function campaign_(withFile) {
+  const c = campaignRows_(false)[0];
+  if (!c) return null;
+  const r = c.r;
+  const img = campaignImage_(r[7]);
+  const out = {
+    id: slug_(r[0]) + '-' + (c.start || 'now'),   // a new name or start date shows it again to visitors who closed it
+    badge: trKey_(r[4]), title: trKey_(r[5]), text: String(r[6] || '').trim(),
+    image: img ? img.url : '',
+    button: trKey_(r[8]), link: campaignLink_(r[9]),
+    show: CA_SHOW.indexOf(String(r[10]).trim()) > -1 ? String(r[10]).trim() : 'Once per visit',
+    delay: Math.min(30, Math.max(0, Number(r[11]) || 0)),
+    start: c.start, end: c.end
+  };
+  if (withFile && img && img.id) { try { out.imageFile = fileRef_(DriveApp.getFileById(img.id)); } catch (err) { /* not readable */ } }
+  out.i18n = translationsFor_([out.badge, out.title, out.text, out.button].concat(out.text.split(/\n+/)));
+  return out;
+}
+
+const campaignSafe_ = (withFile) => { try { return campaign_(withFile); } catch (err) { console.error('campaign: ' + err); return null; } };
+
+// Translations for a few strings, straight from the Translations tab (so the popup is translated without waiting for the website sync)
+function translationsFor_(list) {
+  const want = {};
+  list.forEach((t) => { const k = trKey_(t); if (k) want[k] = 1; });
+  const out = { fr: {}, sw: {} };
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TRANSLATIONS);
+  if (!sh || sh.getLastRow() < 2) return out;
+  sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues().forEach((r) => {
+    const k = trKey_(r[0]);
+    if (!want[k]) return;
     TR_LANGS.forEach((l, c) => { const t = trKey_(r[1 + c]); if (t && t !== k) out[l][k] = t; });
   });
   return out;
@@ -2138,6 +2234,9 @@ function setup() {
     if (!sh.getRange(1, col).getValue()) sh.getRange(1, col).setValue(label).setFontWeight('bold').setWrap(true);
     sh.getRange(2, col, 999, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(YESNO, true).build());
   });
+  // Works: "Client deliverables" (L) and "Outcome" (M) columns for tabs made before they existed
+  const wk = works_();
+  [12, 13].forEach((col) => { if (!wk.getRange(1, col).getValue()) wk.getRange(1, col).setValue(WHEAD[col - 1]).setFontWeight('bold').setWrap(true); wk.setColumnWidth(col, 280); });
   pricing_();
   courses_();
   recordings_();
@@ -2163,6 +2262,7 @@ function setup() {
   try { refreshDashboard(); } catch (err) { console.error('dashboard: ' + err); }
   ScriptApp.newTrigger('backupJob').timeBased().onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(2).inTimezone('Africa/Nairobi').create();
   translations_();
+  campaigns_();
   ScriptApp.newTrigger('translateJob').timeBased().everyHours(1).create();
 }
 
@@ -2358,7 +2458,7 @@ function fromSubmission_(r) {
 function doGet(e) {
   const q = (e && e.parameter) || {};
   if (q.action === 'track') return out_(track_(q.ref));
-  if (q.action === 'site') return out_({ reviews: reviews_(), settings: readSettings_() });   // homepage: one request
+  if (q.action === 'site') return out_({ reviews: reviews_(), settings: readSettings_(), campaign: campaignSafe_() });   // homepage: one request
   if (q.action === 'settings') return out_(readSettings_());
   if (q.action === 'content') return out_(content_());          // used by the website's GitHub automation
   if (q.action === 'image') return out_(image_(q));

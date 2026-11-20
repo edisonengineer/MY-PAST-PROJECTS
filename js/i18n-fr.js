@@ -514,6 +514,7 @@ window.I18N_FR = {
     "Back to top": "Retour en haut",
     "Chat with me": "Discutons",
     "Close": "Fermer",
+    "Maybe later": "Plus tard",
     "Free weekly webinar": "Webinaire hebdomadaire gratuit",
     "Reserve your seat": "Réservez votre place",
     "Register for the free weekly AutoCAD webinar and I'll send you the details for the next session.": "Inscrivez-vous au webinaire AutoCAD hebdomadaire gratuit et je vous enverrai les détails de la prochaine session.",
@@ -1271,7 +1272,22 @@ window.I18N_FR = {
     "e.g. TRAIN20": "ex. TRAIN20",
     "e.g. SJK7ABC12D": "ex. SJK7ABC12D",
     "Your acceptance couldn't be saved just now. Please try again in a minute, or message me on WhatsApp.": "Votre acceptation n’a pas pu être enregistrée pour l’instant. Réessayez dans une minute ou écrivez-moi sur WhatsApp.",
-    "Your payment code couldn't be saved just now. Please try again in a minute, or send it to me on WhatsApp.": "Votre code de paiement n’a pas pu être enregistré pour l’instant. Réessayez dans une minute ou envoyez-le-moi sur WhatsApp."
+    "Your payment code couldn't be saved just now. Please try again in a minute, or send it to me on WhatsApp.": "Votre code de paiement n’a pas pu être enregistré pour l’instant. Réessayez dans une minute ou envoyez-le-moi sur WhatsApp.",
+    // Services site update (hero, recruiter link, project deliverables, offer page)
+    "Taking on new CAD projects & trainees": "J'accepte de nouveaux projets CAO et de nouveaux stagiaires",
+    "Founder of": "Fondateur de",
+    "in Nairobi. I turn your sketches and ideas into manufacturing-ready 3D models, 2D drawings and FEA simulations, and train engineers and students in SolidWorks, AutoCAD, Inventor and Fusion 360.": "à Nairobi. Je transforme vos croquis et vos idées en modèles 3D, plans 2D et simulations par éléments finis prêts pour la fabrication, et je forme ingénieurs et étudiants à SolidWorks, AutoCAD, Inventor et Fusion 360.",
+    "Join CAD training": "Rejoindre une formation CAO",
+    "Recruiting? See my job-application portfolio": "Vous recrutez ? Voir mon portfolio professionnel",
+    "Job portfolio (for recruiters)": "Portfolio professionnel (recruteurs)",
+    "CAD design, FEA simulation and CAD training from Nairobi, Kenya.": "Conception CAO, simulation par éléments finis et formation CAO depuis Nairobi, Kenya.",
+    "Nexus CAD Studio | CAD Design, FEA Simulation & CAD Training in Nairobi": "Nexus CAD Studio | Conception CAO, simulation FEA et formation CAO à Nairobi",
+    "3D CAD models, manufacturing drawings, FEA simulation and CAD training (SolidWorks, AutoCAD, Inventor, Fusion 360) from Nexus CAD Studio in Nairobi, Kenya. Get a clear quote within a day.": "Modèles 3D CAO, plans de fabrication, simulation par éléments finis et formation CAO (SolidWorks, AutoCAD, Inventor, Fusion 360) par Nexus CAD Studio à Nairobi, Kenya. Recevez un devis clair en un jour.",
+    "What the client received": "Ce que le client a reçu",
+    "Offers": "Offres",
+    "No special offer right now.": "Aucune offre spéciale pour le moment.",
+    "Seasonal offers on CAD projects and training appear here. In the meantime, see what I can do for you.": "Les offres saisonnières sur les projets et formations CAO apparaissent ici. En attendant, découvrez ce que je peux faire pour vous.",
+    "See all services": "Voir tous les services"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

@@ -185,7 +185,9 @@ async function main() {
             meta: [['Category', graphic ? 'Graphic design' : 'Engineering design']].concat(w.year ? [['Year', w.year]] : []),
             tags: (w.tags || []).slice(0, 8),
             pdf: null
-        }, w.portfolio === false ? { portfolio: false } : {}));
+        }, (w.deliverables || []).length ? { deliverables: w.deliverables.slice(0, 6).map((t) => String(t).slice(0, 80)) } : {},
+        w.outcome ? { outcome: String(w.outcome).slice(0, 200) } : {},
+        w.portfolio === false ? { portfolio: false } : {}));
     }
     for (const slug of ownWorks) {
         if (works.some((w) => w.id === slug) || !safeSlug(slug)) continue;
@@ -202,10 +204,39 @@ async function main() {
     /* ---------- Automatic translations (Translations tab) ---------- */
     if (data.translations) translations(data.translations);
 
+    /* ---------- Current campaign (Campaigns tab) → the shareable offer page ---------- */
+    if ('campaign' in data) await campaign(data.campaign);
+
     const next = JSON.stringify({ articles: doneArticles.sort(), works: works.map((w) => w.id).sort() }, null, 2) + '\n';
     if (!fs.existsSync(abs(MANIFEST)) || fs.readFileSync(abs(MANIFEST), 'utf8') !== next) fs.writeFileSync(abs(MANIFEST), next);
     if (process.argv[2]) fs.writeFileSync(process.argv[2], newImages.join('\n') + (newImages.length ? '\n' : ''));
     console.log('Done: ' + doneArticles.length + ' article(s), ' + works.length + ' work(s) from the sheet; ' + newImages.length + ' new photo(s).');
+}
+
+// Campaigns tab → content/campaign.json, read by tools/build-pages.js for offer/index.html.
+// A Drive poster is saved in images/campaigns/ so link previews (WhatsApp, LinkedIn) can show it.
+async function campaign(c) {
+    const FILE = 'content/campaign.json', DIR = 'images/campaigns';
+    const keep = new Set();
+    let out = null;
+    if (c && c.id && (c.title || c.badge)) {
+        let image = '';
+        if (c.imageFile && c.imageFile.id) {
+            const rel = DIR + '/' + short(c.imageFile.id) + '-' + c.imageFile.v + '.jpg';
+            if (await photo(rel, { id: c.imageFile.id })) { image = rel; keep.add(rel); }
+        } else if (/^https:\/\//i.test(c.image || '') && !/drive\.google\.com/.test(c.image)) image = c.image;
+        else if (/^[\w][\w./-]*\.(jpe?g|png|webp|gif)$/i.test(c.image || '') && fs.existsSync(abs(c.image))) image = c.image;
+        const str = (v, n) => String(v == null ? '' : v).trim().slice(0, n);
+        out = {
+            id: str(c.id, 120), badge: str(c.badge, 80), title: str(c.title, 160), text: str(c.text, 1200), image,
+            button: str(c.button, 60), link: str(c.link, 300), start: str(c.start, 10), end: str(c.end, 10),
+            source: 'Google Sheet (Campaigns tab): edit it there, not here'
+        };
+    }
+    prune(DIR, keep);
+    const json = JSON.stringify(out, null, 2) + '\n';
+    if (!fs.existsSync(abs(FILE)) || fs.readFileSync(abs(FILE), 'utf8') !== json) { fs.writeFileSync(abs(FILE), json); console.log('wrote', FILE); }
+    console.log('Campaign: ' + (out ? out.title || out.badge : 'none'));
 }
 
 // Translations tab → js/i18n-sheet-fr.js and js/i18n-sheet-sw.js (loaded by js/i18n.js next to the hand-written dictionaries)
