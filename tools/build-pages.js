@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=26';
+const CSS_V = 'css/style.css?v=27';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
