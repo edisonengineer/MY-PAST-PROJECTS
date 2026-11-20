@@ -177,3 +177,33 @@
 .qd-notes p { margin: 0; }
 .qd-small { font-size: 8.5pt; color: #646a82; }
 .qd-brand { margin-top: 18px; padding-top: 8px; border-top: 1px solid #e3e6ee; font-size: 8pt; color: #8c93ad; text-align: center; }
+
+/* ---------- Gate & grill estimator (/steel/) ---------- */
+.st-types { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+.st-types label { position: relative; cursor: pointer; }
+.st-types input { position: absolute; opacity: 0; }
+.st-types span { display: grid; justify-items: center; gap: 6px; padding: 12px 8px; border-radius: 14px; border: 2px solid var(--line); background: var(--cream); font-weight: 700; font-size: 0.86rem; color: var(--heading); text-align: center; }
+.st-types svg { width: 44px; height: 30px; color: var(--teal); }
+.st-types input:checked + span { border-color: var(--sun); background: rgba(255, 182, 39, 0.14); }
+.st-types input:focus-visible + span { box-shadow: 0 0 0 4px rgba(47, 107, 255, 0.2); }
+.st-prices table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 0.9rem; }
+.st-prices th { text-align: left; font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 0 0 6px; }
+.st-prices td { padding: 5px 0; border-top: 1px solid var(--line); }
+.st-prices td:nth-child(2) { color: var(--muted); }
+.st-prices input { width: 120px; padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--cream); color: var(--text); font-size: 0.95rem; }
+.st-prices input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.14); }
+.st-drawing { padding: 10px; border-radius: 14px; background: var(--cream); color: var(--heading); }
+.st-drawing figcaption { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.st-drawing svg { display: block; width: 100%; height: 190px; }
+[data-theme="dark"] .st-drawing svg rect[fill="#0e1a3a"] { fill: #8fb0ff; }
+.nq-breakdown td small { display: block; color: var(--muted); font-size: 0.78rem; }
+.nq-breakdown .st-cut td { font-size: 0.82rem; padding-right: 8px; }
+.nq-breakdown .st-cut td:last-child { text-align: right; }
+.nq-breakdown .st-cut td:nth-child(3) { font-weight: 700; white-space: nowrap; }
+.st-cutsheet { margin-top: 10px; }
+.nq-is-pro .st-cutsheet .nq-badge { display: none; }
+.qd-sketch .st-fig { grid-template-columns: 1fr; }
+.qd-sketch .st-fig .sk svg { height: 130px; }
+.qd-sketch .st-fig-big { grid-column: 1 / -1; }
+.qd-sketch .st-fig-big .sk svg { height: 220px; }
+@media (max-width: 640px) { .st-types { grid-template-columns: 1fr 1fr; } }
