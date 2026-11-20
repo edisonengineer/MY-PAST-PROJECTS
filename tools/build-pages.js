@@ -298,6 +298,7 @@ function footer(extraScripts = '') {
                 <a href="../blog/index.html">CAD Tips</a>
                 <a href="../training/index.html">CAD training</a>
                 <a href="../calculators/index.html">Free tools</a>
+                <a href="../quote/index.html">Sheet-metal quote tool</a>
                 <a href="../index.html#pricing">Pricing</a>
                 <a href="../index.html#brief">Start a project</a>
                 <a href="../track/index.html">Track your project</a>
@@ -1070,6 +1071,7 @@ function calculatorsPage() {
                     <a href="#bend">${icon('gear')} Bend allowance</a>
                     <a href="#print">${icon('image')} Print size &amp; DPI</a>
                     <a href="#units">${icon('chart')} Unit converter</a>
+                    <a href="../quote/index.html">${icon('wallet')} Sheet-metal quote tool</a>
                 </nav>
             </div>
         </section>
@@ -1124,7 +1126,7 @@ function calculatorsPage() {
                     </div>
                 </div>
             </div>
-            <div class="container">${cta('Need the full part modelled with flat patterns and drawings?', '../index.html#brief', 'Engineering Design')}</div>
+            <div class="container"><p class="tool-cta"><span>Quoting a job for a customer? Get the price, sheet nesting and a PDF quote.</span> <a class="btn btn-navy" href="../quote/index.html">Open the quote tool ${icon('arrow')}</a></p>${cta('Need the full part modelled with flat patterns and drawings?', '../index.html#brief', 'Engineering Design')}</div>
         </section>
 
         <section class="section tool tool-alt" id="print">
@@ -1567,6 +1569,7 @@ ${[
         ...loadTraining().courses.map((c) => u('training/' + c.id + '.html', '0.7', 'monthly')),
         u('cv/', '0.8', 'monthly'),
         u('calculators/', '0.9', 'monthly'),
+        u('quote/', '0.8', 'monthly'),
         u('verify/', '0.4', 'yearly'),
         ...(loadCampaign() ? [u('offer/', '0.6', 'weekly')] : []),
         ...posts.map((p) => u('blog/' + p.slug + '.html', '0.7', 'yearly', p.updated || p.date)),
@@ -1607,6 +1610,7 @@ function searchIndex(projects, posts) {
         ...SECTIONS.map(([t, d, h, x]) => ({ k: 'page', t, d, u: 'index.html' + h, x })),
         ...projects.map((p) => ({ k: 'project', t: p.title, d: p.subtitle || '', u: 'projects/' + p.id + '.html', x: [p.summary, (p.tags || []).join(' '), (p.points || []).join(' '), (p.meta || []).map((m) => m[1]).join(' '), p.category].join(' ') })),
         { k: 'page', t: 'CAD training courses', d: 'AutoCAD, SolidWorks, Inventor and Fusion 360 training. Reserve a seat.', u: 'training/index.html', x: 'training course class lessons learn autocad solidworks inventor fusion cswa tutor teacher student' },
+        { k: 'page', t: 'Sheet-metal quote tool', d: 'Price sheet-metal parts: flat blank, weight, sheet nesting, cutting, bending and finishing, then a PDF or WhatsApp quote.', u: 'quote/index.html', x: 'sheet metal quote price cost estimate fabrication laser cutting bending powder coating nesting pdf whatsapp workshop' },
         { k: 'page', t: 'Bend allowance calculator', d: 'Free sheet-metal bend allowance, bend deduction and flat length calculator.', u: 'calculators/index.html#bend', x: 'sheet metal bend allowance deduction k-factor flat pattern blank length calculator fabrication tool free' },
         { k: 'page', t: 'Print size & DPI calculator', d: 'Pixels needed for A4, A3, A1, banners and business cards, and check if your image is big enough.', u: 'calculators/index.html#print', x: 'print size dpi pixels resolution a4 a3 a2 a1 a0 banner roll-up bleed poster image quality calculator tool free' },
         { k: 'page', t: 'Engineering unit converter', d: 'Convert length, area, mass, force, pressure, torque and temperature units.', u: 'calculators/index.html#units', x: 'unit converter mm inch mpa psi newton lbf torque nm kg lb celsius fahrenheit conversion tool free' },

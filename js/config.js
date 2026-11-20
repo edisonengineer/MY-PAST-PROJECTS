@@ -52,6 +52,15 @@ window.SITE_CONFIG = {
         paystackUrl: ''           // optional Paystack payment page link for card / online payment
     },
 
+    // Sheet-metal quote tool (/quote/). Free: a few PDF quotes a day with the studio's
+    // name on them. Pro (paid by M-Pesa, key emailed from the "Quote Pro" tab of the sheet):
+    // your logo and details, unlimited quotes, saved quotes and customers.
+    quotePro: {
+        monthly: 500,             // KES per month
+        yearly: 4500,             // KES per year
+        freePdfsPerDay: 3
+    },
+
     // Weekly webinar. Set the day and time (Nairobi time) to show a live countdown.
     webinar: {
         day: '',                  // e.g. 'Saturday'
