@@ -198,6 +198,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "Gate, grill & railing estimator",
+  "d": "Price steel gates, window grills and railings: cut list, 6 m lengths to buy, weight, paint, labour and fittings, then a PDF or WhatsApp quote.",
+  "u": "steel/index.html",
+  "x": "steel gate grill railing balustrade sliding swing welding fabrication cost estimate quote cut list jua kali square tube shs price kenya"
+ },
+ {
+  "k": "page",
   "t": "Sheet-metal quote tool",
   "d": "Price sheet-metal parts: flat blank, weight, sheet nesting, cutting, bending and finishing, then a PDF or WhatsApp quote.",
   "u": "quote/index.html",
