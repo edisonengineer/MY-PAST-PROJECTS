@@ -223,12 +223,14 @@
             data.replyto = data.email;
             submit.disabled = true;
             submit.textContent = tr('Sending…');
-            fetch('https://api.web3forms.com/submit', {
+            // Newsletter sign-ups go only to the Google Sheet (it emails you from Gmail); other forms also use Web3Forms
+            const sheetOnly = form.classList.contains('newsletter-form') && form.dataset.sheet;
+            (sheetOnly ? Promise.resolve({ ok: true, j: {} }) : fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                 body: JSON.stringify(data)
             })
-                .then((r) => r.json().catch(() => ({})).then((j) => ({ ok: r.ok && j.success !== false, j })))
+                .then((r) => r.json().catch(() => ({})).then((j) => ({ ok: r.ok && j.success !== false, j }))))
                 .then(({ ok, j }) => {
                     if (!ok) throw new Error(j.message || 'error');
                     // Forms that also save to the Google Sheet (e.g. training seat reservations)
@@ -373,6 +375,27 @@
                 });
         });
     });
+
+    // Course pages on phones: a "Reserve a seat" bar once the top of the page has scrolled away,
+    // hidden again near the reserve section and the footer so it never covers them
+    (function () {
+        const bar = document.querySelector('[data-course-bar]');
+        if (!bar || !('IntersectionObserver' in window)) return;
+        const hero = document.querySelector('.page-hero');
+        const stops = [document.querySelector('.course-reserve-band'), document.querySelector('.site-footer')].filter(Boolean);
+        let heroVisible = true;
+        const near = new Set();
+        const update = () => {
+            const on = !heroVisible && !near.size;
+            bar.classList.toggle('is-on', on);
+            bar.setAttribute('aria-hidden', String(!on));
+            bar.querySelector('a').tabIndex = on ? 0 : -1;
+            document.body.classList.toggle('has-course-bar', on);
+        };
+        if (hero) new IntersectionObserver((es) => { heroVisible = es[0].isIntersecting; update(); }).observe(hero);
+        const io = new IntersectionObserver((es) => { es.forEach((e) => (e.isIntersecting ? near.add(e.target) : near.delete(e.target))); update(); });
+        stops.forEach((el) => io.observe(el));
+    })();
 
     // ...and so does a link from a course page: training/?course=SolidWorks#reserve
     (function () {

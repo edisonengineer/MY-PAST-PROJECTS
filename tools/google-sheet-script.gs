@@ -2184,14 +2184,29 @@ function subscribe_(p) {
   cache.put('sub-count', String(count + 1), 3600);
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
+  let isNew = false, total = 0;
+  const source = clean_(p.source, 60) || 'Website', name = clean_(p.name, 80);
   try {
     const sh = subscribers_();
     const rows = sh.getDataRange().getValues();
     const i = rows.findIndex((r, k) => k > 0 && String(r[0]).trim().toLowerCase() === email);
     if (i > 0) sh.getRange(i + 1, 5).setValue('Subscribed');
-    else sh.appendRow([email, clean_(p.name, 80), new Date(), clean_(p.source, 60) || 'Website', 'Subscribed']);
+    else { sh.appendRow([email, name, new Date(), source, 'Subscribed']); isNew = true; }
+    total = rows.slice(1).filter((r) => /^subscribed$/i.test(String(r[4]).trim())).length + (isNew ? 1 : 0);
   } finally {
     lock.releaseLock();
+  }
+  // Gmail alert to you for each genuinely new subscriber (not for someone already on the list)
+  if (isNew) {
+    try {
+      const what = /^syllabus: /i.test(source) ? source.replace(/^syllabus: /i, '') + ' syllabus' : /^free download: /i.test(source) ? source.replace(/^free download: /i, '') : /webinar/i.test(source) ? 'webinar' : 'newsletter';
+      newRequestAlert_({
+        setting: 'Email me new subscribers', tab: SUBSCRIBERS, email: email, phone: '', name: name,
+        subject: '📬 New subscriber: ' + (name || email) + ' (' + what + ')',
+        kicker: 'New subscriber from the website', title: (name || email) + ' joined your list',
+        waText: '', fields: [['Email', email], ['Name', name], ['Signed up for', source], ['Subscribers now', total]]
+      });
+    } catch (err) { console.error('subscriber alert: ' + err); }
   }
   return { ok: true };
 }
@@ -2328,6 +2343,7 @@ const SROWS = [
   ['Training next intake', SEED_TRAINING.intake, 'Training page: e.g. Saturday classes from 7 November 2026. Leave empty for "Dates on request"'],
   ['Training starting price (KES)', SEED_TRAINING.price, 'Training page: starting price per trainee, e.g. 4500'],
   ['Email me new project briefs', 'Yes', 'Yes = the moment someone sends a project brief / quote request on the website, you get the full details in Gmail (press Reply to answer the client)'],
+  ['Email me new subscribers', 'Yes', 'Yes = you get an email in Gmail for each new subscriber (newsletter, syllabus downloads, free downloads). No = they are only added to the Subscribers tab'],
   ['Email me new training seat requests', 'Yes', 'Yes = you get an email in Gmail each time someone reserves a training seat'],
   ['Monday summary email', 'Yes', 'Yes = every Monday morning you get an email summary of briefs, projects, balances, reviews and subscribers'],
   ['Email new articles to subscribers', 'Yes', 'Yes = each new article is emailed to the Subscribers tab once it is live on the website'],

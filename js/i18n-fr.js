@@ -1344,7 +1344,25 @@ window.I18N_FR = {
     "An M-Pesa code has 10 letters and numbers, e.g. SKL4ABCD12.": "Un code M-Pesa compte 10 lettres et chiffres, par ex. SKL4ABCD12.",
     // Class countdown
     "Starts today": "Commence aujourd'hui",
-    "Starts tomorrow": "Commence demain"
+    "Starts tomorrow": "Commence demain",
+    // Course comparison, course FAQ and booking
+    "Compare": "Comparer",
+    "Which course is": "Quel cours est",
+    "right for you": "fait pour vous",
+    "Every course at a glance. Open a course for its full syllabus, session by session.": "Tous les cours en un coup d'œil. Ouvrez un cours pour voir son programme complet, séance par séance.",
+    "Best for": "Idéal pour",
+    "Best for:": "Idéal pour :",
+    "Level:": "Niveau :",
+    "Length:": "Durée :",
+    "Details": "Détails",
+    "Syllabus": "Programme",
+    "Not sure?": "Vous hésitez ?",
+    "Tell me your goals": "Dites-moi vos objectifs",
+    "and I'll suggest the right course.": "et je vous conseillerai le bon cours.",
+    "book a free call": "réserver un appel gratuit",
+    "Questions before you start?": "Des questions avant de commencer ?",
+    "Another question?": "Une autre question ?",
+    "or": "ou"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
