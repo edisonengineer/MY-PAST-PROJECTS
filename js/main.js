@@ -568,6 +568,7 @@
             } else {
                 window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
             }
+            form.reset();   // the message has been handed to WhatsApp / email: clear the form
         });
     }
 

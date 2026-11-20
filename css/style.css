@@ -658,7 +658,7 @@ svg { width: 1em; height: 1em; flex-shrink: 0; }
     background-repeat: no-repeat; background-position: right 14px center; background-size: 18px;
     padding-right: 44px;
 }
-.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--blue); background: var(--paper); box-shadow: 0 0 0 4px rgba(47, 107, 255, 0.14); }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--blue); background-color: var(--paper); box-shadow: 0 0 0 4px rgba(47, 107, 255, 0.14); }
 .field input::placeholder, .field textarea::placeholder { color: #a3a8b8; }
 .form-error { margin: -4px 0 14px; color: #d4462a; font-size: 0.88rem; font-weight: 600; }
 .form-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
@@ -913,7 +913,7 @@ svg.flip { transform: scaleX(-1); }
 .opt input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
 .q.is-invalid { background: rgba(255, 107, 74, 0.07); box-shadow: 0 0 0 8px rgba(255, 107, 74, 0.07); }
 .q.is-invalid .q-label { color: #d4462a; }
-.field.is-invalid input, .field.is-invalid select, .field.is-invalid textarea { border-color: var(--coral); background: #fff7f4; }
+.field.is-invalid input, .field.is-invalid select, .field.is-invalid textarea { border-color: var(--coral); background-color: #fff7f4; }
 .field.is-invalid label { color: #d4462a; }
 
 /* ---------- Reviews ---------- */
@@ -1858,7 +1858,7 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 }
 
 /* ---------- Review-request link maker ---------- */
-.rr-form .field input, .rr-form .field select { background: var(--paper); }
+.rr-form .field input, .rr-form .field select { background-color: var(--paper); }
 .rr-form .track-row input { font-size: 0.85rem; letter-spacing: 0; text-transform: none; font-weight: 500; }
 .rr-preview-label { font-size: 0.85rem; font-weight: 700; color: var(--heading); margin-top: 6px; }
 .rr-preview { margin-top: 8px; padding: 14px 16px; border-radius: 14px; background: var(--paper); border: 1px dashed var(--line); color: var(--text-soft); font-size: 0.92rem; overflow-wrap: anywhere; }
@@ -2035,11 +2035,11 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 [data-theme="dark"] .pdf-card { background: var(--cream-2); }
 [data-theme="dark"] .contact-form .btn-outline-light { color: var(--heading); }
 [data-theme="dark"] .contact-form .btn-outline-light:hover { background: var(--cream-2); }
-[data-theme="dark"] .field input, [data-theme="dark"] .field select, [data-theme="dark"] .field textarea { background: var(--cream); border-color: var(--line); }
-[data-theme="dark"] .field input:focus, [data-theme="dark"] .field select:focus, [data-theme="dark"] .field textarea:focus { background: var(--cream-2); }
+[data-theme="dark"] .field input, [data-theme="dark"] .field select, [data-theme="dark"] .field textarea { background-color: var(--cream); border-color: var(--line); }
+[data-theme="dark"] .field input:focus, [data-theme="dark"] .field select:focus, [data-theme="dark"] .field textarea:focus { background-color: var(--cream-2); }
 [data-theme="dark"] .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='%23f6f1e7' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); }
 [data-theme="dark"] .field input::placeholder, [data-theme="dark"] .field textarea::placeholder { color: #6d7593; }
-[data-theme="dark"] .field.is-invalid input, [data-theme="dark"] .field.is-invalid select, [data-theme="dark"] .field.is-invalid textarea { background: rgba(255, 107, 74, 0.08); }
+[data-theme="dark"] .field.is-invalid input, [data-theme="dark"] .field.is-invalid select, [data-theme="dark"] .field.is-invalid textarea { background-color: rgba(255, 107, 74, 0.08); }
 [data-theme="dark"] .type-grid.is-invalid .type-card { background: rgba(255, 107, 74, 0.06); }
 [data-theme="dark"] .opt span { background: var(--paper); border-color: var(--line); }
 [data-theme="dark"] .opt input + span::before { border-color: #56608a; }
@@ -2525,3 +2525,8 @@ html:not([lang="en"]) .article-lang-note { display: block; }
     .page-hero { background: #ffffff !important; color: #0e1a3a !important; }
     .page-hero .page-title, .page-hero .page-lede, .page-hero .page-kicker, .page-hero .crumbs, .page-hero .crumbs a { color: #0e1a3a !important; }
 }
+
+/* Dropdown arrow: exactly one, on the right, in every theme and state */
+.field select { background-repeat: no-repeat !important; background-position: right 14px center !important; background-size: 18px !important; padding-right: 44px; }
+/* Anything marked hidden stays hidden, even if its class sets display (e.g. a form after it has been sent) */
+[hidden] { display: none !important; }
