@@ -5,7 +5,9 @@
    ========================================================================= */
 (function () {
     'use strict';
-    const code = (window.SITE_CONFIG || {}).goatcounter;
+    // The code comes from js/config.js (home page) or this script tag's data-code (other pages)
+    const me = document.currentScript;
+    const code = (window.SITE_CONFIG || {}).goatcounter || (me && me.dataset.code) || '';
     const queue = [];
 
     window.track = function (name) {
