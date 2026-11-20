@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=33';
+const CSS_V = 'css/style.css?v=34';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
@@ -324,7 +324,7 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=32" data-sw="../js/i18n-sw.js?v=29" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=33" data-sw="../js/i18n-sw.js?v=30" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
     <script defer src="../js/pages.js?v=15"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
@@ -796,7 +796,7 @@ ${syllabusSection(c)}${studentSection(students, '../', T, 'Built by ' + esc(c.na
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n');
 }
 
 // After reserving a seat: pay a deposit by M-Pesa to hold it, then send the M-Pesa code (Payments tab of the sheet)
@@ -996,7 +996,7 @@ ${downloadsBand('../')}
             </div>
         </section>
 ${newsletter()}    </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=1"></script>\n    <script defer src="../js/discount.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n    <script defer src="../js/discount.js?v=1"></script>\n');
 }
 
 /* ---------- Free tools (calculators) ---------- */
@@ -1391,6 +1391,51 @@ function offerPage(c) {
 ` + footer();
 }
 
+/* ---------- WhatsApp status image maker (share/): for you, not linked from the site ----------
+   Makes a 1080 x 1920 image for the current campaign or any course's next class (js/share-image.js). */
+function sharePage(T, campaign) {
+    const url = SITE + 'share/';
+    const local = (f) => f && /^[\w][\w./-]*$/.test(f) && fs.existsSync(path.join(ROOT, f));
+    const data = {
+        site: SITE.replace(/^https:\/\//, '').replace(/\/$/, ''),
+        whatsapp: '+' + WHATSAPP.replace(/^(\d{3})(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3 $4'),
+        api: CFG.trackerApi || CFG.reviewsApi || '',
+        campaign: campaign ? { badge: campaign.badge, title: campaign.title, text: campaign.text, button: campaign.button, end: campaign.end, image: local(campaign.image) ? campaign.image : '' } : null,
+        courses: T.courses.map((c) => {
+            const p = courseProjects(c).find((x) => local(x.cover));
+            return { id: c.id, name: c.name, tagline: c.tagline, length: c.syllabusSummary || c.sessions || '', image: p ? p.cover : '' };
+        })
+    };
+    const html = head({ title: 'Make a WhatsApp status image | Nexus CAD Studio', description: 'Status images for campaigns and new classes.', url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Status image maker', url } })
+        .replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, nofollow">');
+    return html + '\n' + header('share') + `
+    <main id="main">
+        <section class="section share-maker">
+            <div class="container share-grid">
+                <div class="share-controls">
+                    <p class="kicker">For you</p>
+                    <h1 class="section-title">WhatsApp status <em>image</em>.</h1>
+                    <p>Pick what to promote. The image uses your current campaign from the Campaigns tab, or a course with its next class, start date and seats from the Courses tab.</p>
+                    <label for="share-pick">Promote</label>
+                    <select id="share-pick">
+                        ${data.campaign ? `<option value="campaign">Current campaign: ${esc(data.campaign.title || data.campaign.badge)}</option>` : ''}
+                        ${data.courses.map((c) => `<option value="${esc(c.id)}">${esc(c.name)} training</option>`).join('\n                        ')}
+                    </select>
+                    <div class="share-actions">
+                        <button type="button" class="btn btn-sun" id="share-download">${icon('doc')} Download image</button>
+                        <button type="button" class="btn btn-outline" id="share-native" hidden>${icon('whatsapp')} Share</button>
+                    </div>
+                    <p class="share-status" id="share-status" aria-live="polite"></p>
+                    <p class="share-tip">On your phone, tap <strong>Share</strong> and choose WhatsApp → My status. Bookmark this page: it always shows your latest campaign and class dates.</p>
+                </div>
+                <div class="share-preview"><canvas id="share-canvas" width="1080" height="1920" aria-label="Status image preview"></canvas></div>
+            </div>
+        </section>
+    </main>
+    <script>window.SHARE_DATA = ${JSON.stringify(data).replace(/</g, '\\u003c')};</script>
+` + footer('    <script defer src="../js/share-image.js?v=2"></script>\n');
+}
+
 function trackPage() {
     const url = SITE + 'track/';
     const description = 'Check the status of your Nexus CAD Studio project with the reference Edison sent you.';
@@ -1576,6 +1621,7 @@ fs.readdirSync(path.join(ROOT, 'training')).filter((f) => f !== 'index.html' && 
 write('track/index.html', trackPage());
 const CAMPAIGN = loadCampaign();
 write('offer/index.html', offerPage(CAMPAIGN));
+write('share/index.html', sharePage(TRAINING, CAMPAIGN));
 write('verify/index.html', verifyPage());
 write('cv/index.html', cvPage(loadCV()));
 write('calculators/index.html', calculatorsPage());
@@ -1627,7 +1673,7 @@ function wantedTranslations() {
         for (const m of h.matchAll(/\s(?:alt|title|placeholder|aria-label)="([^"]*)"/g)) add(m[1]);
         h.replace(/^[\s\S]*?<body[^>]*>/i, '').split(/<[^>]+>/).forEach(add);
     };
-    Object.values(written).forEach(fromHtml);
+    Object.keys(written).filter((f) => !f.startsWith('share/')).forEach((f) => fromHtml(written[f]));   // share/ is for you, in English
     fromHtml(updated);
     const deep = (v) => { if (typeof v === 'string') add(v); else if (v && typeof v === 'object') Object.values(v).forEach(deep); };
     const skip = new Set(['id', 'theme', 'icon', 'cover', 'gallery', 'pdf', 'model', 'href', 'category', 'file', 'verify', 'linkedin', 'phone', 'year', 'tone']);

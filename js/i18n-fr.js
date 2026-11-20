@@ -1341,11 +1341,15 @@ window.I18N_FR = {
     "Send code": "Envoyer le code",
     "I'll check the payment and email your receipt. Your seat is held.": "Je vérifie le paiement et vous envoie votre reçu par e-mail. Votre place est réservée.",
     "Prefer to pay later? You can also pay when I confirm the schedule.": "Vous préférez payer plus tard ? Vous pouvez aussi payer quand je confirme le planning.",
-    "An M-Pesa code has 10 letters and numbers, e.g. SKL4ABCD12.": "Un code M-Pesa compte 10 lettres et chiffres, par ex. SKL4ABCD12."
+    "An M-Pesa code has 10 letters and numbers, e.g. SKL4ABCD12.": "Un code M-Pesa compte 10 lettres et chiffres, par ex. SKL4ABCD12.",
+    // Class countdown
+    "Starts today": "Commence aujourd'hui",
+    "Starts tomorrow": "Commence demain"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
 window.I18N_FR_PATTERNS = [
+    [/^Starts in (\d+) days$/, "Commence dans $1 jours"],
     [/^(.+) syllabus \(PDF\)$/, "Programme $1 (PDF)"],
     [/^Session (\d+)$/, "Séance $1"],
     [/^([\d.]+(?:–[\d.]+)?) hours?$/, "$1 h"],

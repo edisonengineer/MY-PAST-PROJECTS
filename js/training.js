@@ -10,6 +10,13 @@
     if (!api) return;
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const same = (a, b) => String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+    // Days from today (Nairobi) to a class start date "yyyy-MM-dd" from the Courses tab
+    function daysUntil(iso) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) return null;
+        let today;
+        try { today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Nairobi' }).format(new Date()); } catch (e) { today = new Date().toISOString().slice(0, 10); }
+        return Math.round((Date.parse(iso + 'T00:00:00Z') - Date.parse(today + 'T00:00:00Z')) / 864e5);
+    }
 
     fetch(api + (api.includes('?') ? '&' : '?') + 'action=training')
         .then((r) => r.json())
@@ -21,6 +28,8 @@
                     if (c.full) parts.push('<span class="cs-badge">Fully booked</span> <span>Reserve to join the waiting list</span>');
                     else {
                         if (c.nextClass) parts.push('<span>Next class:</span> <strong data-no-i18n>' + esc(c.nextClass) + '</strong>');
+                        const days = daysUntil(c.starts);
+                        if (days !== null && days >= 0) parts.push('<span class="cs-countdown">' + (days === 0 ? 'Starts today' : days === 1 ? 'Starts tomorrow' : 'Starts in ' + days + ' days') + '</span>');
                         if (typeof c.left === 'number') parts.push('<span class="cs-left">' + (c.left === 1 ? '1 seat left' : c.left + ' seats left') + '</span>');
                     }
                     if (parts.length) {

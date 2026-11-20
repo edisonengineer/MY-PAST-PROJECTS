@@ -2501,3 +2501,14 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 .seat-paid { margin: 8px 0 0; color: #1a7f58; }
 .seat-later { margin: 10px 0 0 !important; font-size: 0.85rem; color: var(--muted); }
 @media (max-width: 520px) { .seat-pay { flex-direction: column; align-items: flex-start; } .seat-code-row { flex-direction: column; } }
+.course-seats .cs-countdown { display: inline-block; padding: 2px 9px; border-radius: 999px; background: rgba(255, 182, 39, 0.22); color: var(--heading); font-weight: 700; }
+.course-seats-hero .cs-countdown { background: var(--sun); color: var(--navy); }
+
+/* WhatsApp status image maker (share/) */
+.share-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(24px, 4vw, 56px); align-items: start; }
+.share-controls label { display: block; margin: 18px 0 6px; font-weight: 700; }
+.share-controls select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); font: inherit; background: var(--paper); color: var(--text); }
+.share-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.share-status, .share-tip { font-size: 0.9rem; color: var(--muted); }
+.share-preview canvas { width: 100%; height: auto; border-radius: 22px; box-shadow: var(--shadow-lg); display: block; }
+@media (max-width: 760px) { .share-grid { grid-template-columns: 1fr; } .share-preview { max-width: 340px; } }

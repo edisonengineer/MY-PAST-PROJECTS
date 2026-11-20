@@ -1341,11 +1341,15 @@ window.I18N_SW = {
     "Send code": "Tuma namba",
     "I'll check the payment and email your receipt. Your seat is held.": "Nitathibitisha malipo na kukutumia risiti kwa barua pepe. Nafasi yako imeshikiliwa.",
     "Prefer to pay later? You can also pay when I confirm the schedule.": "Ungependa kulipa baadaye? Unaweza pia kulipa nitakapothibitisha ratiba.",
-    "An M-Pesa code has 10 letters and numbers, e.g. SKL4ABCD12.": "Namba ya M-Pesa ina herufi na tarakimu 10, mfano SKL4ABCD12."
+    "An M-Pesa code has 10 letters and numbers, e.g. SKL4ABCD12.": "Namba ya M-Pesa ina herufi na tarakimu 10, mfano SKL4ABCD12.",
+    // Class countdown
+    "Starts today": "Inaanza leo",
+    "Starts tomorrow": "Inaanza kesho"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
 window.I18N_SW_PATTERNS = [
+    [/^Starts in (\d+) days$/, "Inaanza baada ya siku $1"],
     [/^(.+) syllabus \(PDF\)$/, "Mtaala wa $1 (PDF)"],
     [/^Session (\d+)$/, "Kipindi cha $1"],
     [/^([\d.]+(?:–[\d.]+)?) hours?$/, "Saa $1"],

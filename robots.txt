@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /MY-PAST-PROJECTS/share/
 
 Sitemap: https://edisonengineer.github.io/MY-PAST-PROJECTS/sitemap.xml
