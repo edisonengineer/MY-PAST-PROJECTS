@@ -220,6 +220,36 @@ function subs_() {
 
 const cleanLong_ = (v, max) => String(v || '').replace(/[\u0000-\u0008\u000b-\u001f<>]/g, ' ').trim().slice(0, max);
 
+// Instant Gmail alert to you (the sheet's owner) for a new request from the website.
+// fields: [[label, value], ...]. Reply goes straight to the client; buttons for WhatsApp and the sheet.
+function newRequestAlert_(o) {
+  if (!/^yes$/i.test(setting_(o.setting) || 'Yes')) return;
+  const me = Session.getEffectiveUser().getEmail();
+  if (!me) return;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const tab = ss.getSheetByName(o.tab);
+  const sheetUrl = ss.getUrl() + (tab ? '#gid=' + tab.getSheetId() : '');
+  let wa = String(o.phone || '').replace(/[^\d+]/g, '').replace(/^\+/, '');
+  if (/^0[17]\d{8}$/.test(wa)) wa = '254' + wa.slice(1);   // Kenyan 07.. / 01.. numbers
+  const validEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(o.email || ''));
+  const btn = (href, label, bg) => '<a href="' + html_(href) + '" style="display:inline-block;margin:0 8px 8px 0;padding:10px 16px;border-radius:999px;background:' + bg + ';color:#0e1a3a;font-weight:bold;text-decoration:none">' + label + '</a>';
+  const rows = o.fields.filter((f) => String(f[1] == null ? '' : f[1]).trim()).map((f) =>
+    '<tr><td style="padding:6px 12px 6px 0;color:#646a82;vertical-align:top;white-space:nowrap">' + html_(f[0]) + '</td><td style="padding:6px 0;vertical-align:top">' +
+    html_(String(f[1])).replace(/\n/g, '<br>') + '</td></tr>').join('');
+  MailApp.sendEmail({
+    to: me, name: 'Nexus CAD Studio website', subject: o.subject,
+    replyTo: validEmail ? o.email : undefined,
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:600px;color:#0e1a3a">' +
+      '<p style="margin:0 0 4px;color:#646a82;font-size:13px">' + html_(o.kicker) + '</p>' +
+      '<h2 style="margin:0 0 14px;font-size:20px">' + html_(o.title) + '</h2>' +
+      '<table style="border-collapse:collapse;font-size:14px;margin-bottom:16px">' + rows + '</table>' +
+      (validEmail ? btn('mailto:' + o.email + '?subject=' + encodeURIComponent('Re: ' + o.title), 'Reply by email', '#ffb627') : '') +
+      (wa.length >= 9 ? btn('https://wa.me/' + wa + '?text=' + encodeURIComponent('Hi ' + String(o.name || '').split(' ')[0] + ', this is Edison from Nexus CAD Studio. ' + o.waText), 'WhatsApp the client', '#25d366') : '') +
+      btn(sheetUrl, 'Open in the sheet', '#e9edf5') +
+      '<p style="color:#646a82;font-size:12px;margin-top:14px">Pressing Reply answers ' + html_(o.name || 'the client') + ' directly. Turn these emails off in the Settings tab ("' + html_(o.setting) + '").</p></div>'
+  });
+}
+
 function brief_(p) {
   const ref = clean_(p.ref, 24).toUpperCase();
   const name = clean_(p.name, 80);
@@ -242,6 +272,17 @@ function brief_(p) {
   } finally {
     lock.releaseLock();
   }
+  try {
+    const project = clean_(p.project, 160);
+    newRequestAlert_({
+      setting: 'Email me new project briefs', tab: SUBS, email: email, phone: p.phone, name: name,
+      subject: '🆕 New project brief: ' + (project || clean_(p.service, 60) || 'quote request') + ' (' + ref + ')',
+      kicker: 'New project brief from the website', title: (project || 'Quote request') + ', from ' + name,
+      waText: 'Thanks for your brief (' + ref + ')' + (project ? ' for ' + project : '') + '.',
+      fields: [['Reference', ref], ['Name', name], ['Email', email], ['Phone / WhatsApp', clean_(p.phone, 40)], ['Service', clean_(p.service, 60)],
+        ['Project', project], ['Budget', clean_(p.budget, 80)], ['Deadline', clean_(p.deadline, 80)], ['Discount code', clean_(p.code, 30)], ['Details', cleanLong_(p.details, 5000)]]
+    });
+  } catch (err) { console.error('brief alert: ' + err); }   // the brief is saved either way
   if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     try {
       mail_(email, 'We received your project brief (' + ref + ')', name,
@@ -1688,6 +1729,17 @@ function reserve_(p) {
     lock.releaseLock();
   }
   try {
+    newRequestAlert_({
+      setting: 'Email me new training seat requests', tab: TRAINEES, email: email, phone: p['Phone / WhatsApp'] || p.phone, name: name,
+      subject: '🎓 Seat request: ' + course + (status === 'Waiting list' ? ' (waiting list)' : '') + ', ' + name,
+      kicker: 'New training seat request from the website', title: course + ' training, ' + name,
+      waText: 'Thanks for reserving a seat for ' + course + ' training.',
+      fields: [['Reference', id], ['Name', name], ['Email', email], ['Phone / WhatsApp', clean_(p['Phone / WhatsApp'] || p.phone, 40)], ['Course', course],
+        ['Class', klass], ['Status', status], ['Level', clean_(p.Level, 60)], ['Format', clean_(p.Format, 60)], ['Preferred schedule', clean_(p['Preferred schedule'], 80)],
+        ['Discount code', clean_(p['Discount code'] || p.code, 30)], ['Message', clean_(p.Message, 600)]]
+    });
+  } catch (err) { console.error('seat alert: ' + err); }
+  try {
     traineeMail_(email, name, status === 'Waiting list'
       ? 'Thank you for your interest in <b>' + html_(course) + '</b> training. The next class' + (klass ? ' (' + html_(klass) + ')' : '') + ' is full, so you are on the <b>waiting list</b>. I will contact you as soon as a seat opens or the next class is scheduled.'
       : 'Thank you for reserving a seat for <b>' + html_(course) + '</b> training' + (klass ? ' (' + html_(klass) + ')' : '') + '. I will confirm the schedule and fees within a day.',
@@ -2164,6 +2216,8 @@ const SROWS = [
   ['Announcement link', '', 'Optional: where the announcement goes when tapped, e.g. #pricing or a full https:// link'],
   ['Training next intake', SEED_TRAINING.intake, 'Training page: e.g. Saturday classes from 7 November 2026. Leave empty for "Dates on request"'],
   ['Training starting price (KES)', SEED_TRAINING.price, 'Training page: starting price per trainee, e.g. 4500'],
+  ['Email me new project briefs', 'Yes', 'Yes = the moment someone sends a project brief / quote request on the website, you get the full details in Gmail (press Reply to answer the client)'],
+  ['Email me new training seat requests', 'Yes', 'Yes = you get an email in Gmail each time someone reserves a training seat'],
   ['Monday summary email', 'Yes', 'Yes = every Monday morning you get an email summary of briefs, projects, balances, reviews and subscribers'],
   ['Email new articles to subscribers', 'Yes', 'Yes = each new article is emailed to the Subscribers tab once it is live on the website'],
   ['Payment reminders', 'Yes', 'Yes = unpaid invoices get a polite reminder email after 7 and 14 days (stops once you send a receipt)'],
