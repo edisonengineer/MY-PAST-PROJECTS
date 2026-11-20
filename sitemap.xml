@@ -121,6 +121,30 @@
         <priority>0.6</priority>
     </url>
     <url>
+        <loc>https://edisonengineer.github.io/MY-PAST-PROJECTS/blog/building-a-bench-vise-in-solidworks.html</loc>
+        <lastmod>2026-11-20</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://edisonengineer.github.io/MY-PAST-PROJECTS/blog/fea-or-cfd-which-simulation-does-your-design-need.html</loc>
+        <lastmod>2026-11-20</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://edisonengineer.github.io/MY-PAST-PROJECTS/blog/how-long-does-it-take-to-learn-cad.html</loc>
+        <lastmod>2026-11-20</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://edisonengineer.github.io/MY-PAST-PROJECTS/blog/solidworks-training-in-nairobi-what-you-will-learn.html</loc>
+        <lastmod>2026-11-20</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>https://edisonengineer.github.io/MY-PAST-PROJECTS/blog/designing-for-manufacturability-5-cad-tips-to-reduce-machining-costs.html</loc>
         <lastmod>2026-10-29</lastmod>
         <changefreq>yearly</changefreq>

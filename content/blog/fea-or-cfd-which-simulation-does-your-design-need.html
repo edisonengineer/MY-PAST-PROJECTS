@@ -1,0 +1,56 @@
+<!--{
+  "title": "FEA or CFD? Which simulation does your design need?",
+  "description": "A plain-language guide to finite element analysis and computational fluid dynamics: what each one answers, typical examples, what to prepare, and how to read the results.",
+  "date": "2026-11-20",
+  "tags": ["Simulation", "FEA", "CFD"],
+  "theme": "teal",
+  "icon": "chart",
+  "image": "images/engineering/designathon/designathon-hub-01.jpg"
+}-->
+<p>Simulation lets you test a design before you cut a single piece of steel. But "can you simulate it?" can mean two quite different things. Picking the right one saves time and money, so here's how to tell them apart.</p>
+
+<h2>FEA: will the solid part survive?</h2>
+<p><strong>Finite element analysis (FEA)</strong> looks at solid parts and structures under load. It splits your model into small elements and works out how each one deforms and how stressed it is. FEA answers questions like:</p>
+<ul>
+    <li><strong>Strength:</strong> will this bracket, frame or shaft yield or break under the load? (static analysis)</li>
+    <li><strong>Stiffness:</strong> how much will it bend or deflect?</li>
+    <li><strong>Vibration:</strong> what are its natural frequencies, and could a motor or pump make it resonate? (frequency analysis)</li>
+    <li><strong>Buckling:</strong> will a slender column or thin wall suddenly collapse?</li>
+    <li><strong>Fatigue:</strong> will repeated loading crack it over months or years?</li>
+    <li><strong>Heat in solids:</strong> how heat conducts through a part, and the stresses that temperature causes (thermal analysis)</li>
+</ul>
+<p>Typical examples: a machine frame, a lifting lug, a shelf bracket, a pressure vessel wall, or the roof and support structure of the <a href="../projects/designathon-hub.html">outdoor hub</a> I designed for the Autodesk Designathon, which was checked with structural simulation in Fusion 360.</p>
+
+<h2>CFD: what is the fluid doing?</h2>
+<p><strong>Computational fluid dynamics (CFD)</strong> looks at liquids and gases flowing through or around your design. It answers questions like:</p>
+<ul>
+    <li><strong>Pressure drop:</strong> how much pressure is lost through a pipe, valve or duct? Is the pump big enough?</li>
+    <li><strong>Flow distribution:</strong> does air or water reach every outlet evenly?</li>
+    <li><strong>Cooling:</strong> how do fans and vents carry heat away from electronics, motors or batteries? (heat transfer by convection)</li>
+    <li><strong>Forces from flow:</strong> wind load on a structure, or drag on a shape</li>
+</ul>
+<p>Typical examples: a water distribution manifold, a ventilation duct, an electronics enclosure with a fan, or a heat exchanger.</p>
+
+<h2>A quick way to decide</h2>
+<ul>
+    <li>Worried about something <strong>breaking, bending, shaking or cracking</strong>? You need FEA.</li>
+    <li>Worried about something <strong>flowing, overheating through airflow, or losing pressure</strong>? You need CFD.</li>
+    <li>Both? For example, a cooling plate that must carry coolant <em>and</em> stay strong: often the answer is CFD for the flow and temperatures, then FEA using those temperatures.</li>
+</ul>
+
+<h2>What to prepare before asking for a simulation</h2>
+<p>Good results depend on good inputs. Have these ready, even as rough estimates:</p>
+<ul>
+    <li><strong>The 3D model</strong>, or sketches with dimensions</li>
+    <li><strong>Materials</strong>: steel grade, aluminium alloy, plastic type</li>
+    <li><strong>For FEA:</strong> the loads (forces, weights, pressures), where they act, and how the part is held or bolted</li>
+    <li><strong>For CFD:</strong> the fluid, flow rates or speeds, inlet and outlet pressures, and any heat sources with their power</li>
+    <li><strong>What "good" means</strong>: a maximum deflection, a minimum safety factor, or a maximum temperature</li>
+</ul>
+<p>My guide on <a href="how-to-write-a-cad-brief.html">how to write a CAD brief</a> covers the rest.</p>
+
+<h2>Reading the results honestly</h2>
+<p>A colourful stress plot is not an answer on its own. A good simulation report tells you the <strong>safety factor</strong> or the margin to your target, where the weak spots are, what assumptions were made, and what to change if the design falls short. Simulation is also only as good as its inputs: simple hand calculations should agree with it to within a sensible range, and critical parts still deserve a physical test.</p>
+
+<h2>Get it done, or learn to do it</h2>
+<p>I run FEA and thermal studies for clients: <a href="../index.html#brief">send a brief</a> and you'll get a clear quote within a day. If you'd rather do it yourself, the <a href="../training/solidworks-simulation.html">SolidWorks Simulation</a> course (FEA, about 24 hours) and the <a href="../training/solidworks-flow-simulation.html">SolidWorks Flow Simulation</a> course (CFD, about 14 hours) take you from first study to confident results.</p>

@@ -247,6 +247,34 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "article",
+  "t": "Building a bench vise in SolidWorks: inside our end-of-course project",
+  "d": "Why trainees finish the SolidWorks course by designing a working bench vise: lead screw, guide rods, serrated jaws, a sheet-metal base plate, a screw mate and a full drawing set.",
+  "u": "blog/building-a-bench-vise-in-solidworks.html",
+  "x": "SolidWorks CAD training Assemblies After weeks of learning tools one at a time, trainees need one project that brings everything together: clean sketches, solid features, editing, sheet metal, and an assembly that actually moves . For my SolidWorks course, that project is a small parallel-guide bench vise. The brief A lead screw drives a sliding jaw along two guide rods. The jaws are 100 mm wide and open up to 80 mm . The blocks and screw are solid parts; the base plate and name plate are sheet metal. Everything is in millimetres, and every sketch must be fully defined: no blue lines allowed. Ten parts, each teaching something Fixed jaw block: extrusions, through holes and Hole Wizard tapped holes (M8 and M5) Sliding jaw block: made with Save As from the fixed block and then edited. This is the editing practice: change dimensions, swap holes, add a pin hole Rear bearing block: an M14 tapped hole for the lead screw Jaw plates: serrations from one V-groove and a 15-groove linear pattern, with countersunk M5 holes Guide rods, lead screw, handle and retaining pin: revolved parts, a cosmetic M14 × 2.0 thread and a groove for the pin Base plate (3 mm sheet metal): base flange, edge flanges for stiffness, slotted mounting "
+ },
+ {
+  "k": "article",
+  "t": "FEA or CFD? Which simulation does your design need?",
+  "d": "A plain-language guide to finite element analysis and computational fluid dynamics: what each one answers, typical examples, what to prepare, and how to read the results.",
+  "u": "blog/fea-or-cfd-which-simulation-does-your-design-need.html",
+  "x": "Simulation FEA CFD Simulation lets you test a design before you cut a single piece of steel. But \"can you simulate it?\" can mean two quite different things. Picking the right one saves time and money, so here's how to tell them apart. FEA: will the solid part survive? Finite element analysis (FEA) looks at solid parts and structures under load. It splits your model into small elements and works out how each one deforms and how stressed it is. FEA answers questions like: Strength: will this bracket, frame or shaft yield or break under the load? (static analysis) Stiffness: how much will it bend or deflect? Vibration: what are its natural frequencies, and could a motor or pump make it resonate? (frequency analysis) Buckling: will a slender column or thin wall suddenly collapse? Fatigue: will repeated loading crack it over months or years? Heat in solids: how heat conducts through a part, and the stresses that temperature causes (thermal analysis) Typical examples: a machine frame, a lifting lug, a shelf bracket, a pressure vessel wall, or the roof and support structure of the outdoor hub I designed for the Autodesk Designathon, which was checked with structural simulation in Fusion 360. CFD: what is th"
+ },
+ {
+  "k": "article",
+  "t": "How long does it take to learn CAD? A realistic timeline",
+  "d": "Real course hours for SolidWorks, Inventor, Fusion 360, Creo and Revit, how much practice you need on top, and what you can do after 2 weeks, 2 months and 6 months.",
+  "u": "blog/how-long-does-it-take-to-learn-cad.html",
+  "x": "CAD training Career Beginners \"How long will it take me to learn SolidWorks?\" Trainees ask this before almost anything else, and the internet's answers range from \"a weekend\" to \"years\". Both are true, depending on what \"learn\" means. Here's a realistic timeline based on the courses I actually teach. The course hours These are the full guided courses, from first launch to advanced topics: SolidWorks: about 54 hours (17 sessions) Autodesk Inventor: about 58 hours (18 sessions) Fusion 360: 60–76 hours (21 sessions, including CAM, simulation and generative design) Creo Parametric: about 44 hours (14 sessions) Autodesk Revit: about 52 hours (16 sessions) SolidWorks Simulation (FEA): about 24 hours, once you know SolidWorks SolidWorks Flow Simulation (CFD): about 14 hours, once you know SolidWorks At two sessions a week, a full mechanical CAD course takes roughly 2 to 3 months (SolidWorks' 17 sessions take about 9 weeks). With more sessions a week, it can be done in a few weeks. Guided hours are only half of it The single biggest factor is practice between sessions. A rough rule that holds up well: for every hour of training, spend at least one hour practising on your own . Trainees who do this finish faster and rem"
+ },
+ {
+  "k": "article",
+  "t": "SolidWorks training in Nairobi: what you'll actually learn",
+  "d": "A session-by-session look at a 54-hour SolidWorks course in Nairobi or online: sketching, parts, assemblies, drawings, sheet metal, simulation basics and a full end-of-course project.",
+  "u": "blog/solidworks-training-in-nairobi-what-you-will-learn.html",
+  "x": "SolidWorks CAD training Nairobi \"Can you teach me SolidWorks?\" is the question I hear most from engineering students and young technicians in Nairobi. The honest follow-up is: which SolidWorks? The software is huge. Most people need a clear path from a blank screen to a part a workshop can actually make, without getting lost in menus they'll never use. Here's exactly what my SolidWorks course covers, in the order we cover it, and why each step matters. The shape of the course The full course is 17 sessions, about 54 hours . Sessions are 2 or 4 hours, one-on-one or in a small group, online or in person in Nairobi. Every session mixes a short demonstration with hands-on practice on real parts, and you keep all the practice files. 1. Foundations (sessions 1–3) We start with the things that make everything else faster: setting up SolidWorks properly, managing files, and mouse and keyboard habits. Then comes the most important skill in parametric CAD: sketching . You'll learn sketch tools, relations and dimensions until every sketch is fully defined . A fully defined sketch is the difference between a model you can edit in seconds and one that falls apart when you change a number. 2. Solid modelling and editing (sessi"
+ },
+ {
+  "k": "article",
   "t": "Designing for Manufacturability: 5 CAD Tips to Reduce Machining Costs",
   "d": "Designing for Manufacturability: 5 CAD Tips to Reduce Machining Costs When transitioning a mechanical concept from a 3D CAD model to a physical prototype,…",
   "u": "blog/designing-for-manufacturability-5-cad-tips-to-reduce-machining-costs.html",

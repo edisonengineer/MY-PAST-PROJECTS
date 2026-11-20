@@ -1,0 +1,52 @@
+<!--{
+  "title": "Building a bench vise in SolidWorks: inside our end-of-course project",
+  "description": "Why trainees finish the SolidWorks course by designing a working bench vise: lead screw, guide rods, serrated jaws, a sheet-metal base plate, a screw mate and a full drawing set.",
+  "date": "2026-11-20",
+  "tags": ["SolidWorks", "CAD training", "Assemblies"],
+  "theme": "coral",
+  "icon": "gear",
+  "image": "images/engineering/bench-vise/bench-vise-02.jpg"
+}-->
+<p>After weeks of learning tools one at a time, trainees need one project that brings everything together: clean sketches, solid features, editing, sheet metal, and an assembly that actually <em>moves</em>. For my SolidWorks course, that project is a small parallel-guide bench vise.</p>
+
+<figure><img src="../images/engineering/bench-vise/bench-vise-01.jpg" alt="Exploded view of the bench vise assembly in SolidWorks" loading="lazy" decoding="async"></figure>
+
+<h2>The brief</h2>
+<p>A lead screw drives a sliding jaw along two guide rods. The jaws are <strong>100 mm wide</strong> and open up to <strong>80 mm</strong>. The blocks and screw are solid parts; the base plate and name plate are sheet metal. Everything is in millimetres, and every sketch must be fully defined: no blue lines allowed.</p>
+
+<h2>Ten parts, each teaching something</h2>
+<ul>
+    <li><strong>Fixed jaw block:</strong> extrusions, through holes and Hole Wizard tapped holes (M8 and M5)</li>
+    <li><strong>Sliding jaw block:</strong> made with <em>Save As</em> from the fixed block and then edited. This is the editing practice: change dimensions, swap holes, add a pin hole</li>
+    <li><strong>Rear bearing block:</strong> an M14 tapped hole for the lead screw</li>
+    <li><strong>Jaw plates:</strong> serrations from one V-groove and a 15-groove linear pattern, with countersunk M5 holes</li>
+    <li><strong>Guide rods, lead screw, handle and retaining pin:</strong> revolved parts, a cosmetic M14 × 2.0 thread and a groove for the pin</li>
+    <li><strong>Base plate (3 mm sheet metal):</strong> base flange, edge flanges for stiffness, slotted mounting holes and a flat pattern</li>
+    <li><strong>Name plate (1 mm sheet metal):</strong> rounded corners, holes and optional extruded text</li>
+</ul>
+<p>Trainees each model a share of the parts to a written specification, then everyone assembles the full vise from the agreed class files. That's exactly how design teams work.</p>
+
+<h2>The assembly: where it comes alive</h2>
+<p>The base plate is fixed, the blocks are mated to it, and the guide rods are made concentric with their holes. Then two details turn a static model into a mechanism:</p>
+<ul>
+    <li>A <strong>distance mate with limits</strong> (0 to 80 mm) between the jaw faces, so the vise can't open further than the real one would</li>
+    <li>A <strong>screw mate</strong> at 2.0 mm per revolution, so turning the handle moves the jaw, just like the real thread</li>
+</ul>
+<p>Trainees finish with an exploded view, a section through the screw axis, and an interference check that must come back clean.</p>
+
+<figure><img src="../images/engineering/bench-vise/bench-vise-02.jpg" alt="Top view of the assembled bench vise" loading="lazy" decoding="async"></figure>
+
+<h2>Checking the work</h2>
+<p>A model that looks right isn't always right. So the brief gives check values everyone can compare against:</p>
+<ul>
+    <li>Closed length: about 253 mm; fully open: about 333 mm</li>
+    <li>Jaw opening at the limit: 80.0 mm</li>
+    <li>Screw advance per handle turn: 2.0 mm</li>
+    <li>No interference anywhere in the assembly</li>
+</ul>
+
+<h2>The design change</h2>
+<p>Finally, the real test of good modelling: trainees put the jaw width and rod spacing into <strong>global variables</strong>, then change the jaw width from 100 mm to 120 mm. The blocks, plates, base and assembly must all rebuild without errors. If a model survives that, it was built with proper design intent.</p>
+
+<h2>See it in 3D</h2>
+<p>You can rotate and zoom the finished vise on its <a href="../projects/bench-vise.html">project page</a>, and on a phone, place it on your desk at its real size. The full SolidWorks syllabus, with every session leading up to this project, is on the <a href="../training/solidworks.html#syllabus">SolidWorks course page</a>.</p>
