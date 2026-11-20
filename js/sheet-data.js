@@ -5,10 +5,11 @@
     if (d.certificates) window.CERTIFICATES = d.certificates;
     if (d.faq) window.SITE_FAQ = d.faq;
     if (d.downloads) window.SITE_DOWNLOADS = d.downloads;
+    if (d.students) window.STUDENT_WORK = d.students;
     if (d.recordings && window.SITE_CONFIG) (window.SITE_CONFIG.webinar = window.SITE_CONFIG.webinar || {}).recordings = d.recordings;
     if (window.TRAINING) {
         if (d.courses) window.TRAINING.courses = d.courses;
-        if (d.training) { window.TRAINING.nextIntake = d.training.intake; if (d.training.price) window.TRAINING.price = d.training.price; }
+        if (d.training) { window.TRAINING.nextIntake = d.training.intake; if (d.training.price) window.TRAINING.price = d.training.price; if (d.training.depositPct != null) window.TRAINING.depositPct = d.training.depositPct; }
     }
 })({
   "packages": [
@@ -197,7 +198,9 @@
         "Blocks and reusable details",
         "Layouts, viewports, scales and plotting to PDF",
         "Introduction to 3D modelling"
-      ]
+      ],
+      "sessions": "",
+      "projects": []
     },
     {
       "id": "solidworks",
@@ -214,7 +217,9 @@
         "Sheet metal parts and flat patterns",
         "Intro to simulation (FEA) studies",
         "CSWA exam preparation and practice"
-      ]
+      ],
+      "sessions": "",
+      "projects": []
     },
     {
       "id": "autodesk-inventor",
@@ -231,7 +236,9 @@
         "Frame Generator for structures",
         "Exploded views and presentations",
         "Working with AutoCAD DWG files"
-      ]
+      ],
+      "sessions": "",
+      "projects": []
     },
     {
       "id": "fusion-360",
@@ -248,7 +255,9 @@
         "Introduction to CAM and CNC toolpaths",
         "Introduction to simulation",
         "Cloud collaboration and sharing designs"
-      ]
+      ],
+      "sessions": "",
+      "projects": []
     },
     {
       "id": "adobe-illustrator",
@@ -266,7 +275,9 @@
         "Creating logos, brand assets, and custom icons",
         "Preparing vector art for print, web, and laser cutting (SVG/DXF)",
         "Exporting assets for UI, print production, and social media"
-      ]
+      ],
+      "sessions": "",
+      "projects": []
     },
     {
       "id": "adobe-photoshop",
@@ -283,7 +294,9 @@
         "Blending modes, smart objects, and creative filters",
         "Creating social media graphics, posters, and web banners",
         "Preparing high-resolution raster assets for print and web export"
-      ]
+      ],
+      "sessions": "",
+      "projects": []
     },
     {
       "id": "adobe-indesign",
@@ -300,7 +313,9 @@
         "Creating multi-page booklets, journals, brochures, and reports",
         "Auto-generating table of contents, headers, and footers",
         "Exporting print-ready PDF/X files and interactive digital PDFs"
-      ]
+      ],
+      "sessions": "",
+      "projects": []
     },
     {
       "id": "autodesk-revit",
@@ -317,7 +332,9 @@
         "Creating schedules, material take-offs, and room documentation",
         "Introduction to Revit Structure and MEP coordination",
         "Exporting sheets to PDF and DWG formats"
-      ]
+      ],
+      "sessions": "",
+      "projects": []
     },
     {
       "id": "adobe-premiere-pro-after-effects",
@@ -333,7 +350,9 @@
         "Lower thirds, title cards, and logo reveal animations",
         "Chroma keying (green screen), masking, and video compositing",
         "Rendering and exporting optimized video formats for web and broadcast"
-      ]
+      ],
+      "sessions": "",
+      "projects": []
     },
     {
       "id": "software-installation-setup",
@@ -350,7 +369,9 @@
         "Toolbars, workspace customization, and performance tuning",
         "Troubleshooting software crashes, missing DLLs, and startup errors",
         "Backup and migration of custom settings, templates, and keybindings"
-      ]
+      ],
+      "sessions": "",
+      "projects": []
     }
   ],
   "downloads": [
@@ -367,6 +388,7 @@
       "file": "https://edisonengineer.github.io/MY-PAST-PROJECTS/pdfs/solidworks-shortcuts-cheat-sheet.pdf"
     }
   ],
+  "students": [],
   "faq": [
     {
       "q": "What services do you offer?",
@@ -429,6 +451,7 @@
   ],
   "training": {
     "intake": "",
-    "price": 4500
+    "price": 4500,
+    "depositPct": 50
   }
 });
