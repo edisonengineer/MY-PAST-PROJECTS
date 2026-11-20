@@ -306,11 +306,11 @@ window.PROJECTS = [
         year: '2026',
         cover: 'images/graphic/illustrator/web/APPRECIATION-02-1200.jpg',
         gallery: [
-            'images/graphic/illustrator/web/APPRECIATION-02.jpg',
-            'images/graphic/illustrator/web/APPRECIATION-03.jpg',
-            'images/graphic/illustrator/web/APPRECIATION-04.jpg',
-            'images/graphic/illustrator/web/APPRECIATION-06.jpg',
-            'images/graphic/illustrator/web/APPRECIATION-06-06.jpg'
+            'images/graphic/illustrator/web/APPRECIATION-02-1200.jpg',
+            'images/graphic/illustrator/web/APPRECIATION-03-1200.jpg',
+            'images/graphic/illustrator/web/APPRECIATION-04-1200.jpg',
+            'images/graphic/illustrator/web/APPRECIATION-06-1200.jpg',
+            'images/graphic/illustrator/web/APPRECIATION-06-06-1200.jpg'
         ],
         summary: 'A series of appreciation certificates recognising ministries for their contributions to the church’s Camp Meeting fundraising goal.',
         deliverables: ['Personalised certificate series'],
@@ -360,7 +360,7 @@ window.PROJECTS = [
         year: '',
         cover: 'images/graphic/illustrator/web/Untitled-1-01-1200.jpg',
         gallery: [
-            'images/graphic/illustrator/web/Untitled-1-01.jpg'
+            'images/graphic/illustrator/web/Untitled-1-01-1200.jpg'
         ],
         summary: 'A bold, widescreen event graphic announcing a daily evening sermon series.',
         deliverables: ['Event graphic'],

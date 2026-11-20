@@ -149,6 +149,7 @@ function doPost(e) {
   if (p.action === 'accept') return out_(acceptQuote_(p));
   if (p.action === 'payment') return out_(payment_(p));
   if (p.action === 'download') return out_(download_(p));
+  if (p.action === 'syllabus') return out_(syllabus_(p));
   const name = clean_(p.name, 80);
   const text = clean_(p.text, 1500);
   const rating = Math.round(Number(p.rating));
@@ -563,7 +564,7 @@ function siteLists_() {
     recordings: recordings.length ? recordings : null,
     faq: faq.length ? faq : null,
     downloads: downloads,
-    training: { intake: intake, price: price > 0 ? Math.round(price) : null }
+    training: { intake: intake, price: price > 0 ? Math.round(price) : null, depositPct: Math.max(0, Math.min(100, num_(S['training seat deposit (%)'] == null ? 50 : S['training seat deposit (%)']))) }
   };
 }
 
@@ -1382,6 +1383,12 @@ function paymentChanged_(sh, row) {
     if (!validEmail_(who.email)) { sh.getRange(row, 8).setValue('⚠ Receipt drafted in Invoices row ' + ir + ': add the client email there, then set Action to Send'); return; }
     sendInvoice_(inv, ir);
     sh.getRange(row, 8).setValue(String(inv.getRange(ir, 1).getValue()) + ' sent ' + when);
+    // A training deposit confirmed: the seat is confirmed too
+    if (/^TRN-/i.test(ref)) {
+      const tr = trainees_(), trows = tr.getDataRange().getValues();
+      const ti = trows.findIndex((x, k) => k > 0 && normRef_(x[0]) === normRef_(ref));
+      if (ti > 0 && /^(reserved|waiting list)$/i.test(String(trows[ti][8]).trim())) tr.getRange(ti + 1, 9).setValue('Confirmed');
+    }
   } else if (status === 'Not received' && !/client asked/i.test(String(r[8]))) {
     if (validEmail_(who.email)) {
       mail_(who.email, 'About your M-Pesa payment (' + ref + ')', who.name,
@@ -1721,7 +1728,8 @@ function reserve_(p) {
     const dup = rows.find((r) => String(r[3]).trim().toLowerCase() === email && String(r[5]).trim().toLowerCase() === course.toLowerCase() &&
       String(r[6]).trim() === klass && !/^cancelled$/i.test(String(r[8]).trim()));
     if (dup) return { ok: true };
-    id = newId_('TRN');
+    const given = String(p.Reference || p.ref || '').trim().toUpperCase();
+    id = /^TRN-\d{4}-[A-Z2-9]{5}$/.test(given) && !rows.some((r) => String(r[0]).trim().toUpperCase() === given) ? given : newId_('TRN');
     const code = useCode_(p['Discount code'] || p.code, { for: 'Training', email: email, name: name, ref: id });
     const notes = [p.Level ? 'Level: ' + clean_(p.Level, 60) : '', p['Preferred schedule'] ? 'Prefers: ' + clean_(p['Preferred schedule'], 80) : '', p.Message ? clean_(p.Message, 600) : ''].filter(Boolean).join(' · ');
     sh.appendRow([id, new Date(), name, email, clean_(p['Phone / WhatsApp'] || p.phone, 40), c ? c.name : course, klass, clean_(p.Format, 60), status, '', '', '', notes, code]);
@@ -2064,6 +2072,33 @@ function subscribers_() {
   return sh;
 }
 
+// "Get the syllabus as a PDF" on a course page: email the PDF link and add the person to Subscribers,
+// with the source "Syllabus: <course>", so a new class of that course can be announced to them.
+function syllabus_(p) {
+  const email = clean_(p.email, 120).toLowerCase(), name = clean_(p.name, 80);
+  const id = String(p.id || '').trim().toLowerCase(), course = clean_(p.course, 80);
+  if (!validEmail_(email) || !/^[a-z0-9][a-z0-9-]{1,60}$/.test(id) || !course) return { ok: false, error: 'invalid' };
+  const cache = CacheService.getScriptCache();
+  const count = Number(cache.get('syl-count') || 0);
+  if (count >= 60) return { ok: false, error: 'busy' };
+  cache.put('syl-count', String(count + 1), 3600);
+  subscribe_({ email: email, name: name, source: 'Syllabus: ' + course });
+  const pdf = SITE_URL + 'pdfs/syllabus/' + id + '.pdf', page = SITE_URL + 'training/' + id + '.html';
+  const unsub = unsubLink_(email);
+  MailApp.sendEmail({ to: email, name: SENDER, subject: 'Your ' + course + ' training syllabus',
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+      '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">CAD TRAINING · NEXUS CAD STUDIO</p>' +
+      '<p>Hello' + (name ? ' ' + html_(name) : '') + ',</p>' +
+      '<p>Here is the full <b>' + html_(course) + '</b> training syllabus, session by session.</p>' +
+      '<p><a href="' + html_(pdf) + '" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Download the syllabus (PDF)</a></p>' +
+      '<p>When you are ready, <a href="' + html_(page) + '#syllabus">reserve a seat</a> or simply reply to this email with any question. I will also let you know when the next ' + html_(course) + ' class opens.</p>' +
+      '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p>' +
+      '<p style="margin-top:24px;font-size:11px;color:#888"><a href="' + unsub + '" style="color:#888">Unsubscribe</a></p></div>',
+    body: 'Your ' + course + ' training syllabus: ' + pdf + '\n\nReserve a seat: ' + page + '\n\nUnsubscribe: ' + unsub,
+    replyTo: Session.getEffectiveUser().getEmail() || undefined });
+  return { ok: true };
+}
+
 function subscribe_(p) {
   const email = clean_(p.email, 120).toLowerCase();
   if (!validEmail_(email)) return { ok: false, error: 'invalid' };
@@ -2225,6 +2260,7 @@ const SROWS = [
   ['Ask delivered clients for a review', 'Yes', 'Yes = a day after a project is Delivered, the client gets a friendly review request'],
   ['One-year follow-up email', 'Yes', 'Yes = a year after delivery, past clients get a short "anything new we can help with?" email'],
   ['Weekly sheet backup', 'Yes', 'Yes = every Sunday a copy of this sheet is saved to the Drive folder "Nexus CAD Studio sheet backups"'],
+  ['Training seat deposit (%)', '50', 'After reserving a training seat online, the trainee is asked to pay this % of the training starting price by M-Pesa to hold the seat (0 = no deposit step)'],
   ['Deposit for accepted quotes (%)', '50', 'When a client accepts a quote on the tracking page, a deposit invoice for this % of the total is made (0 = none, 100 = full payment)'],
   ['Send the deposit invoice automatically', 'Yes', 'Yes = the deposit invoice is emailed straight away. No = it waits in the Invoices tab for you to check and send'],
   ['Referral programme', 'Yes', 'Yes = delivered clients get a personal referral code in their thank-you email'],

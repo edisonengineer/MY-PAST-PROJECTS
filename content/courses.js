@@ -9,6 +9,7 @@
 window.TRAINING = {
     nextIntake: '',
     price: 4500,
+    depositPct: 50,   // % of the price paid by M-Pesa to hold a seat after reserving online (0 = no deposit step); the sheet's Settings tab overrides it
     formats: [
         { icon: 'users', title: 'One-on-one', text: 'Lessons built around your goals and pace, online or in person in Nairobi.' },
         { icon: 'cap', title: 'Small group', text: 'Learn with classmates on a shared schedule. Great for students and friends learning together.' },
