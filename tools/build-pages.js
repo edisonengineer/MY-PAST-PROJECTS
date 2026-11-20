@@ -26,7 +26,8 @@ const WHATSAPP = '254708639473';
 const CSS_V = 'css/style.css?v=25';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
-const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); console.log('  wrote ' + f); };
+const written = {};   // every page built in this run, for the translation list at the end
+const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(ROOT, f)), { recursive: true }); fs.writeFileSync(path.join(ROOT, f), s); written[f] = s; console.log('  wrote ' + f); };
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const icon = (name) => '<svg aria-hidden="true"><use href="#i-' + name + '"/></svg>';
 const LABEL = { engineering: 'Engineering', graphic: 'Graphic design' };
@@ -285,7 +286,7 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=4" data-fr="../js/i18n-fr.js?v=26" data-sw="../js/i18n-sw.js?v=23"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=5" data-fr="../js/i18n-fr.js?v=26" data-sw="../js/i18n-sw.js?v=23" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
     <script defer src="../js/pages.js?v=11"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
@@ -1235,4 +1236,41 @@ let updated = index;
 if (updated.includes(START)) updated = updated.replace(new RegExp(START + '[\\s\\S]*?' + END), START + '\n                    ' + homeCards(posts) + '\n                    ' + END);
 if (updated.includes(FSTART)) updated = updated.replace(new RegExp(FSTART + '[\\s\\S]*?' + FEND), () => FSTART + '\n    ' + faqSchema() + '\n    ' + FEND);
 if (updated !== indexOriginal) write('index.html', updated);
+/* ---------- Text still waiting for a French / Kiswahili translation ----------
+   js/i18n-wanted.json lists every piece of text on the built pages (and in the CV and project data,
+   which the homepage shows through JavaScript) that the hand-written dictionaries don't cover.
+   The Google Sheet's hourly translateJob reads this file from the live site and translates it
+   into its Translations tab; the next sheet sync brings the translations back in js/i18n-sheet-*.js. */
+function wantedTranslations() {
+    const dicts = ['fr', 'sw'].map((l) => {
+        const c = { window: {} };
+        vm.runInNewContext(read('js/i18n-' + l + '.js'), c);
+        const U = l.toUpperCase();
+        return { words: c.window['I18N_' + U] || {}, patterns: (c.window['I18N_' + U + '_PATTERNS'] || []).map((x) => x[0]) };
+    });
+    const known = (k) => dicts.every((d) => Object.prototype.hasOwnProperty.call(d.words, k) || d.patterns.some((re) => re.test(k)));
+    const NAMED = { nbsp: ' ', lt: '<', gt: '>', quot: '"', apos: "'", rsquo: '\u2019', lsquo: '\u2018', ldquo: '\u201c', rdquo: '\u201d', copy: '\u00a9', middot: '\u00b7', mdash: '\u2014', ndash: '\u2013', hellip: '\u2026', times: '\u00d7', rarr: '\u2192', larr: '\u2190', uarr: '\u2191', darr: '\u2193', amp: '&' };
+    const decode = (t) => t.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e) => e[0] === '#' ? String.fromCodePoint(e[1].toLowerCase() === 'x' ? parseInt(e.slice(2), 16) : Number(e.slice(1))) : (NAMED[e.toLowerCase()] != null ? NAMED[e.toLowerCase()] : m));
+    const found = new Set();
+    const add = (t) => {
+        const k = decode(String(t == null ? '' : t)).replace(/\s+/g, ' ').trim();
+        if (k.length > 1 && k.length <= 4500 && /\p{L}{2}/u.test(k) && !/^(https?:|mailto:|tel:)|@|\.(html|pdf|jpg|png|glb)\b/i.test(k) && !known(k)) found.add(k);
+    };
+    const fromHtml = (html) => {
+        const h = html.replace(/<(script|style|svg|code|noscript|textarea)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<!--[\s\S]*?-->/g, ' ');
+        for (const m of h.matchAll(/\s(?:alt|title|placeholder|aria-label)="([^"]*)"/g)) add(m[1]);
+        h.replace(/^[\s\S]*?<body[^>]*>/i, '').split(/<[^>]+>/).forEach(add);
+    };
+    Object.values(written).forEach(fromHtml);
+    fromHtml(updated);
+    const deep = (v) => { if (typeof v === 'string') add(v); else if (v && typeof v === 'object') Object.values(v).forEach(deep); };
+    const skip = new Set(['id', 'theme', 'icon', 'cover', 'gallery', 'pdf', 'model', 'href', 'category', 'file', 'verify', 'linkedin', 'phone', 'year', 'tone']);
+    const pick = (o) => Object.keys(o).filter((k) => !skip.has(k)).forEach((k) => deep(o[k]));
+    projects.forEach(pick);
+    const cv = loadCV().cv;
+    pick(cv);
+    return [...found].sort().slice(0, 3000);
+}
+const wanted = JSON.stringify(wantedTranslations(), null, 1) + '\n';
+if (!fs.existsSync(path.join(ROOT, 'js/i18n-wanted.json')) || read('js/i18n-wanted.json') !== wanted) write('js/i18n-wanted.json', wanted);
 console.log('Done: ' + projects.length + ' projects, ' + posts.length + ' articles.');

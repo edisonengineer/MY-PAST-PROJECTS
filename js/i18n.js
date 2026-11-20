@@ -11,7 +11,10 @@
 
    The dictionaries are only downloaded when French or Kiswahili is chosen
    (their paths are on this script's tag: data-fr / data-sw), so English
-   visitors don't load them.
+   visitors don't load them. data-fr-sheet / data-sw-sheet add the automatic
+   translations of Google Sheet content (js/i18n-sheet-*.js, written by
+   tools/sync-from-sheet.js). Where both have the same text, the hand-written
+   dictionary wins.
    ========================================================================= */
 (function () {
     'use strict';
@@ -25,19 +28,19 @@
     function load(l) {
         if (l === 'en' || DICT[l]) return Promise.resolve();
         if (loading[l]) return loading[l];
-        const src = me && me.dataset[l];
-        loading[l] = new Promise((resolve) => {
+        const script = (src) => new Promise((resolve) => {
             if (!src) return resolve();
             const s = document.createElement('script');
             s.src = src;
-            s.onload = s.onerror = () => {
-                const U = l.toUpperCase();
-                DICT[l] = window['I18N_' + U] || null;
-                PATTERNS[l] = window['I18N_' + U + '_PATTERNS'] || [];
-                if (!DICT[l]) delete loading[l];   // failed (offline?): allow another try
-                resolve();
-            };
+            s.onload = s.onerror = resolve;
             document.head.appendChild(s);
+        });
+        loading[l] = Promise.all([script(me && me.dataset[l]), script(me && me.dataset[l + 'Sheet'])]).then(() => {
+            const U = l.toUpperCase();
+            const main = window['I18N_' + U] || null;
+            DICT[l] = main ? Object.assign({}, window['I18N_' + U + '_SHEET'] || {}, main) : null;
+            PATTERNS[l] = window['I18N_' + U + '_PATTERNS'] || [];
+            if (!DICT[l]) delete loading[l];   // failed (offline?): allow another try
         });
         return loading[l];
     }
