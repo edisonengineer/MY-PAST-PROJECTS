@@ -1287,11 +1287,31 @@ window.I18N_SW = {
     "Offers": "Ofa",
     "No special offer right now.": "Hakuna ofa maalum kwa sasa.",
     "Seasonal offers on CAD projects and training appear here. In the meantime, see what I can do for you.": "Ofa za msimu kwa miradi na mafunzo ya CAD huonekana hapa. Kwa sasa, tazama ninachoweza kukufanyia.",
-    "See all services": "Tazama huduma zote"
+    "See all services": "Tazama huduma zote",
+    // Training: course pages and student work
+    "Student work": "Kazi za wanafunzi",
+    "Projects my trainees modelled in class, shared with their permission.": "Miradi ambayo wanafunzi wangu walibuni darasani, imeshirikiwa kwa ruhusa yao.",
+    "Course details": "Maelezo ya kozi",
+    "Course details & projects": "Maelezo ya kozi na miradi",
+    "What you'll build": "Utakachojenga",
+    "Level": "Kiwango",
+    "Set to your goals": "Kulingana na malengo yako",
+    "Hands-on from the first session": "Kwa vitendo tangu kipindi cha kwanza",
+    "One-on-one, group or company": "Mmoja mmoja, kikundi au kampuni",
+    "Tell me when you're free and your level. I'll reply within a day with the schedule and fees.": "Niambie lini uko huru na kiwango chako. Nitakujibu ndani ya siku moja na ratiba na ada.",
+    "Other courses": "Kozi nyingine",
+    "All courses": "Kozi zote",
+    "Made by my": "Imetengenezwa na",
+    "trainees": "wanafunzi wangu",
+    "3D model": "Muundo wa 3D"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
 window.I18N_SW_PATTERNS = [
+    [/^Built by (.+) trainees\.$/, "Imejengwa na wanafunzi wa $1."],
+    [/^(.+) training\.$/, "Mafunzo ya $1."],
+    [/^Ready to learn (.+)\?$/, "Uko tayari kujifunza $1?"],
+    [/^(.+) Training in Nairobi & Online \| Nexus CAD Studio$/, "Mafunzo ya $1 jijini Nairobi na mtandaoni | Nexus CAD Studio"],
     [/^Step (\d+) of (\d+)$/, "Hatua ya $1 kati ya $2"],
     [/^Please complete the (\d+) highlighted questions\.$/, "Tafadhali jibu maswali $1 yaliyowekwa alama."],
     [/^(\d+) images$/, "Picha $1"],

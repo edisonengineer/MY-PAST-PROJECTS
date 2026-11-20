@@ -18,6 +18,8 @@
      deliverables  what the client received, shown as chips on the card
                (optional; falls back to tags), e.g. ['3D assembly', 'Renders']
      outcome   one-line result shown on the card (optional)
+     course    a training course name from the Courses tab (e.g. 'SolidWorks'):
+               the project appears under "What you'll build" on that course's page
      points    key highlights (bullet list)
      meta      label/value details shown in the project window
      tags      software / skills
@@ -186,6 +188,7 @@ window.PROJECTS = [
             ['Software', 'SOLIDWORKS']
         ],
         tags: ['SolidWorks', 'CAD training', 'Assembly & mates', 'Sheet metal'],
+        course: 'SolidWorks',
         model: 'models/bench-vise.glb',
         story: {
             brief: 'Trainees finishing the SolidWorks course needed one project that brings everything together: clean sketches, solid features, editing, sheet metal and an assembly that actually moves. The vise is heavier on solid modelling than the course\'s sheet-metal toolbox project, so it builds speed with sketches, patterns and edits.',

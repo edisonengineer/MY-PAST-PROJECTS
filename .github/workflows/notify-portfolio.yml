@@ -1,0 +1,60 @@
+# Tells the job-application portfolio (edisonengineer/edisonengineer.github.io) to rebuild
+# as soon as this site changes, instead of waiting for its hourly build.
+#   - after you push or merge to main
+#   - after "Publish from Google Sheet" or "Rebuild site pages" published something
+#     (their pushes can't start other workflows directly, so this listens for them finishing)
+# Needs the secret PORTFOLIO_TOKEN: a fine-grained GitHub token with access to the
+# edisonengineer.github.io repository only, permission "Contents: Read and write".
+# Without it this does nothing and the portfolio keeps its hourly build.
+name: Update the job portfolio
+
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ['Publish from Google Sheet', 'Rebuild site pages']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: notify-portfolio
+  cancel-in-progress: true
+
+jobs:
+  notify:
+    runs-on: ubuntu-24.04
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Did the site change?
+        id: changed
+        env:
+          EVENT: ${{ github.event_name }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # A finished sheet sync / rebuild only matters if it pushed a new commit to main
+          if [ "$EVENT" = "workflow_run" ]; then
+            HEAD=$(gh api "repos/${{ github.repository }}/commits/main" --jq .sha)
+            if [ "$HEAD" = "$RUN_SHA" ]; then echo "Nothing new was published; the portfolio is up to date."; exit 0; fi
+          fi
+          echo "yes=1" >> "$GITHUB_OUTPUT"
+
+      - name: Ask the portfolio to rebuild
+        if: steps.changed.outputs.yes == '1'
+        env:
+          TOKEN: ${{ secrets.PORTFOLIO_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::notice::No PORTFOLIO_TOKEN secret yet, so the portfolio updates on its hourly build. See the top of .github/workflows/notify-portfolio.yml."
+            exit 0
+          fi
+          code=$(curl -s -o /tmp/out -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/edisonengineer/edisonengineer.github.io/dispatches \
+            -d '{"event_type":"main-site-updated"}')
+          if [ "$code" = "204" ]; then echo "The portfolio is rebuilding now."; else
+            echo "::warning::Could not reach the portfolio (HTTP $code): $(cat /tmp/out). Check that PORTFOLIO_TOKEN has Contents: Read and write on edisonengineer.github.io and hasn't expired. The hourly build still runs."
+          fi

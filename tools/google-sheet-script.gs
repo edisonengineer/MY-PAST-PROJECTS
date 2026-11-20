@@ -220,6 +220,36 @@ function subs_() {
 
 const cleanLong_ = (v, max) => String(v || '').replace(/[\u0000-\u0008\u000b-\u001f<>]/g, ' ').trim().slice(0, max);
 
+// Instant Gmail alert to you (the sheet's owner) for a new request from the website.
+// fields: [[label, value], ...]. Reply goes straight to the client; buttons for WhatsApp and the sheet.
+function newRequestAlert_(o) {
+  if (!/^yes$/i.test(setting_(o.setting) || 'Yes')) return;
+  const me = Session.getEffectiveUser().getEmail();
+  if (!me) return;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const tab = ss.getSheetByName(o.tab);
+  const sheetUrl = ss.getUrl() + (tab ? '#gid=' + tab.getSheetId() : '');
+  let wa = String(o.phone || '').replace(/[^\d+]/g, '').replace(/^\+/, '');
+  if (/^0[17]\d{8}$/.test(wa)) wa = '254' + wa.slice(1);   // Kenyan 07.. / 01.. numbers
+  const validEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(o.email || ''));
+  const btn = (href, label, bg) => '<a href="' + html_(href) + '" style="display:inline-block;margin:0 8px 8px 0;padding:10px 16px;border-radius:999px;background:' + bg + ';color:#0e1a3a;font-weight:bold;text-decoration:none">' + label + '</a>';
+  const rows = o.fields.filter((f) => String(f[1] == null ? '' : f[1]).trim()).map((f) =>
+    '<tr><td style="padding:6px 12px 6px 0;color:#646a82;vertical-align:top;white-space:nowrap">' + html_(f[0]) + '</td><td style="padding:6px 0;vertical-align:top">' +
+    html_(String(f[1])).replace(/\n/g, '<br>') + '</td></tr>').join('');
+  MailApp.sendEmail({
+    to: me, name: 'Nexus CAD Studio website', subject: o.subject,
+    replyTo: validEmail ? o.email : undefined,
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:600px;color:#0e1a3a">' +
+      '<p style="margin:0 0 4px;color:#646a82;font-size:13px">' + html_(o.kicker) + '</p>' +
+      '<h2 style="margin:0 0 14px;font-size:20px">' + html_(o.title) + '</h2>' +
+      '<table style="border-collapse:collapse;font-size:14px;margin-bottom:16px">' + rows + '</table>' +
+      (validEmail ? btn('mailto:' + o.email + '?subject=' + encodeURIComponent('Re: ' + o.title), 'Reply by email', '#ffb627') : '') +
+      (wa.length >= 9 ? btn('https://wa.me/' + wa + '?text=' + encodeURIComponent('Hi ' + String(o.name || '').split(' ')[0] + ', this is Edison from Nexus CAD Studio. ' + o.waText), 'WhatsApp the client', '#25d366') : '') +
+      btn(sheetUrl, 'Open in the sheet', '#e9edf5') +
+      '<p style="color:#646a82;font-size:12px;margin-top:14px">Pressing Reply answers ' + html_(o.name || 'the client') + ' directly. Turn these emails off in the Settings tab ("' + html_(o.setting) + '").</p></div>'
+  });
+}
+
 function brief_(p) {
   const ref = clean_(p.ref, 24).toUpperCase();
   const name = clean_(p.name, 80);
@@ -242,6 +272,17 @@ function brief_(p) {
   } finally {
     lock.releaseLock();
   }
+  try {
+    const project = clean_(p.project, 160);
+    newRequestAlert_({
+      setting: 'Email me new project briefs', tab: SUBS, email: email, phone: p.phone, name: name,
+      subject: '🆕 New project brief: ' + (project || clean_(p.service, 60) || 'quote request') + ' (' + ref + ')',
+      kicker: 'New project brief from the website', title: (project || 'Quote request') + ', from ' + name,
+      waText: 'Thanks for your brief (' + ref + ')' + (project ? ' for ' + project : '') + '.',
+      fields: [['Reference', ref], ['Name', name], ['Email', email], ['Phone / WhatsApp', clean_(p.phone, 40)], ['Service', clean_(p.service, 60)],
+        ['Project', project], ['Budget', clean_(p.budget, 80)], ['Deadline', clean_(p.deadline, 80)], ['Discount code', clean_(p.code, 30)], ['Details', cleanLong_(p.details, 5000)]]
+    });
+  } catch (err) { console.error('brief alert: ' + err); }   // the brief is saved either way
   if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     try {
       mail_(email, 'We received your project brief (' + ref + ')', name,
@@ -427,7 +468,8 @@ function image_(q) {
     const ok = arts.some((r) => driveId_(r[5]) === q.id) ||
       certs_().getDataRange().getValues().slice(1).some((r) => shown_(r, 4) && driveId_(r[3]) === q.id) ||
       works_().getDataRange().getValues().slice(1).filter(published_).some((r) => photoIds_(r[8]).some((p) => p.id === q.id)) ||
-      campaignRows_(false).some((c) => driveId_(c.r[7]) === q.id);
+      campaignRows_(false).some((c) => driveId_(c.r[7]) === q.id) ||
+      studentsTab_().getDataRange().getValues().slice(1).filter(studentShown_).some((r) => photoIds_(r[3]).some((p) => p.id === q.id));
     if (ok) blob = DriveApp.getFileById(q.id).getBlob();
   }
   if (!blob) return { ok: false };
@@ -445,7 +487,8 @@ const YESNO = ['Yes', 'No'];
 const PRICING = 'Pricing', CERTS = 'Certificates', COURSES = 'Courses', RECORDINGS = 'Recordings';
 const PRHEAD = ['Package', 'Category', 'Price (KES)', 'Starting from?', 'Description', "What's included (one per line)", 'Icon', 'Show on website'];
 const CEHEAD = ['Certificate', 'Issued by', 'Credential link', 'Certificate image (Google Drive link, optional)', 'Show on website', 'Job portfolio (Yes/No; empty = Yes)'];
-const COHEAD = ['Course', 'Tagline', 'Level', 'Topics (one per line)', 'Show on website', 'Next class (e.g. Saturdays from 7 Nov 2026)', 'Seats (empty = no limit)'];
+const COHEAD = ['Course', 'Tagline', 'Level', 'Topics (one per line)', 'Show on website', 'Next class (e.g. Saturdays from 7 Nov 2026)', 'Seats (empty = no limit)',
+  'Sessions (e.g. 10 sessions of 2 hours)', 'Projects trainees build (one per line)'];
 const REHEAD = ['YouTube link', 'Title', 'Show on website'];
 const ICONS = ['cube', 'gear', 'chart', 'image', 'layout', 'brush', 'cap', 'hub', 'battery', 'leaf', 'pen', 'award', 'play', 'users', 'doc'];
 
@@ -501,7 +544,8 @@ function siteLists_() {
       portfolio: !/^no$/i.test(String(r[5] == null ? '' : r[5]).trim()) };
   });
   const courses = rows(courses_()).filter((r) => shown_(r, 4)).map((r) => ({
-    name: String(r[0]).trim(), tagline: String(r[1] || '').trim(), levels: String(r[2] || '').trim(), topics: lines_(r[3])
+    name: String(r[0]).trim(), tagline: String(r[1] || '').trim(), levels: String(r[2] || '').trim(), topics: lines_(r[3]),
+    sessions: String(r[7] || '').trim(), projects: lines_(r[8])
   }));
   const recordings = rows(recordings_()).filter((r) => shown_(r, 2) && ytId_(r[0])).map((r) => ({ id: ytId_(r[0]), title: String(r[1] || '').trim() || 'Webinar recording' }));
   const faq = rows(faq_()).filter((r) => shown_(r, 2) && String(r[1]).trim()).map((r) => ({ q: String(r[0]).trim(), a: String(r[1]).trim() }));
@@ -515,6 +559,7 @@ function siteLists_() {
     packages: packages.length ? packages : null,
     certificates: certificates.length ? certificates : null,
     courses: courses.length ? courses : null,
+    students: studentWork_(),
     recordings: recordings.length ? recordings : null,
     faq: faq.length ? faq : null,
     downloads: downloads,
@@ -597,6 +642,8 @@ function sheetStrings_() {
   rows(downloads_()).filter((r) => shown_(r, 3)).forEach((r) => { add(r[0], 'Free downloads'); add(r[1], 'Free downloads'); });
   const S = readSettings_();
   add(S.availability.text, 'Settings'); add(S.announcement.text, 'Settings');
+  studentsTab_().getDataRange().getValues().slice(1).filter(studentShown_).forEach((r) => { add(r[2], 'Student work'); add(r[4], 'Student work'); });
+  rows(courses_()).filter((r) => shown_(r, 4)).forEach((r) => { const w = 'Courses: ' + String(r[0]).trim(); add(r[7], w); lines_(r[8]).forEach((t) => add(t, w)); });
   campaignRows_(true).forEach((c) => {
     const w = 'Campaigns: ' + String(c.r[0]).trim();
     [c.r[4], c.r[5], c.r[6], c.r[8]].forEach((t) => add(t, w));
@@ -753,6 +800,24 @@ function translationsFor_(list) {
     const k = trKey_(r[0]);
     if (!want[k]) return;
     TR_LANGS.forEach((l, c) => { const t = trKey_(r[1 + c]); if (t && t !== k) out[l][k] = t; });
+  });
+  return out;
+}
+
+/* ---------- Student work: trainees' projects on the training page ----------
+   Only rows where the student agreed to be shown AND "Show on website" is not No appear.
+   Use first name and initial only (e.g. Brian O.). */
+const STUDENTS = 'Student work';
+const STHEAD = ['Student (first name and initial, e.g. Brian O.)', 'Course (as in the Courses tab)', 'Project (e.g. Bench vise)',
+  'Photos (Drive folder link, or Drive photo links one per line)', 'What the student said (optional)', 'Student agreed to be shown? (Yes/No)', 'Show on website'];
+const studentsTab_ = () => listTab_(STUDENTS, STHEAD, [], [220, 200, 200, 340, 380, 150, 110], [['F2:F500', YESNO]], 7);
+const studentShown_ = (r) => shown_(r, 6) && /^yes$/i.test(String(r[5]).trim());
+function studentWork_() {
+  const out = [];
+  studentsTab_().getDataRange().getValues().slice(1).filter(studentShown_).forEach((r) => {
+    let photos = [];
+    try { photos = photoIds_(r[3]).slice(0, 4); } catch (err) { /* not readable: shown without photos */ }
+    out.push({ name: trKey_(r[0]).slice(0, 40), course: trKey_(r[1]).slice(0, 80), project: trKey_(r[2]).slice(0, 80), quote: String(r[4] || '').trim().slice(0, 400), photos: photos });
   });
   return out;
 }
@@ -1664,6 +1729,17 @@ function reserve_(p) {
     lock.releaseLock();
   }
   try {
+    newRequestAlert_({
+      setting: 'Email me new training seat requests', tab: TRAINEES, email: email, phone: p['Phone / WhatsApp'] || p.phone, name: name,
+      subject: '🎓 Seat request: ' + course + (status === 'Waiting list' ? ' (waiting list)' : '') + ', ' + name,
+      kicker: 'New training seat request from the website', title: course + ' training, ' + name,
+      waText: 'Thanks for reserving a seat for ' + course + ' training.',
+      fields: [['Reference', id], ['Name', name], ['Email', email], ['Phone / WhatsApp', clean_(p['Phone / WhatsApp'] || p.phone, 40)], ['Course', course],
+        ['Class', klass], ['Status', status], ['Level', clean_(p.Level, 60)], ['Format', clean_(p.Format, 60)], ['Preferred schedule', clean_(p['Preferred schedule'], 80)],
+        ['Discount code', clean_(p['Discount code'] || p.code, 30)], ['Message', clean_(p.Message, 600)]]
+    });
+  } catch (err) { console.error('seat alert: ' + err); }
+  try {
     traineeMail_(email, name, status === 'Waiting list'
       ? 'Thank you for your interest in <b>' + html_(course) + '</b> training. The next class' + (klass ? ' (' + html_(klass) + ')' : '') + ' is full, so you are on the <b>waiting list</b>. I will contact you as soon as a seat opens or the next class is scheduled.'
       : 'Thank you for reserving a seat for <b>' + html_(course) + '</b> training' + (klass ? ' (' + html_(klass) + ')' : '') + '. I will confirm the schedule and fees within a day.',
@@ -2140,6 +2216,8 @@ const SROWS = [
   ['Announcement link', '', 'Optional: where the announcement goes when tapped, e.g. #pricing or a full https:// link'],
   ['Training next intake', SEED_TRAINING.intake, 'Training page: e.g. Saturday classes from 7 November 2026. Leave empty for "Dates on request"'],
   ['Training starting price (KES)', SEED_TRAINING.price, 'Training page: starting price per trainee, e.g. 4500'],
+  ['Email me new project briefs', 'Yes', 'Yes = the moment someone sends a project brief / quote request on the website, you get the full details in Gmail (press Reply to answer the client)'],
+  ['Email me new training seat requests', 'Yes', 'Yes = you get an email in Gmail each time someone reserves a training seat'],
   ['Monday summary email', 'Yes', 'Yes = every Monday morning you get an email summary of briefs, projects, balances, reviews and subscribers'],
   ['Email new articles to subscribers', 'Yes', 'Yes = each new article is emailed to the Subscribers tab once it is live on the website'],
   ['Payment reminders', 'Yes', 'Yes = unpaid invoices get a polite reminder email after 7 and 14 days (stops once you send a receipt)'],
@@ -2225,6 +2303,8 @@ function setup() {
   downloads_();
   const co = courses_();
   if (!co.getRange(1, 6).getValue()) co.getRange(1, 6, 1, 2).setValues([[COHEAD[5], COHEAD[6]]]).setFontWeight('bold').setWrap(true);
+  if (!co.getRange(1, 8).getValue()) { co.getRange(1, 8, 1, 2).setValues([[COHEAD[7], COHEAD[8]]]).setFontWeight('bold').setWrap(true); co.setColumnWidth(8, 220); co.setColumnWidth(9, 320); }
+  studentsTab_();
   trainees_();
   settings_();
   subs_();

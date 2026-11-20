@@ -23,7 +23,7 @@ except ImportError:
     pass
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
-FOLDERS = ['images/engineering', 'images/graphic', 'images/blog', 'images/works']  # only photos in these folders
+FOLDERS = ['images/engineering', 'images/graphic', 'images/blog', 'images/works', 'images/students', 'images/campaigns']  # only photos in these folders
 EXTS = ('.jpg', '.jpeg')
 MAX_W, FULL_W, THUMB_W, MAX_BYTES, QUALITY = 1600, 1200, 800, 450 * 1024, 78
 

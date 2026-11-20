@@ -289,6 +289,14 @@
         const sel = document.getElementById('tr-course');
         if (b && sel) sel.value = b.dataset.course;
     });
+    // ...and so does a link from a course page: training/?course=SolidWorks#reserve
+    (function () {
+        const want = new URLSearchParams(location.search).get('course');
+        const sel = document.getElementById('tr-course');
+        if (!want || !sel) return;
+        const o = Array.from(sel.options).find((x) => x.value.toLowerCase() === want.toLowerCase());
+        if (o) sel.value = o.value;
+    })();
 
     /* ---------- Offline app ---------- */
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
