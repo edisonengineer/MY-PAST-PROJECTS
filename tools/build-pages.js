@@ -1448,6 +1448,17 @@ function sharePage(T, campaign) {
         whatsapp: '+' + WHATSAPP.replace(/^(\d{3})(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3 $4'),
         api: CFG.trackerApi || CFG.reviewsApi || '',
         campaign: campaign ? { badge: campaign.badge, title: campaign.title, text: campaign.text, button: campaign.button, end: campaign.end, image: local(campaign.image) ? campaign.image : '' } : null,
+        tools: (() => {
+            const qp = Object.assign({ monthly: 500, yearly: 4500 }, CFG.quotePro || {});
+            const kes = (n) => 'KES ' + Number(n).toLocaleString('en-US');
+            const site = SITE.replace(/^https:\/\//, '');
+            return [
+                { id: 'tool-steel', label: 'Gate & grill estimator (English)', art: 'gate', badge: 'Free tool for welders', title: 'Price a gate in one minute.', lines: ['Cut list and 6 m lengths to buy', 'Steel, paint, labour & fittings priced', 'Send the quote on WhatsApp or as a PDF'], cta: 'Try it free on your phone', url: site + 'steel' },
+                { id: 'tool-steel-sw', label: 'Gate & grill estimator (Kiswahili)', art: 'gate', badge: 'Bure kwa mafundi', title: 'Piga bei ya geti kwa dakika moja.', lines: ['Orodha ya vipande na urefu wa mita 6 wa kununua', 'Bei ya chuma, rangi, ufundi na vifaa', 'Tuma bei kwa mteja kwa WhatsApp au PDF'], cta: 'Jaribu bure kwa simu yako', url: site + 'steel' },
+                { id: 'tool-quote', label: 'Sheet-metal quote tool', art: 'sheet', badge: 'Free tool for fabricators', title: 'Quote sheet-metal jobs in a minute.', lines: ['Flat blank, weight & parts per sheet', 'Laser cutting, bending & powder coating priced', 'A PDF or WhatsApp quote for your customer'], cta: 'Try it free on your phone', url: site + 'quote' },
+                { id: 'tool-pro', label: 'Quote Pro (paid plan)', art: 'quote', badge: 'Quote Pro', title: 'Your logo on every quote.', lines: ['Unlimited PDF quotes, saved quotes & workshop cut sheets', 'One licence: gates, grills, railings & sheet metal', kes(qp.monthly) + ' a month by M-Pesa'], cta: 'Go Pro today', url: site + 'steel' }
+            ];
+        })(),
         courses: T.courses.map((c) => {
             const p = courseProjects(c).find((x) => local(x.cover));
             return { id: c.id, name: c.name, tagline: c.tagline, length: c.syllabusSummary || c.sessions || '', image: p ? p.cover : '' };
@@ -1462,11 +1473,16 @@ function sharePage(T, campaign) {
                 <div class="share-controls">
                     <p class="kicker">For you</p>
                     <h1 class="section-title">WhatsApp status <em>image</em>.</h1>
-                    <p>Pick what to promote. The image uses your current campaign from the Campaigns tab, or a course with its next class, start date and seats from the Courses tab.</p>
+                    <p>Pick what to promote. The image uses your current campaign from the Campaigns tab, a course with its next class, start date and seats from the Courses tab, or one of the quote tools for welders and fabricators.</p>
                     <label for="share-pick">Promote</label>
                     <select id="share-pick">
                         ${data.campaign ? `<option value="campaign">Current campaign: ${esc(data.campaign.title || data.campaign.badge)}</option>` : ''}
+                        <optgroup label="Quote tools">
+                        ${data.tools.map((t) => `<option value="${esc(t.id)}">${esc(t.label)}</option>`).join('\n                        ')}
+                        </optgroup>
+                        <optgroup label="Training">
                         ${data.courses.map((c) => `<option value="${esc(c.id)}">${esc(c.name)} training</option>`).join('\n                        ')}
+                        </optgroup>
                     </select>
                     <div class="share-actions">
                         <button type="button" class="btn btn-sun" id="share-download">${icon('doc')} Download image</button>
@@ -1480,7 +1496,7 @@ function sharePage(T, campaign) {
         </section>
     </main>
     <script>window.SHARE_DATA = ${JSON.stringify(data).replace(/</g, '\\u003c')};</script>
-` + footer('    <script defer src="../js/share-image.js?v=2"></script>\n');
+` + footer('    <script defer src="../js/share-image.js?v=3"></script>\n');
 }
 
 function trackPage() {

@@ -1591,6 +1591,11 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 .article li + li { margin-top: 0.45em; }
 .article li::marker { color: var(--coral); }
 .article a { color: #1f4fd1; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.article table { width: 100%; margin-top: 1.2em; border-collapse: collapse; font-size: 0.95rem; line-height: 1.5; }
+.article th { text-align: left; padding: 10px 12px; background: var(--navy); color: #fff; font-size: 0.85rem; }
+.article td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.article td:last-child, .article th:last-child { text-align: right; white-space: nowrap; }
+.article tbody tr:nth-child(even) td { background: var(--cream); }
 .article strong { color: var(--heading); }
 .article code, .article kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.88em; padding: 2px 7px; border-radius: 6px; background: var(--cream-2); color: var(--heading); white-space: nowrap; }
 .article kbd { border: 1px solid var(--line); border-bottom-width: 2px; }
