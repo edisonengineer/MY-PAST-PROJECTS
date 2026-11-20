@@ -77,6 +77,11 @@
    code on the tracking page. You get an email; check your M-Pesa messages
    and set Status to "Confirmed": the receipt is created and sent for you.
 
+   QUOTE PRO tab: paid licences for the sheet-metal quote tool (/quote/).
+   Buyers pay by M-Pesa and send the code from the tool; you get an email.
+   Set Status to "Confirmed" and their licence key and receipt are emailed
+   for them. "Cancelled" switches a key off. Renewal reminders are automatic.
+
    DASHBOARD tab: charts and totals (income per month, projects by stage,
    income by service, ratings, trainees, profit per project). It refreshes
    every morning and whenever you open the sheet.
@@ -150,6 +155,7 @@ function doPost(e) {
   if (p.action === 'payment') return out_(payment_(p));
   if (p.action === 'download') return out_(download_(p));
   if (p.action === 'syllabus') return out_(syllabus_(p));
+  if (p.action === 'pro') return out_(proRequest_(p));
   const name = clean_(p.name, 80);
   const text = clean_(p.text, 1500);
   const rating = Math.round(Number(p.rating));
@@ -2109,6 +2115,7 @@ function dailyJob() {
   try { refreshDashboard(); } catch (err) { console.error('dashboard: ' + err); }
   if (Utilities.formatDate(new Date(), 'Africa/Nairobi', 'd') === '1') { try { monthlyReport(); } catch (err) { console.error('money report: ' + err); } }
   try { announceClasses(); } catch (err) { console.error('announce classes: ' + err); }
+  try { proReminderJob(); } catch (err) { console.error('quote pro reminders: ' + err); }
 }
 
 function backupFolder_() {
@@ -2427,6 +2434,7 @@ function setup() {
   promos_();
   referrals_();
   payments_();
+  pro_();
   timelog_();
   downloads_();
   const co = courses_();
@@ -2531,6 +2539,7 @@ function notifyClient(e) {
   if (sh.getName() === INVOICES && e.range.getColumn() === 11 && /^send$/i.test(String(e.value || ''))) return sendInvoice_(sh, e.range.getRow());
   if (sh.getName() === TRAINEES && e.range.getColumn() === 9) return traineeChanged_(sh, e.range.getRow());
   if (sh.getName() === PAYMENTS && e.range.getColumn() === 7) return paymentChanged_(sh, e.range.getRow());
+  if (sh.getName() === PRO && e.range.getColumn() === 8) return proChanged_(sh, e.range.getRow());
   if (sh.getName() !== PROJECTS || e.range.getColumn() !== 4) return;
   if (/^delivered$/i.test(String(e.value || '').trim())) markDelivered_(sh, e.range.getRow());
   const r = sh.getRange(e.range.getRow(), 1, 1, 12).getValues()[0];
@@ -2670,6 +2679,184 @@ function fromSubmission_(r) {
   };
 }
 
+/* ---------- Quote Pro: paid licences for the sheet-metal quote tool (/quote/) ----------
+   A fabricator pays by M-Pesa and sends the code from the tool's "Go Pro" window.
+   The request lands in the "Quote Pro" tab and you get an email. Check your M-Pesa
+   messages, then set Status to "Confirmed": a licence key is made, the buyer is emailed
+   the key and a receipt (counted in your monthly money report). "Cancelled" switches a
+   key off straight away. Paying again with the same key (or email) extends it.
+   Five days before a key runs out, the buyer gets a renewal reminder. */
+const PRO = 'Quote Pro';
+const PROHEAD = ['Received', 'Business', 'Email', 'Phone', 'Plan', 'Amount (KES)', 'M-Pesa code', 'Status', 'Licence key (automatic)', 'Expires', 'Renewal reminder (automatic)', 'Notes'];
+const PRO_STATUS = ['To confirm', 'Confirmed', 'Not received', 'Cancelled'];
+const PRO_PLANS = { Monthly: 31, Yearly: 366 };
+const PRO_DEVICES = 3;   // phones / computers one key can be used on
+
+function pro_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(PRO);
+  if (sh) return sh;
+  sh = ss.insertSheet(PRO);
+  sh.appendRow(PROHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, PROHEAD.length).setFontWeight('bold').setWrap(true);
+  sh.getRange('A2:A3000').setNumberFormat('d mmm yyyy, HH:mm');
+  sh.getRange('J2:J3000').setNumberFormat('d mmm yyyy');
+  sh.getRange('E2:E3000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(Object.keys(PRO_PLANS), true).build());
+  sh.getRange('H2:H3000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(PRO_STATUS, true).build());
+  [140, 180, 200, 130, 90, 100, 130, 110, 190, 110, 150, 260].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+
+const proKey_ = (v) => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+function newProKey_() {
+  const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // no 0/O or 1/I
+  const used = pro_().getRange(2, 9, Math.max(1, pro_().getLastRow() - 1), 1).getValues().map((x) => proKey_(x[0]));
+  for (;;) {
+    let s = '';
+    for (let i = 0; i < 12; i++) s += abc.charAt(Math.floor(Math.random() * abc.length));
+    const key = 'NQP-' + s.slice(0, 4) + '-' + s.slice(4, 8) + '-' + s.slice(8);
+    if (used.indexOf(proKey_(key)) < 0) return key;
+  }
+}
+
+// From the tool: "I have paid"
+function proRequest_(p) {
+  const code = mpesaCode_(p.code), email = String(p.email || '').trim(), plan = PRO_PLANS[p.plan] ? p.plan : '';
+  const business = clean_(p.business, 100);
+  if (!/^[A-Z0-9]{8,12}$/.test(code) || !validEmail_(email) || !plan || !business) return { ok: false, error: 'invalid' };
+  const cache = CacheService.getScriptCache();
+  const count = Number(cache.get('pro-count') || 0);
+  if (count >= 20) return { ok: false, error: 'busy' };
+  cache.put('pro-count', String(count + 1), 3600);
+  const amount = Math.round(num_(p.amount));
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sh = pro_(), rows = sh.getDataRange().getValues().slice(1);
+    if (rows.some((x) => mpesaCode_(x[6]) === code)) return { ok: true };   // sent twice
+    const renew = proKey_(p.renew);
+    sh.appendRow([new Date(), business, email, clean_(p.phone, 30), plan, amount || '', code, 'To confirm',
+      renew && rows.some((x) => proKey_(x[8]) === renew) ? String(p.renew).trim().toUpperCase() : '', '', '', renew ? 'Renewal' : '']);
+  } finally {
+    lock.releaseLock();
+  }
+  const me = Session.getEffectiveUser().getEmail();
+  if (me) MailApp.sendEmail({ to: me, name: 'Nexus CAD Studio website', subject: '💰 Quote Pro to confirm: ' + plan + ' · ' + business + (amount ? ' · ' + kes_(amount) : ''),
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;color:#0e1a3a"><p><b>' + html_(business) + '</b> (' + html_(email) + ') says they paid ' + (amount ? '<b>' + kes_(amount) + '</b> ' : '') + 'for <b>Quote Pro, ' + html_(plan) + '</b>.</p>' +
+      '<p style="font-size:18px">M-Pesa code: <b style="letter-spacing:1px">' + html_(code) + '</b></p>' +
+      '<p>Check your M-Pesa messages for this code, then set its Status in the <b>Quote Pro</b> tab to <b>Confirmed</b>: their licence key and receipt are emailed for you.</p>' +
+      '<p><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Open your sheet</a></p></div>' });
+  return { ok: true };
+}
+
+// You changed a Status in the Quote Pro tab
+function proChanged_(sh, row) {
+  const r = sh.getRange(row, 1, 1, PROHEAD.length).getValues()[0];
+  const status = String(r[7] || '').trim(), email = String(r[2] || '').trim(), business = String(r[1] || '').trim();
+  const plan = PRO_PLANS[String(r[4]).trim()] ? String(r[4]).trim() : 'Monthly';
+  if (status !== 'Confirmed' || (r[9] instanceof Date && String(r[8]).trim())) return;   // done before
+  const rows = sh.getDataRange().getValues();
+  let key = String(r[8] || '').trim().toUpperCase();
+  if (!key) {   // the same buyer paying again keeps their key
+    const prev = rows.filter((x, k) => k > 0 && k !== row - 1 && String(x[2]).trim().toLowerCase() === email.toLowerCase() && String(x[8]).trim() && String(x[7]).trim() === 'Confirmed');
+    if (prev.length) key = String(prev[prev.length - 1][8]).trim().toUpperCase();
+  }
+  if (!key) key = newProKey_();
+  const now = new Date();
+  const until = proUntil_(key, row);
+  const start = until && until > now ? until : now;
+  const expires = r[9] instanceof Date ? r[9] : new Date(start.getTime() + PRO_PLANS[plan] * 864e5);
+  sh.getRange(row, 9).setValue(key);
+  sh.getRange(row, 10).setValue(expires);
+  const tz = 'Africa/Nairobi', when = Utilities.formatDate(expires, tz, 'd MMMM yyyy');
+  if (!validEmail_(email)) { sh.getRange(row, 12).setValue('⚠ No valid email: send the key ' + key + ' on WhatsApp'); return; }
+  const link = SITE_URL + 'quote/?key=' + encodeURIComponent(key);
+  MailApp.sendEmail({ to: email, name: SENDER, subject: 'Your Quote Pro licence key' + (until ? ' (renewed)' : ''),
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+      '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · QUOTE PRO</p>' +
+      '<p>Hello ' + html_(business) + ',</p><p>Thank you! Your payment is confirmed and Quote Pro is ' + (until ? 'renewed' : 'ready') + '. It is valid until <b>' + when + '</b>.</p>' +
+      '<p style="font-size:20px;background:#fbf6ec;border-left:4px solid #ffb627;padding:12px 14px;letter-spacing:2px"><b>' + html_(key) + '</b></p>' +
+      '<p><a href="' + link + '" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Open Quote Pro</a></p>' +
+      '<p style="font-size:13px;color:#555">The button switches Pro on for you. On another phone or computer, open the quote tool, choose <b>Enter key</b> and type the key above (up to ' + PRO_DEVICES + ' devices).</p>' +
+      '<p style="font-size:13px;color:#555">Questions? Reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
+      '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Nexus CAD Studio</span></p></div>',
+    body: 'Your Quote Pro licence key: ' + key + ' (valid until ' + when + '). Open it here: ' + link });
+  // A receipt, so the money shows in your monthly report
+  const amount = num_(r[5]);
+  if (amount > 0) {
+    const inv = invoices_();
+    inv.appendRow(['', 'Receipt', new Date(), '', business, email, 'Quote Pro licence, ' + plan.toLowerCase() + ' (until ' + when + ') - ' + amount, amount, amount, 'M-Pesa confirmation code ' + String(r[6] || '') + '. Licence key ' + key, 'Draft', '', 'Created from the Quote Pro tab', 'Off', '', 'None']);
+    try { sendInvoice_(inv, inv.getLastRow()); } catch (err) { console.error('pro receipt: ' + err); }
+  }
+  sh.getRange(row, 12).setValue([String(r[11] || ''), 'Key emailed ' + Utilities.formatDate(now, tz, 'd MMM yyyy')].filter(Boolean).join(' · '));
+}
+
+// Latest expiry of a key (other than one row), or null
+function proUntil_(key, skipRow) {
+  const k = proKey_(key);
+  let best = null;
+  pro_().getDataRange().getValues().forEach((x, i) => {
+    if (i === 0 || i === skipRow - 1 || proKey_(x[8]) !== k || String(x[7]).trim() !== 'Confirmed' || !(x[9] instanceof Date)) return;
+    if (!best || x[9] > best) best = x[9];
+  });
+  return best;
+}
+
+// From the tool: is this key valid? Also counts the devices it is used on.
+function proCheck_(q) {
+  const k = proKey_(q.key);
+  if (k.length !== 15) return { ok: false, error: 'unknown' };
+  const cache = CacheService.getScriptCache();
+  const count = Number(cache.get('pro-check') || 0);
+  if (count >= 300) return { ok: false, error: 'busy' };
+  cache.put('pro-check', String(count + 1), 3600);
+  const rows = pro_().getDataRange().getValues().slice(1).filter((x) => proKey_(x[8]) === k);
+  if (!rows.length) return { ok: false, error: 'unknown' };
+  if (rows.some((x) => String(x[7]).trim() === 'Cancelled')) return { ok: false, error: 'cancelled' };
+  const until = proUntil_(k, -1);
+  if (!until) return { ok: false, error: 'unknown' };
+  const last = rows[rows.length - 1];
+  if (until < new Date()) return { ok: false, error: 'expired', expires: ymd_(until), business: String(last[1] || '') };
+  const device = String(q.device || '').replace(/[^a-z0-9]/gi, '').slice(0, 40);
+  if (device) {
+    const props = PropertiesService.getScriptProperties(), name = 'pro-dev-' + k;
+    let list = [];
+    try { list = JSON.parse(props.getProperty(name) || '[]'); } catch (err) { list = []; }
+    if (list.indexOf(device) < 0) {
+      if (list.length >= PRO_DEVICES) return { ok: false, error: 'devices', max: PRO_DEVICES };
+      list.push(device);
+      props.setProperty(name, JSON.stringify(list));
+    }
+  }
+  return { ok: true, business: String(last[1] || ''), expires: ymd_(until), plan: String(last[4] || '') };
+}
+
+// Daily: a friendly reminder five days before a key runs out
+function proReminderJob() {
+  const sh = pro_(), rows = sh.getDataRange().getValues(), now = new Date();
+  const seen = {};
+  for (let i = rows.length - 1; i > 0; i--) {
+    const x = rows[i], k = proKey_(x[8]);
+    if (!k || seen[k] || String(x[7]).trim() !== 'Confirmed' || !(x[9] instanceof Date)) continue;
+    seen[k] = true;
+    const until = proUntil_(k, -1);
+    if (!until || until.getTime() !== x[9].getTime() || String(x[10]).trim()) continue;
+    const days = (until - now) / 864e5;
+    if (days > 5 || days < 0) continue;
+    const email = String(x[2] || '').trim();
+    if (!validEmail_(email)) continue;
+    const key = String(x[8]).trim(), when = Utilities.formatDate(until, 'Africa/Nairobi', 'd MMMM yyyy');
+    MailApp.sendEmail({ to: email, name: SENDER, subject: 'Your Quote Pro licence ends on ' + when,
+      htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a"><p>Hello ' + html_(String(x[1] || '')) + ',</p>' +
+        '<p>Your Quote Pro licence <b>' + html_(key) + '</b> ends on <b>' + when + '</b>. To keep your logo, unlimited PDF quotes and saved quotes, renew it in the quote tool: choose <b>Renew</b>, pay by M-Pesa and send the code. Your key stays the same and the new time is added to the end.</p>' +
+        '<p><a href="' + SITE_URL + 'quote/?renew=1" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Renew Quote Pro</a></p>' +
+        '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Nexus CAD Studio</span></p></div>' });
+    sh.getRange(i + 1, 11).setValue('Sent ' + Utilities.formatDate(now, 'Africa/Nairobi', 'd MMM yyyy'));
+  }
+}
+
 function doGet(e) {
   const q = (e && e.parameter) || {};
   if (q.action === 'track') return out_(track_(q.ref));
@@ -2681,6 +2868,7 @@ function doGet(e) {
   if (q.action === 'training') return out_(trainingInfo_());
   if (q.action === 'verify') return out_(verify_(q.code));
   if (q.action === 'code') return out_(codeCheck_(q));
+  if (q.action === 'pro') return out_(proCheck_(q));
   return out_(reviews_());
 }
 

@@ -198,6 +198,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "Sheet-metal quote tool",
+  "d": "Price sheet-metal parts: flat blank, weight, sheet nesting, cutting, bending and finishing, then a PDF or WhatsApp quote.",
+  "u": "quote/index.html",
+  "x": "sheet metal quote price cost estimate fabrication laser cutting bending powder coating nesting pdf whatsapp workshop"
+ },
+ {
+  "k": "page",
   "t": "Bend allowance calculator",
   "d": "Free sheet-metal bend allowance, bend deduction and flat length calculator.",
   "u": "calculators/index.html#bend",
