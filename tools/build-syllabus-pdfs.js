@@ -26,7 +26,8 @@ const ROOT = path.resolve(__dirname, '..');
 const OUT = path.join(ROOT, 'pdfs', 'syllabus');
 const HASHES = path.join(OUT, 'versions.json');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
-const DESIGN = '2';   // bump to rebuild every PDF after changing the layout below
+const DESIGN = '3';   // 3: green table layout   // bump to rebuild every PDF after changing the layout below
+const BG = '#e8f4ec';   // page background (soft green)
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const font = (f) => 'data:font/woff2;base64,' + fs.readFileSync(path.join(ROOT, 'fonts', f)).toString('base64');
 
@@ -44,34 +45,40 @@ function html(c, pageUrl) {
     const cfg = { window: {} };
     vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'js/config.js'), 'utf8'), cfg);
     const wa = (cfg.window.SITE_CONFIG || {}).whatsapp || '';
+    // Topics of a session: group headings in bold, topics separated by dots, so each session fits one table row
+    const cell = (s) => s.groups.map((g) => `<p>${g.h ? `<b>${esc(g.h)}:</b> ` : ''}${g.items.map(esc).join(' · ')}</p>`).join('');
     return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${esc(c.name)} training syllabus</title><style>
 @font-face { font-family: Jakarta; src: url(${font('plus-jakarta-sans-latin.woff2')}) format('woff2'); font-weight: 200 800; }
 @font-face { font-family: Fraunces; src: url(${font('fraunces-latin.woff2')}) format('woff2'); font-weight: 300 900; }
-@page { size: A4; margin: 16mm 14mm 18mm; }
-* { box-sizing: border-box; }
-body { margin: 0; font: 9.2pt/1.45 Jakarta, Arial, sans-serif; color: #18203a; }
-.cover { background: #0e1a3a; color: #fff; border-radius: 4mm; padding: 9mm 10mm 8mm; margin-bottom: 7mm; }
-.brand { font-size: 8pt; letter-spacing: .14em; text-transform: uppercase; color: #ffb627; font-weight: 800; }
-h1 { font: 600 26pt/1.05 Fraunces, Georgia, serif; margin: 3mm 0 2mm; }
-.sub { color: #cfd6ea; font-size: 10.5pt; margin: 0; }
-.stats { display: flex; gap: 4mm; margin-top: 6mm; }
-.stats div { flex: 1; background: rgba(255,255,255,.08); border-radius: 2.5mm; padding: 3mm 4mm; }
-.stats b { display: block; font: 600 14pt/1.1 Fraunces, Georgia, serif; color: #fff; }
-.stats span { font-size: 7.6pt; color: #b8c1dd; }
-.session { break-inside: avoid; border: 1px solid #e6e1d6; border-radius: 3mm; padding: 4mm 5mm; margin-bottom: 3.5mm; }
-.shead { display: flex; align-items: baseline; gap: 3mm; border-bottom: 1px solid #efeadf; padding-bottom: 2mm; margin-bottom: 2.5mm; }
-.num { font-size: 7.2pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: #fff1d2; color: #0e1a3a; padding: 1mm 2.4mm; border-radius: 9mm; white-space: nowrap; }
-.stitle { font: 600 12pt/1.2 Fraunces, Georgia, serif; flex: 1; }
-.hours { font-size: 8.4pt; font-weight: 700; white-space: nowrap; color: #4a5168; }
-.cols { columns: 2; column-gap: 7mm; }
-h3 { font-size: 7.4pt; letter-spacing: .07em; text-transform: uppercase; color: #8a8fa3; margin: 1.5mm 0 1mm; break-after: avoid; }
-ul { list-style: none; margin: 0 0 1.5mm; padding: 0; }
-li { padding-left: 3.6mm; position: relative; break-inside: avoid; }
-li::before { content: ''; position: absolute; left: .6mm; top: 1.95mm; width: 1.5mm; height: 1.5mm; border-radius: 50%; background: #ffb627; }
-.end { break-inside: avoid; margin-top: 6mm; background: #fbf6ee; border-radius: 3mm; padding: 5mm 6mm; }
-.end h2 { font: 600 14pt/1.2 Fraunces, Georgia, serif; margin: 0 0 1.5mm; }
+@page { size: A4; margin: 14mm 0 16mm; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { background: ${BG}; }
+body { margin: 0; padding: 0 13mm; font: 9.4pt/1.5 Jakarta, Arial, sans-serif; color: #10241a; }
+.cover { background: #0f3d2e; color: #fff; border-radius: 4mm; padding: 9mm 10mm 8mm; margin-bottom: 6mm; }
+.brand { font-size: 8.2pt; letter-spacing: .14em; text-transform: uppercase; color: #ffd36b; font-weight: 800; }
+h1 { font: 600 27pt/1.05 Fraunces, Georgia, serif; margin: 3mm 0 2mm; color: #fff; }
+.sub { color: #e2f1e8; font-size: 10.5pt; margin: 0; }
+.stats { display: flex; gap: 3.5mm; margin-top: 6mm; }
+.stats div { flex: 1; background: #ffffff; border-radius: 2.5mm; padding: 3mm 4mm; }
+.stats b { display: block; font: 700 14pt/1.15 Fraunces, Georgia, serif; color: #0f3d2e; }
+.stats span { font-size: 8pt; color: #2f5143; font-weight: 600; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; background: #ffffff; border: 1px solid #b9d9c6; border-radius: 3mm; overflow: hidden; }
+thead { display: table-header-group; }
+th { background: #1b6b4a; color: #ffffff; text-align: left; font-size: 8.4pt; letter-spacing: .06em; text-transform: uppercase; padding: 2.6mm 3mm; }
+td { padding: 3mm; vertical-align: top; border-top: 1px solid #d3e8db; color: #10241a; }
+tr { break-inside: avoid; }
+tbody tr:nth-child(even) td { background: #f2f9f4; }
+td.n { width: 11mm; text-align: center; font: 700 12pt/1.2 Fraunces, Georgia, serif; color: #1b6b4a; }
+td.t { width: 46mm; font: 600 10.5pt/1.3 Fraunces, Georgia, serif; color: #0f3d2e; }
+td.h { width: 19mm; font-weight: 800; white-space: nowrap; color: #10241a; }
+td.c p { margin: 0 0 1.2mm; font-size: 8.8pt; line-height: 1.5; }
+td.c p:last-child { margin: 0; }
+td.c b { color: #0f3d2e; }
+.total td { background: #dff0e6 !important; font-weight: 800; color: #0f3d2e; }
+.end { break-inside: avoid; margin-top: 6mm; background: #ffffff; border: 1px solid #b9d9c6; border-left: 2mm solid #1b6b4a; border-radius: 3mm; padding: 5mm 6mm; }
+.end h2 { font: 600 15pt/1.2 Fraunces, Georgia, serif; margin: 0 0 1.5mm; color: #0f3d2e; }
 .end p { margin: 0 0 1.5mm; }
-.end a { color: #0e1a3a; font-weight: 700; }
+.end a { color: #0f3d2e; font-weight: 800; }
 </style></head><body>
 <section class="cover">
     <div class="brand">Nexus CAD Studio · CAD training · Nairobi &amp; online</div>
@@ -84,10 +91,13 @@ li::before { content: ''; position: absolute; left: .6mm; top: 1.95mm; width: 1.
         <div><b>${esc(c.perDay || 'Flexible')}</b><span>per session</span></div>
     </div>
 </section>
-${c.sessions.map((s, i) => `<section class="session">
-    <div class="shead"><span class="num">Session ${i + 1}</span><span class="stitle">${esc(s.title)}</span><span class="hours">${esc(s.hours)}</span></div>
-    <div class="cols">${s.groups.map((g) => `${g.h ? `<h3>${esc(g.h)}</h3>` : ''}${g.items.length ? `<ul>${g.items.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}`).join('')}</div>
-</section>`).join('\n')}
+<table>
+    <thead><tr><th>#</th><th>Session</th><th>Hours</th><th>What we cover</th></tr></thead>
+    <tbody>
+${c.sessions.map((s, i) => `        <tr><td class="n">${i + 1}</td><td class="t">${esc(s.title)}</td><td class="h">${esc(s.hours)}</td><td class="c">${cell(s)}</td></tr>`).join('\n')}
+        <tr class="total"><td></td><td>Total</td><td>${esc(c.total)}</td><td>${c.sessions.length} sessions · ${topics} topics</td></tr>
+    </tbody>
+</table>
 <section class="end">
     <h2>Ready to start?</h2>
     <p>One-on-one, small group or company training, online or in person in Nairobi. Sessions follow this order at a pace that suits you.</p>
@@ -118,9 +128,11 @@ ${c.sessions.map((s, i) => `<section class="session">
         const p = await browser.newPage();
         await p.setContent(html(c, pageUrl), { waitUntil: 'load' });
         await p.evaluate(() => document.fonts.ready);
-        const pdf = await p.pdf({ format: 'A4', printBackground: true, displayHeaderFooter: true, headerTemplate: '<span></span>',
-            footerTemplate: '<div style="width:100%;font:7pt Arial;color:#8a8fa3;padding:0 14mm;display:flex;justify-content:space-between"><span>' + esc(c.name) + ' training syllabus · Nexus CAD Studio</span><span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span></div>',
-            margin: { top: '16mm', bottom: '18mm', left: '14mm', right: '14mm' } });
+        const band = (h, inner) => '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;position:absolute;left:0;right:0;' + h + ';background:' + BG + ';font:7.5pt Arial;color:#2f5143;padding:0 13mm;display:flex;align-items:center;justify-content:space-between">' + inner + '</div>';
+        const pdf = await p.pdf({ format: 'A4', printBackground: true, displayHeaderFooter: true,
+            headerTemplate: '<style>html{-webkit-print-color-adjust:exact}</style>' + band('top:0;height:14mm', ''),
+            footerTemplate: '<style>html{-webkit-print-color-adjust:exact}</style>' + band('bottom:0;height:16mm', '<span>' + esc(c.name) + ' training syllabus · Nexus CAD Studio</span><span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>'),
+            margin: { top: '14mm', bottom: '16mm', left: '0', right: '0' } });
         await p.close();
         fs.writeFileSync(path.join(OUT, file), pdf);
         versions[file] = hash;
