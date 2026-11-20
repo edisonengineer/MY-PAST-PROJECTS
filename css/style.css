@@ -2512,3 +2512,16 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 .share-status, .share-tip { font-size: 0.9rem; color: var(--muted); }
 .share-preview canvas { width: 100%; height: auto; border-radius: 22px; box-shadow: var(--shadow-lg); display: block; }
 @media (max-width: 760px) { .share-grid { grid-template-columns: 1fr; } .share-preview { max-width: 340px; } }
+
+/* Printing always uses the light theme's dark-on-white colours (dark mode printed pale grey text on white paper) */
+@media print {
+    :root, [data-theme="dark"] {
+        --cream: #ffffff; --cream-2: #f3eadb; --paper: #ffffff; --line: #d9d4c7;
+        --text: #18203a; --text-soft: #3d4560; --muted: #4a5168; --heading: #0e1a3a; --coral-text: #c4422a;
+        color-scheme: light;
+    }
+    html, body, [data-theme="dark"] body { background: #ffffff !important; color: #18203a !important; }
+    [data-reveal] { opacity: 1 !important; transform: none !important; }
+    .page-hero { background: #ffffff !important; color: #0e1a3a !important; }
+    .page-hero .page-title, .page-hero .page-lede, .page-hero .page-kicker, .page-hero .crumbs, .page-hero .crumbs a { color: #0e1a3a !important; }
+}
