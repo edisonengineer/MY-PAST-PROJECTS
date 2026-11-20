@@ -21,7 +21,7 @@ window.SITE_CONFIG = {
 
     // Visitor analytics (free): create an account at https://www.goatcounter.com,
     // choose a code (e.g. 'edisonochieng') and put it here. Leave '' to turn analytics off.
-    goatcounter: '',
+    goatcounter: 'necuscad',
 
     // Google Sheet "database" (instant reviews + project tracker): the Google Apps
     // Script "Web app URL" (ends in /exec). Set-up steps: tools/google-sheet-script.gs.
