@@ -796,7 +796,7 @@ ${syllabusSection(c)}${studentSection(students, '../', T, 'Built by ' + esc(c.na
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=12"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n');
 }
 
 // After reserving a seat: pay a deposit by M-Pesa to hold it, then send the M-Pesa code (Payments tab of the sheet)
@@ -996,7 +996,7 @@ ${downloadsBand('../')}
             </div>
         </section>
 ${newsletter()}    </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n    <script defer src="../js/discount.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=12"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n    <script defer src="../js/discount.js?v=1"></script>\n');
 }
 
 /* ---------- Free tools (calculators) ---------- */
@@ -1468,7 +1468,7 @@ function trackPage() {
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=8"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=12"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=8"></script>\n');
 }
 
 /* ---------- Certificate verification ---------- */
@@ -1503,7 +1503,7 @@ function verifyPage() {
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/verify.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=12"></script>\n    <script defer src="../js/verify.js?v=1"></script>\n');
 }
 
 /* ---------- Homepage cards ---------- */
