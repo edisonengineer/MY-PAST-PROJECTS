@@ -412,7 +412,7 @@ function content_() {
       portfolio: !/^no$/i.test(String(r[10] == null ? '' : r[10]).trim())   // "No" = main site only, hidden from the job-application portfolio
     };
   });
-  return { articles: articles, works: works, site: siteLists_() };
+  return { articles: articles, works: works, site: siteLists_(), translations: translationsOut_() };
 }
 
 // A photo, only if it belongs to something Published (nothing else in your Drive can be fetched)
@@ -517,6 +517,148 @@ function siteLists_() {
     downloads: downloads,
     training: { intake: intake, price: price > 0 ? Math.round(price) : null }
   };
+}
+
+/* ---------- Automatic translations (French and Kiswahili) ----------
+   The TRANSLATIONS tab holds one row per piece of website text that comes from this sheet.
+   Every hour translateJob() adds rows for new text and fills EMPTY French / Kiswahili cells
+   with Google Translate (free, built into Apps Script). It never overwrites a cell that has
+   something in it, so you can correct any translation by typing over it. To get a fresh
+   machine translation, clear the cell. "Used on website" shows which rows are still live.
+   The website's GitHub automation picks the translations up with the rest of the content.
+   It also translates the website's own text that has no hand-written translation (CV,
+   projects, blog posts): the site lists that text in js/i18n-wanted.json at every rebuild,
+   and translateJob reads it from the live site. Sheet content is translated first. */
+const TRANSLATIONS = 'Translations';
+const TRHEAD = ['English (automatic)', 'French', 'Kiswahili', 'Where it appears (automatic)', 'Used on website (automatic)', 'Translated on (automatic)'];
+const TR_LANGS = ['fr', 'sw'];
+const TR_MAX_CALLS_PER_RUN = 150;     // each French or Kiswahili cell is one call
+const TR_MAX_CALLS_PER_DAY = 1500;    // stays well inside Apps Script's daily translation quota
+const TR_MAX_MS = 4 * 60 * 1000;      // stop after 4 minutes (Apps Script allows 6)
+
+const translations_ = () => {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(TRANSLATIONS);
+  if (sh) return sh;
+  sh = ss.insertSheet(TRANSLATIONS);
+  sh.appendRow(TRHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, TRHEAD.length).setFontWeight('bold').setWrap(true);
+  [360, 360, 360, 220, 110, 130].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  sh.getRange(2, 1, 999, TRHEAD.length).setVerticalAlignment('top').setWrap(true);
+  return sh;
+};
+
+// Same rules as the website: whitespace collapsed, trimmed. Text without letters (prices, years) is skipped.
+const trKey_ = (t) => String(t == null ? '' : t).replace(/\s+/g, ' ').trim();
+const trWorth_ = (t) => t.length > 1 && t.length <= 4500 && /\p{L}/u.test(t) && !/^(https?:|mailto:)/i.test(t);
+const unhtml_ = (t) => String(t).replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+
+// Answers with **bold** and [links](...) appear on the page as separate pieces of text: translate each piece
+function mdPieces_(md) {
+  const out = [];
+  String(md || '').split(/\n/).forEach((line) => {
+    line.replace(/\*\*(.+?)\*\*/g, '\u0001$1\u0001').replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '\u0001$1\u0001')
+      .split('\u0001').forEach((p) => out.push(p));
+  });
+  return out;
+}
+// Article bodies: every run of text between tags is one piece on the page
+const htmlPieces_ = (html) => String(html || '').replace(/\{\{IMG:\d+\}\}/g, '').split(/<[^>]+>/).map(unhtml_);
+
+// All website text that comes from this sheet right now: { english: where }
+function sheetStrings_() {
+  const found = {};
+  const add = (t, where) => { const k = trKey_(t); if (trWorth_(k) && !found[k]) found[k] = where; };
+  const rows = (sh) => sh.getDataRange().getValues().slice(1);
+  rows(works_()).filter(published_).forEach((r) => {
+    const w = 'Works: ' + String(r[0]).trim();
+    [r[0], r[3], r[5]].forEach((t) => add(t, w));
+    lines_(r[6]).forEach((t) => add(t, w));
+    String(r[7] || '').split(',').forEach((t) => add(t, w));
+  });
+  rows(articles_()).filter(published_).forEach((r) => {
+    const w = 'Articles: ' + String(r[0]).trim();
+    add(r[0], w); add(r[4], w);
+    String(r[6] || '').split(',').forEach((t) => add(t, w));
+    const docId = driveId_(r[3]);
+    if (docId) { try { htmlPieces_(docHtml_(docId).html).forEach((t) => add(t, w)); } catch (err) { /* Doc not readable: skipped */ } }
+  });
+  rows(pricing_()).filter((r) => shown_(r, 7)).forEach((r) => { const w = 'Pricing: ' + String(r[0]).trim(); add(r[0], w); add(r[4], w); lines_(r[5]).forEach((t) => add(t, w)); });
+  rows(certs_()).filter((r) => shown_(r, 4)).forEach((r) => { add(r[0], 'Certificates'); add(r[1], 'Certificates'); });
+  rows(courses_()).filter((r) => shown_(r, 4)).forEach((r) => { const w = 'Courses: ' + String(r[0]).trim(); [r[0], r[1], r[2]].forEach((t) => add(t, w)); lines_(r[3]).forEach((t) => add(t, w)); });
+  rows(recordings_()).filter((r) => shown_(r, 2)).forEach((r) => add(r[1], 'Recordings'));
+  rows(faq_()).filter((r) => shown_(r, 2)).forEach((r) => { add(r[0], 'FAQ'); mdPieces_(r[1]).forEach((t) => add(t, 'FAQ')); });
+  rows(downloads_()).filter((r) => shown_(r, 3)).forEach((r) => { add(r[0], 'Free downloads'); add(r[1], 'Free downloads'); });
+  const S = readSettings_();
+  add(S.availability.text, 'Settings'); add(S.announcement.text, 'Settings');
+  return found;
+}
+
+function translateJob() {
+  const started = Date.now();
+  const props = PropertiesService.getScriptProperties();
+  const today = Utilities.formatDate(new Date(), 'Africa/Nairobi', 'yyyy-MM-dd');
+  if (props.getProperty('trStopped') === today) return 'Google Translate quota reached today; continuing tomorrow.';
+  let usedToday = props.getProperty('trDay') === today ? Number(props.getProperty('trCalls')) || 0 : 0;
+
+  const sh = translations_();
+  const live = sheetStrings_();
+  const WEB = 'Website (CV, projects, blog)';
+  let webOk = true;   // if the site can't be read, its rows keep their current "Used" state
+  try {
+    const res = UrlFetchApp.fetch(SITE_URL + 'js/i18n-wanted.json?t=' + Date.now(), { muteHttpExceptions: true, followRedirects: true });
+    if (res.getResponseCode() !== 200) throw new Error('HTTP ' + res.getResponseCode());
+    JSON.parse(res.getContentText()).slice(0, 3000).forEach((t) => { const k = trKey_(t); if (trWorth_(k) && !live[k]) live[k] = WEB; });
+  } catch (err) { webOk = false; console.error('website text list: ' + err.message); }
+  const data = sh.getDataRange().getValues().slice(1).map((r) => r.slice(0, TRHEAD.length));
+  const index = {};
+  data.forEach((r, i) => { index[trKey_(r[0])] = i; });
+  Object.keys(live).forEach((k) => { if (!(k in index)) { index[k] = data.length; data.push([k, '', '', live[k], 'Yes', '']); } });
+  data.forEach((r) => { const k = trKey_(r[0]); r[4] = live[k] ? 'Yes' : !webOk && r[3] === WEB ? r[4] : 'No'; if (live[k] && !r[3]) r[3] = live[k]; });
+
+  let calls = 0, note = '';
+  const queue = data.filter((r) => r[3] !== WEB).concat(data.filter((r) => r[3] === WEB));   // sheet content first
+  outer:
+  for (const r of queue) {
+    if (r[4] !== 'Yes') continue;
+    for (let c = 0; c < TR_LANGS.length; c++) {
+      if (String(r[1 + c]).trim()) continue;                  // filled (by hand or earlier): never overwritten
+      if (calls >= TR_MAX_CALLS_PER_RUN || usedToday >= TR_MAX_CALLS_PER_DAY) { note = 'limit for this run reached; the rest follows next hour.'; break outer; }
+      if (Date.now() - started > TR_MAX_MS) { note = 'time limit reached; the rest follows next hour.'; break outer; }
+      try {
+        r[1 + c] = LanguageApp.translate(String(r[0]), 'en', TR_LANGS[c], { contentType: 'text' });
+        r[5] = new Date();
+        calls++; usedToday++;
+      } catch (err) {
+        if (/too many times|quota|limit/i.test(err.message)) { props.setProperty('trStopped', today); note = 'Google Translate quota reached; continuing tomorrow.'; break outer; }
+        console.error('translate: ' + err.message);
+      }
+    }
+  }
+  props.setProperties({ trDay: today, trCalls: String(usedToday) });
+  if (data.length) sh.getRange(2, 1, data.length, TRHEAD.length).setValues(data);
+  const msg = calls + ' translation(s) added. ' + (note || 'Everything on the website is translated.');
+  console.log(msg);
+  return msg;
+}
+
+function translateNow() {
+  const msg = translateJob();
+  try { SpreadsheetApp.getUi().alert(msg); } catch (err) { /* run from the editor */ }
+}
+
+// For the website: { fr: { english: french }, sw: {...} }, only rows used on the website
+function translationsOut_() {
+  const out = { fr: {}, sw: {} };
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TRANSLATIONS);
+  if (!sh) return out;
+  sh.getDataRange().getValues().slice(1).forEach((r) => {
+    const k = trKey_(r[0]);
+    if (!k || String(r[4]).trim() !== 'Yes') return;
+    TR_LANGS.forEach((l, c) => { const t = trKey_(r[1 + c]); if (t && t !== k) out[l][k] = t; });
+  });
+  return out;
 }
 
 /* ---------- Quotes, invoices and receipts ---------- */
@@ -2012,7 +2154,7 @@ function setup() {
     a.getRange(2, 9, 999, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(YESNO, true).build());
   }
   ScriptApp.getProjectTriggers()
-    .filter((t) => ['notifyClient', 'weeklySummary', 'newsletterJob', 'reminderJob', 'dailyJob', 'backupJob'].indexOf(t.getHandlerFunction()) > -1)
+    .filter((t) => ['notifyClient', 'weeklySummary', 'newsletterJob', 'reminderJob', 'dailyJob', 'backupJob', 'translateJob'].indexOf(t.getHandlerFunction()) > -1)
     .forEach((t) => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('notifyClient').forSpreadsheet(SpreadsheetApp.getActive()).onEdit().create();
   ScriptApp.newTrigger('weeklySummary').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(7).inTimezone('Africa/Nairobi').create();
@@ -2020,6 +2162,8 @@ function setup() {
   ScriptApp.newTrigger('dailyJob').timeBased().everyDays(1).atHour(9).inTimezone('Africa/Nairobi').create();
   try { refreshDashboard(); } catch (err) { console.error('dashboard: ' + err); }
   ScriptApp.newTrigger('backupJob').timeBased().onWeekDay(ScriptApp.WeekDay.SUNDAY).atHour(2).inTimezone('Africa/Nairobi').create();
+  translations_();
+  ScriptApp.newTrigger('translateJob').timeBased().everyHours(1).create();
 }
 
 // "Website" menu at the top of the sheet
@@ -2030,6 +2174,7 @@ function onOpen() {
     .addItem('Send me this month\'s money report so far', 'moneyReportNow')
     .addItem('Back up this sheet now', 'backupNow')
     .addItem('Refresh the dashboard', 'refreshDashboard')
+    .addItem('Translate new website text now', 'translateNow')
     .addSeparator()
     .addItem('Set up / repair (run after updating the script)', 'setup')
     .addToUi();
