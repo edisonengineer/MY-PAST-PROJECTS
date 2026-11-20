@@ -2380,3 +2380,9 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 .exp-recruit { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 0.92rem; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
 .exp-recruit svg { width: 14px; height: 14px; }
 .exp-recruit:hover { color: var(--text); }
+
+/* Project window (desktop): keep the photos in view at the top while the description scrolls,
+   instead of centring them in a column as tall as the text */
+@media (min-width: 861px) {
+    .modal-panel > .pm-media.has-images { position: sticky; top: 0; align-self: start; height: calc(100vh - 2 * clamp(12px, 3vw, 40px)); }
+}

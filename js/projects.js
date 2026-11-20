@@ -154,6 +154,47 @@ window.PROJECTS = [
         pdf: null
     },
     {
+        id: 'bench-vise',
+        title: 'Parallel-Guide Bench Vise',
+        subtitle: 'SolidWorks training project · Nexus CAD Studio',
+        category: 'engineering',
+        theme: 'violet',
+        icon: 'gear',
+        year: '2026',
+        cover: 'images/engineering/bench-vise/bench-vise-01-800.jpg',
+        gallery: [
+            'images/engineering/bench-vise/bench-vise-01.jpg',
+            'images/engineering/bench-vise/bench-vise-02.jpg',
+            'images/engineering/bench-vise/bench-vise-03.jpg',
+            'images/engineering/bench-vise/bench-vise-04.jpg'
+        ],
+        summary: 'A small parallel-guide bench vise I designed as the end-of-course SolidWorks project for Nexus CAD Studio trainees. A lead screw drives a sliding jaw along two guide rods, giving a 100 mm jaw that opens to 80 mm. Trainees model it part by part over ten sessions, from fully defined sketches to a working assembly and a drawing set.',
+        deliverables: ['10-session course brief', 'Reference 3D assembly', 'Part-by-part specifications'],
+        outcome: 'A complete course project trainees build part by part in 10 sessions',
+        points: [
+            '10 parts: cast-iron jaw and bearing blocks, serrated jaw plates, guide rods, lead screw, handle, retaining pin and two sheet-metal plates',
+            'M14 × 2.0 lead screw with a SolidWorks screw mate: one turn of the handle moves the jaw 2 mm',
+            '100 mm jaws that open from 0 to 80 mm, set by distance-mate limits',
+            '3 mm sheet-metal base plate with stiffening flanges, four slotted mounting holes and a flat pattern',
+            'Serrated jaw plates: a 15-groove linear pattern with countersunk M5 holes',
+            'Design change with Global Variables: the jaw width goes from 100 to 120 mm and everything rebuilds'
+        ],
+        meta: [
+            ['Type', 'SolidWorks training project'],
+            ['Course', '10 sessions'],
+            ['Size', 'About 253 mm closed, 333 mm open'],
+            ['Software', 'SOLIDWORKS']
+        ],
+        tags: ['SolidWorks', 'CAD training', 'Assembly & mates', 'Sheet metal'],
+        model: 'models/bench-vise.glb',
+        story: {
+            brief: 'Trainees finishing the SolidWorks course needed one project that brings everything together: clean sketches, solid features, editing, sheet metal and an assembly that actually moves. The vise is heavier on solid modelling than the course\'s sheet-metal toolbox project, so it builds speed with sketches, patterns and edits.',
+            approach: 'I wrote a brief with a fixed coordinate system and a numbered spec for each part (VS-01 to VS-10), so every trainee models a share of the parts and assembles the full vise from the agreed class files. The ten sessions move from blocks and revolved parts to sheet metal, equations and a design change, then mates with limits, the screw mate, an exploded view, a section view and A3 drawings with a bill of materials.',
+            result: 'The reference SolidWorks assembly shown here in 3D, with every part numbered as in the brief. Trainees check their own assembly against the brief\'s values: about 253 mm closed and 333 mm fully open, 2 mm of travel per handle turn, and no interference.'
+        },
+        pdf: null
+    },
+    {
         id: 'kirdi-fabrication',
         title: 'Sheet Metal Fabrication at KIRDI',
         subtitle: 'Industrial attachment · Jun – Aug 2025',

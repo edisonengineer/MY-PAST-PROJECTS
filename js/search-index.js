@@ -135,6 +135,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "project",
+  "t": "Parallel-Guide Bench Vise",
+  "d": "SolidWorks training project · Nexus CAD Studio",
+  "u": "projects/bench-vise.html",
+  "x": "A small parallel-guide bench vise I designed as the end-of-course SolidWorks project for Nexus CAD Studio trainees. A lead screw drives a sliding jaw along two guide rods, giving a 100 mm jaw that opens to 80 mm. Trainees model it part by part over ten sessions, from fully defined sketches to a working assembly and a drawing set. SolidWorks CAD training Assembly & mates Sheet metal 10 parts: cast-iron jaw and bearing blocks, serrated jaw plates, guide rods, lead screw, handle, retaining pin and two sheet-metal plates M14 × 2.0 lead screw with a SolidWorks screw mate: one turn of the handle moves the jaw 2 mm 100 mm jaws that open from 0 to 80 mm, set by distance-mate limits 3 mm sheet-metal base plate with stiffening flanges, four slotted mounting holes and a flat pattern Serrated jaw plates: a 15-groove linear pattern with countersunk M5 holes Design change with Global Variables: the jaw width goes from 100 to 120 mm and everything rebuilds SolidWorks training project 10 sessions About 253 mm closed, 333 mm open SOLIDWORKS engineering"
+ },
+ {
+  "k": "project",
   "t": "Sheet Metal Fabrication at KIRDI",
   "d": "Industrial attachment · Jun – Aug 2025",
   "u": "projects/kirdi-fabrication.html",
