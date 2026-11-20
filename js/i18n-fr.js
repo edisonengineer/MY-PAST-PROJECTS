@@ -1318,11 +1318,39 @@ window.I18N_FR = {
     "one-on-one or group": "en individuel ou en groupe",
     "See the full syllabus": "Voir le programme complet",
     "Full syllabus": "Programme complet",
-    "Sessions follow this order, at a pace that suits you. One-on-one courses can skip what you already know or go deeper on what you need.": "Les séances suivent cet ordre, à votre rythme. En cours individuel, on peut passer ce que vous savez déjà ou approfondir ce dont vous avez besoin."
+    "Sessions follow this order, at a pace that suits you. One-on-one courses can skip what you already know or go deeper on what you need.": "Les séances suivent cet ordre, à votre rythme. En cours individuel, on peut passer ce que vous savez déjà ou approfondir ce dont vous avez besoin.",
+    // Syllabus PDF by email
+    "Get the syllabus as a PDF": "Recevoir le programme en PDF",
+    "Sent to your inbox, to read later or share with your employer.": "Envoyé dans votre boîte mail, à lire plus tard ou à partager avec votre employeur.",
+    "Your name (optional)": "Votre nom (facultatif)",
+    "Your email": "Votre e-mail",
+    "Email me the PDF": "M'envoyer le PDF",
+    "Sent! Check your inbox.": "Envoyé ! Consultez votre boîte mail.",
+    "Or download it now:": "Ou téléchargez-le maintenant :",
+    // Training seat deposit
+    "Your reference:": "Votre référence :",
+    "Hold your seat with a deposit": "Réservez votre place avec un acompte",
+    "to hold your seat. It's part of your fee, not extra.": "pour réserver votre place. Il est déduit de vos frais, ce n'est pas un supplément.",
+    "Pay": "Payez",
+    "by M-Pesa": "par M-Pesa",
+    "M-Pesa → Lipa na M-Pesa →": "M-Pesa → Lipa na M-Pesa →",
+    "Buy Goods and Services": "Buy Goods and Services",
+    "Amount": "Montant",
+    ", then enter the M-Pesa code below": ", puis saisissez le code M-Pesa ci-dessous",
+    "M-Pesa confirmation code": "Code de confirmation M-Pesa",
+    "Send code": "Envoyer le code",
+    "I'll check the payment and email your receipt. Your seat is held.": "Je vérifie le paiement et vous envoie votre reçu par e-mail. Votre place est réservée.",
+    "Prefer to pay later? You can also pay when I confirm the schedule.": "Vous préférez payer plus tard ? Vous pouvez aussi payer quand je confirme le planning.",
+    "An M-Pesa code has 10 letters and numbers, e.g. SKL4ABCD12.": "Un code M-Pesa compte 10 lettres et chiffres, par ex. SKL4ABCD12.",
+    // Class countdown
+    "Starts today": "Commence aujourd'hui",
+    "Starts tomorrow": "Commence demain"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
 window.I18N_FR_PATTERNS = [
+    [/^Starts in (\d+) days$/, "Commence dans $1 jours"],
+    [/^(.+) syllabus \(PDF\)$/, "Programme $1 (PDF)"],
     [/^Session (\d+)$/, "Séance $1"],
     [/^([\d.]+(?:–[\d.]+)?) hours?$/, "$1 h"],
     [/^(\d+) topics$/, "$1 sujets"],

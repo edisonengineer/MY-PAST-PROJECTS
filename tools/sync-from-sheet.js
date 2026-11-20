@@ -324,7 +324,8 @@ async function siteLists(site) {
     }
     if (Array.isArray(site.faq)) out.faq = site.faq.filter((f) => f && f.q && f.a).map((f) => ({ q: String(f.q).trim(), a: String(f.a).trim() }));
     if (Array.isArray(site.recordings)) out.recordings = site.recordings.filter((r) => /^[\w-]{6,}$/.test(r.id)).map((r) => ({ id: r.id, title: r.title || 'Webinar recording' }));
-    if (site.training) out.training = { intake: String(site.training.intake || ''), price: Number(site.training.price) || null };
+    if (site.training) out.training = { intake: String(site.training.intake || ''), price: Number(site.training.price) || null,
+        ...(site.training.depositPct != null ? { depositPct: Math.max(0, Math.min(100, Number(site.training.depositPct) || 0)) } : {}) };
 
     const js = '/* Generated from the Google Sheet (Pricing, Certificates, Courses, Recordings, FAQ and Settings tabs)\n' +
         '   by tools/sync-from-sheet.js: edit the sheet, not this file. A list missing here keeps the website\'s built-in one. */\n' +
@@ -337,7 +338,7 @@ async function siteLists(site) {
         '    if (d.recordings && window.SITE_CONFIG) (window.SITE_CONFIG.webinar = window.SITE_CONFIG.webinar || {}).recordings = d.recordings;\n' +
         '    if (window.TRAINING) {\n' +
         '        if (d.courses) window.TRAINING.courses = d.courses;\n' +
-        '        if (d.training) { window.TRAINING.nextIntake = d.training.intake; if (d.training.price) window.TRAINING.price = d.training.price; }\n' +
+        '        if (d.training) { window.TRAINING.nextIntake = d.training.intake; if (d.training.price) window.TRAINING.price = d.training.price; if (d.training.depositPct != null) window.TRAINING.depositPct = d.training.depositPct; }\n' +
         '    }\n' +
         '})(' + JSON.stringify(out, null, 2) + ');\n';
     if (!fs.existsSync(abs(SHEET_DATA)) || fs.readFileSync(abs(SHEET_DATA), 'utf8') !== js) { fs.writeFileSync(abs(SHEET_DATA), js); console.log('wrote', SHEET_DATA); }

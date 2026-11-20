@@ -2468,3 +2468,47 @@ html:not([lang="en"]) .article-lang-note { display: block; }
     .syl-session summary::after { display: none; }
     .page-hero { padding: 24px 0 !important; }
 }
+
+/* Syllabus PDF by email (course pages) */
+.syl-get { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; margin: 0 0 24px; padding: 18px 22px; border-radius: var(--radius-sm); background: var(--navy); color: #fff; }
+.syl-get-copy { display: flex; align-items: center; gap: 14px; }
+.syl-get-icon { display: grid; place-items: center; flex: none; width: 46px; height: 46px; border-radius: 12px; background: var(--sun); color: var(--navy); }
+.syl-get-icon svg { width: 22px; height: 22px; }
+.syl-get h3 { margin: 0; font-family: var(--serif); font-size: 1.2rem; color: #fff; }
+.syl-get p { margin: 2px 0 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.78); }
+.syl-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.syl-form input[type="text"], .syl-form input[type="email"] { min-width: 0; width: 210px; padding: 11px 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.08); color: #fff; font: inherit; font-size: 0.92rem; }
+.syl-form input::placeholder { color: rgba(255, 255, 255, 0.6); }
+.syl-form .form-error { flex-basis: 100%; margin: 0; color: #ffd27a; font-size: 0.88rem; }
+.syl-done p { margin: 0; color: #fff; }
+.syl-done a { color: var(--sun); font-weight: 700; }
+@media (max-width: 760px) { .syl-form, .syl-form input[type="text"], .syl-form input[type="email"], .syl-form .btn { width: 100%; } }
+@media print { .syl-get { display: none !important; } }
+
+/* Seat deposit after reserving (training page) */
+.seat-ref { margin: 4px 0 14px; }
+.seat-ref strong { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.04em; }
+.seat-deposit { text-align: left; margin: 6px 0 18px; padding: 18px 20px; border-radius: var(--radius-sm); background: var(--cream); border: 1px solid var(--line); }
+.seat-deposit h4 { margin: 0 0 6px; font-family: var(--serif); font-size: 1.15rem; color: var(--heading); }
+.seat-deposit > p { margin: 0 0 10px; font-size: 0.94rem; }
+.seat-pay { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; }
+.seat-pay img { flex: none; border-radius: 10px; background: #fff; padding: 4px; }
+.seat-pay ol { margin: 0; padding-left: 20px; font-size: 0.92rem; display: grid; gap: 4px; }
+.seat-code-form label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; }
+.seat-code-row { display: flex; gap: 8px; }
+.seat-code-row input { flex: 1; min-width: 0; padding: 11px 14px; border-radius: 999px; border: 1px solid var(--line); font: inherit; letter-spacing: 0.08em; text-transform: uppercase; }
+.seat-code-row input::placeholder { text-transform: none; letter-spacing: normal; }
+.seat-paid { margin: 8px 0 0; color: #1a7f58; }
+.seat-later { margin: 10px 0 0 !important; font-size: 0.85rem; color: var(--muted); }
+@media (max-width: 520px) { .seat-pay { flex-direction: column; align-items: flex-start; } .seat-code-row { flex-direction: column; } }
+.course-seats .cs-countdown { display: inline-block; padding: 2px 9px; border-radius: 999px; background: rgba(255, 182, 39, 0.22); color: var(--heading); font-weight: 700; }
+.course-seats-hero .cs-countdown { background: var(--sun); color: var(--navy); }
+
+/* WhatsApp status image maker (share/) */
+.share-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(24px, 4vw, 56px); align-items: start; }
+.share-controls label { display: block; margin: 18px 0 6px; font-weight: 700; }
+.share-controls select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); font: inherit; background: var(--paper); color: var(--text); }
+.share-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.share-status, .share-tip { font-size: 0.9rem; color: var(--muted); }
+.share-preview canvas { width: 100%; height: auto; border-radius: 22px; box-shadow: var(--shadow-lg); display: block; }
+@media (max-width: 760px) { .share-grid { grid-template-columns: 1fr; } .share-preview { max-width: 340px; } }

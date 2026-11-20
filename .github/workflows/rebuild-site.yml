@@ -16,6 +16,7 @@ on:
       - 'js/packages.js'
       - 'js/config.js'
       - 'content/**'
+      - 'tools/build-syllabus-pdfs.js'
       - 'images/engineering/**'
       - 'images/graphic/**'
       - 'index.html'
@@ -59,6 +60,15 @@ jobs:
           fi
           cat /tmp/new-images.txt
           if [ -s /tmp/new-images.txt ]; then tr '\n' '\0' < /tmp/new-images.txt | xargs -0 python3 tools/optimize-images.py; fi
+
+      - name: Make the course syllabus PDFs (only when a syllabus changed)
+        run: |
+          set +e; node tools/build-syllabus-pdfs.js --check; code=$?; set -e
+          if [ "$code" = "2" ]; then
+            npm install -g playwright@1.56.1
+            npx -y playwright@1.56.1 install --with-deps chromium
+            node tools/build-syllabus-pdfs.js
+          elif [ "$code" != "0" ]; then exit "$code"; fi
 
       - name: Rebuild pages
         run: node tools/build-pages.js

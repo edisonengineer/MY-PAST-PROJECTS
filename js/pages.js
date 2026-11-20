@@ -210,6 +210,13 @@
             e.preventDefault();
             err.hidden = true;
             if (!check()) return;
+            // Seat reservations get their reference here, so a deposit can be paid against it straight away
+            const refField = form.querySelector('input[name="Reference"]');
+            if (refField && !refField.value) {
+                const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', d = new Date();
+                refField.value = 'TRN-' + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    Array.from({ length: 5 }, () => abc[Math.floor(Math.random() * abc.length)]).join('');
+            }
             const data = Object.fromEntries(new FormData(form).entries());
             if (form.botcheck && form.botcheck.checked) return;
             delete data.botcheck;
@@ -235,6 +242,16 @@
                         fetch(form.dataset.sheet, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'subscribe', email: data.email, name: data.name || '', source: 'Newsletter (' + location.pathname.split('/').filter(Boolean).slice(-2).join('/') + ')' }) }).catch(() => {});
                     }
                     form.hidden = true;
+                    const refOut = done.querySelector('[data-seat-ref]');
+                    if (refOut && refField) { refOut.textContent = refField.value; refOut.closest('.seat-ref').hidden = false; }
+                    const dep = done.querySelector('.seat-deposit');
+                    if (dep) {
+                        const sel = form.querySelector('#tr-course');
+                        const full = sel && sel.selectedOptions[0] && /waiting list/i.test(sel.selectedOptions[0].textContent);
+                        dep.hidden = !!full;
+                        dep.dataset.ref = refField ? refField.value : '';
+                        dep.dataset.name = data.name || '';
+                    }
                     done.hidden = false;
                     done.focus();
                     if (typeof window.track === 'function') window.track('training-seat-request');
@@ -304,6 +321,53 @@
     let sylWasOpen = null;
     window.addEventListener('beforeprint', () => { if (!sylSessions().length) return; if (!sylWasOpen) sylWasOpen = sylSessions().map((d) => d.open); sylSessions().forEach((d) => { d.open = true; }); });
     window.addEventListener('afterprint', () => { if (sylWasOpen) sylSessions().forEach((d, i) => { d.open = sylWasOpen[i]; }); sylWasOpen = null; });
+
+    // Seat deposit: the M-Pesa code goes to the Payments tab of the sheet against the seat's reference
+    document.querySelectorAll('.seat-deposit').forEach((dep) => {
+        const form = dep.querySelector('.seat-code-form'), err = form.querySelector('.form-error'), input = form.querySelector('input');
+        const t = (s) => (window.I18N ? window.I18N.t(s) : s);
+        input.addEventListener('input', () => { input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); err.hidden = true; });
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const code = input.value.trim();
+            if (!/^[A-Z0-9]{10}$/.test(code)) { err.textContent = t('An M-Pesa code has 10 letters and numbers, e.g. SKL4ABCD12.'); err.hidden = false; input.focus(); return; }
+            form.querySelector('button').disabled = true;
+            fetch(dep.dataset.sheet, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'payment', ref: dep.dataset.ref || '', code, amount: dep.dataset.deposit, payer: dep.dataset.name || '' }) })
+                .catch(() => { /* recorded on WhatsApp instead if needed */ })
+                .finally(() => {
+                    form.hidden = true;
+                    dep.querySelector('.seat-later').hidden = true;
+                    const ok = dep.querySelector('.seat-paid');
+                    ok.hidden = false;
+                    ok.focus();
+                    if (typeof window.track === 'function') window.track('training-deposit-code');
+                });
+        });
+    });
+
+    // "Get the syllabus as a PDF": the sheet emails the PDF and adds the person to Subscribers
+    document.querySelectorAll('form.syl-form').forEach((form) => {
+        const box = form.closest('.syl-get'), done = box.querySelector('.syl-done'), err = form.querySelector('.form-error');
+        const email = form.querySelector('input[type="email"]');
+        const t = (s) => (window.I18N ? window.I18N.t(s) : s);
+        email.addEventListener('input', () => { err.hidden = true; });
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (form.botcheck && form.botcheck.checked) return;
+            const v = email.value.trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) { err.textContent = t('Please enter a valid email address.'); err.hidden = false; email.focus(); return; }
+            form.querySelector('button[type="submit"]').disabled = true;
+            fetch(form.dataset.sheet, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'syllabus', id: form.dataset.id, course: form.dataset.course, email: v, name: form.name.value.trim() }) })
+                .catch(() => { /* the direct download link still works */ })
+                .finally(() => {
+                    form.hidden = true;
+                    box.querySelector('.syl-get-copy').hidden = true;
+                    done.hidden = false;
+                    done.focus();
+                    if (typeof window.track === 'function') window.track('syllabus-' + form.dataset.id);
+                });
+        });
+    });
 
     // ...and so does a link from a course page: training/?course=SolidWorks#reserve
     (function () {

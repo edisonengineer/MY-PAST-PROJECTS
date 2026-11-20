@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=30';
+const CSS_V = 'css/style.css?v=34';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
@@ -324,8 +324,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=30" data-sw="../js/i18n-sw.js?v=27" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
-    <script defer src="../js/pages.js?v=13"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=33" data-sw="../js/i18n-sw.js?v=30" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+    <script defer src="../js/pages.js?v=15"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=2" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -612,6 +612,9 @@ function syllabusSection(c) {
     const s = c.syllabus;
     if (!s) return '';
     const topics = s.sessions.reduce((a, x) => a + x.topics, 0);
+    const pdf = 'pdfs/syllabus/' + c.id + '.pdf';
+    const hasPdf = fs.existsSync(path.join(ROOT, pdf));
+    const api = CFG.trackerApi || CFG.reviewsApi;
     return `
         <section class="section syllabus" id="syllabus">
             <div class="container">
@@ -631,6 +634,24 @@ function syllabusSection(c) {
                     <li><strong>${topics}</strong><span>topics</span></li>
                     ${s.perDay ? `<li><strong>${esc(s.perDay)}</strong><span>per session</span></li>` : '<li><strong>Online or Nairobi</strong><span>one-on-one or group</span></li>'}
                 </ul>
+                ${hasPdf && api ? `<div class="syl-get">
+                    <div class="syl-get-copy">
+                        <span class="syl-get-icon">${icon('doc')}</span>
+                        <div><h3>Get the syllabus as a PDF</h3><p>Sent to your inbox, to read later or share with your employer.</p></div>
+                    </div>
+                    <form class="syl-form" data-sheet="${esc(api)}" data-id="${esc(c.id)}" data-course="${esc(c.name)}" novalidate>
+                        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                        <label class="sr-only" for="syl-name">Your name</label>
+                        <input id="syl-name" name="name" type="text" autocomplete="name" placeholder="Your name (optional)">
+                        <label class="sr-only" for="syl-email">Email</label>
+                        <input id="syl-email" name="email" type="email" autocomplete="email" placeholder="Your email" required>
+                        <button type="submit" class="btn btn-sun">Email me the PDF</button>
+                        <p class="form-error" role="alert" hidden></p>
+                    </form>
+                    <div class="syl-done" hidden tabindex="-1">
+                        <p><strong>Sent! Check your inbox.</strong> <span>Or download it now:</span> <a href="../${esc(pdf)}" target="_blank" rel="noopener" data-track="syllabus-download">${esc(c.name)} syllabus (PDF)</a></p>
+                    </div>
+                </div>` : ''}
                 <ol class="syl-list">
 ${s.sessions.map((x, i) => `                    <li>
                         <details class="syl-session"${i === 0 ? ' open' : ''}>
@@ -775,7 +796,40 @@ ${syllabusSection(c)}${studentSection(students, '../', T, 'Built by ' + esc(c.na
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n');
+}
+
+// After reserving a seat: pay a deposit by M-Pesa to hold it, then send the M-Pesa code (Payments tab of the sheet)
+function seatDeposit(T) {
+    const pay = CFG.payments || {};
+    const pct = Number(T.depositPct) || 0;
+    const amount = Math.round((Number(T.price) || 0) * pct / 100);
+    const api = CFG.trackerApi || CFG.reviewsApi;
+    if (!amount || !pay.mpesaTill || !api) return '';
+    const qr = pay.mpesaQr && fs.existsSync(path.join(ROOT, pay.mpesaQr)) ? '../' + pay.mpesaQr : '';
+    return `                        <div class="seat-deposit" data-deposit="${amount}" data-sheet="${esc(api)}">
+                            <h4>Hold your seat with a deposit</h4>
+                            <p>Pay <strong data-no-i18n>KES ${amount.toLocaleString('en-US')}</strong> by M-Pesa to hold your seat. It's part of your fee, not extra.</p>
+                            <div class="seat-pay">
+                                ${qr ? `<img src="${esc(qr)}" alt="M-Pesa till QR code" width="110" height="110" loading="lazy">` : ''}
+                                <ol>
+                                    <li>M-Pesa → Lipa na M-Pesa → <strong>Buy Goods and Services</strong></li>
+                                    <li>Till number <strong data-no-i18n>${esc(pay.mpesaTill)}</strong>${pay.mpesaName ? ` (<span data-no-i18n>${esc(pay.mpesaName)}</span>)` : ''}</li>
+                                    <li>Amount <strong data-no-i18n>KES ${amount.toLocaleString('en-US')}</strong>, then enter the M-Pesa code below</li>
+                                </ol>
+                            </div>
+                            <form class="seat-code-form" novalidate>
+                                <label for="seat-code">M-Pesa confirmation code</label>
+                                <div class="seat-code-row">
+                                    <input id="seat-code" name="code" type="text" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. SKL4ABCD12" required>
+                                    <button type="submit" class="btn btn-sun">Send code</button>
+                                </div>
+                                <p class="form-error" role="alert" hidden></p>
+                            </form>
+                            <p class="seat-paid" hidden tabindex="-1"><strong>Thank you!</strong> I'll check the payment and email your receipt. Your seat is held.</p>
+                            <p class="seat-later">Prefer to pay later? You can also pay when I confirm the schedule.</p>
+                        </div>
+`;
 }
 
 function trainingPage(T) {
@@ -880,6 +934,7 @@ ${T.faq.map(([q, a], i) => `                        <details class="faq-item"${i
                         <input type="hidden" name="access_key" value="${esc(key)}">
                         <input type="hidden" name="subject" value="New CAD training seat request">
                         <input type="hidden" name="from_name" value="Portfolio: CAD training">
+                        <input type="hidden" name="Reference" value="">
                         <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
                         <div class="field-grid">
                             <div class="field"><label for="tr-name">Full name <span class="req">*</span></label><input id="tr-name" name="name" type="text" autocomplete="name" required></div>
@@ -922,7 +977,8 @@ ${T.faq.map(([q, a], i) => `                        <details class="faq-item"${i
                         <span class="done-icon">${icon('check')}</span>
                         <h3>Seat request sent!</h3>
                         <p>Thank you. I'll get back to you within a day with the schedule and fees.</p>
-                        <a class="btn btn-outline" href="../index.html#webinar">Join the free webinar meanwhile</a>
+                        <p class="seat-ref" hidden>Your reference: <strong data-no-i18n data-seat-ref></strong></p>
+${seatDeposit(T)}                        <a class="btn btn-outline" href="../index.html#webinar">Join the free webinar meanwhile</a>
                     </div>
                 </div>
             </div>
@@ -940,7 +996,7 @@ ${downloadsBand('../')}
             </div>
         </section>
 ${newsletter()}    </main>
-` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=1"></script>\n    <script defer src="../js/discount.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n    <script defer src="../js/discount.js?v=1"></script>\n');
 }
 
 /* ---------- Free tools (calculators) ---------- */
@@ -1335,6 +1391,51 @@ function offerPage(c) {
 ` + footer();
 }
 
+/* ---------- WhatsApp status image maker (share/): for you, not linked from the site ----------
+   Makes a 1080 x 1920 image for the current campaign or any course's next class (js/share-image.js). */
+function sharePage(T, campaign) {
+    const url = SITE + 'share/';
+    const local = (f) => f && /^[\w][\w./-]*$/.test(f) && fs.existsSync(path.join(ROOT, f));
+    const data = {
+        site: SITE.replace(/^https:\/\//, '').replace(/\/$/, ''),
+        whatsapp: '+' + WHATSAPP.replace(/^(\d{3})(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3 $4'),
+        api: CFG.trackerApi || CFG.reviewsApi || '',
+        campaign: campaign ? { badge: campaign.badge, title: campaign.title, text: campaign.text, button: campaign.button, end: campaign.end, image: local(campaign.image) ? campaign.image : '' } : null,
+        courses: T.courses.map((c) => {
+            const p = courseProjects(c).find((x) => local(x.cover));
+            return { id: c.id, name: c.name, tagline: c.tagline, length: c.syllabusSummary || c.sessions || '', image: p ? p.cover : '' };
+        })
+    };
+    const html = head({ title: 'Make a WhatsApp status image | Nexus CAD Studio', description: 'Status images for campaigns and new classes.', url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Status image maker', url } })
+        .replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, nofollow">');
+    return html + '\n' + header('share') + `
+    <main id="main">
+        <section class="section share-maker">
+            <div class="container share-grid">
+                <div class="share-controls">
+                    <p class="kicker">For you</p>
+                    <h1 class="section-title">WhatsApp status <em>image</em>.</h1>
+                    <p>Pick what to promote. The image uses your current campaign from the Campaigns tab, or a course with its next class, start date and seats from the Courses tab.</p>
+                    <label for="share-pick">Promote</label>
+                    <select id="share-pick">
+                        ${data.campaign ? `<option value="campaign">Current campaign: ${esc(data.campaign.title || data.campaign.badge)}</option>` : ''}
+                        ${data.courses.map((c) => `<option value="${esc(c.id)}">${esc(c.name)} training</option>`).join('\n                        ')}
+                    </select>
+                    <div class="share-actions">
+                        <button type="button" class="btn btn-sun" id="share-download">${icon('doc')} Download image</button>
+                        <button type="button" class="btn btn-outline" id="share-native" hidden>${icon('whatsapp')} Share</button>
+                    </div>
+                    <p class="share-status" id="share-status" aria-live="polite"></p>
+                    <p class="share-tip">On your phone, tap <strong>Share</strong> and choose WhatsApp → My status. Bookmark this page: it always shows your latest campaign and class dates.</p>
+                </div>
+                <div class="share-preview"><canvas id="share-canvas" width="1080" height="1920" aria-label="Status image preview"></canvas></div>
+            </div>
+        </section>
+    </main>
+    <script>window.SHARE_DATA = ${JSON.stringify(data).replace(/</g, '\\u003c')};</script>
+` + footer('    <script defer src="../js/share-image.js?v=2"></script>\n');
+}
+
 function trackPage() {
     const url = SITE + 'track/';
     const description = 'Check the status of your Nexus CAD Studio project with the reference Edison sent you.';
@@ -1520,6 +1621,7 @@ fs.readdirSync(path.join(ROOT, 'training')).filter((f) => f !== 'index.html' && 
 write('track/index.html', trackPage());
 const CAMPAIGN = loadCampaign();
 write('offer/index.html', offerPage(CAMPAIGN));
+write('share/index.html', sharePage(TRAINING, CAMPAIGN));
 write('verify/index.html', verifyPage());
 write('cv/index.html', cvPage(loadCV()));
 write('calculators/index.html', calculatorsPage());
@@ -1571,7 +1673,7 @@ function wantedTranslations() {
         for (const m of h.matchAll(/\s(?:alt|title|placeholder|aria-label)="([^"]*)"/g)) add(m[1]);
         h.replace(/^[\s\S]*?<body[^>]*>/i, '').split(/<[^>]+>/).forEach(add);
     };
-    Object.values(written).forEach(fromHtml);
+    Object.keys(written).filter((f) => !f.startsWith('share/')).forEach((f) => fromHtml(written[f]));   // share/ is for you, in English
     fromHtml(updated);
     const deep = (v) => { if (typeof v === 'string') add(v); else if (v && typeof v === 'object') Object.values(v).forEach(deep); };
     const skip = new Set(['id', 'theme', 'icon', 'cover', 'gallery', 'pdf', 'model', 'href', 'category', 'file', 'verify', 'linkedin', 'phone', 'year', 'tone']);

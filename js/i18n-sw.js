@@ -1318,11 +1318,39 @@ window.I18N_SW = {
     "one-on-one or group": "mmoja mmoja au kikundi",
     "See the full syllabus": "Tazama mtaala kamili",
     "Full syllabus": "Mtaala kamili",
-    "Sessions follow this order, at a pace that suits you. One-on-one courses can skip what you already know or go deeper on what you need.": "Vipindi hufuata mpangilio huu, kwa kasi inayokufaa. Kozi za mmoja mmoja zinaweza kuruka unachojua tayari au kuingia ndani zaidi kwa unachohitaji."
+    "Sessions follow this order, at a pace that suits you. One-on-one courses can skip what you already know or go deeper on what you need.": "Vipindi hufuata mpangilio huu, kwa kasi inayokufaa. Kozi za mmoja mmoja zinaweza kuruka unachojua tayari au kuingia ndani zaidi kwa unachohitaji.",
+    // Syllabus PDF by email
+    "Get the syllabus as a PDF": "Pata mtaala kama PDF",
+    "Sent to your inbox, to read later or share with your employer.": "Hutumwa kwenye barua pepe yako, usome baadaye au umshirikishe mwajiri wako.",
+    "Your name (optional)": "Jina lako (si lazima)",
+    "Your email": "Barua pepe yako",
+    "Email me the PDF": "Nitumie PDF",
+    "Sent! Check your inbox.": "Imetumwa! Angalia barua pepe yako.",
+    "Or download it now:": "Au ipakue sasa:",
+    // Training seat deposit
+    "Your reference:": "Namba yako ya kumbukumbu:",
+    "Hold your seat with a deposit": "Shikilia nafasi yako kwa amana",
+    "to hold your seat. It's part of your fee, not extra.": "ili kushikilia nafasi yako. Ni sehemu ya ada yako, si ziada.",
+    "Pay": "Lipa",
+    "by M-Pesa": "kwa M-Pesa",
+    "M-Pesa → Lipa na M-Pesa →": "M-Pesa → Lipa na M-Pesa →",
+    "Buy Goods and Services": "Buy Goods and Services",
+    "Amount": "Kiasi",
+    ", then enter the M-Pesa code below": ", kisha weka namba ya uthibitisho ya M-Pesa hapa chini",
+    "M-Pesa confirmation code": "Namba ya uthibitisho ya M-Pesa",
+    "Send code": "Tuma namba",
+    "I'll check the payment and email your receipt. Your seat is held.": "Nitathibitisha malipo na kukutumia risiti kwa barua pepe. Nafasi yako imeshikiliwa.",
+    "Prefer to pay later? You can also pay when I confirm the schedule.": "Ungependa kulipa baadaye? Unaweza pia kulipa nitakapothibitisha ratiba.",
+    "An M-Pesa code has 10 letters and numbers, e.g. SKL4ABCD12.": "Namba ya M-Pesa ina herufi na tarakimu 10, mfano SKL4ABCD12.",
+    // Class countdown
+    "Starts today": "Inaanza leo",
+    "Starts tomorrow": "Inaanza kesho"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
 window.I18N_SW_PATTERNS = [
+    [/^Starts in (\d+) days$/, "Inaanza baada ya siku $1"],
+    [/^(.+) syllabus \(PDF\)$/, "Mtaala wa $1 (PDF)"],
     [/^Session (\d+)$/, "Kipindi cha $1"],
     [/^([\d.]+(?:–[\d.]+)?) hours?$/, "Saa $1"],
     [/^(\d+) topics$/, "Mada $1"],
