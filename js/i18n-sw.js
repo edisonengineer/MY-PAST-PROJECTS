@@ -1344,7 +1344,25 @@ window.I18N_SW = {
     "An M-Pesa code has 10 letters and numbers, e.g. SKL4ABCD12.": "Namba ya M-Pesa ina herufi na tarakimu 10, mfano SKL4ABCD12.",
     // Class countdown
     "Starts today": "Inaanza leo",
-    "Starts tomorrow": "Inaanza kesho"
+    "Starts tomorrow": "Inaanza kesho",
+    // Course comparison, course FAQ and booking
+    "Compare": "Linganisha",
+    "Which course is": "Kozi ipi",
+    "right for you": "inakufaa",
+    "Every course at a glance. Open a course for its full syllabus, session by session.": "Kozi zote kwa muhtasari. Fungua kozi kuona mtaala wake kamili, kipindi kwa kipindi.",
+    "Best for": "Inafaa kwa",
+    "Best for:": "Inafaa kwa:",
+    "Level:": "Kiwango:",
+    "Length:": "Muda:",
+    "Details": "Maelezo",
+    "Syllabus": "Mtaala",
+    "Not sure?": "Huna uhakika?",
+    "Tell me your goals": "Niambie malengo yako",
+    "and I'll suggest the right course.": "nami nitakupendekezea kozi inayofaa.",
+    "book a free call": "panga simu ya bure",
+    "Questions before you start?": "Una maswali kabla ya kuanza?",
+    "Another question?": "Swali jingine?",
+    "or": "au"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

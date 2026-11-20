@@ -620,7 +620,8 @@
 
             setLoading(submit, true);
             try {
-                await sendToWeb3Forms(Object.assign({ subject, from_name: f.dataset.from || 'Portfolio', replyto: data.email }, data));
+                const sheetOnly = f.dataset.track === 'newsletter-signup' && (CONFIG.trackerApi || CONFIG.reviewsApi);
+                if (!sheetOnly) await sendToWeb3Forms(Object.assign({ subject, from_name: f.dataset.from || 'Portfolio', replyto: data.email }, data));
                 const api = CONFIG.trackerApi || CONFIG.reviewsApi;
                 if (f.dataset.download && api) {
                     // Free download: the sheet emails a copy, counts it and adds them to the Subscribers tab

@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=36';
+const CSS_V = 'css/style.css?v=39';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
@@ -324,8 +324,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=34" data-sw="../js/i18n-sw.js?v=31" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
-    <script defer src="../js/pages.js?v=16"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=2" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
+${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=35" data-sw="../js/i18n-sw.js?v=32" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+    <script defer src="../js/pages.js?v=17"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=2" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -782,10 +782,24 @@ ${syllabusSection(c)}${studentSection(students, '../', T, 'Built by ' + esc(c.na
                     <h2>Ready to learn ${esc(c.name)}?</h2>
                     <p>Tell me when you're free and your level. I'll reply within a day with the schedule and fees.</p>
                 </div>
-                <a class="btn btn-sun" href="${esc(reserve)}">Reserve a seat ${icon('arrow')}</a>
+                <div class="band-actions">
+                    <a class="btn btn-sun" href="${esc(reserve)}">Reserve a seat ${icon('arrow')}</a>
+                    ${CFG.bookingUrl ? `<a class="btn btn-outline" href="${esc(CFG.bookingUrl)}" target="_blank" rel="noopener" data-track="course-book-call">${icon('calendar')} Book a free call</a>` : ''}
+                </div>
             </div>
         </section>
 
+${(T.faq || []).length ? `        <section class="section course-faq" id="faq">
+            <div class="container narrow">
+                <h2 class="train-h">Questions before you start?</h2>
+                <div class="faq-list">
+${T.faq.map(([q, a], i) => `                    <details class="faq-item"${i === 0 ? ' open' : ''}><summary>${esc(q)}</summary><div class="faq-body"><p>${esc(a)}</p></div></details>`).join('\n')}
+                </div>
+                <p class="course-faq-more">Another question? <a href="https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hi Edison, I have a question about the ' + c.name + ' training.')}" target="_blank" rel="noopener">Ask on WhatsApp</a>${CFG.bookingUrl ? ` or <a href="${esc(CFG.bookingUrl)}" target="_blank" rel="noopener">book a free call</a>` : ''}.</p>
+            </div>
+            <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: T.faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }).replace(/</g, '\\u003c')}</script>
+        </section>
+` : ''}
         <section class="section">
             <div class="container">
                 <h2 class="train-h">Other courses</h2>
@@ -795,6 +809,10 @@ ${syllabusSection(c)}${studentSection(students, '../', T, 'Built by ' + esc(c.na
                 </div>
             </div>
         </section>
+        <div class="course-bar" data-course-bar aria-hidden="true">
+            <div class="course-bar-text"><strong>${esc(c.name)}</strong><span>${esc(c.syllabusSummary || c.levels)}</span></div>
+            <a class="btn btn-sun" href="${esc(reserve)}" tabindex="-1" data-track="course-bar-reserve">Reserve a seat</a>
+        </div>
     </main>
 ` + footer('    <script defer src="../js/config.js?v=12"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n');
 }
@@ -886,6 +904,31 @@ function trainingPage(T) {
                 <div class="train-formats">
 ${T.formats.map((f) => `                    <article class="train-format"><span class="tfm-icon">${icon(f.icon)}</span><h3>${esc(f.title)}</h3><p>${esc(f.text)}</p></article>`).join('\n')}
                 </div>
+            </div>
+        </section>
+
+        <section class="section course-compare" id="compare">
+            <div class="container">
+                <header class="section-head center">
+                    <p class="kicker">Compare</p>
+                    <h2 class="section-title">Which course is <em>right for you</em>?</h2>
+                    <p class="section-lede">Every course at a glance. Open a course for its full syllabus, session by session.</p>
+                </header>
+                <div class="compare-wrap">
+                    <table class="compare-table">
+                        <thead><tr><th scope="col">Course</th><th scope="col">Best for</th><th scope="col">Level</th><th scope="col">Length</th><th scope="col"><span class="sr-only">Details</span></th></tr></thead>
+                        <tbody>
+${T.courses.map((c) => `                            <tr>
+                                <th scope="row"><a href="${esc(c.id)}.html" class="cmp-name"><span class="cmp-icon theme-${esc(c.theme)}">${icon(c.icon)}</span><span>${esc(c.name)}</span></a></th>
+                                <td><span class="cmp-label">Best for:</span> ${esc(c.tagline)}</td>
+                                <td><span class="cmp-label">Level:</span> ${esc(c.levels)}</td>
+                                <td><span class="cmp-label">Length:</span> ${c.syllabusSummary ? esc(c.syllabusSummary) : c.sessions ? esc(c.sessions) : 'Set to your goals'}</td>
+                                <td class="cmp-go"><a href="${esc(c.id)}.html${c.syllabus ? '#syllabus' : ''}">${c.syllabus ? 'Syllabus' : 'Details'} ${icon('arrow')}</a></td>
+                            </tr>`).join('\n')}
+                        </tbody>
+                    </table>
+                </div>
+                <p class="compare-note">Not sure? <a href="#reserve" data-course="Not sure yet">Tell me your goals</a> and I'll suggest the right course.</p>
             </div>
         </section>
 
