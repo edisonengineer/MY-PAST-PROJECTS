@@ -292,12 +292,36 @@ async function siteLists(site) {
         const fallback = [['coral', 'layout'], ['blue', 'cube'], ['violet', 'gear'], ['teal', 'hub'], ['green', 'cap'], ['rose', 'brush']];
         out.courses = site.courses.map((c, i) => {
             const st = pick(c.name, COURSE_STYLE) || fallback[i % fallback.length];
-            return { id: String(c.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'course-' + (i + 1), name: c.name, theme: st[0], icon: st[1], tagline: c.tagline || '', levels: c.levels || '', topics: c.topics || [] };
+            return { id: String(c.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'course-' + (i + 1), name: c.name, theme: st[0], icon: st[1], tagline: c.tagline || '', levels: c.levels || '', topics: c.topics || [],
+                sessions: String(c.sessions || '').slice(0, 80), projects: (c.projects || []).slice(0, 8).map((t) => String(t).slice(0, 120)) };
         });
     }
     // Free downloads: a website file (pdfs/...) or an https link (e.g. Google Drive)
     if (Array.isArray(site.downloads)) out.downloads = site.downloads.filter((d) => d && /^[a-z0-9][a-z0-9-]{0,80}$/.test(d.id) && d.title && /^https:\/\//.test(d.file))
         .map((d) => ({ id: d.id, title: String(d.title).trim().slice(0, 120), description: String(d.description || '').trim().slice(0, 300), file: d.file }));
+    // Student work: photos saved in images/students/<student-project>/ (only rows the student agreed to)
+    if (Array.isArray(site.students)) {
+        const keepDirs = new Set();
+        out.students = [];
+        for (const st of site.students) {
+            if (!st || !st.name || !st.project) continue;
+            const slug = (String(st.name) + '-' + String(st.project)).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'student';
+            const dir = 'images/students/' + slug;
+            const keep = new Set();
+            const photos = [];
+            let k = 1;
+            for (const ph of st.photos || []) {
+                const rel = dir + '/' + String(k).padStart(2, '0') + '-' + short(ph.id) + '-' + ph.v + '.jpg';
+                if (await photo(rel, { id: ph.id })) { photos.push(rel); keep.add(rel); k++; }
+            }
+            prune(dir, keep);
+            keepDirs.add(slug);
+            out.students.push({ name: String(st.name).slice(0, 40), course: String(st.course || '').slice(0, 80), project: String(st.project).slice(0, 80), quote: String(st.quote || '').slice(0, 400), photos });
+        }
+        if (fs.existsSync(abs('images/students'))) fs.readdirSync(abs('images/students')).forEach((d) => {
+            if (!keepDirs.has(d)) { fs.rmSync(abs('images/students/' + d), { recursive: true }); console.log('  - removed images/students/' + d); }
+        });
+    }
     if (Array.isArray(site.faq)) out.faq = site.faq.filter((f) => f && f.q && f.a).map((f) => ({ q: String(f.q).trim(), a: String(f.a).trim() }));
     if (Array.isArray(site.recordings)) out.recordings = site.recordings.filter((r) => /^[\w-]{6,}$/.test(r.id)).map((r) => ({ id: r.id, title: r.title || 'Webinar recording' }));
     if (site.training) out.training = { intake: String(site.training.intake || ''), price: Number(site.training.price) || null };
@@ -309,6 +333,7 @@ async function siteLists(site) {
         '    if (d.certificates) window.CERTIFICATES = d.certificates;\n' +
         '    if (d.faq) window.SITE_FAQ = d.faq;\n' +
         '    if (d.downloads) window.SITE_DOWNLOADS = d.downloads;\n' +
+        '    if (d.students) window.STUDENT_WORK = d.students;\n' +
         '    if (d.recordings && window.SITE_CONFIG) (window.SITE_CONFIG.webinar = window.SITE_CONFIG.webinar || {}).recordings = d.recordings;\n' +
         '    if (window.TRAINING) {\n' +
         '        if (d.courses) window.TRAINING.courses = d.courses;\n' +
@@ -316,7 +341,7 @@ async function siteLists(site) {
         '    }\n' +
         '})(' + JSON.stringify(out, null, 2) + ');\n';
     if (!fs.existsSync(abs(SHEET_DATA)) || fs.readFileSync(abs(SHEET_DATA), 'utf8') !== js) { fs.writeFileSync(abs(SHEET_DATA), js); console.log('wrote', SHEET_DATA); }
-    console.log('Lists: ' + ['packages', 'certificates', 'courses', 'recordings', 'faq', 'downloads'].map((k) => k + ' ' + (out[k] ? out[k].length : 'built-in')).join(', '));
+    console.log('Lists: ' + ['packages', 'certificates', 'courses', 'recordings', 'faq', 'downloads', 'students'].map((k) => k + ' ' + (out[k] ? out[k].length : 'built-in')).join(', '));
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });

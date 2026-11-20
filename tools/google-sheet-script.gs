@@ -427,7 +427,8 @@ function image_(q) {
     const ok = arts.some((r) => driveId_(r[5]) === q.id) ||
       certs_().getDataRange().getValues().slice(1).some((r) => shown_(r, 4) && driveId_(r[3]) === q.id) ||
       works_().getDataRange().getValues().slice(1).filter(published_).some((r) => photoIds_(r[8]).some((p) => p.id === q.id)) ||
-      campaignRows_(false).some((c) => driveId_(c.r[7]) === q.id);
+      campaignRows_(false).some((c) => driveId_(c.r[7]) === q.id) ||
+      studentsTab_().getDataRange().getValues().slice(1).filter(studentShown_).some((r) => photoIds_(r[3]).some((p) => p.id === q.id));
     if (ok) blob = DriveApp.getFileById(q.id).getBlob();
   }
   if (!blob) return { ok: false };
@@ -445,7 +446,8 @@ const YESNO = ['Yes', 'No'];
 const PRICING = 'Pricing', CERTS = 'Certificates', COURSES = 'Courses', RECORDINGS = 'Recordings';
 const PRHEAD = ['Package', 'Category', 'Price (KES)', 'Starting from?', 'Description', "What's included (one per line)", 'Icon', 'Show on website'];
 const CEHEAD = ['Certificate', 'Issued by', 'Credential link', 'Certificate image (Google Drive link, optional)', 'Show on website', 'Job portfolio (Yes/No; empty = Yes)'];
-const COHEAD = ['Course', 'Tagline', 'Level', 'Topics (one per line)', 'Show on website', 'Next class (e.g. Saturdays from 7 Nov 2026)', 'Seats (empty = no limit)'];
+const COHEAD = ['Course', 'Tagline', 'Level', 'Topics (one per line)', 'Show on website', 'Next class (e.g. Saturdays from 7 Nov 2026)', 'Seats (empty = no limit)',
+  'Sessions (e.g. 10 sessions of 2 hours)', 'Projects trainees build (one per line)'];
 const REHEAD = ['YouTube link', 'Title', 'Show on website'];
 const ICONS = ['cube', 'gear', 'chart', 'image', 'layout', 'brush', 'cap', 'hub', 'battery', 'leaf', 'pen', 'award', 'play', 'users', 'doc'];
 
@@ -501,7 +503,8 @@ function siteLists_() {
       portfolio: !/^no$/i.test(String(r[5] == null ? '' : r[5]).trim()) };
   });
   const courses = rows(courses_()).filter((r) => shown_(r, 4)).map((r) => ({
-    name: String(r[0]).trim(), tagline: String(r[1] || '').trim(), levels: String(r[2] || '').trim(), topics: lines_(r[3])
+    name: String(r[0]).trim(), tagline: String(r[1] || '').trim(), levels: String(r[2] || '').trim(), topics: lines_(r[3]),
+    sessions: String(r[7] || '').trim(), projects: lines_(r[8])
   }));
   const recordings = rows(recordings_()).filter((r) => shown_(r, 2) && ytId_(r[0])).map((r) => ({ id: ytId_(r[0]), title: String(r[1] || '').trim() || 'Webinar recording' }));
   const faq = rows(faq_()).filter((r) => shown_(r, 2) && String(r[1]).trim()).map((r) => ({ q: String(r[0]).trim(), a: String(r[1]).trim() }));
@@ -515,6 +518,7 @@ function siteLists_() {
     packages: packages.length ? packages : null,
     certificates: certificates.length ? certificates : null,
     courses: courses.length ? courses : null,
+    students: studentWork_(),
     recordings: recordings.length ? recordings : null,
     faq: faq.length ? faq : null,
     downloads: downloads,
@@ -597,6 +601,8 @@ function sheetStrings_() {
   rows(downloads_()).filter((r) => shown_(r, 3)).forEach((r) => { add(r[0], 'Free downloads'); add(r[1], 'Free downloads'); });
   const S = readSettings_();
   add(S.availability.text, 'Settings'); add(S.announcement.text, 'Settings');
+  studentsTab_().getDataRange().getValues().slice(1).filter(studentShown_).forEach((r) => { add(r[2], 'Student work'); add(r[4], 'Student work'); });
+  rows(courses_()).filter((r) => shown_(r, 4)).forEach((r) => { const w = 'Courses: ' + String(r[0]).trim(); add(r[7], w); lines_(r[8]).forEach((t) => add(t, w)); });
   campaignRows_(true).forEach((c) => {
     const w = 'Campaigns: ' + String(c.r[0]).trim();
     [c.r[4], c.r[5], c.r[6], c.r[8]].forEach((t) => add(t, w));
@@ -753,6 +759,24 @@ function translationsFor_(list) {
     const k = trKey_(r[0]);
     if (!want[k]) return;
     TR_LANGS.forEach((l, c) => { const t = trKey_(r[1 + c]); if (t && t !== k) out[l][k] = t; });
+  });
+  return out;
+}
+
+/* ---------- Student work: trainees' projects on the training page ----------
+   Only rows where the student agreed to be shown AND "Show on website" is not No appear.
+   Use first name and initial only (e.g. Brian O.). */
+const STUDENTS = 'Student work';
+const STHEAD = ['Student (first name and initial, e.g. Brian O.)', 'Course (as in the Courses tab)', 'Project (e.g. Bench vise)',
+  'Photos (Drive folder link, or Drive photo links one per line)', 'What the student said (optional)', 'Student agreed to be shown? (Yes/No)', 'Show on website'];
+const studentsTab_ = () => listTab_(STUDENTS, STHEAD, [], [220, 200, 200, 340, 380, 150, 110], [['F2:F500', YESNO]], 7);
+const studentShown_ = (r) => shown_(r, 6) && /^yes$/i.test(String(r[5]).trim());
+function studentWork_() {
+  const out = [];
+  studentsTab_().getDataRange().getValues().slice(1).filter(studentShown_).forEach((r) => {
+    let photos = [];
+    try { photos = photoIds_(r[3]).slice(0, 4); } catch (err) { /* not readable: shown without photos */ }
+    out.push({ name: trKey_(r[0]).slice(0, 40), course: trKey_(r[1]).slice(0, 80), project: trKey_(r[2]).slice(0, 80), quote: String(r[4] || '').trim().slice(0, 400), photos: photos });
   });
   return out;
 }
@@ -2225,6 +2249,8 @@ function setup() {
   downloads_();
   const co = courses_();
   if (!co.getRange(1, 6).getValue()) co.getRange(1, 6, 1, 2).setValues([[COHEAD[5], COHEAD[6]]]).setFontWeight('bold').setWrap(true);
+  if (!co.getRange(1, 8).getValue()) { co.getRange(1, 8, 1, 2).setValues([[COHEAD[7], COHEAD[8]]]).setFontWeight('bold').setWrap(true); co.setColumnWidth(8, 220); co.setColumnWidth(9, 320); }
+  studentsTab_();
   trainees_();
   settings_();
   subs_();

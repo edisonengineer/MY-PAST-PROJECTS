@@ -1287,11 +1287,31 @@ window.I18N_FR = {
     "Offers": "Offres",
     "No special offer right now.": "Aucune offre spéciale pour le moment.",
     "Seasonal offers on CAD projects and training appear here. In the meantime, see what I can do for you.": "Les offres saisonnières sur les projets et formations CAO apparaissent ici. En attendant, découvrez ce que je peux faire pour vous.",
-    "See all services": "Voir tous les services"
+    "See all services": "Voir tous les services",
+    // Training: course pages and student work
+    "Student work": "Travaux d'étudiants",
+    "Projects my trainees modelled in class, shared with their permission.": "Des projets modélisés en cours par mes stagiaires, partagés avec leur accord.",
+    "Course details": "Détails du cours",
+    "Course details & projects": "Détails du cours et projets",
+    "What you'll build": "Ce que vous allez réaliser",
+    "Level": "Niveau",
+    "Set to your goals": "Adaptée à vos objectifs",
+    "Hands-on from the first session": "Pratique dès la première séance",
+    "One-on-one, group or company": "Individuel, en groupe ou en entreprise",
+    "Tell me when you're free and your level. I'll reply within a day with the schedule and fees.": "Dites-moi quand vous êtes disponible et votre niveau. Je vous réponds sous un jour avec le planning et les tarifs.",
+    "Other courses": "Autres cours",
+    "All courses": "Tous les cours",
+    "Made by my": "Réalisé par mes",
+    "trainees": "stagiaires",
+    "3D model": "Modèle 3D"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
 window.I18N_FR_PATTERNS = [
+    [/^Built by (.+) trainees\.$/, "Réalisé par les stagiaires $1."],
+    [/^(.+) training\.$/, "Formation $1."],
+    [/^Ready to learn (.+)\?$/, "Prêt à apprendre $1 ?"],
+    [/^(.+) Training in Nairobi & Online \| Nexus CAD Studio$/, "Formation $1 à Nairobi et en ligne | Nexus CAD Studio"],
     [/^Step (\d+) of (\d+)$/, "Étape $1 sur $2"],
     [/^Please complete the (\d+) highlighted questions\.$/, "Veuillez compléter les $1 questions surlignées."],
     [/^(\d+) images$/, "$1 images"],

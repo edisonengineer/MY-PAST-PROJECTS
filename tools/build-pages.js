@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=27';
+const CSS_V = 'css/style.css?v=28';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
@@ -324,8 +324,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=28" data-sw="../js/i18n-sw.js?v=25" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
-    <script defer src="../js/pages.js?v=11"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=29" data-sw="../js/i18n-sw.js?v=26" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+    <script defer src="../js/pages.js?v=12"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -584,7 +584,132 @@ function loadTraining() {
     const ctx = { window: {} };
     vm.runInNewContext(read('content/courses.js'), ctx);
     vm.runInNewContext(read('js/sheet-data.js'), ctx);   // Courses tab + training settings from the Google Sheet
-    return ctx.window.TRAINING;
+    const T = ctx.window.TRAINING;
+    T.students = ctx.window.STUDENT_WORK || [];         // Student work tab (only students who agreed)
+    return T;
+}
+
+/* ---------- Training: student work and course pages ---------- */
+const sameCourse = (a, b) => String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+// Projects in js/projects.js / the Works tab that belong to a course (project field "course")
+const courseProjects = (c) => projects.filter((p) => p.course && sameCourse(p.course, c.name));
+
+function studentCard(st, prefix, T) {
+    const c = T.courses.find((x) => sameCourse(x.name, st.course));
+    const first = (st.photos || [])[0];
+    const thumb = first && fs.existsSync(path.join(ROOT, first.replace(/(\.\w+)$/, '-800$1'))) ? first.replace(/(\.\w+)$/, '-800$1') : first;
+    return `<figure class="student-card">
+                        ${first ? `<a class="student-media" href="${esc(prefix + first)}" target="_blank" rel="noopener"><img src="${esc(prefix + thumb)}" alt="${esc(st.project + ' by ' + st.name)}" loading="lazy" decoding="async">${st.photos.length > 1 ? `<span class="student-count">${icon('image')} ${st.photos.length}</span>` : ''}</a>` : ''}
+                        <figcaption>
+                            <strong>${esc(st.project)}</strong>
+                            <span class="student-by"><span data-no-i18n>${esc(st.name)}</span>${st.course ? ` · ${c ? `<a href="${esc(prefix + 'training/' + c.id + '.html')}">${esc(st.course)}</a>` : esc(st.course)}` : ''}</span>
+                            ${st.quote ? `<blockquote>${esc(st.quote)}</blockquote>` : ''}
+                        </figcaption>
+                    </figure>`;
+}
+function studentSection(list, prefix, T, title) {
+    if (!list.length) return '';
+    return `
+        <section class="section student-work" id="student-work">
+            <div class="container">
+                <header class="section-head center">
+                    <p class="kicker">Student work</p>
+                    <h2 class="section-title">${title}</h2>
+                    <p class="section-lede">Projects my trainees modelled in class, shared with their permission.</p>
+                </header>
+                <div class="student-grid">
+                    ${list.map((st) => studentCard(st, prefix, T)).join('\n                    ')}
+                </div>
+            </div>
+        </section>
+`;
+}
+
+function coursePage(c, T) {
+    const url = SITE + 'training/' + c.id + '.html';
+    const built = courseProjects(c);
+    const students = T.students.filter((st) => sameCourse(st.course, c.name));
+    const description = (c.name + ' training in Nairobi or online: ' + c.tagline + '. ' + c.levels + '.' + (c.sessions ? ' ' + c.sessions + '.' : '')).slice(0, 300);
+    const cover = built.find((p) => p.cover && fs.existsSync(path.join(ROOT, p.cover)));
+    const image = SITE + (cover ? cover.cover : 'og-image.jpg?v=2');
+    const kes = (n) => 'KES ' + Number(n).toLocaleString('en-US');
+    const reserve = 'index.html?course=' + encodeURIComponent(c.name) + '#reserve';
+    const jsonld = {
+        '@context': 'https://schema.org', '@type': 'Course', name: c.name + ' training', description, url,
+        provider: { '@type': 'Organization', name: 'Nexus CAD Studio', sameAs: SITE },
+        teaches: c.topics,
+        offers: { '@type': 'Offer', category: 'Paid', price: T.price, priceCurrency: 'KES', url: SITE + 'training/' + reserve },
+        hasCourseInstance: { '@type': 'CourseInstance', courseMode: ['Online', 'Onsite'], location: 'Nairobi, Kenya', ...(c.sessions ? { courseWorkload: c.sessions } : {}) }
+    };
+    const others = T.courses.filter((x) => x !== c).slice(0, 6);
+    return head({ title: c.name + ' Training in Nairobi & Online | Nexus CAD Studio', description, url, image, type: 'website', jsonld }) + '\n' + header('training') + `
+    <main id="main">
+        <section class="page-hero theme-${esc(c.theme)}">
+            <div class="container page-hero-inner">
+                <nav class="crumbs" aria-label="Breadcrumb">
+                    <a href="../index.html">Home</a><span aria-hidden="true">/</span><a href="index.html">CAD training</a><span aria-hidden="true">/</span><span aria-current="page">${esc(c.name)}</span>
+                </nav>
+                <p class="page-kicker">${esc(c.levels)}</p>
+                <h1 class="page-title">${esc(c.name)} training.</h1>
+                <p class="page-lede">${esc(c.tagline)}</p>
+                <p class="course-seats course-seats-hero" data-seats="${esc(c.name)}" hidden></p>
+                <div class="hero-actions page-actions">
+                    <a class="btn btn-sun btn-lg" href="${esc(reserve)}" data-track="course-reserve">Reserve a seat ${icon('arrow')}</a>
+                    <a class="btn btn-outline-light btn-lg" href="https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hi Edison, I would like to know more about the ' + c.name + ' training.')}" target="_blank" rel="noopener">${icon('whatsapp')} Ask on WhatsApp</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container course-detail">
+                <div class="train-facts">
+                    <div><span class="tf-label">Starting from</span><strong data-kes="${T.price}">${kes(T.price)}</strong><span class="tf-sub">per trainee</span></div>
+                    <div><span class="tf-label">Length</span><strong class="tf-text">${c.sessions ? esc(c.sessions) : 'Set to your goals'}</strong><span class="tf-sub">Evenings and weekends available</span></div>
+                    <div><span class="tf-label">Level</span><strong class="tf-text">${esc(c.levels)}</strong><span class="tf-sub">Hands-on from the first session</span></div>
+                    <div><span class="tf-label">Where</span><strong class="tf-text">Online or Nairobi</strong><span class="tf-sub">One-on-one, group or company</span></div>
+                </div>
+
+                <div class="course-cols">
+                    <div>
+                        <h2 class="train-h">What you'll learn</h2>
+                        <ul class="pm-points">
+${c.topics.map((t) => `                            <li>${icon('check')}<span>${esc(t)}</span></li>`).join('\n')}
+                        </ul>
+                    </div>
+                    ${built.length || (c.projects || []).length ? `<div>
+                        <h2 class="train-h">What you'll build</h2>
+                        ${built.map((p) => `<a class="course-build" href="../projects/${esc(p.id)}.html">
+                            ${p.cover && fs.existsSync(path.join(ROOT, p.cover)) ? `<img src="../${esc(p.cover)}" alt="" loading="lazy" decoding="async">` : `<span class="pc-cover-icon">${icon(p.icon || 'cube')}</span>`}
+                            <span><strong>${esc(p.title)}</strong><span>${esc(p.outcome || p.subtitle || '')}</span>${p.model ? `<span class="course-build-3d">${icon('cube')} 3D model</span>` : ''}</span>
+                        </a>`).join('\n                        ')}
+                        ${(c.projects || []).filter((t) => !built.some((p) => sameCourse(p.title, t))).length ? `<ul class="pm-points">${c.projects.filter((t) => !built.some((p) => sameCourse(p.title, t))).map((t) => `<li>${icon('cube')}<span>${esc(t)}</span></li>`).join('')}</ul>` : ''}
+                    </div>` : ''}
+                </div>
+            </div>
+        </section>
+${studentSection(students, '../', T, 'Built by ' + esc(c.name) + ' trainees.')}
+        <section class="section course-reserve-band">
+            <div class="container verify-cta">
+                <span class="verify-cta-icon">${icon('cap')}</span>
+                <div>
+                    <h2>Ready to learn ${esc(c.name)}?</h2>
+                    <p>Tell me when you're free and your level. I'll reply within a day with the schedule and fees.</p>
+                </div>
+                <a class="btn btn-sun" href="${esc(reserve)}">Reserve a seat ${icon('arrow')}</a>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <h2 class="train-h">Other courses</h2>
+                <div class="course-links">
+                    ${others.map((x) => `<a class="chip" href="${esc(x.id)}.html">${esc(x.name)}</a>`).join('\n                    ')}
+                    <a class="chip" href="index.html#courses">All courses</a>
+                </div>
+            </div>
+        </section>
+    </main>
+` + footer('    <script defer src="../js/config.js?v=11"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=1"></script>\n');
 }
 
 function trainingPage(T) {
@@ -663,12 +788,15 @@ ${T.courses.map((c) => `                    <article class="course-card theme-${
                         <ul class="pm-points">
 ${c.topics.map((t) => `                            <li>${icon('check')}<span>${esc(t)}</span></li>`).join('\n')}
                         </ul>
-                        <a class="btn btn-outline course-cta" href="#reserve" data-course="${esc(c.name)}">Reserve a seat ${icon('arrow')}</a>
+                        <div class="course-ctas">
+                            <a class="btn btn-outline course-cta" href="#reserve" data-course="${esc(c.name)}">Reserve a seat ${icon('arrow')}</a>
+                            <a class="course-more" href="${esc(c.id)}.html">Course details${courseProjects(c).length ? ' & projects' : ''} ${icon('arrow')}</a>
+                        </div>
                     </article>`).join('\n')}
                 </div>
             </div>
         </section>
-
+${studentSection(T.students, '../', T, 'Made by my <em>trainees</em>.')}
         <section class="section training-reserve" id="reserve">
             <div class="container reserve-grid">
                 <div class="reserve-intro">
@@ -1225,6 +1353,7 @@ ${[
         u('', '1.0', 'monthly'),
         u('blog/', '0.8', 'weekly'),
         u('training/', '0.8', 'monthly'),
+        ...loadTraining().courses.map((c) => u('training/' + c.id + '.html', '0.7', 'monthly')),
         u('cv/', '0.8', 'monthly'),
         u('calculators/', '0.9', 'monthly'),
         u('verify/', '0.4', 'yearly'),
@@ -1315,7 +1444,12 @@ const posts = loadPosts();
 projects.forEach((p, i) => write('projects/' + p.id + '.html', projectPage(p, i, projects)));
 posts.forEach((p, i) => write('blog/' + p.slug + '.html', postPage(p, i, posts)));
 write('blog/index.html', blogIndex(posts));
-write('training/index.html', trainingPage(loadTraining()));
+const TRAINING = loadTraining();
+write('training/index.html', trainingPage(TRAINING));
+// One page per course; pages for courses no longer in the sheet are removed
+const courseFiles = new Set(TRAINING.courses.map((c) => c.id + '.html'));
+TRAINING.courses.forEach((c) => write('training/' + c.id + '.html', coursePage(c, TRAINING)));
+fs.readdirSync(path.join(ROOT, 'training')).filter((f) => f !== 'index.html' && f.endsWith('.html') && !courseFiles.has(f)).forEach((f) => { fs.rmSync(path.join(ROOT, 'training', f)); console.log('  removed training/' + f); });
 write('track/index.html', trackPage());
 const CAMPAIGN = loadCampaign();
 write('offer/index.html', offerPage(CAMPAIGN));
