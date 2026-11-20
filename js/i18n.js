@@ -22,6 +22,7 @@
     const LANGS = ['en', 'fr', 'sw'];
     const DICT = { fr: window.I18N_FR || null, sw: window.I18N_SW || null };
     const PATTERNS = { fr: window.I18N_FR_PATTERNS || [], sw: window.I18N_SW_PATTERNS || [] };
+    const EXTRA = { fr: {}, sw: {} };   // live translations added by page scripts (I18N.add), e.g. the campaign popup
     const me = document.currentScript;
     const loading = {};
     // Downloads a dictionary the first time its language is needed
@@ -56,6 +57,7 @@
     function translate(en, to) {
         const key = norm(en);
         if (!key || to === 'en') return null;
+        if (EXTRA[to] && Object.prototype.hasOwnProperty.call(EXTRA[to], key)) return EXTRA[to][key];
         const dict = DICT[to] || {};
         if (Object.prototype.hasOwnProperty.call(dict, key)) return dict[key];
         for (const [re, rep] of PATTERNS[to] || []) {
@@ -166,7 +168,13 @@
     window.I18N = {
         get lang() { return lang; },
         set: (l) => setLang(l, true),
-        t: (en) => (lang === 'en' ? en : translate(en, lang) || en)
+        t: (en) => (lang === 'en' ? en : translate(en, lang) || en),
+        // Adds translations that arrived with live data ({ english: translation }); re-translates the page if needed
+        add: (l, map) => {
+            if (!EXTRA[l] || !map) return;
+            Object.keys(map).forEach((k) => { const key = norm(k); if (key && typeof map[k] === 'string') EXTRA[l][key] = map[k]; });
+            if (lang === l) apply();
+        }
     };
 
     document.addEventListener('click', (e) => {

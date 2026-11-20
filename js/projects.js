@@ -15,6 +15,9 @@
                to list images before you upload them.
      gallery   extra images shown inside the project (optional)
      summary   short paragraph
+     deliverables  what the client received, shown as chips on the card
+               (optional; falls back to tags), e.g. ['3D assembly', 'Renders']
+     outcome   one-line result shown on the card (optional)
      points    key highlights (bullet list)
      meta      label/value details shown in the project window
      tags      software / skills
@@ -49,6 +52,8 @@ window.PROJECTS = [
             'images/engineering/designathon/designathon-hub-04.jpg'
         ],
         summary: 'A team design for an accessible, all-season outdoor workspace on a university campus, powered by renewable energy. The entry earned an Honorable Mention at the Autodesk Designathon 2025.',
+        deliverables: ['Fusion 360 3D model', 'Structural simulation', 'Interactive 3D model'],
+        outcome: 'Honorable Mention at the Autodesk Designathon 2025',
         points: [
             '9.5 m × 9.5 m structure supported on 3 m concrete pillars',
             '6 m radius recycled-polycarbonate roof with integrated solar panels',
@@ -86,6 +91,8 @@ window.PROJECTS = [
             'images/engineering/designathon-2026/hygiene-station-05.jpg'
         ],
         summary: 'A compact, rapidly deployable hygiene station for communities displaced by natural disasters, designed for the Autodesk Designathon 2026 brief: a place to wash hands, get filtered water and keep up basic hygiene, all within a 2 m × 2 m footprint.',
+        deliverables: ['Full Fusion 360 assembly', 'Interactive 3D model', 'Design write-up'],
+        outcome: 'Every brief requirement met within a 2 m × 2 m footprint',
         points: [
             'Header tank fed by nine inverted 19-litre carboys, the water containers most easily available after a disaster',
             'Enclosed filtration chamber with three filter columns, visible through clear acrylic panels',
@@ -125,6 +132,8 @@ window.PROJECTS = [
             'images/engineering/coffee-machine/coffee-machine-05.jpg'
         ],
         summary: 'A compact countertop espresso machine designed from concept to photorealistic render: the full product, from the water supply and internal layout to the brew group and drip tray, modelled as one assembly in Fusion 360.',
+        deliverables: ['Full 3D assembly', 'Section views', 'Photorealistic renders'],
+        outcome: 'Taken from concept to photorealistic render in Fusion 360',
         points: [
             'Twin inverted-bottle water reservoirs that feed the machine from the top',
             'Clear acrylic side panel that shows the twin filter cartridges and internal layout',
@@ -160,6 +169,8 @@ window.PROJECTS = [
             'images/engineering/kirdi/kirdi-sheet-metal-04.jpg'
         ],
         summary: 'A 12-week attachment at the Kenya Industrial Research and Development Institute’s Engineering Research and ICT Department, designing and fabricating real components for projects that support Kenyan MSMEs.',
+        deliverables: ['3D models & 2D drawings', 'Sheet-metal parts', 'Machined components'],
+        outcome: 'Prototype parts fabricated to precise tolerances',
         points: [
             'Designed and fabricated jiko stove components from sheet metal, applying DFM principles and manufacturing tolerances',
             'Helped design and build a poultry de-feathering machine, from concept to component iteration and assembly',
@@ -192,6 +203,8 @@ window.PROJECTS = [
             'images/engineering/final-year-project/fyp-05.jpg'
         ],
         summary: 'Predicting the forming limit curve of additively manufactured AlSi10Mg sheet through a coupled GTN–Hill’48 simulation of the Nakajima test, so that sheet-metal parts can be checked for failure before they are made.',
+        deliverables: ['Calibrated GTN–Hill’48 FE model', 'Lab tensile test data', 'Forming limit curve'],
+        outcome: 'Sheet-metal failure predicted before parts are made',
         points: [
             'Coupled damage mechanics (GTN) with Hill’48 anisotropic plasticity',
             'Heat-treated and tensile-tested AlSi10Mg specimens in the lab to calibrate the GTN–Hill’48 model',
@@ -222,6 +235,8 @@ window.PROJECTS = [
             'images/engineering/ev-battery/ev-battery-cooling-03.jpg'
         ],
         summary: 'Designed and simulated a complete electric-vehicle battery cooling pack for a private client, covering 3D modelling, assembly and thermal performance analysis.',
+        deliverables: ['3D models & assemblies', 'Thermal simulation results', 'Iterated cooling layout'],
+        outcome: 'A complete design package delivered to the client',
         points: [
             'Full 3D model and assembly of the battery cooling pack',
             'Thermal simulation to keep the battery cells within their required operating temperature range',
@@ -254,6 +269,8 @@ window.PROJECTS = [
             'images/graphic/illustrator/web/APPRECIATION-06-06.jpg'
         ],
         summary: 'A series of appreciation certificates recognising ministries for their contributions to the church’s Camp Meeting fundraising goal.',
+        deliverables: ['Personalised certificate series'],
+        outcome: 'One consistent design across the whole series',
         points: [
             'Consistent layout across the whole series, personalised per recipient',
             'Bold typography with a warm, celebratory colour palette'
@@ -279,6 +296,7 @@ window.PROJECTS = [
             'images/graphic/mazingira/mazingira-day-02.jpg'
         ],
         summary: 'Campaign posters for Mazingira Day, encouraging care for the environment with clear messaging and vibrant visuals.',
+        deliverables: ['Poster series for print & social media'],
         points: [
             'Poster series designed for print and social media'
         ],
@@ -301,6 +319,7 @@ window.PROJECTS = [
             'images/graphic/illustrator/web/Untitled-1-01.jpg'
         ],
         summary: 'A bold, widescreen event graphic announcing a daily evening sermon series.',
+        deliverables: ['Event graphic'],
         points: [
             'Gradient headline typography paired with photography'
         ],

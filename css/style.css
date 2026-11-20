@@ -2331,3 +2331,52 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 [data-theme="dark"] .discount-msg.is-good, [data-theme="dark"] .tq-table .tq-disc td, [data-theme="dark"] .tp-list .is-confirmed em, [data-theme="dark"] .dl-done p { color: #6ee7a8; }
 [data-theme="dark"] .discount-msg.is-bad, [data-theme="dark"] .tp-list .is-declined em { color: #ff9a85; }
 [data-theme="dark"] .tp-list em { color: #ffc95c; }
+
+/* ---------- Campaign popup (Campaigns tab of the Google Sheet; js/promo.js) ---------- */
+.promo-panel {
+    width: min(860px, 100%);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    border-radius: 24px;
+}
+.promo-panel.no-image { width: min(520px, 100%); grid-template-columns: 1fr; }
+.promo-media { background: var(--navy); display: flex; align-items: center; justify-content: center; min-height: 100%; }
+.promo-media img { width: 100%; height: 100%; max-height: 80vh; object-fit: cover; display: block; }
+.promo-body { padding: clamp(28px, 4vw, 44px); display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+.promo-badge {
+    align-self: flex-start; margin: 0;
+    padding: 6px 14px; border-radius: 999px;
+    background: var(--sun); color: var(--navy);
+    font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.promo-title { font-family: 'Fraunces', Georgia, serif; font-size: clamp(1.6rem, 3.6vw, 2.3rem); line-height: 1.15; margin: 0; padding-right: 36px; }
+.promo-text { margin: 0; color: var(--muted); font-size: 1.02rem; line-height: 1.6; }
+.promo-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 10px; }
+.promo-later { background: none; border: 0; padding: 6px 2px; color: var(--muted); font: inherit; font-size: 0.92rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.promo-later:hover { color: var(--text); }
+@media (max-width: 680px) {
+    .promo-modal { align-items: flex-end; padding: 0; }
+    .promo-panel { grid-template-columns: 1fr; border-radius: 22px 22px 0 0; max-height: 92vh; }
+    .promo-media img { max-height: 42vh; }
+    .promo-actions .btn { flex: 1 1 auto; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { .promo-panel { transition: none; } }
+
+/* ---------- Offer page (offer/index.html, from the Campaigns tab) ---------- */
+.offer-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 48px); align-items: center; }
+.offer-grid.no-image { grid-template-columns: 1fr; }
+.offer-poster { width: 100%; border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+.offer-copy p { font-size: 1.1rem; line-height: 1.7; margin: 0 0 14px; }
+.offer-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+@media (max-width: 760px) { .offer-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Project cards: outcome and deliverables ---------- */
+.pc-outcome { display: flex; align-items: flex-start; gap: 8px; margin: 2px 0 0; font-size: 0.92rem; font-weight: 600; color: var(--text); line-height: 1.4; }
+.pc-outcome svg { flex: none; width: 18px; height: 18px; margin-top: 1px; color: #1a9e6f; }
+.pc-deliv-label { margin: 4px 0 -2px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.chip-deliv { background: rgba(255, 182, 39, 0.16); border-color: rgba(255, 182, 39, 0.45); }
+.pm-outcome { margin: 10px 0; font-size: 1rem; }
+.pm-deliv { margin: 12px 0 6px; }
+.pm-deliv-h { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.exp-recruit { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 0.92rem; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.exp-recruit svg { width: 14px; height: 14px; }
+.exp-recruit:hover { color: var(--text); }

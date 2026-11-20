@@ -116,7 +116,9 @@
     const label = { engineering: 'Engineering', graphic: 'Graphic Design' };
 
     function cardHTML(p) {
-        const tags = (p.tags || []).slice(0, 3).map((t) => '<li class="chip">' + esc(t) + '</li>').join('');
+        // What the client received (falls back to the software tags) and the one-line result
+        const deliv = (p.deliverables || []).length;
+        const tags = (deliv ? p.deliverables : p.tags || []).slice(0, 3).map((t) => '<li class="chip' + (deliv ? ' chip-deliv' : '') + '">' + esc(t) + '</li>').join('');
         return (
             '<article class="project-card theme-' + esc(p.theme || 'blue') + (p.featured ? ' is-featured' : '') + '" data-category="' + esc(p.category) + '"' + (p.model ? ' data-3d' : '') + ' data-reveal>' +
                 '<div class="pc-media">' +
@@ -132,6 +134,8 @@
                 '<div class="pc-body">' +
                     '<p class="pc-sub">' + esc(p.subtitle) + '</p>' +
                     '<h3><button class="pc-open" data-id="' + esc(p.id) + '">' + esc(p.title) + '</button></h3>' +
+                    (p.outcome ? '<p class="pc-outcome">' + icon('check') + '<span>' + esc(p.outcome) + '</span></p>' : '') +
+                    (deliv ? '<p class="pc-deliv-label">Delivered</p>' : '') +
                     '<ul class="chip-row">' + tags + '</ul>' +
                 '</div>' +
             '</article>'
@@ -339,6 +343,7 @@
     const pm = {
         media: $('#pm-media'), cat: $('#pm-cat'), title: $('#pm-title'), sub: $('#pm-sub'),
         summary: $('#pm-summary'), points: $('#pm-points'), meta: $('#pm-meta'),
+        outcome: $('#pm-outcome'), deliv: $('#pm-deliv'),
         tags: $('#pm-tags'), actions: $('#pm-actions')
     };
     let modalReturn = null;
@@ -363,6 +368,11 @@
         pm.title.textContent = p.title;
         pm.sub.textContent = p.subtitle || '';
         pm.summary.textContent = p.summary || '';
+        if (pm.outcome) { pm.outcome.hidden = !p.outcome; pm.outcome.innerHTML = p.outcome ? icon('check') + '<span>' + esc(p.outcome) + '</span>' : ''; }
+        if (pm.deliv) {
+            pm.deliv.hidden = !(p.deliverables || []).length;
+            $('ul', pm.deliv).innerHTML = (p.deliverables || []).map((t) => '<li class="chip chip-deliv">' + esc(t) + '</li>').join('');
+        }
         pm.points.innerHTML = (p.points || []).map((t) => '<li>' + icon('check') + '<span>' + esc(t) + '</span></li>').join('');
         pm.meta.innerHTML = (p.meta || []).map((m) => '<div><dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd></div>').join('');
         pm.tags.innerHTML = (p.tags || []).map((t) => '<li class="chip">' + esc(t) + '</li>').join('');

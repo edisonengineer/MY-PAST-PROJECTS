@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=25';
+const CSS_V = 'css/style.css?v=26';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
@@ -146,7 +146,34 @@ let index = read('index.html');   // the FAQ may be replaced from the Google She
 const indexOriginal = index;
 const SPRITE = index.match(/<svg width="0" height="0"[\s\S]*?<\/defs>\s*<\/svg>/)[0];
 
-function head({ title, description, url, image, type, jsonld }) {
+// Pixel size of a site image (JPEG or PNG), so link previews can lay out the card before the image loads
+function imageSize(abs) {
+    try {
+        const b = fs.readFileSync(abs);
+        if (b[0] === 0x89 && b.toString('ascii', 1, 4) === 'PNG') return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+        if (b[0] === 0xff && b[1] === 0xd8) {
+            for (let i = 2; i < b.length - 9;) {
+                if (b[i] !== 0xff) { i++; continue; }
+                const m = b[i + 1], len = b.readUInt16BE(i + 2);
+                if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return { w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+                i += 2 + len;
+            }
+        }
+    } catch (e) { /* not a readable image */ }
+    return null;
+}
+function imageMeta(image, alt) {
+    const local = String(image).startsWith(SITE) ? path.join(ROOT, String(image).slice(SITE.length).split('?')[0]) : '';
+    const size = local ? imageSize(local) : null;
+    return (size ? `
+    <meta property="og:image:width" content="${size.w}">
+    <meta property="og:image:height" content="${size.h}">` : '') + `
+    <meta property="og:image:alt" content="${esc(alt)}">
+    <meta name="twitter:image:alt" content="${esc(alt)}">`;
+}
+
+function head({ title, description, url, image, type, jsonld, article }) {
+    const lang = (l) => url + (url.includes('?') ? '&' : '?') + 'lang=' + l;
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -158,13 +185,23 @@ function head({ title, description, url, image, type, jsonld }) {
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#0e1a3a">
     <link rel="canonical" href="${url}">
+    <link rel="alternate" hreflang="en" href="${url}">
+    <link rel="alternate" hreflang="fr" href="${lang('fr')}">
+    <link rel="alternate" hreflang="sw" href="${lang('sw')}">
+    <link rel="alternate" hreflang="x-default" href="${url}">
     <meta property="og:type" content="${type}">
-    <meta property="og:site_name" content="Edison Ochieng">
+    <meta property="og:site_name" content="Nexus CAD Studio">
     <meta property="og:title" content="${esc(title)}">
     <meta property="og:description" content="${esc(description)}">
     <meta property="og:url" content="${url}">
-    <meta property="og:image" content="${image}">
+    <meta property="og:image" content="${image}">${imageMeta(image, title)}
     <meta property="og:locale" content="en_KE">
+    <meta property="og:locale:alternate" content="fr_FR">
+    <meta property="og:locale:alternate" content="sw_KE">${article ? `
+    <meta property="article:published_time" content="${esc(article.published)}">
+    <meta property="article:modified_time" content="${esc(article.modified || article.published)}">
+    <meta property="article:author" content="Edison Ochieng">${(article.tags || []).map((t) => `
+    <meta property="article:tag" content="${esc(t)}">`).join('')}` : ''}
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${esc(title)}">
     <meta name="twitter:description" content="${esc(description)}">
@@ -252,7 +289,7 @@ function footer(extraScripts = '') {
                     <span class="brand-mark">EO</span>
                     <span class="brand-text">Edison Ochieng<small>Nexus CAD Studio</small></span>
                 </a>
-                <p>Mechanical design engineer and graphic designer based in Nairobi, Kenya.</p>
+                <p>CAD design, FEA simulation and CAD training from Nairobi, Kenya.</p>
             </div>
             <nav class="footer-col" aria-label="Footer">
                 <h2>Explore</h2>
@@ -273,6 +310,7 @@ function footer(extraScripts = '') {
                 <a href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener">WhatsApp</a>
                 <a href="../index.html#contact" class="js-email" data-user="edisonochieng24" data-domain="gmail.com">Email</a>
                 <a href="https://www.linkedin.com/in/edison-ochieng-870a37229/" target="_blank" rel="noopener">LinkedIn</a>
+                <a href="https://edisonengineer.github.io/" target="_blank" rel="noopener" class="footer-recruit">Job portfolio (for recruiters)</a>
                 <a href="https://www.instagram.com/e_d_i_s_o_n_engineer/" target="_blank" rel="noopener">Instagram</a>
             </div>
         </div>
@@ -286,7 +324,7 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=5" data-fr="../js/i18n-fr.js?v=26" data-sw="../js/i18n-sw.js?v=23" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=28" data-sw="../js/i18n-sw.js?v=25" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
     <script defer src="../js/pages.js?v=11"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
@@ -356,7 +394,10 @@ ${imgs.map((src, k) => {
                 <div class="case-body">
                     <h2 class="case-h">Overview</h2>
                     <p class="case-summary">${esc(p.summary)}</p>
-
+${p.outcome ? `                    <p class="pc-outcome pm-outcome">${icon('check')}<span>${esc(p.outcome)}</span></p>
+` : ''}${(p.deliverables || []).length ? `                    <h2 class="case-h">What the client received</h2>
+                    <ul class="chip-row">${p.deliverables.map((t) => `<li class="chip chip-deliv">${esc(t)}</li>`).join('')}</ul>
+` : ''}
                     <h2 class="case-h">Highlights</h2>
                     <ul class="pm-points">
 ${(p.points || []).map((t) => `                        <li>${icon('check')}<span>${esc(t)}</span></li>`).join('\n')}
@@ -454,7 +495,7 @@ function postPage(post, i, all) {
         author: { '@type': 'Person', name: 'Edison Ochieng', url: SITE },
         publisher: { '@type': 'Organization', name: 'Nexus CAD Studio' }
     };
-    return head({ title: post.title + ' | CAD Tips', description: post.description, url, image, type: 'article', jsonld }) + '\n' + header('blog') + `
+    return head({ title: post.title + ' | CAD Tips', description: post.description, url, image, type: 'article', jsonld, article: { published: post.date, modified: post.updated || post.date, tags: post.tags } }) + '\n' + header('blog') + `
     <main id="main">
         <section class="page-hero theme-${esc(post.theme || 'blue')}">
             <div class="container page-hero-inner narrow">
@@ -1035,6 +1076,70 @@ function reviewLinkPage() {
 }
 
 /* ---------- Client project tracker ---------- */
+/* ---------- Shareable offer page: the current campaign from the Campaigns tab (content/campaign.json) ----------
+   offer/ always exists, so a link shared earlier never breaks: between campaigns it points
+   visitors to the services instead. Its link preview (WhatsApp, LinkedIn) shows the campaign. */
+function loadCampaign() {
+    try { return JSON.parse(read('content/campaign.json')); } catch (e) { return null; }
+}
+function offerPage(c) {
+    const url = SITE + 'offer/';
+    const local = (f) => /^[\w][\w./-]*$/.test(f || '') && fs.existsSync(path.join(ROOT, f));
+    const image = c && c.image ? (local(c.image) ? SITE + c.image : /^https:\/\//.test(c.image) ? c.image : '') : '';
+    const href = (l) => {
+        if (!l || l === '#') return '../index.html#brief';
+        if (l === 'whatsapp') return 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('Hi Edison, I saw "' + c.title + '" on your website and would like to know more.');
+        if (/^https:\/\//i.test(l)) return l;
+        if (/^#open:/.test(l)) return '../index.html';
+        if (l[0] === '#') return '../index.html' + l;
+        return '../' + l;
+    };
+    const ends = c && c.end ? 'Offer ends ' + fmtDate(c.end) : '';
+    const title = c ? (c.badge && c.title ? c.badge + ': ' + c.title : c.title || c.badge) + ' | Nexus CAD Studio' : 'Offers | Nexus CAD Studio';
+    const firstLine = c ? String(c.text || '').split(/\n+/)[0] : '';
+    const description = c ? (firstLine.length > 160 ? firstLine.slice(0, 157).replace(/\s+\S*$/, '') + '…' : firstLine || 'A limited-time offer from Nexus CAD Studio, Nairobi.')
+        : 'Current offers on CAD design, simulation and CAD training from Nexus CAD Studio, Nairobi.';
+    const jsonld = c ? {
+        '@context': 'https://schema.org', '@type': 'Offer', name: c.title || c.badge, description, url,
+        ...(image ? { image } : {}), ...(c.start ? { validFrom: c.start } : {}), ...(c.end ? { validThrough: c.end } : {}),
+        seller: { '@type': 'Organization', name: 'Nexus CAD Studio', url: SITE }
+    } : { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Offers', url, description };
+    let html = head({ title, description, url, image: image || SITE + 'og-image.jpg?v=2', type: 'website', jsonld });
+    if (!c) html = html.replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, follow">');
+    const L = c && href(c.link);
+    const ext = L && /^https:/.test(L) ? ' target="_blank" rel="noopener"' : '';
+    return html + '\n' + header('offer') + `
+    <main id="main">
+        <section class="page-hero theme-coral">
+            <div class="container page-hero-inner narrow">
+                <nav class="crumbs" aria-label="Breadcrumb">
+                    <a href="../index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">Offers</span>
+                </nav>
+                ${c ? `${c.badge ? `<p class="page-kicker">${esc(c.badge)}</p>` : ''}
+                <h1 class="page-title">${esc(c.title || c.badge)}</h1>
+                ${ends ? `<p class="page-lede">${esc(ends)}</p>` : ''}` : `<p class="page-kicker">Offers</p>
+                <h1 class="page-title">No special offer right now.</h1>
+                <p class="page-lede">Seasonal offers on CAD projects and training appear here. In the meantime, see what I can do for you.</p>`}
+            </div>
+        </section>
+
+        <section class="section offer-wrap">
+            <div class="container narrow offer-grid${c && image ? '' : ' no-image'}">
+                ${c && image ? `<img class="offer-poster" src="${esc(local(c.image) ? '../' + c.image : c.image)}" alt="${esc(c.title || c.badge)}" decoding="async">` : ''}
+                <div class="offer-copy">
+                    ${c ? String(c.text || '').split(/\n+/).map((t) => t.trim()).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join('\n                    ') : ''}
+                    <div class="offer-actions">
+                        ${c && c.button ? `<a class="btn btn-sun btn-lg" href="${esc(L)}"${ext} data-track="offer-click">${esc(c.button)} ${icon('arrow')}</a>` : ''}
+                        <a class="btn ${c && c.button ? 'btn-ghost' : 'btn-sun btn-lg'}" href="../index.html#services">See all services</a>
+                        <a class="btn btn-ghost" href="../training/index.html">CAD training</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+` + footer();
+}
+
 function trackPage() {
     const url = SITE + 'track/';
     const description = 'Check the status of your Nexus CAD Studio project with the reference Edison sent you.';
@@ -1123,6 +1228,7 @@ ${[
         u('cv/', '0.8', 'monthly'),
         u('calculators/', '0.9', 'monthly'),
         u('verify/', '0.4', 'yearly'),
+        ...(loadCampaign() ? [u('offer/', '0.6', 'weekly')] : []),
         ...posts.map((p) => u('blog/' + p.slug + '.html', '0.7', 'yearly', p.updated || p.date)),
         ...projects.map((p) => u('projects/' + p.id + '.html', '0.7', 'yearly'))
     ].join('\n')}
@@ -1211,6 +1317,8 @@ posts.forEach((p, i) => write('blog/' + p.slug + '.html', postPage(p, i, posts))
 write('blog/index.html', blogIndex(posts));
 write('training/index.html', trainingPage(loadTraining()));
 write('track/index.html', trackPage());
+const CAMPAIGN = loadCampaign();
+write('offer/index.html', offerPage(CAMPAIGN));
 write('verify/index.html', verifyPage());
 write('cv/index.html', cvPage(loadCV()));
 write('calculators/index.html', calculatorsPage());

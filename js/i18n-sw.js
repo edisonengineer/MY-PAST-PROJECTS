@@ -514,6 +514,7 @@ window.I18N_SW = {
     "Back to top": "Rudi juu",
     "Chat with me": "Ongea nami",
     "Close": "Funga",
+    "Maybe later": "Baadaye",
     "Free weekly webinar": "Semina ya bure mtandaoni kila wiki",
     "Reserve your seat": "Hifadhi nafasi yako",
     "Register for the free weekly AutoCAD webinar and I'll send you the details for the next session.": "Jisajili kwa semina ya bure ya AutoCAD mtandaoni ya kila wiki nami nitakutumia maelezo ya kipindi kijacho.",
@@ -1271,7 +1272,22 @@ window.I18N_SW = {
     "e.g. TRAIN20": "mf. TRAIN20",
     "e.g. SJK7ABC12D": "mf. SJK7ABC12D",
     "Your acceptance couldn't be saved just now. Please try again in a minute, or message me on WhatsApp.": "Ukubali wako haukuweza kuhifadhiwa sasa hivi. Jaribu tena baada ya dakika moja, au niandikie kwenye WhatsApp.",
-    "Your payment code couldn't be saved just now. Please try again in a minute, or send it to me on WhatsApp.": "Msimbo wako wa malipo haukuweza kuhifadhiwa sasa hivi. Jaribu tena baada ya dakika moja, au nitumie kwenye WhatsApp."
+    "Your payment code couldn't be saved just now. Please try again in a minute, or send it to me on WhatsApp.": "Msimbo wako wa malipo haukuweza kuhifadhiwa sasa hivi. Jaribu tena baada ya dakika moja, au nitumie kwenye WhatsApp.",
+    // Services site update (hero, recruiter link, project deliverables, offer page)
+    "Taking on new CAD projects & trainees": "Ninapokea miradi mipya ya CAD na wanafunzi wapya",
+    "Founder of": "Mwanzilishi wa",
+    "in Nairobi. I turn your sketches and ideas into manufacturing-ready 3D models, 2D drawings and FEA simulations, and train engineers and students in SolidWorks, AutoCAD, Inventor and Fusion 360.": "jijini Nairobi. Ninageuza michoro na mawazo yako kuwa miundo ya 3D, michoro ya 2D na uigaji wa FEA iliyo tayari kwa utengenezaji, na ninawafunza wahandisi na wanafunzi SolidWorks, AutoCAD, Inventor na Fusion 360.",
+    "Join CAD training": "Jiunge na mafunzo ya CAD",
+    "Recruiting? See my job-application portfolio": "Unaajiri? Tazama jalada langu la kazi",
+    "Job portfolio (for recruiters)": "Jalada la kazi (kwa waajiri)",
+    "CAD design, FEA simulation and CAD training from Nairobi, Kenya.": "Usanifu wa CAD, uigaji wa FEA na mafunzo ya CAD kutoka Nairobi, Kenya.",
+    "Nexus CAD Studio | CAD Design, FEA Simulation & CAD Training in Nairobi": "Nexus CAD Studio | Usanifu wa CAD, uigaji wa FEA na mafunzo ya CAD jijini Nairobi",
+    "3D CAD models, manufacturing drawings, FEA simulation and CAD training (SolidWorks, AutoCAD, Inventor, Fusion 360) from Nexus CAD Studio in Nairobi, Kenya. Get a clear quote within a day.": "Miundo ya 3D ya CAD, michoro ya utengenezaji, uigaji wa FEA na mafunzo ya CAD (SolidWorks, AutoCAD, Inventor, Fusion 360) kutoka Nexus CAD Studio jijini Nairobi, Kenya. Pata bei iliyo wazi ndani ya siku moja.",
+    "What the client received": "Alichopokea mteja",
+    "Offers": "Ofa",
+    "No special offer right now.": "Hakuna ofa maalum kwa sasa.",
+    "Seasonal offers on CAD projects and training appear here. In the meantime, see what I can do for you.": "Ofa za msimu kwa miradi na mafunzo ya CAD huonekana hapa. Kwa sasa, tazama ninachoweza kukufanyia.",
+    "See all services": "Tazama huduma zote"
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
