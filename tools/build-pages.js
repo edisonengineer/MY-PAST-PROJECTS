@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=28';
+const CSS_V = 'css/style.css?v=30';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
@@ -324,8 +324,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=29" data-sw="../js/i18n-sw.js?v=26" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
-    <script defer src="../js/pages.js?v=12"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=30" data-sw="../js/i18n-sw.js?v=27" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+    <script defer src="../js/pages.js?v=13"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -586,7 +586,69 @@ function loadTraining() {
     vm.runInNewContext(read('js/sheet-data.js'), ctx);   // Courses tab + training settings from the Google Sheet
     const T = ctx.window.TRAINING;
     T.students = ctx.window.STUDENT_WORK || [];         // Student work tab (only students who agreed)
+    // Full syllabi from content/syllabus.json (tools/import-syllabus.py). Matched by name, ignoring "Autodesk".
+    const key = (n) => String(n || '').toLowerCase().replace(/^autodesk\s+/, '').replace(/[^a-z0-9]+/g, '');
+    const syl = fs.existsSync(path.join(ROOT, 'content/syllabus.json')) ? JSON.parse(read('content/syllabus.json')).courses : [];
+    T.courses.forEach((c) => { c.syllabus = syl.find((s) => [s.name].concat(s.aliases || []).some((n) => key(n) === key(c.name))) || null; });
+    // Courses with a syllabus and a "card" but not (yet) in the Courses tab are added after the others
+    syl.filter((s) => s.card && !T.courses.some((c) => c.syllabus === s)).forEach((s) => T.courses.push({
+        id: s.id, name: s.name, theme: s.card.theme || 'blue', icon: s.card.icon || 'cube', tagline: s.card.tagline || '', levels: s.card.levels || '',
+        topics: s.sessions.slice(0, 8).map((x) => x.title), sessions: '', projects: [], syllabus: s
+    }));
+    T.courses.forEach((c) => {
+        const s = c.syllabus;
+        if (!s) return;
+        c.syllabusSummary = s.sessions.length + ' sessions · ' + s.total;
+        if (!c.sessions) c.sessions = c.syllabusSummary;
+        if (!c.topics || !c.topics.length) c.topics = s.sessions.slice(0, 8).map((x) => x.title);
+    });
     return T;
+}
+
+// "4 hours" / "2–4 hours" / "60–76 hours" -> ISO 8601 for structured data (lower bound)
+const isoHours = (h) => { const n = parseFloat(String(h || '')); return n > 0 ? 'PT' + n + 'H' : undefined; };
+
+function syllabusSection(c) {
+    const s = c.syllabus;
+    if (!s) return '';
+    const topics = s.sessions.reduce((a, x) => a + x.topics, 0);
+    return `
+        <section class="section syllabus" id="syllabus">
+            <div class="container">
+                <header class="syl-head">
+                    <div>
+                        <p class="kicker">Course syllabus</p>
+                        <h2 class="section-title">Everything we'll <em>cover</em>.</h2>
+                    </div>
+                    <div class="syl-tools">
+                        <button type="button" class="btn btn-outline btn-sm" data-syl-toggle>Expand all</button>
+                        <button type="button" class="btn btn-outline btn-sm" data-syl-print>${icon('doc')} Print / save as PDF</button>
+                    </div>
+                </header>
+                <ul class="syl-stats">
+                    <li><strong>${esc(s.total)}</strong><span>in total</span></li>
+                    <li><strong>${s.sessions.length}</strong><span>sessions</span></li>
+                    <li><strong>${topics}</strong><span>topics</span></li>
+                    ${s.perDay ? `<li><strong>${esc(s.perDay)}</strong><span>per session</span></li>` : '<li><strong>Online or Nairobi</strong><span>one-on-one or group</span></li>'}
+                </ul>
+                <ol class="syl-list">
+${s.sessions.map((x, i) => `                    <li>
+                        <details class="syl-session"${i === 0 ? ' open' : ''}>
+                            <summary>
+                                <span class="syl-num">Session ${i + 1}</span>
+                                <span class="syl-title">${esc(x.title)}</span>
+                                <span class="syl-meta"><span class="syl-hours">${icon('clock')} <span>${esc(x.hours)}</span></span><span class="syl-count">${x.topics} topics</span></span>
+                            </summary>
+                            <div class="syl-body" data-no-i18n>
+${x.groups.map((g) => `                                <div class="syl-group">${g.h ? `<h3>${esc(g.h)}</h3>` : ''}${g.items.length ? `<ul>${g.items.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}</div>`).join('\n')}
+                            </div>
+                        </details>
+                    </li>`).join('\n')}
+                </ol>
+                <p class="syl-note">Sessions follow this order, at a pace that suits you. One-on-one courses can skip what you already know or go deeper on what you need.</p>
+            </div>
+        </section>
+`;
 }
 
 /* ---------- Training: student work and course pages ---------- */
@@ -639,7 +701,10 @@ function coursePage(c, T) {
         provider: { '@type': 'Organization', name: 'Nexus CAD Studio', sameAs: SITE },
         teaches: c.topics,
         offers: { '@type': 'Offer', category: 'Paid', price: T.price, priceCurrency: 'KES', url: SITE + 'training/' + reserve },
-        hasCourseInstance: { '@type': 'CourseInstance', courseMode: ['Online', 'Onsite'], location: 'Nairobi, Kenya', ...(c.sessions ? { courseWorkload: c.sessions } : {}) }
+        hasCourseInstance: { '@type': 'CourseInstance', courseMode: ['Online', 'Onsite'], location: 'Nairobi, Kenya',
+            ...(c.syllabus && isoHours(c.syllabus.total) ? { courseWorkload: isoHours(c.syllabus.total) } : c.sessions ? { courseWorkload: c.sessions } : {}) },
+        ...(c.syllabus ? { syllabusSections: c.syllabus.sessions.map((x) => ({ '@type': 'Syllabus', name: x.title, timeRequired: isoHours(x.hours),
+            description: x.groups.map((g) => (g.h ? g.h + ': ' : '') + g.items.join(', ')).join('; ').slice(0, 500) })) } : {})
     };
     const others = T.courses.filter((x) => x !== c).slice(0, 6);
     return head({ title: c.name + ' Training in Nairobi & Online | Nexus CAD Studio', description, url, image, type: 'website', jsonld }) + '\n' + header('training') + `
@@ -655,6 +720,7 @@ function coursePage(c, T) {
                 <p class="course-seats course-seats-hero" data-seats="${esc(c.name)}" hidden></p>
                 <div class="hero-actions page-actions">
                     <a class="btn btn-sun btn-lg" href="${esc(reserve)}" data-track="course-reserve">Reserve a seat ${icon('arrow')}</a>
+                    ${c.syllabus ? `<a class="btn btn-outline-light btn-lg" href="#syllabus">See the full syllabus</a>` : ''}
                     <a class="btn btn-outline-light btn-lg" href="https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hi Edison, I would like to know more about the ' + c.name + ' training.')}" target="_blank" rel="noopener">${icon('whatsapp')} Ask on WhatsApp</a>
                 </div>
             </div>
@@ -687,7 +753,7 @@ ${c.topics.map((t) => `                            <li>${icon('check')}<span>${e
                 </div>
             </div>
         </section>
-${studentSection(students, '../', T, 'Built by ' + esc(c.name) + ' trainees.')}
+${syllabusSection(c)}${studentSection(students, '../', T, 'Built by ' + esc(c.name) + ' trainees.')}
         <section class="section course-reserve-band">
             <div class="container verify-cta">
                 <span class="verify-cta-icon">${icon('cap')}</span>
@@ -783,6 +849,7 @@ ${T.courses.map((c) => `                    <article class="course-card theme-${
                             <div><h3>${esc(c.name)}</h3><p>${esc(c.tagline)}</p></div>
                         </div>
                         <p class="course-level">${icon('award')} <span>${esc(c.levels)}</span></p>
+                        ${c.syllabusSummary ? `<p class="course-length">${icon('clock')} <span>${esc(c.syllabusSummary)}</span></p>` : ''}
                         <p class="course-seats" data-seats="${esc(c.name)}" hidden></p>
                         <h4>What you'll learn</h4>
                         <ul class="pm-points">
@@ -790,7 +857,7 @@ ${c.topics.map((t) => `                            <li>${icon('check')}<span>${e
                         </ul>
                         <div class="course-ctas">
                             <a class="btn btn-outline course-cta" href="#reserve" data-course="${esc(c.name)}">Reserve a seat ${icon('arrow')}</a>
-                            <a class="course-more" href="${esc(c.id)}.html">Course details${courseProjects(c).length ? ' & projects' : ''} ${icon('arrow')}</a>
+                            <a class="course-more" href="${esc(c.id)}.html${c.syllabus ? '#syllabus' : ''}">${c.syllabus ? 'Full syllabus' : 'Course details' + (courseProjects(c).length ? ' & projects' : '')} ${icon('arrow')}</a>
                         </div>
                     </article>`).join('\n')}
                 </div>
@@ -1499,7 +1566,8 @@ function wantedTranslations() {
         if (k.length > 1 && k.length <= 4500 && /\p{L}{2}/u.test(k) && !/^(https?:|mailto:|tel:)|@|\.(html|pdf|jpg|png|glb)\b/i.test(k) && !known(k)) found.add(k);
     };
     const fromHtml = (html) => {
-        const h = html.replace(/<(script|style|svg|code|noscript|textarea)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<!--[\s\S]*?-->/g, ' ');
+        const h = html.replace(/<(script|style|svg|code|noscript|textarea)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<!--[\s\S]*?-->/g, ' ')
+            .replace(/<div class="syl-body" data-no-i18n>[\s\S]*?<\/details>/g, ' ');   // syllabus topics: kept in English, like the software menus
         for (const m of h.matchAll(/\s(?:alt|title|placeholder|aria-label)="([^"]*)"/g)) add(m[1]);
         h.replace(/^[\s\S]*?<body[^>]*>/i, '').split(/<[^>]+>/).forEach(add);
     };

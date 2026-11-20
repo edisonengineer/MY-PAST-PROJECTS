@@ -1,0 +1,4397 @@
+{
+ "_help": "Made by tools/import-syllabus.py from your course-structure document. Each course page shows its syllabus. \"card\" holds the tagline, level, colour and icon for courses that are not in the Courses tab of the Google Sheet. \"aliases\" are other names the Courses tab may use for the same course.",
+ "courses": [
+  {
+   "id": "autodesk-fusion-360",
+   "name": "Autodesk Fusion 360",
+   "total": "60–76 hours",
+   "perDay": "",
+   "sessions": [
+    {
+     "title": "Starting with Autodesk Fusion 360",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Overview Of Autodesk Fusion 360",
+        "Installing Autodesk Fusion 360",
+        "Starting Autodesk Fusion 360",
+        "Starting a New document",
+        "File Menu",
+        "Preform",
+        "Undo And Redo Button",
+        "User Account drop-down",
+        "Help drop-down",
+        "Data Panel",
+        "Browser",
+        "Navigation Bar",
+        "Display Bar",
+        "Customizing Toolbar and Marking Menu"
+       ]
+      }
+     ],
+     "topics": 14
+    },
+    {
+     "title": "Sketching",
+     "hours": "2–4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Starting Sketch",
+        "Sketch Creation Tools",
+        "Sketch Editing Tool",
+        "Sketch Palette",
+        "Constraints",
+        "Fully Defined, Under-Defined, and Over-Defined Sketches"
+       ]
+      }
+     ],
+     "topics": 7
+    },
+    {
+     "title": "3D Sketch and Solid Modeling",
+     "hours": "2–4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "3D Sketches",
+        "Selection Tools",
+        "Solid Modeling",
+        "Create drop-down",
+        "Construction Geometry",
+        "Project/Include Tools"
+       ]
+      }
+     ],
+     "topics": 6
+    },
+    {
+     "title": "Advanced 3D Modeling",
+     "hours": "4–8 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Loft",
+        "Rib",
+        "Web",
+        "Emboss",
+        "Hole",
+        "Thread",
+        "Box",
+        "Cylinder",
+        "Sphere",
+        "Torus",
+        "Coil",
+        "Pipe",
+        "Pattern",
+        "Mirror",
+        "Thicken",
+        "Boundary Fill",
+        "Create Form",
+        "Create Base Feature",
+        "Create PCB Feature",
+        "Plastic Tools"
+       ]
+      }
+     ],
+     "topics": 21
+    },
+    {
+     "title": "Solid Editing",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Solid editing tools",
+        "Press Pull",
+        "Fillet",
+        "Rule Fillet",
+        "Full Round Fillet",
+        "Chamfer",
+        "Shell",
+        "Draft",
+        "Scale",
+        "Combine",
+        "Replace Face",
+        "Split Face",
+        "Split Body",
+        "Silhouette Split",
+        "Move/Copy",
+        "Align",
+        "Delete",
+        "Remove Tool",
+        "Physical Material",
+        "Appearance",
+        "Creating Volumetric lattice",
+        "Manage Materials",
+        "Change Parameters"
+       ]
+      }
+     ],
+     "topics": 23
+    },
+    {
+     "title": "Assembly Design",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "New Component",
+        "Joint",
+        "As-Built Joint",
+        "Joint Origin",
+        "Rigid Group",
+        "Tangent Relationship",
+        "Drive Joints",
+        "Motion Link",
+        "Enable Contact Sets",
+        "Motion Study"
+       ]
+      }
+     ],
+     "topics": 11
+    },
+    {
+     "title": "Importing Files and Inspection",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Inserting File",
+        "Inspect"
+       ]
+      }
+     ],
+     "topics": 3
+    },
+    {
+     "title": "Surface Modeling",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Editing Tools"
+       ]
+      }
+     ],
+     "topics": 2
+    },
+    {
+     "title": "Rendering and Animation",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Introduction to Render Workspace",
+        "Animation"
+       ]
+      }
+     ],
+     "topics": 3
+    },
+    {
+     "title": "Drawing",
+     "hours": "4–6 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Starting Drawing Workspace",
+        "Specifying Drawing Preferences",
+        "Creating Base View",
+        "Creating Projected View",
+        "Creating Section View",
+        "Creating Detail View",
+        "Creating Break View",
+        "Creating Sketch",
+        "Moving Views",
+        "Rotating Views",
+        "Creating Centerline",
+        "Creating Center Mark",
+        "Creating Center Mark Pattern",
+        "Edge Extension",
+        "Dimensioning",
+        "Editing Dimensions",
+        "Creating Text",
+        "CREATING note",
+        "Applying Surface Texture",
+        "Creating Feature Control Frame",
+        "Creating Datum Identifier",
+        "CREATING WELDING SYMBOL and other symbols",
+        "Generating Tables",
+        "Generating Balloon",
+        "Bend Identifier and Table",
+        "Revision Marker",
+        "Revision Cloud",
+        "Renumbering Balloons",
+        "Aligning Balloons",
+        "Export PDF",
+        "Exporting DWG",
+        "Exporting dxf file",
+        "Exporting CSV File"
+       ]
+      }
+     ],
+     "topics": 34
+    },
+    {
+     "title": "Sculpting",
+     "hours": "2–4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Opening the FORM MODE",
+        "Creation tools",
+        "Modifying tools",
+        "Symmetry Tools",
+        "Utilities"
+       ]
+      }
+     ],
+     "topics": 6
+    },
+    {
+     "title": "Mesh Design",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Opening the Mesh Workspace",
+        "Inserting File",
+        "Mesh Preparation Tools",
+        "Modification tools",
+        "Direct Editing Mode"
+       ]
+      }
+     ],
+     "topics": 6
+    },
+    {
+     "title": "Manufacturing",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Starting with Manufacture Workspace",
+        "Job Setup",
+        "Creating Manufacturing Model",
+        "Tool selection",
+        "Tools Used in CNC Milling and Turning",
+        "Tool Library",
+        "Machine Library"
+       ]
+      }
+     ],
+     "topics": 8
+    },
+    {
+     "title": "Generating Milling Toolpaths – 1",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Generating 2D Toolpaths",
+        "Generating 3D Toolpath"
+       ]
+      }
+     ],
+     "topics": 2
+    },
+    {
+     "title": "Generating Milling Toolpaths – 2",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "3D Toolpaths",
+        "Multi-AXIS toolpath",
+        "Creating Drill Toolpath",
+        "Toolpath by Hole Recognition"
+       ]
+      }
+     ],
+     "topics": 4
+    },
+    {
+     "title": "Generating Turning and Cutting Toolpaths",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Generating Turning Toolpath",
+        "Generating Cutting toolpaths",
+        "Nesting"
+       ]
+      }
+     ],
+     "topics": 3
+    },
+    {
+     "title": "Probing, Additive Manufacturing, and Miscellaneous CAM Tools",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "New Folder",
+        "New Pattern",
+        "Probing",
+        "Manual Inspection Report",
+        "Toolpath Shortcut Menu",
+        "Additive Manufacturing",
+        "Additive Build Extension"
+       ]
+      }
+     ],
+     "topics": 8
+    },
+    {
+     "title": "Introduction to Simulation in Fusion 360",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Types of Analyses performed in Fusion 360 Simulation",
+        "FEA",
+        "Starting Simulation in Fusion 360",
+        "Performing an Analysis",
+        "Starting New Simulation Study",
+        "Simplifying Model For Analysis",
+        "Study Material",
+        "Applying Constraints",
+        "Applying Loads",
+        "Applying Contacts",
+        "Solving Analysis",
+        "Exporting Study to Ansys Setup"
+       ]
+      }
+     ],
+     "topics": 13
+    },
+    {
+     "title": "Simulation Studies in Fusion 360",
+     "hours": "4–6 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Nonlinear Static Stress Analysis",
+        "Structural Buckling Analysis",
+        "Use of Buckling Analysis",
+        "Modal Frequencies Analysis",
+        "Thermal Analysis",
+        "Performing Thermal Analysis",
+        "Thermal Stress Analysis",
+        "Event Simulation",
+        "Shape Optimization",
+        "Electronics Cooling",
+        "Injection Molding Simulation"
+       ]
+      }
+     ],
+     "topics": 12
+    },
+    {
+     "title": "Sheetmetal Design",
+     "hours": "2–4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Sheet Metal Rules",
+        "Creating Flanges",
+        "Creating Bend",
+        "Unfolding Sheetmetal Part",
+        "Convert to Sheet Metal",
+        "Flat Pattern",
+        "Exporting DXF"
+       ]
+      }
+     ],
+     "topics": 8
+    },
+    {
+     "title": "Generative Design",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Learning Panel",
+        "Workflow of Generative Design",
+        "Creating New Generative Design Study",
+        "Defining Design Space Regions",
+        "Selecting Study Materials",
+        "Preforming Pre-Check",
+        "Checking Preview of Generative Design",
+        "Study Settings",
+        "Generating Designs",
+        "Performing Fluid Path Generative Study"
+       ]
+      }
+     ],
+     "topics": 11
+    }
+   ]
+  },
+  {
+   "id": "autodesk-inventor",
+   "name": "Autodesk Inventor",
+   "total": "58 hours",
+   "perDay": "2 hours",
+   "sessions": [
+    {
+     "title": "Basics of CAD, CAM, and CAE",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "Introduction to CAD",
+       "items": [
+        "Parametric Modeling V/S Direct Modeling",
+        "2D Drawing",
+        "3D Modeling",
+        "Role of CAD Engineer in Industry",
+        "Documents Prepared by CAD Engineers in Automobile Industry",
+        "Augmented Reality and Virtual Reality"
+       ]
+      },
+      {
+       "h": "Introduction to CAM",
+       "items": [
+        "Role of CAM Engineer"
+       ]
+      },
+      {
+       "h": "Introduction to CAE",
+       "items": [
+        "Static Analysis",
+        "Modal Analysis (Vibration Analysis)",
+        "Thermal analysis",
+        "Thermal Stress Analysis",
+        "Event Simulation",
+        "Shape Optimization",
+        "Role of CAE Engineer"
+       ]
+      }
+     ],
+     "topics": 17
+    },
+    {
+     "title": "Starting with Autodesk Inventor",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Downloading and Installing Autodesk Inventor Student Edition",
+        "Starting Autodesk Inventor"
+       ]
+      },
+      {
+       "h": "Autodesk Inventor Interface",
+       "items": [
+        "Ribbon"
+       ]
+      },
+      {
+       "h": "File menu",
+       "items": [
+        "Creating New File",
+        "Opening a file",
+        "Saving File",
+        "Exporting Files",
+        "Sharing View",
+        "Managing Project files and features",
+        "iProperties",
+        "Printing Document"
+       ]
+      }
+     ],
+     "topics": 13
+    },
+    {
+     "title": "Creating Sketches",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction to Sketching"
+       ]
+      },
+      {
+       "h": "Sketching Plane",
+       "items": [
+        "Relation between sketch, plane, and 3D model"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Start 2D Sketch"
+       ]
+      },
+      {
+       "h": "Sketch Creation Tools",
+       "items": [
+        "Line tool",
+        "Control Vertex Spline",
+        "Interpolation Spline",
+        "Equation Curve",
+        "Bridge Curve",
+        "Circle",
+        "Tangent Circle",
+        "Ellipse",
+        "Three Point Arc",
+        "Tangent Arc",
+        "Center Point Arc",
+        "Two Point Rectangle",
+        "Three Point Rectangle",
+        "Two Point Center Rectangle",
+        "Three Point Center Rectangle",
+        "Center to Center Slot",
+        "Overall Slot",
+        "Center Point Slot",
+        "Three Point Arc Slot",
+        "Center Point Arc Slot",
+        "Polygon",
+        "Fillet",
+        "Chamfer",
+        "Text",
+        "Geometry Text",
+        "Point"
+       ]
+      },
+      {
+       "h": "Sketch Modification Tools",
+       "items": [
+        "Move tool",
+        "Copy tool",
+        "Rotate tool",
+        "Trim tool",
+        "Extend tool",
+        "Split tool",
+        "Scale tool",
+        "Stretch tool",
+        "Offset tool"
+       ]
+      },
+      {
+       "h": "Creating Patterns of Sketch Entities",
+       "items": [
+        "Rectangular Pattern tool",
+        "Circular Pattern",
+        "Mirror tool"
+       ]
+      }
+     ],
+     "topics": 45
+    },
+    {
+     "title": "Dimensioning and Constraining",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction to Dimensioning",
+        "Dimensioning Tools",
+        "General Dimension Tool",
+        "Automatic Dimensions and Constraints",
+        "Show Constraints",
+        "Constraints",
+        "Coincident Constraint",
+        "Collinear Constraint",
+        "Concentric Constraint",
+        "Fix Constraint",
+        "Parallel Constraint",
+        "Perpendicular Constraint",
+        "Horizontal Constraint",
+        "Vertical Constraint",
+        "Tangent Constraint",
+        "Smooth (G2) Constraint",
+        "Symmetric Constraint",
+        "Equal Constraint",
+        "Constraint Settings",
+        "Inserting Objects in Sketch",
+        "Insert Image Tool",
+        "Import Points tool",
+        "Insert AutoCAD File"
+       ]
+      }
+     ],
+     "topics": 23
+    },
+    {
+     "title": "Creating Solid Models",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Work Plane",
+       "items": [
+        "Offset from Plane Tool",
+        "Parallel to Plane through Point Tool",
+        "Midplane between Two Planes Tool",
+        "Midplane of Torus Tool",
+        "Angle to Plane around Edge Tool",
+        "Three Points Tool",
+        "Two Coplanar Edges Tool",
+        "Tangent to Surface through Edge Tool",
+        "Tangent to Surface through Point",
+        "Tangent to Surface and Parallel to Plane",
+        "Normal to Axis through Point Tool",
+        "Normal to Curve at Point",
+        "Plane tool"
+       ]
+      },
+      {
+       "h": "Axis",
+       "items": [
+        "On Line or Edge Tool",
+        "Parallel to Line through Point",
+        "Through Two Points Tool",
+        "Intersection of Two Planes",
+        "Normal to Plane through Point",
+        "Through Center of Circular or Elliptical Edge",
+        "Through Revolved Face or Feature",
+        "Axis tool"
+       ]
+      },
+      {
+       "h": "Point",
+       "items": [
+        "Grounded Point"
+       ]
+      },
+      {
+       "h": "Extrude Tool",
+       "items": [
+        "Specifying Distance for Extrusion",
+        "Setting Extent of Extrusion",
+        "Boolean Operations",
+        "Adding Taper to Extrusion",
+        "Surface Mode of Extrusion"
+       ]
+      },
+      {
+       "h": "Brief Note on Drawings",
+       "items": [
+        "Machine Drawing",
+        "Production Drawing",
+        "Part Drawing",
+        "Assembly Drawing"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Component Representation Methods"
+       ]
+      },
+      {
+       "h": "Sketching Plane Selection",
+       "items": [
+        "Selecting planes according to orthographic views"
+       ]
+      },
+      {
+       "h": "Revolve Tool",
+       "items": [
+        "Specifying Angle of Revolution"
+       ]
+      }
+     ],
+     "topics": 42
+    },
+    {
+     "title": "Advanced Solid Modeling Tools",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Sweep Tool",
+       "items": [
+        "Creating Sweep feature with Follow Path",
+        "Creating Sweep feature with Fixed",
+        "Creating Sweep feature with Guide"
+       ]
+      },
+      {
+       "h": "Loft Tool",
+       "items": [
+        "Loft using Rail option",
+        "Loft with Center Line",
+        "Loft with Area Loft option",
+        "Changing Conditions at the starting and end of loft",
+        "Specifying Transition Point Positions"
+       ]
+      },
+      {
+       "h": "Coil Tool",
+       "items": [
+        "Changing the coil size and Behavior"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Emboss Tool"
+       ]
+      },
+      {
+       "h": "Rib Tool",
+       "items": [
+        "Applying Draft to Rib",
+        "Creating Boss feature on Rib"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Decal Tool"
+       ]
+      },
+      {
+       "h": "Importing Foreign CAD Files",
+       "items": [
+        "Unwrap Tool"
+       ]
+      },
+      {
+       "h": "Modification Tools",
+       "items": [
+        "Hole Tool",
+        "Fillet Tool",
+        "Face Fillet Tool",
+        "Full Round Fillet Tool",
+        "Chamfer Tool",
+        "Shell Tool",
+        "Draft Tool",
+        "Thread Tool",
+        "Combine Tool",
+        "Thicken/Offset Tool",
+        "Split Tool",
+        "Delete Face Tool"
+       ]
+      }
+     ],
+     "topics": 33
+    },
+    {
+     "title": "Advanced Modeling Tools and Practical",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Direct Tool",
+       "items": [
+        "Moving Faces by Direct Editing",
+        "Changing Size by Direct Editing",
+        "Scaling Model by Direct Editing",
+        "Rotating Faces by Direct Editing",
+        "Deleting Faces by Direct Editing"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Bend Part Tool"
+       ]
+      }
+     ],
+     "topics": 8
+    },
+    {
+     "title": "Assembly Design",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Starting Assembly Environment"
+       ]
+      },
+      {
+       "h": "Placing Components in Assembly",
+       "items": [
+        "Placing Component from Local Storage",
+        "Place from Content Center",
+        "Place Imported CAD files",
+        "Place iLogic Component",
+        "Electrical Catalog Browser"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Replacing Component",
+        "Top-Down and Bottom-Up Approach for Assembly",
+        "Creating Component in Assembly"
+       ]
+      },
+      {
+       "h": "Positioning Tools",
+       "items": [
+        "Free Move",
+        "Free Rotate",
+        "Grid Snap"
+       ]
+      },
+      {
+       "h": "Constrains",
+       "items": [
+        "Mate Constrain",
+        "Angle Constraint",
+        "Tangent Constraint",
+        "Insert Constraint",
+        "Symmetry Constraint",
+        "Motion Constraint",
+        "Transitional Constraint",
+        "Constraint Set"
+       ]
+      },
+      {
+       "h": "Joints",
+       "items": [
+        "Rigid Joint",
+        "Rotational Joint",
+        "Slider Joint",
+        "Cylindrical Joint",
+        "Planar Joint",
+        "Ball Joint"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Grounded Constraint",
+        "Contact Set",
+        "Bill of Materials",
+        "Driving Constraint",
+        "Introduction to Presentation",
+        "Creating New Storyboard",
+        "Adding New Snapshot View",
+        "Tweaking Components",
+        "Setting Opacity of Components",
+        "Setting Camera Position",
+        "Creating Drawing View Using Snapshot",
+        "Publishing Videos and Images"
+       ]
+      }
+     ],
+     "topics": 43
+    },
+    {
+     "title": "Advanced Assembly and Design",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Sub-Assemblies",
+       "items": [
+        "Use of Sub-Assembly"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Pattern in Assembly",
+        "Mirror and Copy",
+        "Design Accelerator Components"
+       ]
+      },
+      {
+       "h": "Components for Fastening",
+       "items": [
+        "Bolted Connection",
+        "Clevis Pin",
+        "Secure Pin",
+        "Cross Pin",
+        "Joint Pin",
+        "Radial Pin"
+       ]
+      },
+      {
+       "h": "Components for Power Transmission",
+       "items": [
+        "Shaft",
+        "Spur Gear",
+        "Designing Worm Gear",
+        "Designing Bevel Gear",
+        "Designing Bearing",
+        "Designing V-Belts",
+        "Designing Synchronous Belts",
+        "Designing Roller Chains",
+        "Designing Key",
+        "Designing Disc Cam"
+       ]
+      }
+     ],
+     "topics": 24
+    },
+    {
+     "title": "Advanced Assembly and Design-II",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Power Transmission Components",
+       "items": [
+        "Designing Linear Cam",
+        "Designing Cylindrical Cam",
+        "Designing Parallel Spline",
+        "Designing Involute Spline",
+        "Generating O-Ring"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Design Handbook"
+       ]
+      },
+      {
+       "h": "Brake Calculators",
+       "items": [
+        "Drum Brake Calculator",
+        "Disc Brake, Band Brake, and Cone Brake Calculator"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Bearing Calculator",
+        "Separated Hub Calculator",
+        "Tolerance Calculator",
+        "Limits/Fits Calculator",
+        "Press Fit Calculator"
+       ]
+      },
+      {
+       "h": "Springs",
+       "items": [
+        "Designing Compression Spring",
+        "Designing Extension Spring"
+       ]
+      },
+      {
+       "h": "Frame Designing",
+       "items": [
+        "Inserting Frame",
+        "Inserting End Cap",
+        "Changing Frame Members",
+        "Mitering Corners",
+        "Applying Notch Cut",
+        "Corner Joint",
+        "Trim/Extend",
+        "Lengthen/Shorten Frame Member",
+        "Beam/Column Calculations"
+       ]
+      },
+      {
+       "h": "Measurement Tools",
+       "items": [
+        "Measure Tool"
+       ]
+      }
+     ],
+     "topics": 31
+    },
+    {
+     "title": "Sheetmetal Design",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Starting Sheetmetal Environment",
+       "items": [
+        "Starting a New File in Sheetmetal Environment"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Sheet Metal Defaults Setting",
+        "Sheet Metal Design Terms",
+        "Bend Allowance"
+       ]
+      },
+      {
+       "h": "K-Factor",
+       "items": [
+        "Spline Factor"
+       ]
+      },
+      {
+       "h": "Creation Tools",
+       "items": [
+        "Using Face Tool",
+        "Using Flange Tool",
+        "Using Contour Flange",
+        "Using Lofted Flange Tool",
+        "Using Contour Roll Tool",
+        "Using Hem Tool",
+        "Using Bend Tool",
+        "Using Fold Tool",
+        "Using Derive Tool"
+       ]
+      },
+      {
+       "h": "Modification Tools",
+       "items": [
+        "Using Cut Tool",
+        "Using Corner Seam Tool",
+        "Using Punch Tool",
+        "Using Rip Tool",
+        "Using Unfold Tool",
+        "Using Refold Tool"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Create Flat Pattern"
+       ]
+      }
+     ],
+     "topics": 26
+    },
+    {
+     "title": "Weldment Assembly",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Welding Symbols and Representation in Drawing",
+       "items": [
+        "Butt/Groove Weld Symbols",
+        "Fillet and Edge Weld Symbols",
+        "Miscellaneous Weld Symbols"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Starting Weldment Assembly",
+        "Preparation"
+       ]
+      },
+      {
+       "h": "Welding",
+       "items": [
+        "Using Fillet Weld Tool",
+        "Using Groove Weld Tool",
+        "Using Cosmetic Weld Tool",
+        "Using Welding Symbol Tool",
+        "Using End Fill",
+        "Using Bead Report"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Machining"
+       ]
+      },
+      {
+       "h": "Weld Calculator",
+       "items": [
+        "Fillet Weld Calculator (Plane)"
+       ]
+      }
+     ],
+     "topics": 17
+    },
+    {
+     "title": "Mold Design",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "Introduction to Mold Design",
+       "items": [
+        "Designing Wall Thickness",
+        "Designing Ribs",
+        "Designing Bosses",
+        "Designing Gussets",
+        "Designing Sharp Corners",
+        "Designing Draft",
+        "Designing Holes and Cores",
+        "Designing Undercuts"
+       ]
+      },
+      {
+       "h": "Plastic Part Preparation Tools",
+       "items": [
+        "Using Grill Tool",
+        "Using Boss Tool",
+        "Using Rest Tool",
+        "Using Snap Fit Tool",
+        "Using Rule Fillet Tool",
+        "Using Lip Tool"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Starting Mold Design Assembly",
+        "Workflow of Mold Design Assembly in Autodesk Inventor",
+        "Inserting Plastic Part"
+       ]
+      },
+      {
+       "h": "Adjusting Orientation/Position of Part",
+       "items": [
+        "Adjusting Orientation of Part",
+        "Adjusting Position of Part"
+       ]
+      },
+      {
+       "h": "Preparing Core and Cavity",
+       "items": [
+        "Part Shrinkage Tool",
+        "Gate Location Tool",
+        "Define Workpiece Setting Tool",
+        "Create Patching Surface Tool",
+        "Manually Creating Patch Surface",
+        "Create Runoff Surface Tool",
+        "Other Tools to Create Runoff Surfaces",
+        "Create Insert Tool",
+        "Generate Core and Cavity",
+        "Place Core Pin"
+       ]
+      },
+      {
+       "h": "Creating Pattern of Core and Cavity",
+       "items": [
+        "Rectangular Pattern",
+        "Circular Pattern",
+        "Variable Pattern"
+       ]
+      },
+      {
+       "h": "Creating Gate",
+       "items": [
+        "Types of Gates and Their Practical Applications"
+       ]
+      },
+      {
+       "h": "Creating Runner",
+       "items": [
+        "Creating Runner Sketch",
+        "Creating Runner Model",
+        "Runner Design Guidelines"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Secondary Sprue"
+       ]
+      },
+      {
+       "h": "Adding Mold Base to Assembly",
+       "items": [
+        "Customizing Mold Base Components"
+       ]
+      },
+      {
+       "h": "Cooling Channel",
+       "items": [
+        "Creating Cooling Channel",
+        "Sketch Method for Cooling Channel Creation",
+        "Guidelines for Cooling Channel Design"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Cold Well",
+        "Adding Sprue Bushing",
+        "Placing Locating Ring",
+        "Placing Ejector Pin",
+        "Adding Slider to Mold Assembly",
+        "Adding Lifter to Mold Assembly",
+        "Combining Cores and Cavities",
+        "Creating Pocket in Workpiece"
+       ]
+      },
+      {
+       "h": "Mold Boolean",
+       "items": [
+        "Removing Material",
+        "Adding Two Bodies"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Changing Representation of Mold",
+        "Creating 2D Drawings of Mold"
+       ]
+      }
+     ],
+     "topics": 63
+    },
+    {
+     "title": "Surface Design and Freeform Creation",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction to Surface Design",
+        "Extruded Surface"
+       ]
+      },
+      {
+       "h": "Surfacing Tools",
+       "items": [
+        "Stitch Surface Tool",
+        "Boundary Patch Tool",
+        "Sculpt Tool",
+        "Ruled Surface Tool",
+        "Trim Surface Tool",
+        "Extend Surface Tool",
+        "Replace Face Tool"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Freeform Designing",
+        "Box Tool",
+        "Face Tool",
+        "Convert Tool"
+       ]
+      },
+      {
+       "h": "Freeform Contextual Tab",
+       "items": [
+        "Edit Form Tool",
+        "Align Form Tool",
+        "Delete Tool",
+        "Insert Edge Tool",
+        "Insert Point Tool",
+        "Subdivide Tool",
+        "Merge Edges Tool",
+        "Unweld Edges Tool",
+        "Crease Edges Tool",
+        "Uncrease Edges Tool",
+        "Weld Vertices Tool",
+        "Flatten Tool",
+        "Bridge Tool",
+        "Thicken Tool",
+        "Match Edge Tool",
+        "Symmetry Tool",
+        "Mirror Tool"
+       ]
+      },
+      {
+       "h": "Measurement Tools",
+       "items": [
+        "Measuring Entities",
+        "Inspecting Region Properties",
+        "Analyzing Surface Continuity using Zebra Pattern",
+        "Performing Draft Analysis",
+        "Surface Analysis",
+        "Sections",
+        "Curvature Comb Analysis"
+       ]
+      }
+     ],
+     "topics": 40
+    },
+    {
+     "title": "Drawing Creation",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Elements of Engineering Drawing",
+       "items": [
+        "Types of Engineering Drawings",
+        "Standard Sheet Sizes for Engineering Drawings",
+        "Title Block",
+        "Type of Lines Used in Engineering Drawings"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Starting New Drawing File"
+       ]
+      },
+      {
+       "h": "Sheet Management",
+       "items": [
+        "Changing Size of Sheet",
+        "Changing Title Block",
+        "Inserting Sheets",
+        "Activating and Deleting Sheet"
+       ]
+      },
+      {
+       "h": "Views in Engineering Drawing",
+       "items": [
+        "Isometric View or Isometric Projection",
+        "Orthographic Views or Orthographic Projection"
+       ]
+      },
+      {
+       "h": "Inserting Base View",
+       "items": [
+        "Sheet Metal Drawing Options"
+       ]
+      },
+      {
+       "h": "Changing Standards and Styles",
+       "items": [
+        "Changing Projection Type and Other View Related Parameters",
+        "Modifying Layers of Drawing Objects"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Projected Views",
+        "Creating Auxiliary View"
+       ]
+      },
+      {
+       "h": "Creating Section View",
+       "items": [
+        "Modifying Hatching in Section View"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Detail View",
+        "Creating Overlay View"
+       ]
+      },
+      {
+       "h": "Modifying Drawing View",
+       "items": [
+        "Break Tool",
+        "Creating Break out View",
+        "Creating Slice of Drawing View",
+        "Cropping View"
+       ]
+      },
+      {
+       "h": "Annotation Tools",
+       "items": [
+        "Retrieve Model Annotations Tool",
+        "Dimension Tool",
+        "Baseline Dimensioning",
+        "Ordinate Dimensioning",
+        "Chain Dimensioning",
+        "Hole and Thread Tool",
+        "Chamfer Tool",
+        "Punch Tool",
+        "Bend Tool",
+        "Text Tool",
+        "Leader Text"
+       ]
+      },
+      {
+       "h": "Inserting Symbols",
+       "items": [
+        "Insert Sketch Symbol",
+        "Inserting Drawing Symbols",
+        "Engineering Drawing Symbols"
+       ]
+      },
+      {
+       "h": "Inserting Bill of Materials (BOM)",
+       "items": [
+        "Editing Bill of Materials",
+        "Creating Balloons"
+       ]
+      }
+     ],
+     "topics": 50
+    },
+    {
+     "title": "Analyses and Simulation",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "Introduction to Stress Analysis",
+       "items": [
+        "Basics of FEA",
+        "Assumptions for using FEA"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Starting Stress Analysis"
+       ]
+      },
+      {
+       "h": "Creating Study",
+       "items": [
+        "Static Analysis Options",
+        "Modal Analysis Options",
+        "Shape Generator",
+        "Contact Options"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Assigning Material"
+       ]
+      },
+      {
+       "h": "Applying Constraints",
+       "items": [
+        "Fixed Tool",
+        "Pin Tool",
+        "Frictionless Tool"
+       ]
+      },
+      {
+       "h": "Applying Loads",
+       "items": [
+        "Force Tool",
+        "Pressure Tool",
+        "Bearing Load Tool",
+        "Moment Tool",
+        "Gravity Tool",
+        "Remote Force Tool",
+        "Body Loads Tool"
+       ]
+      },
+      {
+       "h": "Applying Contacts",
+       "items": [
+        "Automatic Contacts Tool",
+        "Manual Contact Tool"
+       ]
+      },
+      {
+       "h": "Preparation of Part",
+       "items": [
+        "Finding Thin Bodies",
+        "Offset"
+       ]
+      },
+      {
+       "h": "Meshing",
+       "items": [
+        "Mesh View",
+        "Mesh Settings",
+        "Local Mesh Control",
+        "Convergence Settings"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Running Study",
+        "Generating Reports",
+        "Modal Analysis"
+       ]
+      },
+      {
+       "h": "Shape Generator",
+       "items": [
+        "Preserve Region",
+        "Symmetry Plane",
+        "Shape Generator Settings",
+        "Performing Shape Generation"
+       ]
+      }
+     ],
+     "topics": 41
+    },
+    {
+     "title": "Model Based Annotations",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Workflow for Model Based Annotations"
+       ]
+      },
+      {
+       "h": "Applying Dimensions to 3D Model",
+       "items": [
+        "Changing Annotation Plane",
+        "Editing Dimension"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Tolerance Feature",
+        "Hole/Thread Notes",
+        "Applying Surface Texture Symbol",
+        "Creating Leader Text",
+        "Creating General Note",
+        "Sectioning Part"
+       ]
+      }
+     ],
+     "topics": 11
+    },
+    {
+     "title": "Application Management",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Managing Materials",
+       "items": [
+        "Editing Materials",
+        "General Parameters of Materials",
+        "Creating a New Material"
+       ]
+      },
+      {
+       "h": "Appearance",
+       "items": [
+        "Clearing Appearances",
+        "Adjusting Appearance"
+       ]
+      },
+      {
+       "h": "Application Options",
+       "items": [
+        "General Tab Options",
+        "Save Tab Options",
+        "File Tab Options",
+        "Colors Tab Options",
+        "Display Tab Options",
+        "Hardware Tab Options",
+        "Drawing Tab Options",
+        "Sketch Tab Options"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Document Settings"
+       ]
+      },
+      {
+       "h": "Manage Tab",
+       "items": [
+        "Update Options",
+        "Parameters"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Styles Editor",
+        "Deriving Components",
+        "Placing Features from Content Center"
+       ]
+      },
+      {
+       "h": "Inserting System Supported Objects",
+       "items": [
+        "Creating New File",
+        "Using File"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Importing a CAD File Model",
+        "Inserting iFeature",
+        "Inserting Features from iFeature Catalog",
+        "Attaching Point Cloud",
+        "Making Part using Selected Objects",
+        "Making Components",
+        "Creating iPart",
+        "Defining iMate",
+        "Extracting iFeatures",
+        "Adding Rules to Model"
+       ]
+      }
+     ],
+     "topics": 37
+    }
+   ]
+  },
+  {
+   "id": "creo-parametric",
+   "name": "Creo Parametric",
+   "card": {
+    "tagline": "Parametric 3D design, assemblies, sheet metal and drawings",
+    "levels": "Beginner to advanced",
+    "theme": "green",
+    "icon": "gear"
+   },
+   "total": "44 hours",
+   "perDay": "",
+   "sessions": [
+    {
+     "title": "Starting with Creo Parametric",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Installing Creo Parametric",
+        "Starting Creo Parametric"
+       ]
+      },
+      {
+       "h": "Creo Parametric Interface",
+       "items": [
+        "Navigator panel",
+        "In-Graphics Toolbar"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Ribbon"
+       ]
+      },
+      {
+       "h": "File Menu",
+       "items": [
+        "New Tool",
+        "Open Tool",
+        "Save Tool",
+        "Loading backup files",
+        "Save As",
+        "Print",
+        "Close Tool",
+        "Manage File",
+        "Model Properties",
+        "Send Options",
+        "Manage Session",
+        "Options"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Switching between Files"
+       ]
+      },
+      {
+       "h": "Shortcut Keys and Mouse Functions in Creo Parametric",
+       "items": [
+        "Keyboard Shortcuts",
+        "ALT Key Menu",
+        "Mouse Functions"
+       ]
+      }
+     ],
+     "topics": 24
+    },
+    {
+     "title": "Sketching",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Starting Sketching Environment",
+        "Setting up Grid"
+       ]
+      },
+      {
+       "h": "Sketching Tools",
+       "items": [
+        "Line Tools",
+        "Rectangle Tools",
+        "Circle Tools",
+        "Arcs",
+        "Ellipse",
+        "Spline",
+        "Fillet",
+        "Chamfer",
+        "Text",
+        "Offset",
+        "Thicken",
+        "Palette",
+        "Center line",
+        "Point",
+        "Coordinate System",
+        "Construction Mode"
+       ]
+      },
+      {
+       "h": "Dimension Tools",
+       "items": [
+        "Dimension tool",
+        "Perimeter",
+        "Baseline Dimensioning",
+        "Reference Dimension"
+       ]
+      },
+      {
+       "h": "Geometric Constraints",
+       "items": [
+        "Vertical Constrain",
+        "Horizontal Constrain",
+        "Perpendicular Constrain",
+        "Tangent Constrain",
+        "Mid-point Constrain",
+        "Coincident Constrain",
+        "Symmetric Constrain",
+        "Equal Constrain",
+        "Parallel Constrain"
+       ]
+      },
+      {
+       "h": "Editing Tools",
+       "items": [
+        "Modify tool",
+        "Mirror Tool",
+        "Divide Tool",
+        "Delete Segment Tool",
+        "Corner Tool",
+        "Rotate Resize Tool"
+       ]
+      }
+     ],
+     "topics": 41
+    },
+    {
+     "title": "Advanced Sketching",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Inspect Options",
+       "items": [
+        "Highlight Overlaps",
+        "Highlight Intersections",
+        "Highlight Junctions",
+        "Highlight Open Ends",
+        "Shade Closed Loops",
+        "Intersection Point",
+        "Tangency Point",
+        "Entity"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Applying Relations to Dimensions",
+        "Importing Sketches in Current Sketch"
+       ]
+      }
+     ],
+     "topics": 12
+    },
+    {
+     "title": "3D Modeling Basics",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Starting Part mode",
+        "Planes in 3D",
+        "Datums",
+        "Plane",
+        "Coordinate System",
+        "Curves",
+        "Creating Sketches on Planes",
+        "Creating 3D features",
+        "Extrude",
+        "Importing Sketches",
+        "Revolve",
+        "Sweep",
+        "Sweep Feature with Multiple trajectories",
+        "Helical Sweep",
+        "Volume Helical Sweep",
+        "Blend",
+        "Rotational Blend",
+        "Swept Blend",
+        "Brief Notes about Drawings",
+        "Machine Drawing",
+        "Production Drawing",
+        "Part Drawing",
+        "Assembly Drawing",
+        "Component representation methods"
+       ]
+      }
+     ],
+     "topics": 25
+    },
+    {
+     "title": "3D Modeling Advanced",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Engineering Features",
+       "items": [
+        "Hole",
+        "Round",
+        "Auto Round",
+        "Edge Chamfer",
+        "Corner Chamfer",
+        "Draft",
+        "Shell",
+        "Rib",
+        "Trajectory Rib",
+        "Profile Rib",
+        "Toroidal Bend",
+        "Spinal Bend",
+        "Cosmetic Sketch",
+        "Cosmetic Thread",
+        "Cosmetic Groove",
+        "Designated Area",
+        "ECAD Area"
+       ]
+      },
+      {
+       "h": "Editing tools",
+       "items": [
+        "Pattern Tools",
+        "Pattern Tool",
+        "Geometry Pattern",
+        "Pattern Table",
+        "Mirror Tool",
+        "Project Tool",
+        "Divide Surface Tool",
+        "Unify Surfaces Tool",
+        "Wrap Tool",
+        "Warp Tool"
+       ]
+      }
+     ],
+     "topics": 30
+    },
+    {
+     "title": "3D Modeling Advanced-II",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Datum Reference",
+        "Datum Graph"
+       ]
+      },
+      {
+       "h": "User-Defined Feature",
+       "items": [
+        "Creating User-Defined Feature",
+        "Inserting User-Defined Feature"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Scaling Model",
+        "Setting Features Read-Only"
+       ]
+      },
+      {
+       "h": "Family Table",
+       "items": [
+        "Opening a Family Table Part"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Importing Part/Assembly",
+        "Merge/Inheritance",
+        "Collapse"
+       ]
+      },
+      {
+       "h": "Rendering",
+       "items": [
+        "Applying Appearances",
+        "Applying Scenes",
+        "Real-Time Rendering",
+        "Denoise",
+        "Taking Screenshot",
+        "Final Rendering"
+       ]
+      }
+     ],
+     "topics": 20
+    },
+    {
+     "title": "Assembly",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Starting Assembly environment",
+        "Inserting Base component in Assembly"
+       ]
+      },
+      {
+       "h": "Constraints in current constraint drop-down",
+       "items": [
+        "Distance",
+        "Angle Offset",
+        "Parallel",
+        "Coincident",
+        "Normal",
+        "Coplanar",
+        "Centered",
+        "Tangent",
+        "Fix",
+        "Default"
+       ]
+      },
+      {
+       "h": "Constraints in Connection Type drop-down",
+       "items": [
+        "Rigid",
+        "Pin",
+        "Slider",
+        "Cylinder",
+        "Planar",
+        "Ball",
+        "Weld",
+        "Bearing",
+        "General",
+        "6DOF",
+        "Gimbal",
+        "Slot"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Exploded View",
+        "View Manager and its Role",
+        "Appearance"
+       ]
+      }
+     ],
+     "topics": 30
+    },
+    {
+     "title": "Advanced Assembly and Introduction to Mechanism",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Bottom-Up Assembly Approach",
+       "items": [
+        "Modifying Part in Assembly",
+        "Creating Part in Assembly"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Mechanism Design",
+        "Applying Gear Relations",
+        "Applying Cam-Follower Relation",
+        "Applying 3D Contact Relation",
+        "Applying Belt Relation"
+       ]
+      },
+      {
+       "h": "Servo Motors",
+       "items": [
+        "Applying Rotational Motor",
+        "Applying Translational Motor"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Apply Force Motors",
+        "Applying Bushing Load",
+        "Applying springs",
+        "Specifying Mass Properties",
+        "Defining Gravity"
+       ]
+      },
+      {
+       "h": "Defining Initial Conditions",
+       "items": [
+        "Defining Initial Velocity of a Point",
+        "Defining Motion Axis Velocity",
+        "Defining Angular Velocity",
+        "Defining Tangential Slot Velocity"
+       ]
+      },
+      {
+       "h": "Defining Termination Conditions",
+       "items": [
+        "Creating Variables for Mechanism",
+        "Specifying Termination Conditions"
+       ]
+      },
+      {
+       "h": "Performing Mechanism Analysis",
+       "items": [
+        "Position Analysis",
+        "Kinematic Analysis",
+        "Dynamic Analysis",
+        "Static Analysis",
+        "Force Balance Analysis",
+        "Performing Dynamic Analysis"
+       ]
+      }
+     ],
+     "topics": 32
+    },
+    {
+     "title": "Sheetmetal Design",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Starting Sheetmetal Design",
+        "Extrude for Sheetmetal",
+        "Twist"
+       ]
+      },
+      {
+       "h": "Flat tool",
+       "items": [
+        "Shape tab",
+        "Bend Position tab",
+        "Miter Cuts tab",
+        "Relief tab",
+        "Bend Allowance tab"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Flange Tool",
+        "Planar Tool"
+       ]
+      },
+      {
+       "h": "Bending Tools",
+       "items": [
+        "Bend tool",
+        "Edge Bend",
+        "Planar Bend"
+       ]
+      },
+      {
+       "h": "Unbend",
+       "items": [
+        "Unbend tool"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Bend Back",
+        "Bend Order",
+        "Solid to Sheetmetal Conversion"
+       ]
+      },
+      {
+       "h": "Rip Tools",
+       "items": [
+        "Surface Rip",
+        "Sketched Rip"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Corner Relief"
+       ]
+      },
+      {
+       "h": "Forming Tool",
+       "items": [
+        "Punch Form Tool"
+       ]
+      },
+      {
+       "h": "Die Form Tool",
+       "items": [
+        "Sketched Form Tool",
+        "Quilt Form Tool",
+        "Flatten Form Tool"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Extruded cut",
+        "Flat Pattern Preview",
+        "Flat Pattern"
+       ]
+      },
+      {
+       "h": "Flexible Modeling for Sheetmetal",
+       "items": [
+        "Pull Wall Tool",
+        "Edit Bend Tool",
+        "Edit Bend Relief Tool",
+        "Edit Corner Relief Tool"
+       ]
+      }
+     ],
+     "topics": 39
+    },
+    {
+     "title": "Surface Design",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Extruded surface",
+        "Other Solid Modeling tools for Surfacing",
+        "Boundary Blend",
+        "Fill",
+        "Trimming Surfaces",
+        "Merging Surfaces"
+       ]
+      },
+      {
+       "h": "Offsetting Surfaces",
+       "items": [
+        "Surface Offset Type",
+        "Curve Offset Type"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Thicken",
+        "Solidify",
+        "Editing surfaces using control points",
+        "Vertex Round"
+       ]
+      }
+     ],
+     "topics": 14
+    },
+    {
+     "title": "Drawing",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Starting Drawing",
+       "items": [
+        "Drawing environment of Creo Parametric"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Inserting Drawing Sheets",
+        "Adding Model to the Drawing"
+       ]
+      },
+      {
+       "h": "Placing the First View (Base View)",
+       "items": [
+        "View Type options",
+        "Visible Area options",
+        "Scale Options",
+        "View States options",
+        "View Display options"
+       ]
+      },
+      {
+       "h": "Projection View",
+       "items": [
+        "Setting Projection Type",
+        "Creating Projection Views",
+        "Detailed View"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Auxiliary View",
+        "Revolved View"
+       ]
+      },
+      {
+       "h": "Creating Section Views",
+       "items": [
+        "2D Cross-sectioning"
+       ]
+      },
+      {
+       "h": "Annotations",
+       "items": [
+        "Importing dimensions",
+        "Manual Dimensioning (Dimension Tool)",
+        "Ordinate Dimension"
+       ]
+      },
+      {
+       "h": "Geometric Tolerance",
+       "items": [
+        "Placing Datum symbol",
+        "Inserting Geometric Tolerance"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Surface Finish Symbol"
+       ]
+      },
+      {
+       "h": "Notes",
+       "items": [
+        "Unattached Note",
+        "Leader Note"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Modifying Dimension Style"
+       ]
+      },
+      {
+       "h": "Creating Tables and Bill of Materials (BOM)",
+       "items": [
+        "Inserting Table dynamically",
+        "Inserting Table by dialog box",
+        "Quick Tables",
+        "Bill of Materials (BOM)"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Generating Balloons"
+       ]
+      }
+     ],
+     "topics": 37
+    },
+    {
+     "title": "Model Based Definition (MBD) and 3D Printing",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Annotation Planes",
+       "items": [
+        "Annotation Plane Manager"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Show Annotations"
+       ]
+      },
+      {
+       "h": "Combination States",
+       "items": [
+        "Creating New Combination State"
+       ]
+      },
+      {
+       "h": "GD&T Advisor",
+       "items": [
+        "Tolerance Feature",
+        "Tolerance Pattern",
+        "Editing Properties for GD&T"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "3D PDF Creation",
+        "3D Printing"
+       ]
+      },
+      {
+       "h": "Part Preparation for 3D Printing",
+       "items": [
+        "3D Printing Processes",
+        "Part Preparation for 3D Printing",
+        "Lattice Creation",
+        "3D Printing in Creo Parametric"
+       ]
+      }
+     ],
+     "topics": 17
+    },
+    {
+     "title": "Introduction to Sheetmetal Manufacturing",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Setting Workpiece and Machine",
+       "items": [
+        "Setting Workpiece",
+        "Setting Machine",
+        "Tool Settings",
+        "Creating Operations",
+        "Part Placement",
+        "Creating NC Sequence",
+        "Generating CL Output"
+       ]
+      }
+     ],
+     "topics": 9
+    },
+    {
+     "title": "Simulation Studies in Creo Parametric",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Starting Simulation in Creo parametric",
+        "Starting Structure Simulation STUDY"
+       ]
+      },
+      {
+       "h": "Applying Constraints",
+       "items": [
+        "Applying Fixed Constraint",
+        "Applying Displacement Constraint",
+        "Applying Cylindrical Constraint",
+        "Applying Ball Constraint",
+        "Applying Planar Constraint"
+       ]
+      },
+      {
+       "h": "Applying Loads",
+       "items": [
+        "Applying Force Load",
+        "Applying Moment Load",
+        "Applying Pressure Load",
+        "Applying Gravity Load",
+        "Applying Centrifugal Load",
+        "Applying Linear Acceleration Load"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Running a Structure Simulation study",
+        "Starting Thermal Simulation Study"
+       ]
+      },
+      {
+       "h": "Applying Boundary Conditions",
+       "items": [
+        "Temperature Boundary Condition",
+        "Convection Boundary Condition"
+       ]
+      },
+      {
+       "h": "Applying LOADS",
+       "items": [
+        "Applying Heat Flow Load",
+        "Applying Heat Flux Load"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Starting Modal Simulation Study",
+        "Running a Modal Simulation Study",
+        "Starting Fluid Simulation Study"
+       ]
+      },
+      {
+       "h": "Fluid setup",
+       "items": [
+        "Creating Internal Volume",
+        "Creating Enclosure Volume",
+        "Selecting Fluid Domain"
+       ]
+      },
+      {
+       "h": "Applying Boundary Conditions",
+       "items": [
+        "Flow Velocity Boundary Condition",
+        "Inlet Pressure Boundary Condition",
+        "Outlet Pressure Boundary Condition",
+        "Mass Flow Boundary Condition",
+        "Slip Symmetry Boundary Condition",
+        "Swirl Inlet Boundary Condition",
+        "Rotating Wall Boundary Condition"
+       ]
+      },
+      {
+       "h": "Applying Thermal Conditions",
+       "items": [
+        "Convection Radiation Thermal Condition"
+       ]
+      }
+     ],
+     "topics": 41
+    }
+   ]
+  },
+  {
+   "id": "solidworks",
+   "name": "SolidWorks",
+   "total": "54 hours",
+   "perDay": "",
+   "sessions": [
+    {
+     "title": "Starting with SolidWorks",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Installing SolidWorks",
+        "Starting SolidWorks",
+        "Starting A New Document",
+        "Opening a Document",
+        "Closing a Document",
+        "Saving the Documents",
+        "Printing Document",
+        "Packing files for Sharing",
+        "Reloading Files",
+        "Replacing Component in Assembly",
+        "Checking Summary of Document",
+        "Customizing Menus",
+        "Basic Settings of SolidWorks",
+        "Mouse Button Function",
+        "Loading Add-Ins",
+        "Search Tools",
+        "Workflow in SolidWorks"
+       ]
+      }
+     ],
+     "topics": 17
+    },
+    {
+     "title": "Sketching Basic to Advanced",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Basics for Sketching",
+        "Sketching Plane",
+        "Starting Sketch",
+        "Heads-up View Toolbar",
+        "Sketch Creation tools",
+        "Sketch Editing tools",
+        "Relations"
+       ]
+      }
+     ],
+     "topics": 7
+    },
+    {
+     "title": "Advanced Dimensioning and Practice",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Dimensioning and its Relations",
+        "Dimension Style",
+        "Horizontal/Vertical Dimensioning",
+        "between Points",
+        "Sketch Ink"
+       ]
+      }
+     ],
+     "topics": 5
+    },
+    {
+     "title": "3D Sketch and Solid Modeling",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "3D Sketching",
+        "Extruded Boss/Base Tool",
+        "Revolved Boss/Base Tool",
+        "Swept Boss/Base Tool",
+        "Reference Geometry",
+        "Lofted Boss/Base Tool",
+        "Boundary Boss/Base Tool",
+        "Removing Material from Solid Objects"
+       ]
+      }
+     ],
+     "topics": 8
+    },
+    {
+     "title": "Solid Editing and Practical",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Fillet",
+        "Chamfer",
+        "Linear Pattern",
+        "Circular Pattern",
+        "Curve Driven Pattern",
+        "Sketch Driven Pattern",
+        "Table Driven Pattern",
+        "Fill Pattern",
+        "Variable Pattern",
+        "Mirror",
+        "Rib",
+        "Draft",
+        "Shell",
+        "Wrap",
+        "Intersect",
+        "Equations",
+        "Design Table",
+        "Applying Material to Part",
+        "Mass Properties of Part"
+       ]
+      }
+     ],
+     "topics": 20
+    },
+    {
+     "title": "Advanced Solid Modeling",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Creating Dome",
+        "Free Forming Solid",
+        "Deforming Solid",
+        "Creating Indent on Solid Model",
+        "Applying Flex Transformation",
+        "Combining Bodies",
+        "Splitting a Solid Body",
+        "Moving and Copying Objects",
+        "Deleting Bodies",
+        "Converting to Mesh Bodies",
+        "Applying 3D Texture",
+        "Importing Model in Part Environment",
+        "Fastening Features",
+        "Block Designing",
+        "Macros",
+        "Mesh Modeling"
+       ]
+      }
+     ],
+     "topics": 17
+    },
+    {
+     "title": "Assembly and Motion Study",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Assembly",
+        "Inserting Base Component",
+        "Inserting Components in Assembly",
+        "Assembly Constraints (Mates)",
+        "Advanced Mates",
+        "Exploded View",
+        "Bill of Materials",
+        "Mate Controller",
+        "Motion Study",
+        "Bottom Up Approach and Top Down Approach"
+       ]
+      }
+     ],
+     "topics": 10
+    },
+    {
+     "title": "Advanced Assembly, Practical and Practice",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Assembly Editing Tools",
+        "Smart Fasteners",
+        "Toolbox",
+        "Magnetic Mates"
+       ]
+      }
+     ],
+     "topics": 5
+    },
+    {
+     "title": "Surfacing and Practice",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Surfacing",
+        "Surfacing tools similar to Solid creation tools",
+        "Special Surfacing Tools",
+        "Surface editing Tools"
+       ]
+      }
+     ],
+     "topics": 4
+    },
+    {
+     "title": "Drawing and Practice",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Drawing Sheet Selection",
+        "Adding Views to Sheet",
+        "Adding Annotations to View",
+        "Generating Exploded View of Assembly",
+        "Editing Title Block"
+       ]
+      }
+     ],
+     "topics": 6
+    },
+    {
+     "title": "AnalysisXpress",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "SimulationXpress Analysis Wizard",
+        "FloXpress Analysis",
+        "DFMXpress Analysis",
+        "Costing",
+        "Sustainability",
+        "DriveWorksXpress"
+       ]
+      }
+     ],
+     "topics": 7
+    },
+    {
+     "title": "Mold Tools",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Starting the Mold Tools",
+        "Analyzing the Model",
+        "Preparing Model for Mold",
+        "Inserting Mold Folder",
+        "Parting Line",
+        "Shut-off surfaces",
+        "Parting surfaces",
+        "Tooling Split",
+        "Core"
+       ]
+      }
+     ],
+     "topics": 9
+    },
+    {
+     "title": "Sheet metal and Practice",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Sheet Metal Introduction",
+        "Creating Base Flange/Tab",
+        "Creating Lofted-Bend",
+        "Sheet Metal Design Terms",
+        "Bend Allowance",
+        "K-Factor",
+        "Creating Edge Flange",
+        "Miter Flange",
+        "Hem",
+        "JOG",
+        "Sketched Bend",
+        "Cross-Break",
+        "Swept Flange",
+        "Close Corner",
+        "Welded Corner",
+        "Break-Corner/Corner-Trim",
+        "Corner Relief",
+        "Forming Tool",
+        "Sheet Metal Gusset",
+        "Tab and Slot",
+        "Extrude Cut",
+        "Vent",
+        "Normal Cut",
+        "Unfold Tool and Fold Tool",
+        "Convert to Sheet Metal",
+        "Rip Tool",
+        "Insert Bends Tool",
+        "Flatten",
+        "Inserting Flat Pattern in drawing"
+       ]
+      }
+     ],
+     "topics": 29
+    },
+    {
+     "title": "Weldments and Markup Tools",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Welding Symbols and Representation in Drawing",
+        "Weldment tool",
+        "Structural Member",
+        "End Cap tool",
+        "Weld Bead",
+        "Inserting Welding data in drawing",
+        "Markup Tools"
+       ]
+      }
+     ],
+     "topics": 8
+    },
+    {
+     "title": "3D Printing and Model Based Definition (MBD)",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "3D Printing",
+        "Part Preparation for 3D Printing",
+        "Print3D",
+        "Model Based Definition (MBD)",
+        "SolidWorks Inspection",
+        "Starting New Inspection Project",
+        "Adding/Editing Inspection Balloons",
+        "Removing Inspection Balloons",
+        "Selecting Inspection Balloons",
+        "Updating Inspection Project",
+        "Launching Template Editor",
+        "Defining Inspection Methods",
+        "Editing Operations for Inspection Dimensions",
+        "Exporting Inspection Sheet"
+       ]
+      }
+     ],
+     "topics": 14
+    },
+    {
+     "title": "Introduction to SolidCAM",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Defining Machine",
+        "Setting Coordinate System",
+        "Defining or Editing Stock",
+        "Setting Milling Operation Parameters",
+        "Extracting Machinable Features",
+        "Generating Operation Plan",
+        "Generating Tool Paths",
+        "Simulating Tool Paths",
+        "Visualizing Toolpaths",
+        "Saving Toolpaths",
+        "Post Processing Toolpaths",
+        "Manually Creating Mill Operations"
+       ]
+      }
+     ],
+     "topics": 13
+    },
+    {
+     "title": "Rendering",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Editing Appearance",
+        "Copying and Pasting Appearances",
+        "Editing Scene",
+        "Editing Decal",
+        "Selecting Display States Target",
+        "Integrated Preview",
+        "Rendering Options",
+        "Preview Window",
+        "Render Region",
+        "Final Render"
+       ]
+      }
+     ],
+     "topics": 11
+    }
+   ]
+  },
+  {
+   "id": "solidworks-flow-simulation",
+   "name": "SolidWorks Flow Simulation",
+   "card": {
+    "tagline": "CFD in SolidWorks: fluid flow, pressure and heat transfer",
+    "levels": "Intermediate (SolidWorks basics needed)",
+    "theme": "teal",
+    "icon": "hub"
+   },
+   "total": "14 hours",
+   "perDay": "",
+   "sessions": [
+    {
+     "title": "Starting with Computational Fluid Dynamics",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction of Fluid Mechanics"
+       ]
+      },
+      {
+       "h": "Basic Properties of Fluids",
+       "items": [
+        "Mass Density, Weight Density, and Specific Gravity",
+        "Viscosity"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Problem on Viscosity",
+        "Types of Fluids"
+       ]
+      },
+      {
+       "h": "Thermodynamic Properties of Fluid",
+       "items": [
+        "Universal Gas Constant",
+        "Compressibility of Gases",
+        "Vapour Pressure and Cavitation"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Pascal’s Law"
+       ]
+      },
+      {
+       "h": "Fluid Dynamics",
+       "items": [
+        "Bernoulli’s Incompressible Fluid Equation",
+        "Eulerian and Lagrangian Method of Analysis"
+       ]
+      },
+      {
+       "h": "Differential Approach of Fluid Flow Analysis",
+       "items": [
+        "Acceleration"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Introduction to CFD",
+        "Introduction to SolidWorks Flow Simulation",
+        "Starting SolidWorks Flow Simulation"
+       ]
+      },
+      {
+       "h": "Preparing Component for Simulation",
+       "items": [
+        "Creating lids by Solid Modeling (First Method)",
+        "Creating Lids using the Create Lids tool (Second Method)",
+        "Checking Geometry for leakage",
+        "Leak Tracking",
+        "Engineering Database"
+       ]
+      }
+     ],
+     "topics": 25
+    },
+    {
+     "title": "Creating and Managing Flow Simulation Project",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "Starting Projects",
+       "items": [
+        "Creating Project"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Computational Domain",
+        "Fluid Subdomains",
+        "Rotating Region"
+       ]
+      },
+      {
+       "h": "Setting Material for Model",
+       "items": [
+        "Importing Material Data"
+       ]
+      },
+      {
+       "h": "Boundary Conditions",
+       "items": [
+        "Specifying Flow Opening",
+        "Specifying Pressure Opening",
+        "Specifying Wall Boundary Condition"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Radiative Surfaces"
+       ]
+      },
+      {
+       "h": "Goals",
+       "items": [
+        "Insert Global Goals",
+        "Insert Point Goals",
+        "Insert Surface Goals",
+        "Insert Volume Goals",
+        "Insert Equation Goals"
+       ]
+      },
+      {
+       "h": "Mesh",
+       "items": [
+        "Global Mesh",
+        "Insert local Mesh",
+        "Show Basic Mesh",
+        "Basic Mesh Color",
+        "Important Tips about Mesh",
+        "Create Mesh"
+       ]
+      },
+      {
+       "h": "Setting Calculation Controls",
+       "items": [
+        "Finishing Options",
+        "Refinement Options",
+        "Solving Options",
+        "Saving Options"
+       ]
+      }
+     ],
+     "topics": 30
+    },
+    {
+     "title": "Analyzing and Generating Results of Analysis",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Generating Results",
+       "items": [
+        "Scenes",
+        "Mesh",
+        "Cut Plots",
+        "Surface Plots",
+        "Isosurfaces",
+        "Flow Trajectories",
+        "Particle Studies",
+        "Point Parameters",
+        "Surface Parameters",
+        "Volume Parameters",
+        "XY Plots",
+        "Goal Plots",
+        "Report",
+        "Animations",
+        "Export Results",
+        "Loading Transient Results",
+        "Probing Result",
+        "Loading Time Moment",
+        "Comparing Results"
+       ]
+      }
+     ],
+     "topics": 21
+    },
+    {
+     "title": "Advanced Boundary Conditions",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Porous Medium",
+        "Initial Condition",
+        "Defining Heat Sources",
+        "Defining Surface Heat Source",
+        "Defining Volume Heat Source",
+        "Applying Radiative Surface Properties",
+        "Applying Radiation Source",
+        "Applying Fan Properties",
+        "Tracer Study",
+        "Setting Source of Gas Traces",
+        "Transferred Boundary Condition",
+        "Applying Contact Resistance",
+        "Heat Sink Simulation",
+        "Thermoelectric Cooler",
+        "Perforated Plate",
+        "Two Resistor Component",
+        "Electrical Condition",
+        "Electrical Source",
+        "Heat Pipe",
+        "Thermal Joint",
+        "Printed Circuit Board",
+        "Course Info"
+       ]
+      }
+     ],
+     "topics": 23
+    }
+   ]
+  },
+  {
+   "id": "solidworks-simulation",
+   "name": "SolidWorks Simulation",
+   "card": {
+    "tagline": "FEA in SolidWorks: static, thermal, buckling, fatigue and more",
+    "levels": "Intermediate (SolidWorks basics needed)",
+    "theme": "violet",
+    "icon": "chart"
+   },
+   "total": "24 hours",
+   "perDay": "",
+   "sessions": [
+    {
+     "title": "Introduction to Simulation",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Simulation",
+        "Types of Analyses Performed in SolidWorks Simulation",
+        "FEA",
+        "Optimum process of FEA through SolidWorks Simulation",
+        "Starting SolidWorks Simulation"
+       ]
+      }
+     ],
+     "topics": 5
+    },
+    {
+     "title": "Basics of Analyses in SolidWorks Simulation",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Starting Analysis",
+        "Applying Material",
+        "Defining Fixtures",
+        "External Load Advisor",
+        "Connections Advisor",
+        "Meshing",
+        "Simulation Evaluator",
+        "Running Analysis",
+        "Results Advisor"
+       ]
+      }
+     ],
+     "topics": 9
+    },
+    {
+     "title": "Preparing Model for Analysis",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Reference Geometry",
+        "Simplify",
+        "Extruded Boss/Base Tool",
+        "Revolved Boss/Base Tool",
+        "Extruded Cut",
+        "Fillet",
+        "Chamfer",
+        "Mirror",
+        "Split Line Tool",
+        "Mid Surface",
+        "Split Tool",
+        "Combine Tool",
+        "Intersect Tool",
+        "Move/Copy Bodies Tool",
+        "Importing Part"
+       ]
+      }
+     ],
+     "topics": 16
+    },
+    {
+     "title": "Static Analysis",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Linear static analysis",
+        "Performing Static Analysis",
+        "Shell Manager",
+        "Performing Static Analysis Using Study Advisor",
+        "Static Analysis on Assembly",
+        "Adapting Meshing",
+        "Submodeling Study",
+        "Load case Manager",
+        "Trend Tracker"
+       ]
+      }
+     ],
+     "topics": 9
+    },
+    {
+     "title": "Non-Linear Static Analysis",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Non-Linear Static Analysis",
+        "Theory Behind Non-Linear Analysis",
+        "Setting Properties for Non-linear Static Analysis",
+        "Performing Non-linear Static analysis on an assembly",
+        "Performing Nonlinear Static analysis on a ring under application of Torque",
+        "2D Simplification"
+       ]
+      }
+     ],
+     "topics": 6
+    },
+    {
+     "title": "Non-Linear Dynamic Analysis",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Non-Linear Dynamic Analysis",
+        "Setting Parameters in Nonlinear Dynamic Analysis"
+       ]
+      }
+     ],
+     "topics": 2
+    },
+    {
+     "title": "Frequency Analysis",
+     "hours": "1 hour",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Starting Frequency Analysis"
+       ]
+      }
+     ],
+     "topics": 2
+    },
+    {
+     "title": "Linear Dynamic Analysis",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Linear Dynamic Analysis",
+        "Types of Dynamic Analysis",
+        "Modal Time History Analysis",
+        "Harmonic Analysis",
+        "Response Spectrum Analysis"
+       ]
+      }
+     ],
+     "topics": 5
+    },
+    {
+     "title": "Thermal Analysis",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Thermal Loads",
+        "Contact Set",
+        "Practical on Steady State Thermal Analysis",
+        "Switching from steady state analysis to transient thermal analysis"
+       ]
+      }
+     ],
+     "topics": 5
+    },
+    {
+     "title": "Buckling Analysis",
+     "hours": "1 hour",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Use of Buckling Analysis",
+        "Manual Solution of Buckling Analysis"
+       ]
+      }
+     ],
+     "topics": 3
+    },
+    {
+     "title": "Fatigue Analysis",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Running Constant Amplitude Events on the model"
+       ]
+      }
+     ],
+     "topics": 2
+    },
+    {
+     "title": "Drop-Test",
+     "hours": "1 hour",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Starting Drop-Test"
+       ]
+      }
+     ],
+     "topics": 2
+    },
+    {
+     "title": "Pressure Vessel Design and Design Study",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Starting Pressure Vessel Design Study",
+        "Design Study"
+       ]
+      }
+     ],
+     "topics": 3
+    },
+    {
+     "title": "Topology Study",
+     "hours": "1 hour",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Topology Study",
+        "Starting Topology Study",
+        "Manufacturing Controls",
+        "Course Info"
+       ]
+      }
+     ],
+     "topics": 4
+    }
+   ]
+  },
+  {
+   "id": "autodesk-revit",
+   "name": "Autodesk Revit",
+   "total": "52 hours",
+   "perDay": "",
+   "sessions": [
+    {
+     "title": "Introduction to Revit",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction to BIM",
+        "Introduction to Autodesk Revit",
+        "Downloading and Installing Autodesk Revit Student Version",
+        "Starting Autodesk Revit"
+       ]
+      },
+      {
+       "h": "User Interface",
+       "items": [
+        "Ribbon",
+        "Title Bar",
+        "Properties Palette",
+        "Project Browser",
+        "Status Bar",
+        "View Control Bar"
+       ]
+      },
+      {
+       "h": "File Menu",
+       "items": [
+        "Creating a New Project",
+        "Creating a New Family",
+        "Creating New Conceptual Mass",
+        "Opening a Project File",
+        "Opening File in Revit",
+        "Opening a Cloud Model",
+        "Saving a File",
+        "Exporting Files",
+        "Exporting File in DWG, DXF, DGN, SAT, or STL format"
+       ]
+      },
+      {
+       "h": "Printing Views and Sheets",
+       "items": [
+        "Print Setup",
+        "Print Preview",
+        "Printing Documents",
+        "Batch Printing",
+        "Closing Project"
+       ]
+      },
+      {
+       "h": "Revit Options",
+       "items": [
+        "General Page",
+        "User Interface Page",
+        "Graphics Page",
+        "Hardware Page",
+        "File Locations Page"
+       ]
+      }
+     ],
+     "topics": 33
+    },
+    {
+     "title": "Architectural Designing",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Starting a New Project",
+        "Creating Grid"
+       ]
+      },
+      {
+       "h": "Creating Walls",
+       "items": [
+        "Creating Architectural Wall",
+        "Creating Structural Walls",
+        "Creating Wall by Face",
+        "Creating Sweep Wall",
+        "Creating Reveal Wall"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Doors",
+        "Loading Autodesk Family"
+       ]
+      },
+      {
+       "h": "Modify Tools",
+       "items": [
+        "Selection Mode",
+        "Type Properties",
+        "Modifying Properties of Elements",
+        "Clipboard Operations",
+        "Matching Type Properties",
+        "Applying Notching to Steel Frame",
+        "Removing Notching",
+        "Cutting Elements using Geometry",
+        "Uncut Geometry Tool",
+        "Joining Geometry",
+        "Unjoin Geometry",
+        "Switching Join Order",
+        "Join/Unjoin Roof",
+        "Beam/Column Joins",
+        "Wall Joins",
+        "Splitting Faces",
+        "Applying and Removing Paint",
+        "Demolish",
+        "Un-demolish",
+        "Activating Controls and Dimensions",
+        "Aligning Objects",
+        "Moving Objects",
+        "Applying Offset",
+        "Copying Objects",
+        "Rotating Objects",
+        "Creating Mirror Copy by Selecting Axis",
+        "Creating Mirror Copy by Drawing Axis",
+        "Forming Corners of Walls/Beams",
+        "Splitting Elements",
+        "Splitting with Gap",
+        "Creating Array of Objects",
+        "Scaling",
+        "Trim/Extend Single Element",
+        "Pin and Unpin Objects",
+        "Hiding Objects",
+        "Measuring Between Two References",
+        "Measuring Along an Element",
+        "Creating Dimensions",
+        "Creating Assembly",
+        "Creating Parts",
+        "Creating Groups",
+        "Create Similar"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Windows"
+       ]
+      },
+      {
+       "h": "Placing Components",
+       "items": [
+        "Model In-Place"
+       ]
+      },
+      {
+       "h": "Creating Columns",
+       "items": [
+        "Creating Structural Columns",
+        "Creating Architectural Column"
+       ]
+      }
+     ],
+     "topics": 59
+    },
+    {
+     "title": "Architectural Designing-II",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Creating Roofs",
+       "items": [
+        "Creating Roof by Footprint",
+        "Modifying a Roof",
+        "Creating Roof by Extrusion",
+        "Creating Roof by Face",
+        "Creating Roof Soffit",
+        "Creating Roof Fascia",
+        "Creating Roof Gutter",
+        "Creating Ceiling"
+       ]
+      },
+      {
+       "h": "Creating Floor",
+       "items": [
+        "Creating Architectural Floor",
+        "Creating Structural Floor",
+        "Creating Floor Slab"
+       ]
+      },
+      {
+       "h": "Creating Curtain System",
+       "items": [
+        "Placing Mass Objects and Setting Visibility in Architectural Drawing"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Curtain Grid",
+        "Creating Curtain Wall Mullion",
+        "Adding Ramp",
+        "Adding Stair"
+       ]
+      },
+      {
+       "h": "Creating Railing",
+       "items": [
+        "Sketching Railing Path",
+        "Placing Railing on Stairs/Ramps"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Model Text",
+        "Creating Model Line"
+       ]
+      },
+      {
+       "h": "Room Markings and Calculations",
+       "items": [
+        "Creating Room Markings",
+        "Creating Room Separator",
+        "Creating Tags for Rooms and Objects"
+       ]
+      },
+      {
+       "h": "Creating Openings",
+       "items": [
+        "Opening by Face",
+        "Creating Shaft Opening",
+        "Creating Wall Opening",
+        "Creating Vertical Opening",
+        "Creating Dormer Opening"
+       ]
+      }
+     ],
+     "topics": 35
+    },
+    {
+     "title": "Project Management",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Creating and Managing Materials",
+        "Graphic Parameters",
+        "Identity Parameters",
+        "Appearance Parameters",
+        "Physical Parameters",
+        "Thermal Parameters",
+        "Creating New Material",
+        "Opening Material Library",
+        "Defining Object Styles for Project",
+        "Snap Setting",
+        "Defining Project Information",
+        "Route Analysis Settings",
+        "Defining Project Parameters",
+        "Creating Project Parameter",
+        "Adding Shared Parameter",
+        "Creating and Editing Shared Parameters",
+        "Creating New Shared Parameter",
+        "Creating Global Parameters",
+        "Assigning Parameters",
+        "Transferring Project Standards",
+        "Purging Unused Items",
+        "Defining Project Units",
+        "Settings",
+        "Load Classification Settings",
+        "Creating New Load Classification",
+        "Demand Factors Settings",
+        "Managing Panel Schedule Templates",
+        "Editing a Panel Schedule Template",
+        "Editing Fill Pattern",
+        "Modifying Material Assets",
+        "Analysis Display Styles",
+        "Managing Sheet Issues/Revisions",
+        "Modifying Line Styles",
+        "Setting Line Weight",
+        "Setting Line Patterns",
+        "Setting Parameters for Halftone and Underlay",
+        "Setting Callout Tag style",
+        "Setting Temporary Dimension Properties",
+        "Setting Annotation Scales for Detail Levels",
+        "Project Location Tools",
+        "Acquiring Coordinate",
+        "Publishing Coordinate System",
+        "Resetting Shared Coordinates",
+        "Specifying Coordinates at a Point",
+        "Reporting Coordinate System",
+        "Project Positioning",
+        "Relocating Project",
+        "Rotating True North",
+        "Mirroring Project",
+        "Rotating Project North",
+        "Creating Design Options",
+        "Managing Links",
+        "Managing Images",
+        "Creating Starting View",
+        "Managing Phases",
+        "Selection Tools",
+        "Editing Selection Filter",
+        "Editing Rule-based Filters",
+        "Inquiry Tools",
+        "IDs of Selection",
+        "Selection by ID",
+        "Review Warnings"
+       ]
+      }
+     ],
+     "topics": 63
+    },
+    {
+     "title": "Revit Family, Conceptual Mass, and Title Block",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Creating New Revit Family Component",
+       "items": [
+        "Creating Extrusion",
+        "Creating Blend Object",
+        "Creating Revolve Feature",
+        "Creating Sweep Feature",
+        "Creating Swept Blend Feature",
+        "Creating Void Forms"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Conceptual Mass Model",
+        "Creating Title Block Template",
+        "Creating Annotation Symbols"
+       ]
+      }
+     ],
+     "topics": 11
+    },
+    {
+     "title": "Structural Designing",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Creating Beams",
+        "Creating the Structural Wall, Column, and Floor",
+        "Creating Structural Truss",
+        "Creating Brace",
+        "Creating Beam System"
+       ]
+      },
+      {
+       "h": "Defining Structural Settings",
+       "items": [
+        "Symbolic Representation Settings",
+        "Load Cases",
+        "Load Combinations",
+        "Analytical Model Settings",
+        "Boundary Conditions Settings"
+       ]
+      },
+      {
+       "h": "Connections",
+       "items": [
+        "Connection Settings",
+        "Applying Connection"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Automating Connections"
+       ]
+      },
+      {
+       "h": "Creating Foundations",
+       "items": [
+        "Creating Isolated Foundation",
+        "Creating Wall Footing",
+        "Creating Slab Foundation"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Structural Rebar",
+        "Structural Area Reinforcement",
+        "Structural Path Reinforcement",
+        "Creating Fabric Area",
+        "Creating Fabric Sheet",
+        "Editing Rebar Cover",
+        "Applying Rebar Coupler"
+       ]
+      }
+     ],
+     "topics": 27
+    },
+    {
+     "title": "Steel Structural Designing",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction",
+        "Creating Fabrication Plate",
+        "Creating Bolts",
+        "Creating Anchor Bolts",
+        "Creating Holes",
+        "Creating Shear Studs",
+        "Creating Weld Joints",
+        "Creating Corner Cuts",
+        "Creating Notch Skewed",
+        "Shortening beams/columns",
+        "Creating Contour Cut",
+        "Creating Notch",
+        "Creating Miter Cut",
+        "Creating Saw Cut-Flange",
+        "Creating Saw Cut – Web",
+        "Creating Cut Through",
+        "Cutting Elements"
+       ]
+      }
+     ],
+     "topics": 17
+    },
+    {
+     "title": "System Design",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "HVAC System",
+       "items": [
+        "Defining HVAC Settings",
+        "Creating Duct",
+        "Creating Duct Placeholder",
+        "Applying Duct Fittings",
+        "Placing Duct Accessories",
+        "Converting to Flex Duct",
+        "Creating Flexible Duct",
+        "Creating Air Terminal",
+        "Placing Fabrication Parts",
+        "Creating Multi-Point Routing",
+        "Placing Mechanical Equipment",
+        "Placing Mechanical Control Devices"
+       ]
+      },
+      {
+       "h": "Basics of HVAC",
+       "items": [
+        "Calculating CFM and Planning Duct System"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating HVAC System",
+        "Creating Piping and Plumbing System",
+        "Activating plumbing floor plan",
+        "Creating Piping System",
+        "Creating Pipe Placeholder",
+        "Creating Parallel Pipes",
+        "Placing Pipe Fittings",
+        "Placing Pipe Accessories",
+        "Creating Flex Pipe",
+        "Placing Plumbing Fixture",
+        "Placing Sprinklers",
+        "Creating Piping Layout Automatically",
+        "Basics of Piping/Plumbing System",
+        "Practical (Piping)"
+       ]
+      },
+      {
+       "h": "Creating Electrical Layout",
+       "items": [
+        "Creating Wires",
+        "Creating Cable Tray",
+        "Creating Conduits",
+        "Creating Parallel Conduits",
+        "Creating Cable Tray Fitting",
+        "Creating Conduit Fitting",
+        "Placing Electrical Equipment",
+        "Defining Electrical Settings"
+       ]
+      }
+     ],
+     "topics": 39
+    },
+    {
+     "title": "Performing Analysis",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Structural Analysis",
+       "items": [
+        "Placing Line Analytical Member",
+        "Placing Panel Analytical Member",
+        "Creating Link between Analytical Nodes",
+        "Creating Boundary Conditions",
+        "Applying Loads",
+        "Creating Load Cases and Load Combinations",
+        "Analytical Automation",
+        "Running Analysis on Robot Structural",
+        "Checking Systems",
+        "Creating Spaces",
+        "Creating Space Separator",
+        "Applying Space Tag",
+        "Applying Space Naming",
+        "Defining HVAC Zones",
+        "Generating Duct Pressure Loss Report",
+        "Generating Panel Schedules",
+        "Creating Schedules and Quantities",
+        "Defining Building/Space Type Settings",
+        "Creating Color Fill Legend",
+        "Specifying Geographic Location for Project",
+        "Creating System Zone",
+        "Creating Energy Model",
+        "Defining Energy Settings",
+        "Generating Analytical Energy Model",
+        "Performing System Analysis",
+        "Path of Travel Analysis",
+        "Generating Multiple Route Paths",
+        "Placing One Way Indicator",
+        "Placing People Content"
+       ]
+      }
+     ],
+     "topics": 31
+    },
+    {
+     "title": "Inserting and Collaborating Data",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Creating and Managing Links",
+       "items": [
+        "Linking Revit Model",
+        "Linking IFC Model",
+        "Linking CAD Model",
+        "Linking Topography",
+        "Linking DWF files",
+        "Placing Decal",
+        "Linking Point Cloud Data",
+        "Linking Coordination Model",
+        "Linking PDFs",
+        "Linking Image File",
+        "Managing Links"
+       ]
+      },
+      {
+       "h": "Importing Files",
+       "items": [
+        "Importing CAD Files",
+        "Importing gbXML File",
+        "Importing PDF",
+        "Inserting Views from Other Files",
+        "Inserting 2D Elements from File"
+       ]
+      },
+      {
+       "h": "Collaborating with Team",
+       "items": [
+        "Collaboration of Project",
+        "Worksharing Monitor",
+        "Checking History of Model Collaboration",
+        "Restoring Backup",
+        "Copying and Monitoring Elements",
+        "Copying and Monitoring Linked Objects",
+        "Coordination Settings",
+        "Batch Copying",
+        "Coordination Review",
+        "Interference Check",
+        "Sharing Views of Model"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Transmitting Revit Project"
+       ]
+      }
+     ],
+     "topics": 32
+    },
+    {
+     "title": "Massing and Site Creation",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Creating and Managing Mass",
+       "items": [
+        "Show Mass Settings",
+        "Placing Masses",
+        "Creating In-Place Mass",
+        "Creating 3D Sketch",
+        "Changing Face of Conceptual Model to Curtain",
+        "Creating Roof on Conceptual Mass",
+        "Creating Wall by Face",
+        "Creating Floor by Face"
+       ]
+      },
+      {
+       "h": "Creating and Managing Site",
+       "items": [
+        "Creating Toposurface",
+        "Placing Site Components",
+        "Placing Parking Component",
+        "Placing Building Pad",
+        "Splitting Toposurface",
+        "Merging Toposurfaces",
+        "Creating Subregion",
+        "Creating Property Line",
+        "Graded Region",
+        "Displaying Label Contours"
+       ]
+      }
+     ],
+     "topics": 21
+    },
+    {
+     "title": "View Management",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "Introduction",
+       "items": [
+        "Creating and Managing View Templates",
+        "Visibility and Graphics Settings",
+        "Activating Thin Lines",
+        "Showing Hidden Lines",
+        "Removing Hidden Lines",
+        "Creating Cut Profiles",
+        "Graphic Display Settings"
+       ]
+      },
+      {
+       "h": "Rendering",
+       "items": [
+        "Applying Material",
+        "Rendering",
+        "Render in Cloud",
+        "Render Gallery"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Default 3D View",
+        "Creating Camera View",
+        "Creating Walkthrough",
+        "Creating Section View"
+       ]
+      },
+      {
+       "h": "Creating Callouts",
+       "items": [
+        "Creating Rectangle Callout",
+        "Creating Sketched Callout"
+       ]
+      },
+      {
+       "h": "Creating Plan Views",
+       "items": [
+        "Creating Floor Plan",
+        "Creating Reflected Ceiling Plan",
+        "Creating Structural Plan",
+        "Creating Plan Region",
+        "Creating Area Plan"
+       ]
+      },
+      {
+       "h": "Creating Elevation Views",
+       "items": [
+        "Creating Elevation View",
+        "Creating Framing Elevation"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Drafting View"
+       ]
+      },
+      {
+       "h": "Creating Duplicate Views",
+       "items": [
+        "Creating Duplicate View",
+        "Duplicate with Detailing",
+        "Duplicate as Dependent"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Legend View",
+        "Creating Keynote Legend"
+       ]
+      },
+      {
+       "h": "Creating Schedules",
+       "items": [
+        "Creating Schedules/Quantities",
+        "Creating Graphical Column Schedule",
+        "Creating Material Takeoff List"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Scope Box",
+        "Creating Sheets",
+        "Placing View in Sheet",
+        "Placing Title Block",
+        "Creating Guide Grid",
+        "Creating Matchline",
+        "Placing View Reference",
+        "Activating and deactivating views in Sheets"
+       ]
+      },
+      {
+       "h": "Managing Windows",
+       "items": [
+        "Switching Windows",
+        "Closing Inactive Views",
+        "Tab Views",
+        "Tile Views"
+       ]
+      },
+      {
+       "h": "Managing User Interface",
+       "items": [
+        "Browser Organization"
+       ]
+      }
+     ],
+     "topics": 55
+    },
+    {
+     "title": "Annotating Model",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "Annotations",
+       "items": [
+        "Creating Aligned Dimension",
+        "Creating Linear Dimension",
+        "Creating Angular Dimension",
+        "Creating Radial Dimension",
+        "Creating Diameter Dimension",
+        "Creating Arc Length Dimension",
+        "Spot Elevation Dimension",
+        "Spot Coordinate Dimension",
+        "Spot Slope Dimension"
+       ]
+      },
+      {
+       "h": "Detailing Tools",
+       "items": [
+        "Placing Detail Lines",
+        "Creating Filled Region",
+        "Creating Masking Region",
+        "Placing Detail Component",
+        "Placing Repeating Detail Component",
+        "Placing Legend Components",
+        "Placing Revision Cloud",
+        "Creating Detail Group",
+        "Placing Detail Group",
+        "Creating Insulation",
+        "Creating Text",
+        "Checking Spelling",
+        "Finding and Replacing Text",
+        "Defining Text Properties",
+        "Applying Tags by Category",
+        "Applying Tags to All Elements",
+        "Applying Beam Annotations",
+        "Applying Multi-Category Tag",
+        "Applying Material Tags",
+        "Applying Area Tags",
+        "Applying Room Tags",
+        "Applying Space Tags",
+        "Applying View References",
+        "Applying Tread Number",
+        "Applying Aligned Multi-Rebar Annotations",
+        "Checking Loaded Tags and Symbols",
+        "Applying Keynotes",
+        "Placing Symbols"
+       ]
+      }
+     ],
+     "topics": 39
+    },
+    {
+     "title": "Macro Management and Visual Scripting (Introduction)",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "Managing Macros",
+       "items": [
+        "Creating Macro Module",
+        "Creating Macro",
+        "Using Revit API Help file",
+        "Common Operations in Macro Manager"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Setting Macro Security"
+       ]
+      },
+      {
+       "h": "Visual Scripting with Dynamo",
+       "items": [
+        "Starting Dynamo",
+        "Starting a New Dynamo Script",
+        "Creating Basic Script for Line",
+        "Creating Line with Single Code Block",
+        "Creating Solid Loft with Cross-sections and Guide Curves",
+        "Creating Path Array of Revit Objects",
+        "Path Array of Level Bound Objects",
+        "Creating Scripts with User Inputs"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Dynamo Player"
+       ]
+      }
+     ],
+     "topics": 16
+    },
+    {
+     "title": "Residential Building Project",
+     "hours": "4 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Planning",
+       "items": [
+        "Site Selection for Building",
+        "Residential Land Size",
+        "Construction Type and Material"
+       ]
+      },
+      {
+       "h": "Designing",
+       "items": [
+        "Creating Architectural Model in Autodesk Revit",
+        "Creating Structural Model of Building",
+        "Creating Plumbing System"
+       ]
+      }
+     ],
+     "topics": 9
+    },
+    {
+     "title": "Precast",
+     "hours": "2 hours",
+     "groups": [
+      {
+       "h": "",
+       "items": [
+        "Introduction"
+       ]
+      },
+      {
+       "h": "Splitting Structural Elements into Precasts",
+       "items": [
+        "Placing Mounting Parts on Precasts"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Creating Reinforcements for Assembly"
+       ]
+      },
+      {
+       "h": "Creating Custom Fabric Sheet",
+       "items": [
+        "Defining Custom Sheet Parameters",
+        "Creating Custom Fabric Sheet"
+       ]
+      },
+      {
+       "h": "Modifying Precast Configuration",
+       "items": [
+        "Solid Wall Part Parameters",
+        "Solid Wall Segmentation Parameters",
+        "Solid Wall Reinforcement Parameters",
+        "Solid Wall Shop Drawing Parameters",
+        "Annotation Parameters"
+       ]
+      },
+      {
+       "h": "",
+       "items": [
+        "Generating Shop Drawings",
+        "Exporting for CAM"
+       ]
+      }
+     ],
+     "topics": 15
+    }
+   ]
+  }
+ ]
+}

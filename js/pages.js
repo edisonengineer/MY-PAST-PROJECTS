@@ -289,6 +289,22 @@
         const sel = document.getElementById('tr-course');
         if (b && sel) sel.value = b.dataset.course;
     });
+    // Course syllabus: expand / collapse every session, and print the whole syllabus (all sessions open)
+    const sylSessions = () => Array.from(document.querySelectorAll('.syl-session'));
+    document.addEventListener('click', (e) => {
+        const t = e.target.closest('[data-syl-toggle]');
+        if (t) {
+            const open = !sylSessions().every((d) => d.open);
+            sylSessions().forEach((d) => { d.open = open; });
+            t.textContent = window.I18N ? window.I18N.t(open ? 'Collapse all' : 'Expand all') : (open ? 'Collapse all' : 'Expand all');
+            return;
+        }
+        if (e.target.closest('[data-syl-print]')) window.print();
+    });
+    let sylWasOpen = null;
+    window.addEventListener('beforeprint', () => { if (!sylSessions().length) return; if (!sylWasOpen) sylWasOpen = sylSessions().map((d) => d.open); sylSessions().forEach((d) => { d.open = true; }); });
+    window.addEventListener('afterprint', () => { if (sylWasOpen) sylSessions().forEach((d, i) => { d.open = sylWasOpen[i]; }); sylWasOpen = null; });
+
     // ...and so does a link from a course page: training/?course=SolidWorks#reserve
     (function () {
         const want = new URLSearchParams(location.search).get('course');

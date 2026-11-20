@@ -1303,11 +1303,30 @@ window.I18N_SW = {
     "All courses": "Kozi zote",
     "Made by my": "Imetengenezwa na",
     "trainees": "wanafunzi wangu",
-    "3D model": "Muundo wa 3D"
+    "3D model": "Muundo wa 3D",
+    // Course syllabus
+    "Course syllabus": "Mtaala wa kozi",
+    "Everything we'll": "Kila kitu tutakacho",
+    "cover": "shughulikia",
+    "Expand all": "Fungua yote",
+    "Collapse all": "Funga yote",
+    "Print / save as PDF": "Chapisha / hifadhi kama PDF",
+    "in total": "kwa jumla",
+    "sessions": "vipindi",
+    "topics": "mada",
+    "per session": "kwa kila kipindi",
+    "one-on-one or group": "mmoja mmoja au kikundi",
+    "See the full syllabus": "Tazama mtaala kamili",
+    "Full syllabus": "Mtaala kamili",
+    "Sessions follow this order, at a pace that suits you. One-on-one courses can skip what you already know or go deeper on what you need.": "Vipindi hufuata mpangilio huu, kwa kasi inayokufaa. Kozi za mmoja mmoja zinaweza kuruka unachojua tayari au kuingia ndani zaidi kwa unachohitaji."
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
 window.I18N_SW_PATTERNS = [
+    [/^Session (\d+)$/, "Kipindi cha $1"],
+    [/^([\d.]+(?:–[\d.]+)?) hours?$/, "Saa $1"],
+    [/^(\d+) topics$/, "Mada $1"],
+    [/^(\d+) sessions · ([\d.]+(?:–[\d.]+)?) hours$/, "Vipindi $1 · saa $2"],
     [/^Built by (.+) trainees\.$/, "Imejengwa na wanafunzi wa $1."],
     [/^(.+) training\.$/, "Mafunzo ya $1."],
     [/^Ready to learn (.+)\?$/, "Uko tayari kujifunza $1?"],

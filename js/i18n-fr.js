@@ -1303,11 +1303,30 @@ window.I18N_FR = {
     "All courses": "Tous les cours",
     "Made by my": "Réalisé par mes",
     "trainees": "stagiaires",
-    "3D model": "Modèle 3D"
+    "3D model": "Modèle 3D",
+    // Course syllabus
+    "Course syllabus": "Programme du cours",
+    "Everything we'll": "Tout ce que nous allons",
+    "cover": "aborder",
+    "Expand all": "Tout déplier",
+    "Collapse all": "Tout replier",
+    "Print / save as PDF": "Imprimer / enregistrer en PDF",
+    "in total": "au total",
+    "sessions": "séances",
+    "topics": "sujets",
+    "per session": "par séance",
+    "one-on-one or group": "en individuel ou en groupe",
+    "See the full syllabus": "Voir le programme complet",
+    "Full syllabus": "Programme complet",
+    "Sessions follow this order, at a pace that suits you. One-on-one courses can skip what you already know or go deeper on what you need.": "Les séances suivent cet ordre, à votre rythme. En cours individuel, on peut passer ce que vous savez déjà ou approfondir ce dont vous avez besoin."
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */
 window.I18N_FR_PATTERNS = [
+    [/^Session (\d+)$/, "Séance $1"],
+    [/^([\d.]+(?:–[\d.]+)?) hours?$/, "$1 h"],
+    [/^(\d+) topics$/, "$1 sujets"],
+    [/^(\d+) sessions · ([\d.]+(?:–[\d.]+)?) hours$/, "$1 séances · $2 h"],
     [/^Built by (.+) trainees\.$/, "Réalisé par les stagiaires $1."],
     [/^(.+) training\.$/, "Formation $1."],
     [/^Ready to learn (.+)\?$/, "Prêt à apprendre $1 ?"],
