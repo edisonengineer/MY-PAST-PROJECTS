@@ -170,7 +170,7 @@ async function main() {
         }
         prune(dir, keep);
         const graphic = w.category === 'graphic';
-        works.push({
+        works.push(Object.assign({
             id: w.slug,
             title: w.title,
             subtitle: w.subtitle || (graphic ? 'Graphic design' : 'Engineering design'),
@@ -185,7 +185,7 @@ async function main() {
             meta: [['Category', graphic ? 'Graphic design' : 'Engineering design']].concat(w.year ? [['Year', w.year]] : []),
             tags: (w.tags || []).slice(0, 8),
             pdf: null
-        });
+        }, w.portfolio === false ? { portfolio: false } : {}));
     }
     for (const slug of ownWorks) {
         if (works.some((w) => w.id === slug) || !safeSlug(slug)) continue;
@@ -232,7 +232,8 @@ async function siteLists(site) {
             }
             out.certificates.push({
                 title: c.title, issuer: c.issuer || '', tone: ['blue', 'violet', 'teal', 'sun', 'coral', 'green', 'rose'][i % 7],
-                icon: (pick(c.title + ' ' + c.issuer, CERT_ICON) || ['cap'])[0], file, verify: c.verify || ''
+                icon: (pick(c.title + ' ' + c.issuer, CERT_ICON) || ['cap'])[0], file, verify: c.verify || '',
+                ...(c.portfolio === false ? { portfolio: false } : {})
             });
         }
         prune(dir, keep);

@@ -1,0 +1,48 @@
+# Builds the job-application portfolio from the main site repo and publishes it to GitHub Pages.
+# The main site already turns the Google Sheet into files; this just reads those files,
+# so editing the sheet updates both sites. No secrets needed (the main repo is public).
+name: Build portfolio
+
+on:
+  schedule:
+    - cron: '25 * * * *'        # hourly, after the main site's sheet sync (:07 and :37)
+  push:
+    branches: [main]
+  workflow_dispatch:
+  repository_dispatch:
+    types: [main-site-updated]  # optional instant trigger from the main repo (see README)
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Get the latest content from the main site
+        run: bash tools/pull-content.sh
+      - name: Build
+        run: node tools/build.js
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

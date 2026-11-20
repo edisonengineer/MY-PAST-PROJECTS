@@ -256,7 +256,7 @@ function brief_(p) {
 const ARTICLES = 'Articles';
 const AHEAD = ['Title', 'Status', 'Date', 'Google Doc link', 'Summary (1–2 sentences)', 'Cover photo (Google Drive link)', 'Tags (comma separated)', 'Web address (automatic)', 'Email to subscribers?', 'Emailed (automatic)'];
 const WORKS = 'Works';
-const WHEAD = ['Title', 'Status', 'Category', 'Subtitle', 'Year', 'Summary', 'Highlights (one per line)', 'Software / tags (comma separated)', 'Photos (Drive folder link, or Drive photo links one per line)', 'Web address (automatic)'];
+const WHEAD = ['Title', 'Status', 'Category', 'Subtitle', 'Year', 'Summary', 'Highlights (one per line)', 'Software / tags (comma separated)', 'Photos (Drive folder link, or Drive photo links one per line)', 'Web address (automatic)', 'Job portfolio (Yes/No; empty = Yes)'];
 
 function contentTab_(name, head, widths, example) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -408,7 +408,8 @@ function content_() {
       subtitle: String(r[3] || '').trim(), year: String(r[4] || '').trim(), summary: String(r[5] || '').trim(),
       points: String(r[6] || '').split(/\n+/).map((t) => t.replace(/^[-•*]\s*/, '').trim()).filter(Boolean),
       tags: String(r[7] || '').split(',').map((t) => t.trim()).filter(Boolean),
-      photos: photos, error: error
+      photos: photos, error: error,
+      portfolio: !/^no$/i.test(String(r[10] == null ? '' : r[10]).trim())   // "No" = main site only, hidden from the job-application portfolio
     };
   });
   return { articles: articles, works: works, site: siteLists_() };
@@ -440,7 +441,7 @@ const SEED_TRAINING = {"intake":"","price":4500};
 const YESNO = ['Yes', 'No'];
 const PRICING = 'Pricing', CERTS = 'Certificates', COURSES = 'Courses', RECORDINGS = 'Recordings';
 const PRHEAD = ['Package', 'Category', 'Price (KES)', 'Starting from?', 'Description', "What's included (one per line)", 'Icon', 'Show on website'];
-const CEHEAD = ['Certificate', 'Issued by', 'Credential link', 'Certificate image (Google Drive link, optional)', 'Show on website'];
+const CEHEAD = ['Certificate', 'Issued by', 'Credential link', 'Certificate image (Google Drive link, optional)', 'Show on website', 'Job portfolio (Yes/No; empty = Yes)'];
 const COHEAD = ['Course', 'Tagline', 'Level', 'Topics (one per line)', 'Show on website', 'Next class (e.g. Saturdays from 7 Nov 2026)', 'Seats (empty = no limit)'];
 const REHEAD = ['YouTube link', 'Title', 'Show on website'];
 const ICONS = ['cube', 'gear', 'chart', 'image', 'layout', 'brush', 'cap', 'hub', 'battery', 'leaf', 'pen', 'award', 'play', 'users', 'doc'];
@@ -493,7 +494,8 @@ function siteLists_() {
   const certificates = rows(certs_()).filter((r) => shown_(r, 4)).map((r) => {
     let image = null;
     try { if (driveId_(r[3])) image = fileRef_(DriveApp.getFileById(driveId_(r[3]))); } catch (err) { /* not readable */ }
-    return { title: String(r[0]).trim(), issuer: String(r[1] || '').trim(), verify: /^https?:\/\//i.test(String(r[2]).trim()) ? String(r[2]).trim() : '', image: image };
+    return { title: String(r[0]).trim(), issuer: String(r[1] || '').trim(), verify: /^https?:\/\//i.test(String(r[2]).trim()) ? String(r[2]).trim() : '', image: image,
+      portfolio: !/^no$/i.test(String(r[5] == null ? '' : r[5]).trim()) };
   });
   const courses = rows(courses_()).filter((r) => shown_(r, 4)).map((r) => ({
     name: String(r[0]).trim(), tagline: String(r[1] || '').trim(), levels: String(r[2] || '').trim(), topics: lines_(r[3])
@@ -1989,9 +1991,12 @@ function setup() {
   settings_();
   subs_();
   articles_();
-  works_();
+  // "Job portfolio" columns (Works K, Certificates F): add the heading and a Yes/No list to tabs made before they existed
+  [[works_(), 11, WHEAD[10]], [certs_(), 6, CEHEAD[5]]].forEach(([sh, col, label]) => {
+    if (!sh.getRange(1, col).getValue()) sh.getRange(1, col).setValue(label).setFontWeight('bold').setWrap(true);
+    sh.getRange(2, col, 999, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(YESNO, true).build());
+  });
   pricing_();
-  certs_();
   courses_();
   recordings_();
   const inv = invoices_();

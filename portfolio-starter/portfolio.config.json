@@ -1,0 +1,26 @@
+{
+  "_help": "Settings for the job-application portfolio. Content comes from the main site repo (which the Google Sheet already updates). Edit this file only to change what is filtered or how the page introduces you.",
+
+  "sourceRepo": "edisonengineer/MY-PAST-PROJECTS",
+  "sourceBranch": "main",
+  "mainSiteUrl": "https://edisonengineer.github.io/MY-PAST-PROJECTS/",
+  "siteUrl": "https://edisonengineer.github.io/",
+
+  "headline": "Mechanical Design Engineer",
+  "intro": "",
+
+  "categories": ["engineering", "graphic"],
+  "excludeProjects": [],
+  "excludeCertificates": [],
+  "projectOrder": ["designathon-hub", "final-year-project", "kirdi-fabrication", "designathon-2026-hygiene-station", "coffee-machine", "ev-battery-cooling"],
+
+  "showGraphicDesignAsSecondary": true,
+  "linkToMainSite": false,
+
+  "contact": {
+    "email": "",
+    "phone": true,
+    "linkedin": true,
+    "whatsapp": false
+  }
+}

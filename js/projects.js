@@ -27,6 +27,9 @@
                zoom it in the browser. The "View in 3D" button only appears
                once the file exists. Export .glb from Fusion 360 / SolidWorks
                (via a GLTF exporter) / Inventor, or convert a STEP/STL online.
+     portfolio false = show on this site only, not on the separate
+               job-application portfolio (optional; default: shown on both).
+               Projects from the sheet use its "Job portfolio" column instead.
    ========================================================================= */
 window.PROJECTS = [
     {
