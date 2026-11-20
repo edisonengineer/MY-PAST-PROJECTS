@@ -282,6 +282,20 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "article",
+  "t": "How to price a steel gate in Kenya (without losing money)",
+  "d": "A step-by-step way for welders and fabricators to price a steel gate: cut list, 6 m lengths to buy, rods and discs, paint, labour, fittings and profit, with a worked example.",
+  "u": "blog/how-to-price-a-steel-gate-in-kenya.html",
+  "x": "Fabrication Pricing Free tools Most welders price a gate the same way: a quick look, a number from experience, and a hope that the steel comes out right. Sometimes it does. But when the customer chose thicker tube, or the bars are closer together, or the posts have to go deep, that \"experience price\" quietly eats your profit. Here is a simple method that works for any gate, grill or railing, with a full worked example. 1. Write the cut list first Every price starts with the pieces. For a two-leaf swing gate that means, for each leaf: two frame uprights, a top and bottom rail cut to fit between them, the middle rails, and the bars. Then the two posts, including the part that goes into the ground (usually 600 mm or more). Count the bars properly. If the customer wants gaps of at most 100 mm, a leaf with 1,695 mm of space inside the frame needs 13 bars of 25 mm tube, not 12. One bar short per bay on a big gate is easy to miss and it is steel you pay for. 2. Turn the cut list into lengths to buy You don't buy metres, you buy 6 m lengths. Fit the longest pieces first, then fill the gaps with shorter ones, and leave about 3 mm for each saw cut. A 2,100 mm upright fits twice in a length with 1,800 mm left over, enough "
+ },
+ {
+  "k": "article",
+  "t": "How to quote sheet-metal work: a simple method for fabricators",
+  "d": "Price laser-cut and bent sheet-metal parts properly: flat blank size, material by weight or by sheet, cutting per metre, bending per bend, finishing and set-up, with a worked example.",
+  "u": "blog/how-to-quote-sheet-metal-work.html",
+  "x": "Sheet metal Fabrication Pricing Sheet-metal jobs look simple: a few brackets, a cover, a channel. But the price hides in details that are easy to skip: the real size of the flat blank, how much of the sheet is wasted, how many metres the laser cuts and how many times the press brake bends. Here is a method that gets the price right every time. 1. Work out the flat blank, not the finished size A bracket with 50 mm and 30 mm outside flanges is not cut from an 80 mm strip. When the metal bends, the outside stretches and the inside squeezes, so the flat blank is a little shorter. For 1.5 mm steel with a 1.5 mm inside radius and a K-factor of 0.33, each 90° bend takes away about 2.9 mm, so the blank is 77.1 mm. That matters for cutting, for weight, and for whether the part fits on the sheet. (My free bend allowance calculator explains the formula.) 2. Decide how you charge for material By weight (parts' weight × price per kg + 10–20% scrap) is fair for small parts and small batches, where the rest of the sheet goes back on the rack. By whole sheets is right when the job uses most of a sheet or the offcut is useless. Work out how many blanks fit on a 1220 × 2440 sheet, both ways round, with about 10 mm round the edge a"
+ },
+ {
+  "k": "article",
   "t": "SolidWorks training in Nairobi: what you'll actually learn",
   "d": "A session-by-session look at a 54-hour SolidWorks course in Nairobi or online: sketching, parts, assemblies, drawings, sheet metal, simulation basics and a full end-of-course project.",
   "u": "blog/solidworks-training-in-nairobi-what-you-will-learn.html",

@@ -235,6 +235,7 @@
             if (!$('#pf-biz').value) $('#pf-biz').value = b.bname || (licence && licence.business) || '';
             if (!$('#pf-email').value) $('#pf-email').value = b.bemail || '';
             if (!$('#pf-phone').value) $('#pf-phone').value = b.bphone || '';
+            if ($('#pf-ref') && !$('#pf-ref').value) $('#pf-ref').value = store.get('from', '');
         } else if (licence && licence.key) {
             $('#kf-key').value = licence.key;
             const ks = $('#key-status');
@@ -277,7 +278,7 @@
         $('#pro-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const f = e.target, err = $('#pro-error');
-            const data = { business: f.business.value.trim(), code: f.code.value.toUpperCase().replace(/[^A-Z0-9]/g, ''), email: f.email.value.trim(), phone: f.phone.value.trim() };
+            const data = { business: f.business.value.trim(), code: f.code.value.toUpperCase().replace(/[^A-Z0-9]/g, ''), email: f.email.value.trim(), phone: f.phone.value.trim(), ref: f.ref ? f.ref.value.trim() : '' };
             const bad = !data.business ? 'Enter your business name.' : !/^[A-Z0-9]{8,12}$/.test(data.code) ? 'Enter the M-Pesa code from your confirmation SMS (10 letters and numbers).' :
                 !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email) ? 'Enter the email address your key should go to.' : '';
             err.hidden = !bad; err.textContent = bad;
@@ -293,7 +294,7 @@
             btn.disabled = false;
             if (!sent) {
                 // No sheet (or offline): send the details on WhatsApp instead
-                window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('Hi Edison, I have paid ' + kes(planAmount()) + ' for Quote Pro (' + plan + ').\nBusiness: ' + data.business + '\nM-Pesa code: ' + data.code + '\nEmail: ' + data.email + (fields.renew ? '\nRenewing key: ' + fields.renew : '')), '_blank', 'noopener');
+                window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('Hi Edison, I have paid ' + kes(planAmount()) + ' for Quote Pro (' + plan + ').\nBusiness: ' + data.business + '\nM-Pesa code: ' + data.code + '\nEmail: ' + data.email + (fields.renew ? '\nRenewing key: ' + fields.renew : '') + (data.ref ? '\nTold about it by: ' + data.ref : '')), '_blank', 'noopener');
             }
             f.hidden = true;
             $('#pro-done').hidden = false;
@@ -315,6 +316,18 @@
         });
     }
 
+    /* ---------- Word of mouth: "Share on WhatsApp" with the sharer's business name ---------- */
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('[data-share-tool]')) return;
+        const name = biz().bname || (licence && licence.business) || '';
+        const url = location.origin + location.pathname + (name ? '?from=' + encodeURIComponent(name) : '');
+        const what = /steel/.test(location.pathname) ? 'steel gates, grills and railings (cut list and steel to buy)' : 'sheet-metal parts (flat blank, cutting and bending)';
+        const text = 'Free tool for pricing ' + what + ' and sending the quote on WhatsApp or PDF:\n' + url +
+            '\n\nTool ya bure ya kupiga bei ya kazi za chuma na kutuma quote kwa mteja.';
+        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+        track('quote-share');
+    });
+
     window.NexusPro = {
         $, $$, store, esc, num, kes, fmt, today, fill, read, track, cfg: PRO_CFG,
         isPro, openPro, biz, nextNumber, pdfAllowed, countPdf, docTop, docBottom, printDoc, waLink,
@@ -324,6 +337,9 @@
             paintLogo();
             paintPlan();
             const params = new URLSearchParams(location.search);
+            const from = String(params.get('from') || '').trim().slice(0, 80);
+            if (from && !store.get('from', '')) store.set('from', from);
+            if (from && !params.get('key')) history.replaceState(null, '', location.pathname + location.hash);
             if (params.get('key')) {
                 const k = params.get('key');
                 history.replaceState(null, '', location.pathname + location.hash);

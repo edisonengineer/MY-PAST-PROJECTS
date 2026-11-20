@@ -2738,7 +2738,8 @@ function proRequest_(p) {
     if (rows.some((x) => mpesaCode_(x[6]) === code)) return { ok: true };   // sent twice
     const renew = proKey_(p.renew);
     sh.appendRow([new Date(), business, email, clean_(p.phone, 30), plan, amount || '', code, 'To confirm',
-      renew && rows.some((x) => proKey_(x[8]) === renew) ? String(p.renew).trim().toUpperCase() : '', '', '', renew ? 'Renewal' : '']);
+      renew && rows.some((x) => proKey_(x[8]) === renew) ? String(p.renew).trim().toUpperCase() : '', '', '',
+      [renew ? 'Renewal' : '', p.ref ? 'Told about it by: ' + clean_(p.ref, 80) : ''].filter(Boolean).join(' · ')]);
   } finally {
     lock.releaseLock();
   }
@@ -2747,6 +2748,7 @@ function proRequest_(p) {
     htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;color:#0e1a3a"><p><b>' + html_(business) + '</b> (' + html_(email) + ') says they paid ' + (amount ? '<b>' + kes_(amount) + '</b> ' : '') + 'for <b>Quote Pro, ' + html_(plan) + '</b>.</p>' +
       '<p style="font-size:18px">M-Pesa code: <b style="letter-spacing:1px">' + html_(code) + '</b></p>' +
       '<p>Check your M-Pesa messages for this code, then set its Status in the <b>Quote Pro</b> tab to <b>Confirmed</b>: their licence key and receipt are emailed for you.</p>' +
+      (p.ref ? '<p style="border-left:4px solid #25d366;background:#effaf3;padding:10px 12px"><b>Referral:</b> they were told about Quote Pro by <b>' + html_(clean_(p.ref, 80)) + '</b>. To thank them with a free month, find their latest row in the Quote Pro tab and add 31 days to its Expires date.</p>' : '') +
       '<p><a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '">Open your sheet</a></p></div>' });
   return { ok: true };
 }
@@ -2779,7 +2781,7 @@ function proChanged_(sh, row) {
       '<p>Hello ' + html_(business) + ',</p><p>Thank you! Your payment is confirmed and Quote Pro is ' + (until ? 'renewed' : 'ready') + '. It is valid until <b>' + when + '</b>.</p>' +
       '<p style="font-size:20px;background:#fbf6ec;border-left:4px solid #ffb627;padding:12px 14px;letter-spacing:2px"><b>' + html_(key) + '</b></p>' +
       '<p><a href="' + link + '" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Open Quote Pro</a></p>' +
-      '<p style="font-size:13px;color:#555">The button switches Pro on for you. On another phone or computer, open the quote tool, choose <b>Enter key</b> and type the key above (up to ' + PRO_DEVICES + ' devices).</p>' +
+      '<p style="font-size:13px;color:#555">The button switches Pro on for you. The same key works on both tools: the <a href="' + SITE_URL + 'quote/">sheet-metal quote tool</a> and the <a href="' + SITE_URL + 'steel/">gate &amp; grill estimator</a>. On another phone or computer, open a tool, choose <b>Enter key</b> and type the key above (up to ' + PRO_DEVICES + ' devices).</p>' +
       '<p style="font-size:13px;color:#555">Questions? Reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
       '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Nexus CAD Studio</span></p></div>',
     body: 'Your Quote Pro licence key: ' + key + ' (valid until ' + when + '). Open it here: ' + link });

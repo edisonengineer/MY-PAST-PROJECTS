@@ -52,6 +52,8 @@
             const c = D.campaign;
             return { badge: c.badge || 'Special offer', title: c.title || c.badge, lines: String(c.text || '').split(/\n+/).filter(Boolean), image: c.image, cta: c.button || 'Find out more', ends: c.end };
         }
+        const t = (D.tools || []).find((x) => x.id === v);
+        if (t) return { badge: t.badge, title: t.title, lines: t.lines.slice(), art: t.art, cta: t.cta, url: t.url };
         const c = D.courses.find((x) => x.id === v);
         if (!c) return null;
         const l = live[c.name.toLowerCase()] || {};
@@ -101,7 +103,12 @@
         const bottom = H - 380;                                   // the button starts below this
         // Picture: as big as fits (up to 620px), never below 260px
         const img = await loadImg(c.image);
-        if (img) {
+        if (!img && c.art) {
+            const ih = Math.max(300, Math.min(560, bottom - y - textH - 60)), iw = W - 2 * PAD;
+            rounded(PAD, y, iw, ih, 36); ctx.fillStyle = '#fbf6ee'; ctx.fill();
+            drawArt(c.art, PAD, y, iw, ih);
+            y += ih + 60;
+        } else if (img) {
             const ih = Math.max(260, Math.min(620, bottom - y - textH - 60)), iw = W - 2 * PAD;
             ctx.save(); rounded(PAD, y, iw, ih, 36); ctx.clip();
             ctx.fillStyle = '#f3eadb'; ctx.fillRect(PAD, y, iw, ih);
@@ -125,8 +132,52 @@
         ctx.fillStyle = '#ffffff'; ctx.font = '600 40px Jakarta, Arial';
         ctx.fillText('WhatsApp ' + D.whatsapp, W / 2, H - 120);
         ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '500 32px Jakarta, Arial';
-        ctx.fillText(D.site, W / 2, H - 68);
+        ctx.fillText(c.url || D.site, W / 2, H - 68, W - 2 * PAD);
         ctx.textAlign = 'left';
+    }
+
+    // Simple drawings for the quote tools (no photo needed)
+    function drawArt(kind, x, y, w, h) {
+        ctx.save();
+        const cx = x + w / 2, cy = y + h / 2;
+        if (kind === 'gate') {
+            const gw = w * 0.74, gh = h * 0.62, gx = cx - gw / 2, gy = cy - gh / 2 - 10, f = 14, leaf = (gw - 10) / 2;
+            ctx.fillStyle = '#646a82'; ctx.fillRect(gx - 46, gy - 24, 30, gh + 54); ctx.fillRect(gx + gw + 16, gy - 24, 30, gh + 54);
+            ctx.fillStyle = '#b9a98d'; ctx.fillRect(x + 40, gy + gh + 30, w - 80, 6);
+            for (let i = 0; i < 2; i++) {
+                const lx = gx + i * (leaf + 10);
+                ctx.fillStyle = '#13a89e';
+                for (let k = 1; k < 12; k++) ctx.fillRect(lx + k * leaf / 12 - 3, gy, 7, gh);
+                ctx.strokeStyle = '#0e1a3a'; ctx.lineWidth = f; ctx.strokeRect(lx + f / 2, gy + f / 2, leaf - f, gh - f);
+                ctx.fillStyle = '#2b3c7d'; ctx.fillRect(lx, gy + gh / 2 - 6, leaf, 12);
+            }
+        } else if (kind === 'sheet') {
+            // A U channel and its flat pattern with bend lines
+            ctx.strokeStyle = '#13a89e'; ctx.lineWidth = 16; ctx.lineJoin = 'round';
+            const ux = x + w * 0.12, uy = y + h * 0.2, uw = w * 0.3, uh = h * 0.55;
+            ctx.beginPath(); ctx.moveTo(ux, uy); ctx.lineTo(ux, uy + uh); ctx.lineTo(ux + uw, uy + uh); ctx.lineTo(ux + uw, uy); ctx.stroke();
+            const fx = x + w * 0.55, fy = y + h * 0.18, fw = w * 0.34, fh = h * 0.6;
+            ctx.fillStyle = 'rgba(19,168,158,.18)'; ctx.fillRect(fx, fy, fw, fh);
+            ctx.strokeStyle = '#13a89e'; ctx.lineWidth = 6; ctx.strokeRect(fx, fy, fw, fh);
+            ctx.strokeStyle = '#ff6b4a'; ctx.setLineDash([22, 14]); ctx.lineWidth = 6;
+            [0.32, 0.68].forEach((p) => { ctx.beginPath(); ctx.moveTo(fx + fw * p, fy); ctx.lineTo(fx + fw * p, fy + fh); ctx.stroke(); });
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#0e1a3a'; ctx.font = '700 34px Jakarta, Arial'; ctx.textAlign = 'center';
+            ctx.fillText('KES 264 each', ux + uw / 2, y + h - 30); ctx.fillText('flat 104 × 120', fx + fw / 2, y + h - 30);
+            ctx.textAlign = 'left';
+        } else {
+            // A quotation page
+            const pw = w * 0.56, ph = h * 0.84, px = cx - pw / 2, py = cy - ph / 2;
+            ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(14,26,58,.2)'; ctx.shadowBlur = 30; ctx.fillRect(px, py, pw, ph); ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ffb627'; rounded(px + 30, py + 30, 110, 70, 14); ctx.fill();
+            ctx.fillStyle = '#0e1a3a'; ctx.font = '800 26px Jakarta, Arial'; ctx.fillText('LOGO', px + 50, py + 74);
+            ctx.font = '600 40px Fraunces, Georgia'; ctx.textAlign = 'right'; ctx.fillText('QUOTATION', px + pw - 30, py + 76); ctx.textAlign = 'left';
+            ctx.fillStyle = '#13a89e'; ctx.fillRect(px + 30, py + 124, pw - 60, 6);
+            ctx.fillStyle = '#0e1a3a'; ctx.fillRect(px + 30, py + 160, pw - 60, 40);
+            ctx.fillStyle = '#e3e6ee'; for (let i = 0; i < 4; i++) ctx.fillRect(px + 30, py + 228 + i * 46, pw - 60 - (i % 2) * 80, 18);
+            ctx.fillStyle = '#0e1a3a'; ctx.font = '800 34px Jakarta, Arial'; ctx.textAlign = 'right'; ctx.fillText('KES 69,798', px + pw - 30, py + ph - 40); ctx.textAlign = 'left';
+        }
+        ctx.restore();
     }
 
     function fileName() { return 'nexus-cad-studio-' + (pick.value === 'campaign' ? 'offer' : pick.value) + '-status.png'; }
