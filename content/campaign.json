@@ -1,1 +1,12 @@
-null
+{
+  "id": "example-black-november-now",
+  "badge": "Black November",
+  "title": "20% off all CAD projects",
+  "text": "Book any 3D modelling, drawing or simulation project in November and save 20%. Mention BLACKNOV in your brief.",
+  "image": "",
+  "button": "Start a project",
+  "link": "#brief",
+  "start": "",
+  "end": "",
+  "source": "Google Sheet (Campaigns tab): edit it there, not here"
+}
