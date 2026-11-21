@@ -147,7 +147,7 @@ const clean_ = (v, max) => String(v || '').replace(/[\u0000-\u001f<>]/g, ' ').re
 
 function doPost(e) {
   const p = (e && e.parameter) || {};
-  if (p.mpesa) return out_(mpesaCallback_(e));                       // Safaricom: result of an M-Pesa prompt
+  if (p.cb || p.mpesa) return out_(mpesaCallback_(e));               // Safaricom: result of an M-Pesa prompt
   if (p.botcheck) return out_({ ok: true });                       // bots fill the hidden box
   if (p.action === 'brief') return out_(brief_(p));
   if (p.action === 'subscribe') return out_(subscribe_(p));
@@ -1337,6 +1337,8 @@ function clientOf_(ref) {
 }
 
 const mpesaCode_ = (v) => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+// How a payment reference reads on a receipt (prompt payments without a receipt number yet carry Safaricom's request ID)
+const payNote_ = (code) => (/^ws_CO_/i.test(String(code || '')) ? 'Paid by M-Pesa prompt (request ' + String(code).slice(-6) + ')' : 'M-Pesa confirmation code ' + code);
 
 function payment_(p) {
   const want = normRef_(p.ref), code = mpesaCode_(p.code), amount = Math.round(num_(p.amount));
@@ -1387,7 +1389,7 @@ function paymentChanged_(sh, row) {
     }
     if (!item && who.balance > 0) { item = 'Balance for ' + (who.title || ref) + ' - ' + who.balance; total = who.balance; }
     if (!item) { item = 'Payment for ' + (who.title || ref) + ' - ' + amount; total = amount; }
-    inv.appendRow(['', 'Receipt', new Date(), ref, who.name, who.email, item, Math.max(total, amount), amount, 'M-Pesa confirmation code ' + code, 'Draft', '', 'Created from the Payments tab', '', '', 'None']);
+    inv.appendRow(['', 'Receipt', new Date(), ref, who.name, who.email, item, Math.max(total, amount), amount, payNote_(code), 'Draft', '', 'Created from the Payments tab', '', '', 'None']);
     const ir = inv.getLastRow();
     if (!validEmail_(who.email)) { sh.getRange(row, 8).setValue('⚠ Receipt drafted in Invoices row ' + ir + ': add the client email there, then set Action to Send'); return; }
     sendInvoice_(inv, ir);
@@ -2800,7 +2802,7 @@ function proChanged_(sh, row) {
   const amount = num_(r[5]);
   if (amount > 0) {
     const inv = invoices_();
-    inv.appendRow(['', 'Receipt', new Date(), '', business, email, (exam ? 'SolidWorks exam practice pass' : 'Quote Pro licence, ' + plan.toLowerCase()) + ' (until ' + when + ') - ' + amount, amount, amount, 'M-Pesa confirmation code ' + String(r[6] || '') + '. Licence key ' + key, 'Draft', '', 'Created from the Quote Pro tab', 'Off', '', 'None']);
+    inv.appendRow(['', 'Receipt', new Date(), '', business, email, (exam ? 'SolidWorks exam practice pass' : 'Quote Pro licence, ' + plan.toLowerCase()) + ' (until ' + when + ') - ' + amount, amount, amount, payNote_(String(r[6] || '')) + '. Licence key ' + key, 'Draft', '', 'Created from the Quote Pro tab', 'Off', '', 'None']);
     try { sendInvoice_(inv, inv.getLastRow()); } catch (err) { console.error('pro receipt: ' + err); }
   }
   sh.getRange(row, 12).setValue([String(r[11] || ''), 'Key emailed ' + Utilities.formatDate(now, tz, 'd MMM yyyy')].filter(Boolean).join(' · '));
@@ -2968,7 +2970,7 @@ function mpesaSecret_() {
 }
 function mpesaCallbackUrl_() {
   const custom = PropertiesService.getScriptProperties().getProperty('MPESA_CALLBACK_URL');
-  return (custom || ScriptApp.getService().getUrl()) + '?mpesa=' + mpesaSecret_();
+  return (custom || ScriptApp.getService().getUrl()) + '?cb=' + mpesaSecret_();
 }
 
 // From the website: send the prompt. The amount is worked out here, never trusted from the page.
@@ -3084,9 +3086,9 @@ function mpesaApply_(id, resultCode, resultDesc, receipt, paid) {
   } finally { lock.releaseLock(); }
 }
 
-// Safaricom calls this (the web app URL + ?mpesa=secret) when the client finishes the prompt
+// Safaricom calls this (the web app URL + ?cb=secret) when the client finishes the prompt
 function mpesaCallback_(e) {
-  const want = mpesaSecret_(), got = String((e.parameter || {}).mpesa || '');
+  const want = mpesaSecret_(), got = String((e.parameter || {}).cb || (e.parameter || {}).mpesa || '');
   if (got !== want) return { ResultCode: 1, ResultDesc: 'Rejected' };
   let body = {};
   try { body = JSON.parse((e.postData && e.postData.contents) || '{}'); } catch (err) { body = {}; }
@@ -3174,7 +3176,7 @@ function mpesaTest() {
   try {
     mpesaToken_(c);
     mpesaTab_();
-    ui.alert('M-Pesa works ✅', 'Safaricom accepted your keys (' + c.env + ', ' + c.type + ' ' + (c.type === 'till' ? c.till : c.shortcode) + ').\n\nPayment results will be sent to:\n' + mpesaCallbackUrl_().replace(/mpesa=.*/, 'mpesa=…') +
+    ui.alert('M-Pesa works ✅', 'Safaricom accepted your keys (' + c.env + ', ' + c.type + ' ' + (c.type === 'till' ? c.till : c.shortcode) + ').\n\nPayment results will be sent to:\n' + mpesaCallbackUrl_().replace(/cb=.*/, 'cb=…') +
       '\n\nNext: Deploy → Manage deployments → New version, then set payments.stkPush: true in js/config.js.', ui.ButtonSet.OK);
   } catch (err) {
     ui.alert('M-Pesa problem', String(err.message || err), ui.ButtonSet.OK);
