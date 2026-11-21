@@ -3020,7 +3020,7 @@ function mpesaPay_(q) {
   lock.waitLock(10000);
   try {
     mpesaTab_().appendRow([new Date(), what, ref, name, email, "'" + phone, amount, 'Waiting', '', '', r.body.CheckoutRequestID, token, JSON.stringify(details)]);
-  } finally { lock.releaseLock(); }
+  } finally { SpreadsheetApp.flush(); lock.releaseLock(); }
   return { ok: true, id: r.body.CheckoutRequestID, token, amount, phone: phone.slice(0, 6) + '***' + phone.slice(-3) };
 }
 
@@ -3045,20 +3045,33 @@ function mpesaApply_(id, resultCode, resultDesc, receipt, paid) {
       // The status check got there first; the callback brings the M-Pesa receipt number later
       if (receipt && !String(r[8])) {
         sh.getRange(row, 9).setValue(receipt);
+        sh.getRange(row, 13).setValue(JSON.stringify(Object.assign(details, { receipt })));
         if (details.sheet && details.row) SpreadsheetApp.getActiveSpreadsheet().getSheetByName(details.sheet).getRange(details.row, details.col).setValue(receipt);
       }
       return true;
     }
     if (resultCode !== 0) {
-      if (status === 'Waiting') sh.getRange(row, 8, 1, 3).setValues([['Failed', '', MP_RESULT[resultCode] || resultDesc || 'Not paid']]);
+      if (status === 'Waiting') { sh.getRange(row, 8).setValue('Failed'); sh.getRange(row, 10).setValue(MP_RESULT[resultCode] || resultDesc || 'Not paid'); }
       return true;
     }
     if (paid != null && Number(paid) < Number(r[6])) {
-      sh.getRange(row, 8, 1, 3).setValues([['Check', receipt || '', 'Paid ' + paid + ', expected ' + r[6] + '. Check and confirm by hand.']]);
+      sh.getRange(row, 8).setValue('Check');
+      if (receipt) sh.getRange(row, 9).setValue(receipt);
+      sh.getRange(row, 10).setValue('Paid ' + paid + ', expected ' + r[6] + '. Check and confirm by hand.');
       return true;
     }
+    // Second guard against doing a payment twice: the script cache is shared by all runs instantly.
+    const cache = CacheService.getScriptCache(), doneKey = 'mp-done-' + id;
+    if (cache.get(doneKey)) {
+      if (receipt && !String(r[8])) sh.getRange(row, 9).setValue(receipt);
+      return true;
+    }
+    cache.put(doneKey, '1', 21600);
+    receipt = receipt || String(r[8] || '');   // keep a receipt that is already there
     const code = receipt || String(id);
-    sh.getRange(row, 8, 1, 3).setValues([['Paid', receipt || '', resultDesc || 'Paid']]);
+    sh.getRange(row, 8).setValue('Paid');
+    if (receipt) sh.getRange(row, 9).setValue(receipt);
+    sh.getRange(row, 10).setValue(resultDesc || 'Paid');
     if (r[1] === 'test') return true;
     const tz = 'Africa/Nairobi', amount = Number(r[6]);
     if (r[1] === 'pro') {
@@ -3076,6 +3089,7 @@ function mpesaApply_(id, resultCode, resultDesc, receipt, paid) {
       paymentChanged_(py, pRow);   // receipt emailed; a training seat is confirmed
       Object.assign(details, { sheet: PAYMENTS, row: pRow, col: 4 });
     }
+    if (receipt) details.receipt = receipt;
     sh.getRange(row, 13).setValue(JSON.stringify(details));
     const me = Session.getEffectiveUser().getEmail();
     if (me) MailApp.sendEmail({ to: me, name: 'Nexus CAD Studio website', subject: '✅ Paid by M-Pesa: ' + kes_(amount) + ' · ' + (r[3] || r[2]),
@@ -3083,7 +3097,7 @@ function mpesaApply_(id, resultCode, resultDesc, receipt, paid) {
         html_(r[1] === 'pro' ? proName_(r[2]) : String(r[2])) + '</b>. Receipt: <b>' + html_(receipt || '(coming)') + '</b>.</p>' +
         '<p>Nothing to do: it is confirmed and the ' + (r[1] === 'pro' ? 'key and receipt were' : 'receipt was') + ' emailed automatically (' + Utilities.formatDate(now, tz, 'd MMM, HH:mm') + ').</p></div>' });
     return true;
-  } finally { lock.releaseLock(); }
+  } finally { SpreadsheetApp.flush(); lock.releaseLock(); }
 }
 
 // Safaricom calls this (the web app URL + ?cb=secret) when the client finishes the prompt
@@ -3119,7 +3133,12 @@ function mpesaStatus_(q) {
       f = mpesaRow_(q.id);
     }
     if (String(f.r[7]) === 'Waiting' && age > 180000) {
-      f.sh.getRange(f.row, 8, 1, 3).setValues([['Failed', '', 'No answer from M-Pesa']]);
+      const lock = LockService.getScriptLock();
+      lock.waitLock(20000);
+      try {
+        f = mpesaRow_(q.id);
+        if (String(f.r[7]) === 'Waiting') { f.sh.getRange(f.row, 8).setValue('Failed'); f.sh.getRange(f.row, 10).setValue('No answer from M-Pesa'); }
+      } finally { SpreadsheetApp.flush(); lock.releaseLock(); }
       f = mpesaRow_(q.id);
     }
   }
