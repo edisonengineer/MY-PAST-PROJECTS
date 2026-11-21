@@ -210,3 +210,88 @@
 .nq-share-box { padding: 14px; border-radius: 14px; background: rgba(37, 211, 102, 0.1); display: grid; gap: 10px; font-size: 0.88rem; }
 .nq-share-box .btn { min-height: 44px; }
 #pro-modal .field label small { font-weight: 500; color: var(--muted); }
+
+/* ---------- SolidWorks exam practice (/exams/) ---------- */
+.ex-app { background: var(--cream); padding-top: clamp(40px, 6vw, 72px); }
+.ex-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+.ex-card { position: relative; display: grid; gap: 8px; align-content: start; padding: 22px; border-radius: var(--radius); background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+.ex-card h2 { font-family: var(--serif); font-weight: 600; font-size: 1.35rem; color: var(--heading); }
+.ex-card > p { font-size: 0.9rem; color: var(--text-soft); }
+.ex-card .ex-desc { min-height: 3.6em; }
+.ex-card .btn { margin-top: 6px; }
+.ex-card.is-free { border: 2px solid var(--sun); }
+.ex-card.is-locked { opacity: 0.92; }
+.ex-tag { justify-self: start; padding: 3px 10px; border-radius: 999px; background: var(--cream); color: var(--heading); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em; }
+.ex-card.is-free .ex-tag { background: var(--sun); color: var(--navy); }
+.ex-card .ex-best { font-weight: 700; color: var(--green); min-height: 1.2em; }
+.ex-resume { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 18px; padding: 14px 18px; border-radius: 14px; background: rgba(255, 182, 39, 0.18); }
+.ex-lower { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; margin-top: 24px; }
+.ex-panel { padding: 22px; border-radius: var(--radius); background: var(--paper); border: 1px solid var(--line); display: grid; gap: 12px; align-content: start; }
+.ex-panel h2 { font-family: var(--serif); font-weight: 600; font-size: 1.3rem; color: var(--heading); }
+.ex-pass-card { border: 2px solid var(--sun); }
+.ex-pass-card ul { display: grid; gap: 8px; }
+.ex-pass-card li { display: flex; gap: 10px; font-size: 0.93rem; }
+.ex-pass-card li svg { width: 18px; height: 18px; color: var(--green); flex-shrink: 0; margin-top: 3px; }
+.ex-hist { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.ex-hist th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding-bottom: 6px; }
+.ex-hist td { padding: 7px 0; border-top: 1px solid var(--line); }
+.ex-pass { color: var(--green); font-weight: 800; }
+.ex-fail { color: var(--coral-text); font-weight: 700; }
+.ex-how { margin-top: 24px; }
+
+.ex-bar { position: sticky; top: calc(var(--header-h) + 6px); z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 12px 18px; border-radius: 16px; background: var(--navy); color: #fff; box-shadow: var(--shadow-md); }
+.ex-bar select { padding: 8px 12px; border-radius: 10px; border: 0; font: inherit; max-width: 100%; background: #fff; color: #0e1a3a; }
+.ex-timer { margin-left: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1.25rem; font-weight: 700; padding: 4px 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.12); }
+.ex-timer.is-low { background: var(--coral); }
+#pr-score { margin-left: auto; font-size: 0.9rem; color: var(--sun); }
+.ex-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+.ex-nav button { width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--paper); font-weight: 700; color: var(--text); position: relative; }
+.ex-nav button.is-done { background: rgba(19, 168, 158, 0.15); border-color: var(--teal); }
+.ex-nav button.is-current { border-color: var(--navy); box-shadow: 0 0 0 2px var(--navy); }
+.ex-nav button.is-flag::after { content: ''; position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--coral); }
+.ex-card-q { padding: clamp(18px, 3vw, 30px); border-radius: var(--radius); background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow-sm); margin-top: 14px; }
+.ex-topic { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.ex-q { margin: 6px 0 16px; font-family: var(--serif); font-weight: 600; font-size: clamp(1.15rem, 2.4vw, 1.45rem); line-height: 1.3; color: var(--heading); }
+.ex-follow { margin-top: 10px; padding: 10px 14px; border-left: 4px solid var(--sun); background: rgba(255, 182, 39, 0.12); border-radius: 8px; }
+.ex-options { display: grid; gap: 8px; }
+.ex-opt { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--cream); cursor: pointer; }
+.ex-opt input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--blue); flex-shrink: 0; }
+.ex-opt:has(input:checked) { border-color: var(--blue); background: rgba(47, 107, 255, 0.08); }
+.ex-opt.is-right { border-color: var(--green); background: rgba(31, 174, 106, 0.12); }
+.ex-opt.is-wrong { border-color: var(--coral); background: rgba(255, 107, 74, 0.1); }
+.ex-given { display: grid; gap: 4px; margin-bottom: 14px; font-size: 0.95rem; }
+.ex-given li::before { content: '▸ '; color: var(--teal); }
+.ex-drawing { padding: 12px; border-radius: 14px; background: #fff; border: 1px solid var(--line); overflow-x: auto; }
+.ex-draw { display: block; width: 100%; height: auto; min-width: 320px; max-height: 460px; color: #0e1a3a; }
+.ex-draw .o { fill: none; stroke: #0e1a3a; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.ex-draw .h { fill: none; stroke: #0e1a3a; stroke-width: 1; stroke-dasharray: 5 3; vector-effect: non-scaling-stroke; }
+.ex-draw .c { fill: none; stroke: #c43d22; stroke-width: 0.8; stroke-dasharray: 12 3 2 3; vector-effect: non-scaling-stroke; }
+.ex-draw .d { fill: none; stroke: #2f6bff; stroke-width: 0.8; vector-effect: non-scaling-stroke; }
+.ex-draw .a { fill: #2f6bff; }
+.ex-draw text { fill: #0e1a3a; font-family: var(--sans); font-weight: 600; }
+.ex-draw text.v { fill: #646a82; font-weight: 800; letter-spacing: 0.1em; }
+.ex-mass { max-width: 280px; margin-top: 16px; }
+.ex-mass input { font-size: 1.15rem; font-weight: 700; }
+.ex-explain { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--cream); font-size: 0.93rem; }
+.ex-feedback { font-weight: 800; font-size: 1.1rem; margin-bottom: 8px; }
+.ex-feedback.is-right { color: var(--green); }
+.ex-feedback.is-wrong { color: var(--coral-text); }
+.ex-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 18px; }
+.ex-actions #ex-flag { margin-right: auto; }
+.ex-quit { margin-top: 10px; text-align: right; }
+
+.ex-score-box { display: flex; flex-wrap: wrap; gap: 18px 28px; align-items: center; padding: 24px; border-radius: var(--radius); background: var(--paper); border: 2px solid var(--coral); }
+.ex-score-box.is-pass { border-color: var(--green); }
+.ex-score { font-family: var(--serif); font-weight: 600; font-size: clamp(3rem, 8vw, 4.5rem); line-height: 1; color: var(--heading); }
+.ex-verdict { font-size: 1.15rem; font-weight: 700; color: var(--heading); }
+.ex-split { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 6px; font-size: 0.93rem; }
+.ex-upsell { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; margin-top: 16px; padding: 16px 20px; border-radius: 16px; background: rgba(255, 182, 39, 0.16); }
+.ex-review-title { margin: 28px 0 12px; font-family: var(--serif); font-weight: 600; font-size: 1.4rem; color: var(--heading); }
+.ex-rev { margin-bottom: 8px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); border-left: 5px solid var(--green); }
+.ex-rev.is-wrong { border-left-color: var(--coral); }
+.ex-rev summary { display: flex; gap: 12px; align-items: baseline; padding: 12px 16px; cursor: pointer; font-weight: 600; }
+.ex-rev summary span { color: var(--muted); min-width: 1.6em; }
+.ex-rev summary b { margin-left: auto; white-space: nowrap; }
+.ex-rev > :not(summary) { margin-left: 16px; margin-right: 16px; }
+.ex-rev > :last-child { margin-bottom: 16px; }
+@media (max-width: 760px) { .ex-lower { grid-template-columns: 1fr; } .ex-timer { margin-left: 0; } }

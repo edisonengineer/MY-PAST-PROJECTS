@@ -300,6 +300,7 @@ function footer(extraScripts = '') {
                 <a href="../calculators/index.html">Free tools</a>
                 <a href="../quote/index.html">Sheet-metal quote tool</a>
                 <a href="../steel/index.html">Gate &amp; grill estimator</a>
+                <a href="../exams/index.html">SolidWorks exam practice</a>
                 <a href="../index.html#pricing">Pricing</a>
                 <a href="../index.html#brief">Start a project</a>
                 <a href="../track/index.html">Track your project</a>
@@ -776,7 +777,17 @@ ${c.topics.map((t) => `                            <li>${icon('check')}<span>${e
                 </div>
             </div>
         </section>
-${syllabusSection(c)}${studentSection(students, '../', T, 'Built by ' + esc(c.name) + ' trainees.')}
+${syllabusSection(c)}${studentSection(students, '../', T, 'Built by ' + esc(c.name) + ' trainees.')}${/solidworks/i.test(c.id) ? `
+        <section class="section course-exam-band">
+            <div class="container verify-cta">
+                <span class="verify-cta-icon">${icon('award')}</span>
+                <div>
+                    <h2>Going for the CSWA certificate?</h2>
+                    <p>Try a free timed practice test: theory questions and drawings to model, marked straight away.</p>
+                </div>
+                <div class="band-actions"><a class="btn btn-navy" href="../exams/index.html">Free practice test ${icon('arrow')}</a></div>
+            </div>
+        </section>` : ''}
         <section class="section course-reserve-band">
             <div class="container verify-cta">
                 <span class="verify-cta-icon">${icon('cap')}</span>
@@ -1589,6 +1600,7 @@ ${[
         u('calculators/', '0.9', 'monthly'),
         u('quote/', '0.8', 'monthly'),
         u('steel/', '0.8', 'monthly'),
+        u('exams/', '0.8', 'monthly'),
         u('verify/', '0.4', 'yearly'),
         ...(loadCampaign() ? [u('offer/', '0.6', 'weekly')] : []),
         ...posts.map((p) => u('blog/' + p.slug + '.html', '0.7', 'yearly', p.updated || p.date)),
@@ -1629,6 +1641,7 @@ function searchIndex(projects, posts) {
         ...SECTIONS.map(([t, d, h, x]) => ({ k: 'page', t, d, u: 'index.html' + h, x })),
         ...projects.map((p) => ({ k: 'project', t: p.title, d: p.subtitle || '', u: 'projects/' + p.id + '.html', x: [p.summary, (p.tags || []).join(' '), (p.points || []).join(' '), (p.meta || []).map((m) => m[1]).join(' '), p.category].join(' ') })),
         { k: 'page', t: 'CAD training courses', d: 'AutoCAD, SolidWorks, Inventor and Fusion 360 training. Reserve a seat.', u: 'training/index.html', x: 'training course class lessons learn autocad solidworks inventor fusion cswa tutor teacher student' },
+        { k: 'page', t: 'SolidWorks exam practice (CSWA-style)', d: 'Timed SolidWorks practice tests: theory questions and drawings to model for the mass, new sizes every attempt, instant marking. Free sample test.', u: 'exams/index.html', x: 'solidworks cswa exam practice test certification mock quiz questions mass model drawing student certificate' },
         { k: 'page', t: 'Gate, grill & railing estimator', d: 'Price steel gates, window grills and railings: cut list, 6 m lengths to buy, weight, paint, labour and fittings, then a PDF or WhatsApp quote.', u: 'steel/index.html', x: 'steel gate grill railing balustrade sliding swing welding fabrication cost estimate quote cut list jua kali square tube shs price kenya' },
         { k: 'page', t: 'Sheet-metal quote tool', d: 'Price sheet-metal parts: flat blank, weight, sheet nesting, cutting, bending and finishing, then a PDF or WhatsApp quote.', u: 'quote/index.html', x: 'sheet metal quote price cost estimate fabrication laser cutting bending powder coating nesting pdf whatsapp workshop' },
         { k: 'page', t: 'Bend allowance calculator', d: 'Free sheet-metal bend allowance, bend deduction and flat length calculator.', u: 'calculators/index.html#bend', x: 'sheet metal bend allowance deduction k-factor flat pattern blank length calculator fabrication tool free' },
