@@ -53,7 +53,7 @@ window.SITE_CONFIG = {
         // M-Pesa prompt (STK Push): clients type their number and get the PIN prompt on their phone,
         // with no code to type. Turn on ONLY after adding your Safaricom keys to the Google Sheet script
         // (see "M-Pesa prompt" in tools/google-sheet-script.gs) and deploying a new version.
-        stkPush: false
+        stkPush: true
     },
 
     // Sheet-metal quote tool (/quote/). Free: a few PDF quotes a day with the studio's
