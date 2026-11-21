@@ -49,7 +49,11 @@ window.SITE_CONFIG = {
         mpesaAccount: '',         // Paybill account number (leave '' to ask for the client's name)
         mpesaName: 'EDISON OCHIENG', // name the client should see on M-Pesa
         mpesaQr: 'images/payments/mpesa-till-qr.png', // QR from your Lipa na M-Pesa sticker (scan to pay)
-        paystackUrl: ''           // optional Paystack payment page link for card / online payment
+        paystackUrl: '',          // optional Paystack payment page link for card / online payment
+        // M-Pesa prompt (STK Push): clients type their number and get the PIN prompt on their phone,
+        // with no code to type. Turn on ONLY after adding your Safaricom keys to the Google Sheet script
+        // (see "M-Pesa prompt" in tools/google-sheet-script.gs) and deploying a new version.
+        stkPush: true
     },
 
     // Sheet-metal quote tool (/quote/). Free: a few PDF quotes a day with the studio's

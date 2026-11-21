@@ -1,4 +1,104 @@
 /* =========================================================================
+   M-Pesa prompt (STK Push), shared by every page that takes payments:
+   the exam pass and Quote Pro (pro.js), training seat deposits (below) and
+   project payments (tracker.js). The client types their number, gets the
+   M-Pesa PIN prompt on their phone, and this waits for Safaricom's answer
+   from the Google Sheet script. Off until payments.stkPush is true in config.js.
+   ========================================================================= */
+(function () {
+    'use strict';
+    const CFG = window.SITE_CONFIG || {};
+    const PAY = CFG.payments || {};
+    const t = (s) => (window.I18N ? window.I18N.t(s) : s);
+    const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const ERR = {
+        'not-set-up': 'Paying by M-Pesa prompt is not available right now. Please pay the till directly and enter the code.',
+        phone: 'Enter a Safaricom number, like 0712 345 678.',
+        busy: 'Too many attempts. Please wait a few minutes and try again.',
+        invalid: 'Please check your details and try again.',
+        ref: 'Your reference was not found yet. Wait a moment and try again, or pay the till directly.'
+    };
+
+    // 0712 345 678 / +254712345678 / 712345678 -> 254712345678, or '' if not a Safaricom number
+    function normalize(v) {
+        const d = String(v || '').replace(/\D/g, '');
+        if (/^254[17]\d{8}$/.test(d)) return d;
+        if (/^0[17]\d{8}$/.test(d)) return '254' + d.slice(1);
+        if (/^[17]\d{8}$/.test(d)) return '254' + d;
+        return '';
+    }
+
+    async function call(api, params) {
+        const url = api + (api.indexOf('?') > -1 ? '&' : '?') + new URLSearchParams(params).toString();
+        const ctrl = 'AbortController' in window ? new AbortController() : null;
+        const timer = ctrl ? setTimeout(() => ctrl.abort(), 45000) : 0;
+        try { return await (await fetch(url, ctrl ? { signal: ctrl.signal } : {})).json(); } finally { clearTimeout(timer); }
+    }
+
+    let styled = false;
+    function style() {
+        if (styled) return;
+        styled = true;
+        const css = document.createElement('style');
+        css.textContent =
+            '.mp-panel{text-align:center;padding:14px 6px}' +
+            '.mp-phone{width:46px;height:76px;margin:4px auto 12px;border:3px solid currentColor;border-radius:10px;display:grid;place-items:center}' +
+            '.mp-phone span{width:20px;height:20px;border-radius:50%;background:#2e9b34;animation:mp-ping 1.4s ease-out infinite}' +
+            '@keyframes mp-ping{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.6);opacity:0}}' +
+            '.mp-panel h3{margin:0 0 6px}.mp-panel p{margin:6px 0}' +
+            '.mp-wait{display:inline-flex;align-items:center;gap:8px;font-size:.9em;opacity:.85}' +
+            '.mp-spin{width:16px;height:16px;border:3px solid rgba(46,155,52,.25);border-top-color:#2e9b34;border-radius:50%;animation:mp-spin 1s linear infinite}' +
+            '@keyframes mp-spin{to{transform:rotate(360deg)}}' +
+            '.mp-cancel{background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit;font-size:.85em;opacity:.75;margin-top:6px}' +
+            '.btn-mpesa{background:#2e9b34!important;color:#fff!important;border-color:#2e9b34!important}' +
+            '.mp-tag{display:inline-block;background:#fff;color:#2e9b34;font-weight:900;border-radius:5px;padding:1px 6px;font-size:.8em;margin-right:6px;letter-spacing:.02em}' +
+            '.mp-alt{margin-top:12px}.mp-alt summary{cursor:pointer;font-weight:600;font-size:.92em;opacity:.85}.mp-alt[open] summary{margin-bottom:10px}';
+        document.head.appendChild(css);
+    }
+
+    /* Send the prompt and wait. opts: { api, params, panel (element to show progress in), amount,
+       onPaid(result), onStop(message) }. onStop runs when it fails or the client gives up. */
+    function pay(opts) {
+        style();
+        const panel = opts.panel;
+        let stopped = false, timer = 0;
+        const stop = (msg) => { if (stopped) return; stopped = true; clearTimeout(timer); opts.onStop(msg || ''); };
+        panel.hidden = false;
+        panel.innerHTML = '<div class="mp-panel"><p class="mp-wait"><span class="mp-spin" aria-hidden="true"></span> ' + esc(t('Sending the M-Pesa prompt to your phone…')) + '</p></div>';
+        call(opts.api, Object.assign({ action: 'mpesa-pay' }, opts.params)).then((r) => {
+            if (stopped) return;
+            if (!r || !r.ok) { stop(r && r.message ? r.message : t(ERR[r && r.error] || 'M-Pesa could not send the prompt. Please try again.')); return; }
+            panel.innerHTML = '<div class="mp-panel" role="status"><div class="mp-phone" aria-hidden="true"><span></span></div>' +
+                '<h3>' + esc(t('Check your phone')) + '</h3>' +
+                '<p>' + esc(t('Enter your M-Pesa PIN in the prompt to pay')) + ' <strong data-no-i18n>KES ' + Number(r.amount || opts.amount || 0).toLocaleString('en-US') + '</strong>' +
+                (PAY.mpesaName ? ' ' + esc(t('to')) + ' <strong data-no-i18n>' + esc(PAY.mpesaName) + '</strong>' : '') + '.</p>' +
+                '<p class="mp-wait"><span class="mp-spin" aria-hidden="true"></span> ' + esc(t('Waiting for M-Pesa… this updates by itself.')) + '</p><br>' +
+                '<button type="button" class="mp-cancel">' + esc(t("Didn't get the prompt? Go back")) + '</button></div>';
+            panel.querySelector('.mp-cancel').addEventListener('click', () => stop(''));
+            const started = Date.now();
+            const poll = () => {
+                if (stopped) return;
+                call(opts.api, { action: 'mpesa-status', id: r.id, token: r.token }).then((s) => {
+                    if (stopped) return;
+                    if (s && s.ok && (s.status === 'paid' || s.status === 'check')) { stopped = true; opts.onPaid(s); return; }
+                    if (s && s.ok && s.status === 'failed') { stop(t(s.message || 'The payment did not go through.') + ' ' + t('You can try again.')); return; }
+                    if (Date.now() - started > 4 * 60000) { stop(t('No answer from M-Pesa. If money left your account, message me on WhatsApp with the M-Pesa SMS.')); return; }
+                    timer = setTimeout(poll, 3000);
+                }).catch(() => { if (!stopped) timer = setTimeout(poll, 4000); });
+            };
+            timer = setTimeout(poll, 4000);
+        }).catch(() => stop(t('Could not reach the payment service. Check your internet connection and try again.')));
+        return { cancel: () => stop('') };
+    }
+
+    window.NexusMpesa = {
+        enabled: () => !!(PAY.stkPush && (CFG.reviewsApi || CFG.trackerApi)),
+        normalize, pay, style,
+        button: (amount) => '<span class="mp-tag" aria-hidden="true">M-PESA</span>' + esc(t('Pay')) + ' <span data-no-i18n>KES ' + Number(amount || 0).toLocaleString('en-US') + '</span>'
+    };
+})();
+
+/* =========================================================================
    Shared behaviour for the project and CAD Tips pages:
    header, theme, menu, email links, gallery + image viewer, offline app.
    ========================================================================= */
@@ -253,6 +353,9 @@
                         dep.hidden = !!full;
                         dep.dataset.ref = refField ? refField.value : '';
                         dep.dataset.name = data.name || '';
+                        dep.dataset.phone = data.phone || data.Phone || data.whatsapp || data.WhatsApp || '';
+                        const ph = dep.querySelector('.seat-phone');
+                        if (ph && !ph.value) ph.value = dep.dataset.phone;
                     }
                     done.hidden = false;
                     done.focus();
@@ -331,6 +434,53 @@
     document.querySelectorAll('.seat-deposit').forEach((dep) => {
         const form = dep.querySelector('.seat-code-form'), err = form.querySelector('.form-error'), input = form.querySelector('input');
         const t = (s) => (window.I18N ? window.I18N.t(s) : s);
+        // M-Pesa prompt: pay from the phone, no code to type. The till + code stay as "Paid the till directly?"
+        const MP = window.NexusMpesa;
+        if (MP && MP.enabled()) {
+            MP.style();
+            const box = document.createElement('div');
+            box.className = 'seat-stk';
+            box.innerHTML = '<label>' + t('Your M-Pesa number') + '</label>' +
+                '<div class="seat-code-row"><input class="seat-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0712 345 678" aria-label="' + t('Your M-Pesa number') + '">' +
+                '<button type="button" class="btn btn-mpesa">' + MP.button(dep.dataset.deposit) + '</button></div>' +
+                '<p class="form-error" role="alert" hidden></p><p class="seat-stk-note">' + t('You will get an M-Pesa prompt on your phone. Enter your PIN and your seat is confirmed straight away.') + '</p>';
+            const panel = document.createElement('div');
+            panel.hidden = true;
+            const alt = document.createElement('details');
+            alt.className = 'mp-alt';
+            alt.innerHTML = '<summary>' + t('Paid the till directly? Enter the M-Pesa code') + '</summary>';
+            const steps = dep.querySelector('.seat-pay');
+            dep.insertBefore(box, steps || form);
+            box.after(panel);
+            panel.after(alt);
+            if (steps) alt.appendChild(steps);
+            alt.appendChild(form);
+            const phone = box.querySelector('.seat-phone'), perr = box.querySelector('.form-error');
+            phone.addEventListener('input', () => { perr.hidden = true; });
+            box.querySelector('button').addEventListener('click', () => {
+                const num = MP.normalize(phone.value);
+                if (!num) { perr.textContent = t('Enter a Safaricom number, like 0712 345 678.'); perr.hidden = false; phone.focus(); return; }
+                box.hidden = true; alt.hidden = true;
+                MP.pay({
+                    api: dep.dataset.sheet, panel, amount: dep.dataset.deposit,
+                    params: { for: 'payment', ref: dep.dataset.ref || '', amount: dep.dataset.deposit, payer: dep.dataset.name || '', phone: num },
+                    onPaid: (r) => {
+                        panel.hidden = true;
+                        dep.querySelector('.seat-later').hidden = true;
+                        const ok = dep.querySelector('.seat-paid');
+                        ok.innerHTML = r.status === 'check' ? t('<strong>Payment received.</strong> I will confirm it and email your receipt.') :
+                            '<strong>' + t('Payment received ✓') + '</strong> ' + t('Your seat is confirmed. The receipt is on its way to your email.') + (r.receipt ? ' <span data-no-i18n>(' + r.receipt + ')</span>' : '');
+                        ok.hidden = false;
+                        ok.focus();
+                        if (typeof window.track === 'function') window.track('training-deposit-mpesa');
+                    },
+                    onStop: (msg) => {
+                        panel.hidden = true; box.hidden = false; alt.hidden = false;
+                        if (msg) { perr.textContent = msg; perr.hidden = false; }
+                    }
+                });
+            });
+        }
         input.addEventListener('input', () => { input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); err.hidden = true; });
         form.addEventListener('submit', (e) => {
             e.preventDefault();
