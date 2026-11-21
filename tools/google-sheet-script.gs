@@ -2502,6 +2502,7 @@ function onOpen() {
     .addItem('Translate new website text now', 'translateNow')
     .addItem('Announce new classes now', 'announceClassesNow')
     .addItem('Test the M-Pesa connection', 'mpesaTest')
+    .addItem('Send a test M-Pesa prompt to my phone', 'mpesaTestPrompt')
     .addSeparator()
     .addItem('Set up / repair (run after updating the script)', 'setup')
     .addToUi();
@@ -3056,6 +3057,7 @@ function mpesaApply_(id, resultCode, resultDesc, receipt, paid) {
     }
     const code = receipt || String(id);
     sh.getRange(row, 8, 1, 3).setValues([['Paid', receipt || '', resultDesc || 'Paid']]);
+    if (r[1] === 'test') return true;
     const tz = 'Africa/Nairobi', amount = Number(r[6]);
     if (r[1] === 'pro') {
       const pr = pro_();
@@ -3126,6 +3128,43 @@ function mpesaStatus_(q) {
   if (status === 'Failed') return { ok: true, status: 'failed', message: String(f.r[9] || 'Not paid') };
   if (status === 'Check') return { ok: true, status: 'check', message: 'Payment received but the amount differs. Edison will confirm it by hand.' };
   return { ok: true, status: 'waiting' };
+}
+
+// Menu: send a KES 1 prompt to your own phone and wait for the answer (nothing is sold or recorded as income)
+function mpesaTestPrompt() {
+  const ui = SpreadsheetApp.getUi(), c = mpesaCfg_();
+  if (!c) { ui.alert('M-Pesa is not set up yet', 'Add the MPESA_ Script properties first, then run "Test the M-Pesa connection".', ui.ButtonSet.OK); return; }
+  const ans = ui.prompt('Send a test M-Pesa prompt', 'Your Safaricom number (e.g. 0712 345 678). A prompt for KES 1 is sent to it (' + c.env + ').', ui.ButtonSet.OK_CANCEL);
+  if (ans.getSelectedButton() !== ui.Button.OK) return;
+  const phone = mpesaPhone_(ans.getResponseText());
+  if (!phone) { ui.alert('That is not a Safaricom number. Try again, e.g. 0712 345 678.'); return; }
+  let r;
+  try {
+    r = mpesaCall_(c, '/mpesa/stkpush/v1/processrequest', Object.assign(mpesaAuth_(c), {
+      TransactionType: c.type === 'till' ? 'CustomerBuyGoodsOnline' : 'CustomerPayBillOnline', Amount: 1, PartyA: phone,
+      PartyB: c.type === 'till' ? c.till : c.shortcode, PhoneNumber: phone, CallBackURL: mpesaCallbackUrl_(), AccountReference: 'Test', TransactionDesc: 'Test' }));
+  } catch (err) { ui.alert('M-Pesa problem', String(err.message || err), ui.ButtonSet.OK); return; }
+  if (String(r.body.ResponseCode) !== '0') { ui.alert('Safaricom did not send the prompt', JSON.stringify(r.body), ui.ButtonSet.OK); return; }
+  const id = r.body.CheckoutRequestID;
+  mpesaTab_().appendRow([new Date(), 'test', 'Test prompt', 'You', '', "'" + phone, 1, 'Waiting', '', '', id, '', '{}']);
+  SpreadsheetApp.flush();
+  // Wait up to ~2 minutes: first for Safaricom's callback, then by asking Safaricom directly.
+  let how = '';
+  for (let i = 0; i < 24; i++) {
+    Utilities.sleep(5000);
+    let f = mpesaRow_(id);
+    if (String(f.r[7]) !== 'Waiting') { how = 'callback'; break; }
+    if (i >= 4) {
+      const q = mpesaCall_(c, '/mpesa/stkpushquery/v1/query', Object.assign(mpesaAuth_(c), { CheckoutRequestID: id }));
+      if (q.body.ResultCode !== undefined) { mpesaApply_(id, Number(q.body.ResultCode), String(q.body.ResultDesc || ''), '', null); how = 'query'; break; }
+    }
+  }
+  const f = mpesaRow_(id), status = String(f.r[7]);
+  const cbNote = how === 'callback' ? 'Safaricom sent the result to this script by itself. Everything works.' :
+    how === 'query' ? 'The result was found by asking Safaricom. Its automatic message did not arrive (check MPESA_CALLBACK_URL); the website still works because it asks Safaricom too.' : '';
+  if (status === 'Paid') ui.alert('Test prompt: paid ✅', 'Receipt: ' + (f.r[8] || '(arrives with the callback)') + '\n\n' + cbNote, ui.ButtonSet.OK);
+  else if (status === 'Failed') ui.alert('Test prompt: not paid', String(f.r[9] || '') + '\n\nThat is fine for a test (e.g. you cancelled). ' + cbNote, ui.ButtonSet.OK);
+  else ui.alert('No answer yet', 'Did the prompt appear on your phone? See the "M-Pesa prompts" tab in a minute.', ui.ButtonSet.OK);
 }
 
 // Menu: check the Script properties work
