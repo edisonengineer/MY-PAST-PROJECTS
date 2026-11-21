@@ -2469,7 +2469,7 @@ html:not([lang="en"]) .article-lang-note { display: block; }
     .syl-body { padding: 0 16px 16px; }
 }
 @media print {
-    .site-header, .site-footer, .page-actions, .syl-tools, .course-reserve-band, .student-work, .fab-whatsapp, .fab-top, .newsletter-band, [class*="fab"] { display: none !important; }
+    .site-header, .site-footer, .page-actions, .syl-tools, .course-reserve-band, .course-exam-band, .student-work, .fab-whatsapp, .fab-top, .newsletter-band, [class*="fab"] { display: none !important; }
     .syllabus { padding-top: 0; }
     .syl-session { break-inside: avoid-page; box-shadow: none !important; }
     .syl-session summary::after { display: none; }

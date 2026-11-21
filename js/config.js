@@ -61,6 +61,14 @@ window.SITE_CONFIG = {
         freePdfsPerDay: 3
     },
 
+    // SolidWorks exam practice (/exams/). Free: a sample test. The exam pass (paid by M-Pesa,
+    // key emailed from the "Quote Pro" tab of the sheet, plan "Exams") opens the full exams.
+    // The sheet gives a pass 31 days; keep "days" in step if you change it there.
+    exams: {
+        price: 500,               // KES for the pass
+        days: 30
+    },
+
     // Weekly webinar. Set the day and time (Nairobi time) to show a live countdown.
     webinar: {
         day: '',                  // e.g. 'Saturday'

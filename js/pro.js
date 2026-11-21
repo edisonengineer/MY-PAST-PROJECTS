@@ -48,6 +48,13 @@
     };
     const track = (path) => { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path, event: true }); };
 
+    // Which paid product this page sells: Quote Pro (the quote tools) or the exam pass (/exams/).
+    // Each has its own licence keys: a Quote Pro key does not open the exams, and the other way round.
+    const EXAMS = document.body.dataset.product === 'exams';
+    const EX_CFG = Object.assign({ price: 500, days: 30 }, CONFIG.exams || {});
+    const PRODUCT = EXAMS ? 'the exam practice pass' : 'Quote Pro';
+    const LIC = EXAMS ? 'pro-exams' : 'pro';
+
     const bizForm = $('#nq-biz');
     const modal = $('#pro-modal');
     const hooks = [];
@@ -58,7 +65,7 @@
         deviceId = Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => b.toString(16).padStart(2, '0')).join('');
         store.set('device', deviceId);
     }
-    let licence = store.get('pro', null);   // { key, business, expires, plan, checked }
+    let licence = store.get(LIC, null);   // { key, business, expires, plan, checked }
     const isPro = () => !!(licence && licence.expires && licence.expires >= today());
 
     async function checkKey(key) {
@@ -84,9 +91,12 @@
         const raw = String(key || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
         const k = raw.length === 15 ? raw.slice(0, 3) + '-' + raw.slice(3, 7) + '-' + raw.slice(7, 11) + '-' + raw.slice(11) : raw;
         const r = await checkKey(k);
+        if (r && r.ok && EXAMS !== (r.plan === 'Exams')) {
+            return { ok: false, message: EXAMS ? 'That is a Quote Pro key (for the quote tools). Exam practice needs its own pass.' : 'That key is for exam practice, not Quote Pro. It works on the exams page.' };
+        }
         if (r && r.ok) {
             licence = { key: k, business: r.business || '', expires: r.expires, plan: r.plan || '', checked: today() };
-            store.set('pro', licence);
+            store.set(LIC, licence);
             if (r.business && bizForm && !bizForm.elements.bname.value) { bizForm.elements.bname.value = r.business; saveBiz(); }
             paintPlan();
             return { ok: true };
@@ -101,8 +111,8 @@
         if (age < 3) return;
         try {
             const r = await checkKey(licence.key);
-            if (r && r.ok) { licence = Object.assign(licence, { expires: r.expires, business: r.business || licence.business, checked: today() }); store.set('pro', licence); }
-            else if (r && /^(unknown|cancelled|expired)$/.test(r.error)) { licence.expires = r.expires && r.error === 'expired' ? r.expires : '0000-00-00'; licence.checked = today(); store.set('pro', licence); }
+            if (r && r.ok) { licence = Object.assign(licence, { expires: r.expires, business: r.business || licence.business, checked: today() }); store.set(LIC, licence); }
+            else if (r && /^(unknown|cancelled|expired)$/.test(r.error)) { licence.expires = r.expires && r.error === 'expired' ? r.expires : '0000-00-00'; licence.checked = today(); store.set(LIC, licence); }
             paintPlan();
         } catch (e) { /* offline: try another day */ }
     }
@@ -211,7 +221,7 @@
     function paintPlan() {
         const pro = isPro();
         const until = pro ? new Date(licence.expires + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-        if ($('#nq-plan')) { $('#nq-plan').textContent = pro ? 'Pro · until ' + until : 'Free plan'; $('#nq-plan').classList.toggle('is-pro', pro); }
+        if ($('#nq-plan')) { $('#nq-plan').textContent = pro ? (EXAMS ? 'Exam pass' : 'Pro') + ' · until ' + until : 'Free plan'; $('#nq-plan').classList.toggle('is-pro', pro); }
         if ($('#nq-pro-btn')) $('#nq-pro-btn').textContent = pro ? 'Renew Pro' : 'Go Pro';
         if ($('#nq-lock')) $('#nq-lock').hidden = pro;
         if ($('#nq-pro-fields')) $('#nq-pro-fields').classList.toggle('is-locked', !pro);
@@ -263,7 +273,10 @@
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('is-open')) closePro(); });
 
         // Prices and payment details from the site settings
-        const planAmount = () => ($('input[name=plan]:checked', modal).value === 'Yearly' ? PRO_CFG.yearly : PRO_CFG.monthly);
+        const planOf = () => (EXAMS ? 'Exams' : $('input[name=plan]:checked', modal).value);
+        const planAmount = () => (EXAMS ? EX_CFG.price : planOf() === 'Yearly' ? PRO_CFG.yearly : PRO_CFG.monthly);
+        $$('[data-price=exams]').forEach((el) => { el.textContent = kes(EX_CFG.price); });
+        $$('[data-exam-days]').forEach((el) => { el.textContent = EX_CFG.days; });
         $$('[data-price=monthly]').forEach((el) => { el.textContent = kes(PRO_CFG.monthly); });
         $$('[data-price=yearly]').forEach((el) => { el.textContent = kes(PRO_CFG.yearly); });
         $$('[data-save]').forEach((el) => { el.textContent = Math.max(0, Math.round((1 - PRO_CFG.yearly / (PRO_CFG.monthly * 12)) * 100)); });
@@ -273,17 +286,17 @@
         const paintAmount = () => { $('#pro-amount').textContent = kes(planAmount()); };
         $$('input[name=plan]', modal).forEach((r) => r.addEventListener('change', paintAmount));
         paintAmount();
-        $('#pro-wa').href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('Hi Edison, I have a question about Quote Pro (the fabrication quote tools).');
+        $('#pro-wa').href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('Hi Edison, I have a question about ' + (EXAMS ? 'the SolidWorks exam practice.' : 'Quote Pro (the fabrication quote tools).'));
 
         $('#pro-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const f = e.target, err = $('#pro-error');
             const data = { business: f.business.value.trim(), code: f.code.value.toUpperCase().replace(/[^A-Z0-9]/g, ''), email: f.email.value.trim(), phone: f.phone.value.trim(), ref: f.ref ? f.ref.value.trim() : '' };
-            const bad = !data.business ? 'Enter your business name.' : !/^[A-Z0-9]{8,12}$/.test(data.code) ? 'Enter the M-Pesa code from your confirmation SMS (10 letters and numbers).' :
+            const bad = !data.business ? (EXAMS ? 'Enter your name.' : 'Enter your business name.') : !/^[A-Z0-9]{8,12}$/.test(data.code) ? 'Enter the M-Pesa code from your confirmation SMS (10 letters and numbers).' :
                 !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email) ? 'Enter the email address your key should go to.' : '';
             err.hidden = !bad; err.textContent = bad;
             if (bad || f.botcheck.checked) return;
-            const plan = $('input[name=plan]:checked', modal).value;
+            const plan = planOf();
             const btn = $('button[type=submit]', f);
             btn.disabled = true;
             const fields = Object.assign({ action: 'pro', plan, amount: planAmount(), renew: licence && licence.key ? licence.key : '' }, data);
@@ -294,7 +307,7 @@
             btn.disabled = false;
             if (!sent) {
                 // No sheet (or offline): send the details on WhatsApp instead
-                window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('Hi Edison, I have paid ' + kes(planAmount()) + ' for Quote Pro (' + plan + ').\nBusiness: ' + data.business + '\nM-Pesa code: ' + data.code + '\nEmail: ' + data.email + (fields.renew ? '\nRenewing key: ' + fields.renew : '') + (data.ref ? '\nTold about it by: ' + data.ref : '')), '_blank', 'noopener');
+                window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('Hi Edison, I have paid ' + kes(planAmount()) + ' for ' + PRODUCT + ' (' + plan + ').\n' + (EXAMS ? 'Name: ' : 'Business: ') + data.business + '\nM-Pesa code: ' + data.code + '\nEmail: ' + data.email + (fields.renew ? '\nRenewing key: ' + fields.renew : '') + (data.ref ? '\nTold about it by: ' + data.ref : '')), '_blank', 'noopener');
             }
             f.hidden = true;
             $('#pro-done').hidden = false;
@@ -319,10 +332,11 @@
     /* ---------- Word of mouth: "Share on WhatsApp" with the sharer's business name ---------- */
     document.addEventListener('click', (e) => {
         if (!e.target.closest('[data-share-tool]')) return;
+        const btn = e.target.closest('[data-share-tool]');
         const name = biz().bname || (licence && licence.business) || '';
         const url = location.origin + location.pathname + (name ? '?from=' + encodeURIComponent(name) : '');
         const what = /steel/.test(location.pathname) ? 'steel gates, grills and railings (cut list and steel to buy)' : 'sheet-metal parts (flat blank, cutting and bending)';
-        const text = 'Free tool for pricing ' + what + ' and sending the quote on WhatsApp or PDF:\n' + url +
+        const text = btn.dataset.shareText ? btn.dataset.shareText + '\n' + url : 'Free tool for pricing ' + what + ' and sending the quote on WhatsApp or PDF:\n' + url +
             '\n\nTool ya bure ya kupiga bei ya kazi za chuma na kutuma quote kwa mteja.';
         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
         track('quote-share');

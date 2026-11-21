@@ -198,6 +198,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "SolidWorks exam practice (CSWA-style)",
+  "d": "Timed SolidWorks practice tests: theory questions and drawings to model for the mass, new sizes every attempt, instant marking. Free sample test.",
+  "u": "exams/index.html",
+  "x": "solidworks cswa exam practice test certification mock quiz questions mass model drawing student certificate"
+ },
+ {
+  "k": "page",
   "t": "Gate, grill & railing estimator",
   "d": "Price steel gates, window grills and railings: cut list, 6 m lengths to buy, weight, paint, labour and fittings, then a PDF or WhatsApp quote.",
   "u": "steel/index.html",

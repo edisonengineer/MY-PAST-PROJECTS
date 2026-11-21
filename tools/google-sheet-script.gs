@@ -77,7 +77,8 @@
    code on the tracking page. You get an email; check your M-Pesa messages
    and set Status to "Confirmed": the receipt is created and sent for you.
 
-   QUOTE PRO tab: paid licences for the sheet-metal quote tool (/quote/).
+   QUOTE PRO tab: paid licences for the quote tools (/quote/, /steel/) and
+   the SolidWorks exam practice pass (/exams/, plan "Exams").
    Buyers pay by M-Pesa and send the code from the tool; you get an email.
    Set Status to "Confirmed" and their licence key and receipt are emailed
    for them. "Cancelled" switches a key off. Renewal reminders are automatic.
@@ -2434,7 +2435,7 @@ function setup() {
   promos_();
   referrals_();
   payments_();
-  pro_();
+  pro_().getRange('E2:E3000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(Object.keys(PRO_PLANS), true).build());   // adds new plans (Exams) to the list
   timelog_();
   downloads_();
   const co = courses_();
@@ -2689,7 +2690,9 @@ function fromSubmission_(r) {
 const PRO = 'Quote Pro';
 const PROHEAD = ['Received', 'Business', 'Email', 'Phone', 'Plan', 'Amount (KES)', 'M-Pesa code', 'Status', 'Licence key (automatic)', 'Expires', 'Renewal reminder (automatic)', 'Notes'];
 const PRO_STATUS = ['To confirm', 'Confirmed', 'Not received', 'Cancelled'];
-const PRO_PLANS = { Monthly: 31, Yearly: 366 };
+const PRO_PLANS = { Monthly: 31, Yearly: 366, Exams: 31 };   // Exams: the SolidWorks exam practice pass (/exams/)
+const isExam_ = (plan) => String(plan || '').trim() === 'Exams';
+const proName_ = (plan) => (isExam_(plan) ? 'SolidWorks exam pass' : 'Quote Pro');
 const PRO_DEVICES = 3;   // phones / computers one key can be used on
 
 function pro_() {
@@ -2744,8 +2747,8 @@ function proRequest_(p) {
     lock.releaseLock();
   }
   const me = Session.getEffectiveUser().getEmail();
-  if (me) MailApp.sendEmail({ to: me, name: 'Nexus CAD Studio website', subject: '💰 Quote Pro to confirm: ' + plan + ' · ' + business + (amount ? ' · ' + kes_(amount) : ''),
-    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;color:#0e1a3a"><p><b>' + html_(business) + '</b> (' + html_(email) + ') says they paid ' + (amount ? '<b>' + kes_(amount) + '</b> ' : '') + 'for <b>Quote Pro, ' + html_(plan) + '</b>.</p>' +
+  if (me) MailApp.sendEmail({ to: me, name: 'Nexus CAD Studio website', subject: '💰 ' + proName_(plan) + ' to confirm: ' + plan + ' · ' + business + (amount ? ' · ' + kes_(amount) : ''),
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;color:#0e1a3a"><p><b>' + html_(business) + '</b> (' + html_(email) + ') says they paid ' + (amount ? '<b>' + kes_(amount) + '</b> ' : '') + 'for <b>' + proName_(plan) + (isExam_(plan) ? '' : ', ' + html_(plan)) + '</b>.</p>' +
       '<p style="font-size:18px">M-Pesa code: <b style="letter-spacing:1px">' + html_(code) + '</b></p>' +
       '<p>Check your M-Pesa messages for this code, then set its Status in the <b>Quote Pro</b> tab to <b>Confirmed</b>: their licence key and receipt are emailed for you.</p>' +
       (p.ref ? '<p style="border-left:4px solid #25d366;background:#effaf3;padding:10px 12px"><b>Referral:</b> they were told about Quote Pro by <b>' + html_(clean_(p.ref, 80)) + '</b>. To thank them with a free month, find their latest row in the Quote Pro tab and add 31 days to its Expires date.</p>' : '') +
@@ -2762,7 +2765,7 @@ function proChanged_(sh, row) {
   const rows = sh.getDataRange().getValues();
   let key = String(r[8] || '').trim().toUpperCase();
   if (!key) {   // the same buyer paying again keeps their key
-    const prev = rows.filter((x, k) => k > 0 && k !== row - 1 && String(x[2]).trim().toLowerCase() === email.toLowerCase() && String(x[8]).trim() && String(x[7]).trim() === 'Confirmed');
+    const prev = rows.filter((x, k) => k > 0 && k !== row - 1 && String(x[2]).trim().toLowerCase() === email.toLowerCase() && String(x[8]).trim() && String(x[7]).trim() === 'Confirmed' && isExam_(x[4]) === isExam_(plan));
     if (prev.length) key = String(prev[prev.length - 1][8]).trim().toUpperCase();
   }
   if (!key) key = newProKey_();
@@ -2774,22 +2777,26 @@ function proChanged_(sh, row) {
   sh.getRange(row, 10).setValue(expires);
   const tz = 'Africa/Nairobi', when = Utilities.formatDate(expires, tz, 'd MMMM yyyy');
   if (!validEmail_(email)) { sh.getRange(row, 12).setValue('⚠ No valid email: send the key ' + key + ' on WhatsApp'); return; }
-  const link = SITE_URL + 'quote/?key=' + encodeURIComponent(key);
-  MailApp.sendEmail({ to: email, name: SENDER, subject: 'Your Quote Pro licence key' + (until ? ' (renewed)' : ''),
+  const exam = isExam_(plan), name = proName_(plan);
+  const link = SITE_URL + (exam ? 'exams/' : 'quote/') + '?key=' + encodeURIComponent(key);
+  const howTo = exam ?
+    'The button turns on your exam pass: all full practice exams, practice by topic and answer reviews. On another phone or computer, open the exams page, choose <b>Enter key</b> and type the key above (up to ' + PRO_DEVICES + ' devices).' :
+    'The button switches Pro on for you. The same key works on both tools: the <a href="' + SITE_URL + 'quote/">sheet-metal quote tool</a> and the <a href="' + SITE_URL + 'steel/">gate &amp; grill estimator</a>. On another phone or computer, open a tool, choose <b>Enter key</b> and type the key above (up to ' + PRO_DEVICES + ' devices).';
+  MailApp.sendEmail({ to: email, name: SENDER, subject: 'Your ' + name + ' key' + (until ? ' (renewed)' : ''),
     htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
-      '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · QUOTE PRO</p>' +
-      '<p>Hello ' + html_(business) + ',</p><p>Thank you! Your payment is confirmed and Quote Pro is ' + (until ? 'renewed' : 'ready') + '. It is valid until <b>' + when + '</b>.</p>' +
+      '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · ' + name.toUpperCase() + '</p>' +
+      '<p>Hello ' + html_(business) + ',</p><p>Thank you! Your payment is confirmed and your ' + name + ' is ' + (until ? 'renewed' : 'ready') + '. It is valid until <b>' + when + '</b>.</p>' +
       '<p style="font-size:20px;background:#fbf6ec;border-left:4px solid #ffb627;padding:12px 14px;letter-spacing:2px"><b>' + html_(key) + '</b></p>' +
-      '<p><a href="' + link + '" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Open Quote Pro</a></p>' +
-      '<p style="font-size:13px;color:#555">The button switches Pro on for you. The same key works on both tools: the <a href="' + SITE_URL + 'quote/">sheet-metal quote tool</a> and the <a href="' + SITE_URL + 'steel/">gate &amp; grill estimator</a>. On another phone or computer, open a tool, choose <b>Enter key</b> and type the key above (up to ' + PRO_DEVICES + ' devices).</p>' +
+      '<p><a href="' + link + '" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">' + (exam ? 'Start practising' : 'Open Quote Pro') + '</a></p>' +
+      '<p style="font-size:13px;color:#555">' + howTo + '</p>' +
       '<p style="font-size:13px;color:#555">Questions? Reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
       '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Nexus CAD Studio</span></p></div>',
-    body: 'Your Quote Pro licence key: ' + key + ' (valid until ' + when + '). Open it here: ' + link });
+    body: 'Your ' + name + ' key: ' + key + ' (valid until ' + when + '). Open it here: ' + link });
   // A receipt, so the money shows in your monthly report
   const amount = num_(r[5]);
   if (amount > 0) {
     const inv = invoices_();
-    inv.appendRow(['', 'Receipt', new Date(), '', business, email, 'Quote Pro licence, ' + plan.toLowerCase() + ' (until ' + when + ') - ' + amount, amount, amount, 'M-Pesa confirmation code ' + String(r[6] || '') + '. Licence key ' + key, 'Draft', '', 'Created from the Quote Pro tab', 'Off', '', 'None']);
+    inv.appendRow(['', 'Receipt', new Date(), '', business, email, (exam ? 'SolidWorks exam practice pass' : 'Quote Pro licence, ' + plan.toLowerCase()) + ' (until ' + when + ') - ' + amount, amount, amount, 'M-Pesa confirmation code ' + String(r[6] || '') + '. Licence key ' + key, 'Draft', '', 'Created from the Quote Pro tab', 'Off', '', 'None']);
     try { sendInvoice_(inv, inv.getLastRow()); } catch (err) { console.error('pro receipt: ' + err); }
   }
   sh.getRange(row, 12).setValue([String(r[11] || ''), 'Key emailed ' + Utilities.formatDate(now, tz, 'd MMM yyyy')].filter(Boolean).join(' · '));
@@ -2850,10 +2857,12 @@ function proReminderJob() {
     const email = String(x[2] || '').trim();
     if (!validEmail_(email)) continue;
     const key = String(x[8]).trim(), when = Utilities.formatDate(until, 'Africa/Nairobi', 'd MMMM yyyy');
-    MailApp.sendEmail({ to: email, name: SENDER, subject: 'Your Quote Pro licence ends on ' + when,
+    const exam = isExam_(x[4]), name = proName_(x[4]);
+    MailApp.sendEmail({ to: email, name: SENDER, subject: 'Your ' + name + ' ends on ' + when,
       htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a"><p>Hello ' + html_(String(x[1] || '')) + ',</p>' +
-        '<p>Your Quote Pro licence <b>' + html_(key) + '</b> ends on <b>' + when + '</b>. To keep your logo, unlimited PDF quotes and saved quotes, renew it in the quote tool: choose <b>Renew</b>, pay by M-Pesa and send the code. Your key stays the same and the new time is added to the end.</p>' +
-        '<p><a href="' + SITE_URL + 'quote/?renew=1" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Renew Quote Pro</a></p>' +
+        (exam ? '<p>Your SolidWorks exam pass <b>' + html_(key) + '</b> ends on <b>' + when + '</b>. Still preparing? Renew it on the exams page: choose <b>Renew</b>, pay by M-Pesa and send the code. Your key stays the same and the new time is added to the end. Good luck with the exam!</p>' :
+          '<p>Your Quote Pro licence <b>' + html_(key) + '</b> ends on <b>' + when + '</b>. To keep your logo, unlimited PDF quotes and saved quotes, renew it in the quote tool: choose <b>Renew</b>, pay by M-Pesa and send the code. Your key stays the same and the new time is added to the end.</p>') +
+        '<p><a href="' + SITE_URL + (exam ? 'exams/' : 'quote/') + '?renew=1" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Renew ' + name + '</a></p>' +
         '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Nexus CAD Studio</span></p></div>' });
     sh.getRange(i + 1, 11).setValue('Sent ' + Utilities.formatDate(now, 'Africa/Nairobi', 'd MMM yyyy'));
   }
