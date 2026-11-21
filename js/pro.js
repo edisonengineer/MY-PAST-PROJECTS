@@ -240,7 +240,7 @@
         const err = $(pane === 'key' ? '#key-error' : '#pro-error');
         err.hidden = !note; err.textContent = note || '';
         if (pane === 'buy') {
-            $('#pro-form').hidden = false; $('#pro-done').hidden = true;
+            $('#pro-form').hidden = false; $('#pro-done').hidden = true; $$('#pro-form + div', modal).forEach((d) => { if (!d.id) d.hidden = true; });
             const b = biz();
             if (!$('#pf-biz').value) $('#pf-biz').value = b.bname || (licence && licence.business) || '';
             if (!$('#pf-email').value) $('#pf-email').value = b.bemail || '';
@@ -288,10 +288,83 @@
         paintAmount();
         $('#pro-wa').href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('Hi Edison, I have a question about ' + (EXAMS ? 'the SolidWorks exam practice.' : 'Quote Pro (the fabrication quote tools).'));
 
+        // M-Pesa prompt (when payments.stkPush is on): pay from the phone and Pro turns on by itself.
+        // Paying the till by hand and typing the code still works, under "Paid the till directly?".
+        let stkOn = false;
+        const stkPanel = document.createElement('div');
+        stkPanel.hidden = true;
+        function paintPayBtn() {
+            if (!stkOn) return;
+            const btn = $('#pro-form button[type=submit]'), manual = !!$('#pf-code').value.trim();
+            btn.classList.toggle('btn-mpesa', !manual);
+            btn.innerHTML = manual ? 'I have paid: send my key' : window.NexusMpesa.button(planAmount());
+        }
+        document.addEventListener('DOMContentLoaded', () => {   // pages.js (which has the M-Pesa helper) loads after this file
+            const MP = window.NexusMpesa;
+            if (!MP || !MP.enabled()) return;
+            stkOn = true;
+            MP.style();
+            const form = $('#pro-form'), steps = $('.pay-steps', modal), code = $('#pf-code');
+            code.required = false;
+            const phone = $('#pf-phone');
+            phone.required = true;
+            phone.placeholder = '0712 345 678';
+            $('label[for=pf-phone]').textContent = 'M-Pesa number (the prompt is sent here)';
+            const alt = document.createElement('details');
+            alt.className = 'mp-alt';
+            alt.innerHTML = '<summary>Paid the till directly instead? Enter the M-Pesa code</summary>';
+            if (steps) alt.appendChild(steps);
+            alt.appendChild(code.closest('.field'));
+            form.insertBefore(alt, $('#pro-error'));
+            const note = document.createElement('p');
+            note.className = 'form-intro';
+            note.textContent = 'Pay with M-Pesa: you get a prompt on your phone, enter your PIN, and ' + (EXAMS ? 'your pass' : 'Pro') + ' turns on straight away.';
+            $('[data-pane=buy] .form-intro', modal).after(note);
+            form.after(stkPanel);
+            code.addEventListener('input', paintPayBtn);
+            $$('input[name=plan]', modal).forEach((r) => r.addEventListener('change', paintPayBtn));
+            paintPayBtn();
+        });
+
         $('#pro-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const f = e.target, err = $('#pro-error');
             const data = { business: f.business.value.trim(), code: f.code.value.toUpperCase().replace(/[^A-Z0-9]/g, ''), email: f.email.value.trim(), phone: f.phone.value.trim(), ref: f.ref ? f.ref.value.trim() : '' };
+            if (stkOn && !data.code) {
+                const MP = window.NexusMpesa, phone = MP.normalize(data.phone);
+                const bad = !data.business ? (EXAMS ? 'Enter your name.' : 'Enter your business name.') :
+                    !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email) ? 'Enter the email address your key should go to.' :
+                    !phone ? 'Enter your M-Pesa number, like 0712 345 678.' : '';
+                err.hidden = !bad; err.textContent = bad;
+                if (bad || f.botcheck.checked) return;
+                f.hidden = true;
+                MP.pay({
+                    api: API, panel: stkPanel, amount: planAmount(),
+                    params: { for: 'pro', plan: planOf(), business: data.business, email: data.email, phone, ref: data.ref, renew: licence && licence.key ? licence.key : '' },
+                    onPaid: async (r) => {
+                        stkPanel.hidden = true;
+                        let msg;
+                        if (r.key) {
+                            let a = { ok: false };
+                            try { a = await activate(r.key); } catch (x) { /* shown below */ }
+                            msg = a.ok ? 'Payment received ✓ ' + (EXAMS ? 'Your exam pass' : 'Quote Pro') + ' is on until ' + licence.expires + '. Your key ' + r.key + ' was also emailed to you, for your other devices.' :
+                                'Payment received ✓ Your key is ' + r.key + ' (also emailed). Choose "I already have a key" to turn it on.';
+                        } else {
+                            msg = r.status === 'check' ? 'Payment received. Edison will confirm it and email your key shortly.' : 'Payment received ✓ Your key is on its way to your email.';
+                        }
+                        $('#pro-done span').textContent = msg;
+                        $('#pro-done').hidden = false;
+                        $('#pro-done').focus();
+                        track('quote-pro-mpesa');
+                    },
+                    onStop: (msg) => {
+                        stkPanel.hidden = true;
+                        f.hidden = false;
+                        if (msg) { err.textContent = msg; err.hidden = false; }
+                    }
+                });
+                return;
+            }
             const bad = !data.business ? (EXAMS ? 'Enter your name.' : 'Enter your business name.') : !/^[A-Z0-9]{8,12}$/.test(data.code) ? 'Enter the M-Pesa code from your confirmation SMS (10 letters and numbers).' :
                 !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email) ? 'Enter the email address your key should go to.' : '';
             err.hidden = !bad; err.textContent = bad;

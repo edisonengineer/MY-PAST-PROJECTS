@@ -147,6 +147,7 @@ const clean_ = (v, max) => String(v || '').replace(/[\u0000-\u001f<>]/g, ' ').re
 
 function doPost(e) {
   const p = (e && e.parameter) || {};
+  if (p.mpesa) return out_(mpesaCallback_(e));                       // Safaricom: result of an M-Pesa prompt
   if (p.botcheck) return out_({ ok: true });                       // bots fill the hidden box
   if (p.action === 'brief') return out_(brief_(p));
   if (p.action === 'subscribe') return out_(subscribe_(p));
@@ -2435,6 +2436,7 @@ function setup() {
   promos_();
   referrals_();
   payments_();
+  mpesaTab_();
   pro_().getRange('E2:E3000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(Object.keys(PRO_PLANS), true).build());   // adds new plans (Exams) to the list
   timelog_();
   downloads_();
@@ -2499,6 +2501,7 @@ function onOpen() {
     .addItem('Refresh the dashboard', 'refreshDashboard')
     .addItem('Translate new website text now', 'translateNow')
     .addItem('Announce new classes now', 'announceClassesNow')
+    .addItem('Test the M-Pesa connection', 'mpesaTest')
     .addSeparator()
     .addItem('Set up / repair (run after updating the script)', 'setup')
     .addToUi();
@@ -2868,6 +2871,277 @@ function proReminderJob() {
   }
 }
 
+/* ---------- M-Pesa prompt (STK Push): clients pay without typing a code ----------
+   The website sends a Lipa na M-Pesa prompt to the client's phone. They enter their PIN and
+   Safaricom tells this script the result. A Quote Pro / exam pass is then confirmed and the
+   key emailed (and shown on screen); a deposit or project payment is confirmed and the receipt
+   emailed. All automatically. Every prompt is logged in the "M-Pesa prompts" tab.
+
+   SET-UP (once, after Safaricom gives you the keys):
+   1. Apps Script editor → Project Settings (gear icon) → Script properties → Add:
+        MPESA_ENV              sandbox   (or production when you go live)
+        MPESA_CONSUMER_KEY     from your app on developer.safaricom.co.ke
+        MPESA_CONSUMER_SECRET  from the same app
+        MPESA_PASSKEY          the Lipa na M-Pesa Online passkey Safaricom emails you
+        MPESA_TYPE             till      (or paybill)
+        MPESA_SHORTCODE        till: your store / head-office number;  paybill: the paybill number
+        MPESA_TILL             8438334   (till only: the number clients pay to)
+      Sandbox test values: MPESA_TYPE paybill, MPESA_SHORTCODE 174379, the sandbox passkey from the portal.
+   2. Menu Website → "Test the M-Pesa connection".
+   3. Deploy → Manage deployments → edit → New version → Deploy.
+   4. In js/config.js set  payments.stkPush: true  so the website shows "Pay with M-Pesa".
+   Optional: MPESA_CALLBACK_URL if Safaricom should call a different address than this web app. */
+const MPESA = 'M-Pesa prompts';
+const MPHEAD = ['Sent', 'For', 'Reference / plan', 'Name', 'Email', 'Phone', 'Amount (KES)', 'Status', 'M-Pesa receipt', 'Result', 'Request ID (automatic)', 'Token (automatic)', 'Details (automatic)'];
+// Prices charged by the M-Pesa prompt. Keep these the same as quotePro / exams in js/config.js.
+const PRO_PRICE = { Monthly: 500, Yearly: 4500, Exams: 500 };
+const MP_RESULT = {
+  0: 'Paid', 1: 'Not enough money in the M-Pesa account', 1001: 'Another M-Pesa payment is in progress on this phone. Wait a moment and try again.',
+  1019: 'The prompt expired. Please try again.', 1025: 'M-Pesa could not send the prompt. Please try again.', 1032: 'You cancelled the payment on your phone',
+  1037: 'Your phone could not be reached (off or no network). Please try again.', 2001: 'Wrong M-Pesa PIN entered', 9999: 'M-Pesa could not send the prompt. Please try again.'
+};
+
+function mpesaTab_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(MPESA);
+  if (sh) return sh;
+  sh = ss.insertSheet(MPESA);
+  sh.appendRow(MPHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, MPHEAD.length).setFontWeight('bold').setWrap(true);
+  sh.getRange('A2:A5000').setNumberFormat('d mmm yyyy, HH:mm');
+  [140, 80, 120, 160, 180, 120, 90, 100, 120, 260, 200, 60, 200].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+
+function mpesaCfg_() {
+  const p = PropertiesService.getScriptProperties();
+  const get = (k) => String(p.getProperty(k) || '').trim();
+  const c = { env: get('MPESA_ENV') === 'production' ? 'production' : 'sandbox', key: get('MPESA_CONSUMER_KEY'), secret: get('MPESA_CONSUMER_SECRET'),
+    passkey: get('MPESA_PASSKEY'), type: get('MPESA_TYPE') === 'paybill' ? 'paybill' : 'till', shortcode: get('MPESA_SHORTCODE'), till: get('MPESA_TILL') };
+  if (!c.key || !c.secret || !c.passkey || !c.shortcode || (c.type === 'till' && !c.till)) return null;
+  c.host = c.env === 'production' ? 'https://api.safaricom.co.ke' : 'https://sandbox.safaricom.co.ke';
+  return c;
+}
+
+// 0712 345 678 / +254712345678 / 712345678 -> 254712345678 (Safaricom numbers start 2547 or 2541)
+function mpesaPhone_(v) {
+  const d = String(v || '').replace(/\D/g, '');
+  if (/^254[17]\d{8}$/.test(d)) return d;
+  if (/^0[17]\d{8}$/.test(d)) return '254' + d.slice(1);
+  if (/^[17]\d{8}$/.test(d)) return '254' + d;
+  return '';
+}
+
+function mpesaToken_(c) {
+  const cache = CacheService.getScriptCache(), ck = 'mp-token-' + c.env + '-' + c.key.slice(0, 8);
+  const hit = cache.get(ck);
+  if (hit) return hit;
+  const res = UrlFetchApp.fetch(c.host + '/oauth/v1/generate?grant_type=client_credentials', {
+    headers: { Authorization: 'Basic ' + Utilities.base64Encode(c.key + ':' + c.secret) }, muteHttpExceptions: true });
+  let body = {};
+  try { body = JSON.parse(res.getContentText() || '{}'); } catch (err) { body = {}; }
+  if (!body.access_token) throw new Error('Safaricom rejected the consumer key / secret (' + (body.errorMessage || 'HTTP ' + res.getResponseCode()) + ')');
+  cache.put(ck, body.access_token, 3000);   // tokens last an hour
+  return body.access_token;
+}
+
+function mpesaCall_(c, path, payload) {
+  const res = UrlFetchApp.fetch(c.host + path, { method: 'post', contentType: 'application/json', payload: JSON.stringify(payload),
+    headers: { Authorization: 'Bearer ' + mpesaToken_(c) }, muteHttpExceptions: true });
+  let body = {};
+  try { body = JSON.parse(res.getContentText() || '{}'); } catch (err) { body = {}; }
+  return { code: res.getResponseCode(), body };
+}
+
+function mpesaAuth_(c) {
+  const ts = Utilities.formatDate(new Date(), 'Africa/Nairobi', 'yyyyMMddHHmmss');
+  return { BusinessShortCode: c.shortcode, Password: Utilities.base64Encode(c.shortcode + c.passkey + ts), Timestamp: ts };
+}
+
+function mpesaSecret_() {
+  const p = PropertiesService.getScriptProperties();
+  let s = p.getProperty('MPESA_CALLBACK_SECRET');
+  if (!s) { s = Utilities.getUuid().replace(/-/g, ''); p.setProperty('MPESA_CALLBACK_SECRET', s); }
+  return s;
+}
+function mpesaCallbackUrl_() {
+  const custom = PropertiesService.getScriptProperties().getProperty('MPESA_CALLBACK_URL');
+  return (custom || ScriptApp.getService().getUrl()) + '?mpesa=' + mpesaSecret_();
+}
+
+// From the website: send the prompt. The amount is worked out here, never trusted from the page.
+function mpesaPay_(q) {
+  const c = mpesaCfg_();
+  if (!c) return { ok: false, error: 'not-set-up' };
+  const phone = mpesaPhone_(q.phone);
+  if (!phone) return { ok: false, error: 'phone' };
+  const cache = CacheService.getScriptCache();
+  const all = Number(cache.get('mp-count') || 0), mine = Number(cache.get('mp-' + phone) || 0);
+  if (all >= 120 || mine >= 5) return { ok: false, error: 'busy' };
+  cache.put('mp-count', String(all + 1), 3600);
+  cache.put('mp-' + phone, String(mine + 1), 900);
+
+  let what, ref, name, email, amount, accountRef, details;
+  if (q.for === 'pro') {
+    const plan = PRO_PRICE[q.plan] ? q.plan : '';
+    name = clean_(q.business, 100); email = String(q.email || '').trim();
+    if (!plan || !name || !validEmail_(email)) return { ok: false, error: 'invalid' };
+    const renew = proKey_(q.renew);
+    what = 'pro'; ref = plan; amount = PRO_PRICE[plan]; accountRef = isExam_(plan) ? 'ExamPass' : 'QuotePro';
+    details = { renew: renew.length === 15 ? String(q.renew).trim().toUpperCase() : '', from: clean_(q.ref, 80) };
+  } else if (q.for === 'payment') {
+    const who = clientOf_(q.ref);
+    amount = Math.round(num_(q.amount));
+    if (!who || !(amount >= 1 && amount <= 1000000)) return { ok: false, error: who ? 'invalid' : 'ref' };
+    what = 'payment'; ref = String(q.ref).trim().toUpperCase(); name = who.name; email = who.email; accountRef = normRef_(ref).slice(0, 12);
+    details = { payer: clean_(q.payer, 80) };
+  } else return { ok: false, error: 'invalid' };
+
+  let r;
+  try {
+    r = mpesaCall_(c, '/mpesa/stkpush/v1/processrequest', Object.assign(mpesaAuth_(c), {
+      TransactionType: c.type === 'till' ? 'CustomerBuyGoodsOnline' : 'CustomerPayBillOnline',
+      Amount: amount, PartyA: phone, PartyB: c.type === 'till' ? c.till : c.shortcode, PhoneNumber: phone,
+      CallBackURL: mpesaCallbackUrl_(), AccountReference: accountRef || 'Payment', TransactionDesc: 'Payment' }));
+  } catch (err) {
+    console.error('M-Pesa push: ' + err);
+    return { ok: false, error: 'mpesa', message: 'M-Pesa is not reachable right now. Please try again, or pay the till directly.' };
+  }
+  if (String(r.body.ResponseCode) !== '0' || !r.body.CheckoutRequestID) {
+    console.error('M-Pesa push refused: ' + JSON.stringify(r.body));
+    return { ok: false, error: 'mpesa', message: r.body.errorMessage || r.body.CustomerMessage || 'M-Pesa could not send the prompt. Please try again.' };
+  }
+  const token = Utilities.getUuid().replace(/-/g, '');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    mpesaTab_().appendRow([new Date(), what, ref, name, email, "'" + phone, amount, 'Waiting', '', '', r.body.CheckoutRequestID, token, JSON.stringify(details)]);
+  } finally { lock.releaseLock(); }
+  return { ok: true, id: r.body.CheckoutRequestID, token, amount, phone: phone.slice(0, 6) + '***' + phone.slice(-3) };
+}
+
+function mpesaRow_(id) {
+  const sh = mpesaTab_(), rows = sh.getDataRange().getValues();
+  for (let i = rows.length - 1; i > 0; i--) if (String(rows[i][10]) === String(id)) return { sh, row: i + 1, r: rows[i] };
+  return null;
+}
+
+// A result from Safaricom (callback or status check). Safe to call more than once.
+function mpesaApply_(id, resultCode, resultDesc, receipt, paid) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const f = mpesaRow_(id);
+    if (!f) return false;
+    const { sh, row, r } = f;
+    const status = String(r[7]), now = new Date();
+    let details = {};
+    try { details = JSON.parse(r[12] || '{}'); } catch (err) { details = {}; }
+    if (status === 'Paid') {
+      // The status check got there first; the callback brings the M-Pesa receipt number later
+      if (receipt && !String(r[8])) {
+        sh.getRange(row, 9).setValue(receipt);
+        if (details.sheet && details.row) SpreadsheetApp.getActiveSpreadsheet().getSheetByName(details.sheet).getRange(details.row, details.col).setValue(receipt);
+      }
+      return true;
+    }
+    if (resultCode !== 0) {
+      if (status === 'Waiting') sh.getRange(row, 8, 1, 3).setValues([['Failed', '', MP_RESULT[resultCode] || resultDesc || 'Not paid']]);
+      return true;
+    }
+    if (paid != null && Number(paid) < Number(r[6])) {
+      sh.getRange(row, 8, 1, 3).setValues([['Check', receipt || '', 'Paid ' + paid + ', expected ' + r[6] + '. Check and confirm by hand.']]);
+      return true;
+    }
+    const code = receipt || String(id);
+    sh.getRange(row, 8, 1, 3).setValues([['Paid', receipt || '', resultDesc || 'Paid']]);
+    const tz = 'Africa/Nairobi', amount = Number(r[6]);
+    if (r[1] === 'pro') {
+      const pr = pro_();
+      pr.appendRow([now, r[3], r[4], String(r[5]), r[2], amount, code, 'Confirmed', details.renew || '', '', '',
+        ['Paid by M-Pesa prompt', details.renew ? 'Renewal' : '', details.from ? 'Told about it by: ' + details.from : ''].filter(Boolean).join(' · ')]);
+      const pRow = pr.getLastRow();
+      proChanged_(pr, pRow);   // makes the key, emails it and the receipt
+      const done = pr.getRange(pRow, 1, 1, PROHEAD.length).getValues()[0];
+      Object.assign(details, { sheet: PRO, row: pRow, col: 7, key: String(done[8] || ''), expires: ymd_(done[9]) });
+    } else {
+      const py = payments_();
+      py.appendRow([now, r[2], r[3], code, amount, details.payer || String(r[5]), 'Confirmed', '', 'Paid by M-Pesa prompt']);
+      const pRow = py.getLastRow();
+      paymentChanged_(py, pRow);   // receipt emailed; a training seat is confirmed
+      Object.assign(details, { sheet: PAYMENTS, row: pRow, col: 4 });
+    }
+    sh.getRange(row, 13).setValue(JSON.stringify(details));
+    const me = Session.getEffectiveUser().getEmail();
+    if (me) MailApp.sendEmail({ to: me, name: 'Nexus CAD Studio website', subject: '✅ Paid by M-Pesa: ' + kes_(amount) + ' · ' + (r[3] || r[2]),
+      htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;color:#0e1a3a"><p><b>' + html_(String(r[3] || '')) + '</b> paid <b>' + kes_(amount) + '</b> by M-Pesa prompt for <b>' +
+        html_(r[1] === 'pro' ? proName_(r[2]) : String(r[2])) + '</b>. Receipt: <b>' + html_(receipt || '(coming)') + '</b>.</p>' +
+        '<p>Nothing to do: it is confirmed and the ' + (r[1] === 'pro' ? 'key and receipt were' : 'receipt was') + ' emailed automatically (' + Utilities.formatDate(now, tz, 'd MMM, HH:mm') + ').</p></div>' });
+    return true;
+  } finally { lock.releaseLock(); }
+}
+
+// Safaricom calls this (the web app URL + ?mpesa=secret) when the client finishes the prompt
+function mpesaCallback_(e) {
+  const want = mpesaSecret_(), got = String((e.parameter || {}).mpesa || '');
+  if (got !== want) return { ResultCode: 1, ResultDesc: 'Rejected' };
+  let body = {};
+  try { body = JSON.parse((e.postData && e.postData.contents) || '{}'); } catch (err) { body = {}; }
+  const cb = body.Body && body.Body.stkCallback;
+  if (!cb || !cb.CheckoutRequestID) return { ResultCode: 0, ResultDesc: 'Accepted' };
+  const items = {};
+  ((cb.CallbackMetadata && cb.CallbackMetadata.Item) || []).forEach((x) => { items[x.Name] = x.Value; });
+  mpesaApply_(String(cb.CheckoutRequestID), Number(cb.ResultCode), String(cb.ResultDesc || ''),
+    items.MpesaReceiptNumber ? String(items.MpesaReceiptNumber) : '', items.Amount != null ? Number(items.Amount) : null);
+  return { ResultCode: 0, ResultDesc: 'Accepted' };
+}
+
+// From the website, every few seconds while the client enters their PIN
+function mpesaStatus_(q) {
+  let f = mpesaRow_(q.id);
+  if (!f || !q.token || String(f.r[11]) !== String(q.token)) return { ok: false, error: 'unknown' };
+  const age = Date.now() - new Date(f.r[0]).getTime();
+  if (String(f.r[7]) === 'Waiting' && age > 15000) {
+    // No callback yet: ask Safaricom directly (at most every 8 seconds per prompt)
+    const cache = CacheService.getScriptCache(), ck = 'mp-q-' + q.id;
+    if (!cache.get(ck)) {
+      cache.put(ck, '1', 8);
+      const c = mpesaCfg_();
+      try {
+        const r = c && mpesaCall_(c, '/mpesa/stkpushquery/v1/query', Object.assign(mpesaAuth_(c), { CheckoutRequestID: String(q.id) }));
+        if (r && r.body.ResultCode !== undefined) mpesaApply_(String(q.id), Number(r.body.ResultCode), String(r.body.ResultDesc || ''), '', null);
+      } catch (err) { /* try again on the next check */ }
+      f = mpesaRow_(q.id);
+    }
+    if (String(f.r[7]) === 'Waiting' && age > 180000) {
+      f.sh.getRange(f.row, 8, 1, 3).setValues([['Failed', '', 'No answer from M-Pesa']]);
+      f = mpesaRow_(q.id);
+    }
+  }
+  const status = String(f.r[7]);
+  let d = {};
+  try { d = JSON.parse(f.r[12] || '{}'); } catch (err) { d = {}; }
+  if (status === 'Paid') return { ok: true, status: 'paid', receipt: String(f.r[8] || ''), key: d.key || '', expires: d.expires || '' };
+  if (status === 'Failed') return { ok: true, status: 'failed', message: String(f.r[9] || 'Not paid') };
+  if (status === 'Check') return { ok: true, status: 'check', message: 'Payment received but the amount differs. Edison will confirm it by hand.' };
+  return { ok: true, status: 'waiting' };
+}
+
+// Menu: check the Script properties work
+function mpesaTest() {
+  const ui = SpreadsheetApp.getUi(), c = mpesaCfg_();
+  if (!c) { ui.alert('M-Pesa is not set up', 'Add MPESA_CONSUMER_KEY, MPESA_CONSUMER_SECRET, MPESA_PASSKEY, MPESA_SHORTCODE (and MPESA_TILL for a till) in Project Settings → Script properties. Instructions are at the top of the M-Pesa section of the script.', ui.ButtonSet.OK); return; }
+  try {
+    mpesaToken_(c);
+    mpesaTab_();
+    ui.alert('M-Pesa works ✅', 'Safaricom accepted your keys (' + c.env + ', ' + c.type + ' ' + (c.type === 'till' ? c.till : c.shortcode) + ').\n\nPayment results will be sent to:\n' + mpesaCallbackUrl_().replace(/mpesa=.*/, 'mpesa=…') +
+      '\n\nNext: Deploy → Manage deployments → New version, then set payments.stkPush: true in js/config.js.', ui.ButtonSet.OK);
+  } catch (err) {
+    ui.alert('M-Pesa problem', String(err.message || err), ui.ButtonSet.OK);
+  }
+}
+
 function doGet(e) {
   const q = (e && e.parameter) || {};
   if (q.action === 'track') return out_(track_(q.ref));
@@ -2880,6 +3154,8 @@ function doGet(e) {
   if (q.action === 'verify') return out_(verify_(q.code));
   if (q.action === 'code') return out_(codeCheck_(q));
   if (q.action === 'pro') return out_(proCheck_(q));
+  if (q.action === 'mpesa-pay') return out_(mpesaPay_(q));
+  if (q.action === 'mpesa-status') return out_(mpesaStatus_(q));
   return out_(reviews_());
 }
 

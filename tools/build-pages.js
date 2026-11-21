@@ -328,7 +328,7 @@ function footer(extraScripts = '') {
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
 ${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=35" data-sw="../js/i18n-sw.js?v=32" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
-    <script defer src="../js/pages.js?v=17"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=2" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
+    <script defer src="../js/pages.js?v=18"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=2" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -827,7 +827,7 @@ ${T.faq.map(([q, a], i) => `                    <details class="faq-item"${i ===
             <a class="btn btn-sun" href="${esc(reserve)}" tabindex="-1" data-track="course-bar-reserve">Reserve a seat</a>
         </div>
     </main>
-` + footer('    <script defer src="../js/config.js?v=12"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=14"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n');
 }
 
 // After reserving a seat: pay a deposit by M-Pesa to hold it, then send the M-Pesa code (Payments tab of the sheet)
@@ -1052,7 +1052,7 @@ ${downloadsBand('../')}
             </div>
         </section>
 ${newsletter()}    </main>
-` + footer('    <script defer src="../js/config.js?v=12"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n    <script defer src="../js/discount.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=14"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/training.js?v=2"></script>\n    <script defer src="../js/discount.js?v=1"></script>\n');
 }
 
 /* ---------- Free tools (calculators) ---------- */
@@ -1542,7 +1542,7 @@ function trackPage() {
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=12"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=8"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=14"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=9"></script>\n');
 }
 
 /* ---------- Certificate verification ---------- */
@@ -1577,7 +1577,7 @@ function verifyPage() {
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=12"></script>\n    <script defer src="../js/verify.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=14"></script>\n    <script defer src="../js/verify.js?v=1"></script>\n');
 }
 
 /* ---------- Homepage cards ---------- */

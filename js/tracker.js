@@ -150,18 +150,41 @@
         return '<div class="track-pay" id="track-pay">' +
             '<h3>' + icon('wallet') + ' Paid by M-Pesa?</h3>' +
             (list ? '<ul class="tp-list">' + list + '</ul>' : '') +
+            (due || p.deposit === 'due' ? stkBox(p, due) : '') +
             (due || p.deposit === 'due'
-                ? '<p><span>Pay to Buy Goods Till</span> <strong data-no-i18n>' + esc(till) + '</strong> (<span data-no-i18n>' + esc(name) + '</span>), <span>then enter the confirmation code from your M-Pesa SMS. I will confirm it and email your receipt.</span></p>' +
+                ? (stkOn() ? '<details class="mp-alt"><summary>Paid the till directly? Enter the M-Pesa code</summary>' : '') +
+                  '<p><span>Pay to Buy Goods Till</span> <strong data-no-i18n>' + esc(till) + '</strong> (<span data-no-i18n>' + esc(name) + '</span>), <span>then enter the confirmation code from your M-Pesa SMS. I will confirm it and email your receipt.</span></p>' +
                   '<div class="tp-fields">' +
                     '<div class="field"><label for="tp-code">M-Pesa code</label><input id="tp-code" type="text" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. SJK7ABC12D"></div>' +
-                    '<div class="field"><label for="tp-amount">Amount (KES)</label><input id="tp-amount" type="number" min="1" step="1" inputmode="numeric"' + (due ? ' value="' + Math.round(p.amountDue) + '"' : '') + '></div>' +
+                    (stkOn() ? '' : '<div class="field"><label for="tp-amount">Amount (KES)</label><input id="tp-amount" type="number" min="1" step="1" inputmode="numeric"' + (due ? ' value="' + Math.round(p.amountDue) + '"' : '') + '></div>') +
                     '<div class="field tp-wide"><label for="tp-payer">Paid from <small>(name or number, optional)</small></label><input id="tp-payer" type="text" maxlength="80" autocomplete="name"></div>' +
                   '</div>' +
                   '<div class="tr-actions"><button type="button" class="btn btn-navy" data-pay>' + icon('check') + ' Send payment code</button></div>' +
-                  '<p class="form-error" role="alert" hidden></p>'
+                  '<p class="form-error" role="alert" hidden></p>' + (stkOn() ? '</details>' : '')
                 : '') +
             '</div>';
     }
+
+    // M-Pesa prompt (payments.stkPush in config.js): the client pays from their phone, no code to type
+    const stkOn = () => !!(window.NexusMpesa && window.NexusMpesa.enabled() && sheetApi);
+    function stkBox(p, due) {
+        if (!stkOn()) return '';
+        window.NexusMpesa.style();
+        const amount = due ? Math.round(p.amountDue) : '';
+        return '<div class="tp-stk">' +
+            '<p>Pay with M-Pesa: enter your number and the amount, then your PIN in the prompt on your phone. The payment is confirmed and your receipt emailed automatically.</p>' +
+            '<div class="tp-fields">' +
+              '<div class="field"><label for="tp-phone">Your M-Pesa number</label><input id="tp-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0712 345 678"></div>' +
+              '<div class="field"><label for="tp-amount">Amount (KES)</label><input id="tp-amount" type="number" min="1" step="1" inputmode="numeric" value="' + amount + '"></div>' +
+            '</div>' +
+            '<div class="tr-actions"><button type="button" class="btn btn-mpesa" data-stk>' + window.NexusMpesa.button(amount) + '</button></div>' +
+            '<p class="form-error" role="alert" hidden></p></div><div class="tp-stk-panel" hidden></div>';
+    }
+    out.addEventListener('input', (e) => {
+        if (e.target.id !== 'tp-amount' || !stkOn()) return;
+        const b = $('[data-stk]', out);
+        if (b) b.innerHTML = window.NexusMpesa.button(Math.round(Number(e.target.value)) || 0);
+    });
 
     function notSaved(sel, msg) {
         const box = $(sel), errEl = box && $('.form-error', box);
@@ -192,9 +215,35 @@
                 });
             return;
         }
+        const stk = e.target.closest('[data-stk]');
+        if (stk) {
+            const MP = window.NexusMpesa, box = $('#track-pay'), form = $('.tp-stk', box), errEl = $('.form-error', form);
+            const phone = MP.normalize($('#tp-phone', box).value), amount = Math.round(Number($('#tp-amount', box).value));
+            errEl.hidden = true;
+            if (!phone) { errEl.textContent = t('Enter a Safaricom number, like 0712 345 678.'); errEl.hidden = false; $('#tp-phone', box).focus(); return; }
+            if (!(amount > 0)) { errEl.textContent = t('Please enter the amount to pay.'); errEl.hidden = false; $('#tp-amount', box).focus(); return; }
+            const panel = $('.tp-stk-panel', box), alt = $('.mp-alt', box);
+            form.hidden = true;
+            if (alt) alt.hidden = true;
+            MP.pay({
+                api: sheetApi, panel, amount,
+                params: { for: 'payment', ref: shownRef, amount, payer: ($('#tp-payer', box) || {}).value || '', phone },
+                onPaid: () => {
+                    if (typeof window.track === 'function') window.track('payment-mpesa');
+                    panel.innerHTML = '<p class="mp-panel"><strong>' + t('Payment received ✓') + '</strong> ' + t('Your receipt is on its way to your email.') + '</p>';
+                    setTimeout(() => lookup(shownRef, true), 1500);
+                },
+                onStop: (msg) => {
+                    panel.hidden = true; form.hidden = false;
+                    if (alt) alt.hidden = false;
+                    if (msg) { errEl.textContent = msg; errEl.hidden = false; }
+                }
+            });
+            return;
+        }
         const pay = e.target.closest('[data-pay]');
         if (pay) {
-            const box = $('#track-pay'), errEl = $('.form-error', box);
+            const box = $('#track-pay'), errEl = $('.mp-alt .form-error', box) || $('.form-error', box);
             const code = $('#tp-code', box).value.toUpperCase().replace(/[^A-Z0-9]/g, '');
             const amount = Math.round(Number($('#tp-amount', box).value));
             errEl.hidden = true;
