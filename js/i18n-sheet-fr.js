@@ -943,7 +943,6 @@ window.I18N_FR_SHEET = {
   "bench vise": "étau d'établi",
   "bend allowance calculator": "Calculateur de tolérance de pliage",
   "breaking, bending, shaking or cracking": "casser, plier, trembler ou se fissurer",
-  "by M-Pesa to hold your seat. It's part of your fee, not extra.": "Vous pouvez réserver votre place en payant par M-Pesa. C'est inclus dans le prix de votre billet, pas un supplément.",
   "cost estimator": "estimateur de coûts",
   "course (CFD, about 14 hours) take you from first study to confident results.": "Ce cours (CFD, environ 14 heures) vous emmène de la première étude à l'obtention de résultats fiables.",
   "course (FEA, about 24 hours) and the": "le cours (FEA, environ 24 heures) et le",

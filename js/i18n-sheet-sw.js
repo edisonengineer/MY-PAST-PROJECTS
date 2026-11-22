@@ -958,7 +958,6 @@ window.I18N_SW_SHEET = {
   "bench vise": "kisu cha benchi",
   "bend allowance calculator": "kikokotoo cha posho ya kupinda",
   "breaking, bending, shaking or cracking": "kuvunjika, kupinda, kutetemeka au kupasuka",
-  "by M-Pesa to hold your seat. It's part of your fee, not extra.": "na M-Pesa ili kushikilia kiti chako. Ni sehemu ya ada yako, si ya ziada.",
   "cost estimator": "kipima gharama",
   "course (CFD, about 14 hours) take you from first study to confident results.": "Kozi (CFD, kama saa 14) inakupeleka kutoka kwa utafiti wa kwanza hadi matokeo ya uhakika.",
   "course (FEA, about 24 hours) and the": "kozi (FEA, takriban saa 24) na",
