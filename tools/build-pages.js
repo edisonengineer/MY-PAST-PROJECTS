@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=40';
+const CSS_V = 'css/style.css?v=43';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
@@ -384,6 +384,7 @@ function footer(extraScripts = '') {
             <nav class="footer-col" aria-label="Footer">
                 <h2>Explore</h2>
                 <a href="../start/index.html">Start here: choose your path</a>
+                <a href="../account/index.html">My account</a>
                 <a href="../index.html#services">Services</a>
                 <a href="../index.html#work">Work</a>
                 <a href="../blog/index.html">CAD Tips</a>
@@ -418,8 +419,9 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=36" data-sw="../js/i18n-sw.js?v=33" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
-    <script defer src="../js/pages.js?v=19"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=3" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
+${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=38" data-sw="../js/i18n-sw.js?v=35" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+    <script defer src="../js/pages.js?v=19"></script>
+    <script defer src="../js/account.js?v=2" data-api="${esc(CFG.trackerApi || CFG.reviewsApi || '')}"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=3" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -1743,6 +1745,36 @@ function startPage() {
 ` + footer();
 }
 
+/* ---------- My account (log in with an email code: js/account.js) ---------- */
+function accountPage() {
+    const url = SITE + 'account/';
+    const description = 'Log in or create an account with a code sent to your email: your exam pass, Quote Pro, practice results, training, projects and invoices in one place.';
+    return head({ title: 'My account | Nexus CAD Studio', description, url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'My account', url, description } })
+        .replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, follow">') + '\n' + header('account') + `
+    <main id="main">
+        <section class="page-hero theme-teal">
+            <div class="container page-hero-inner narrow">
+                <nav class="crumbs" aria-label="Breadcrumb">
+                    <a href="../index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">My account</span>
+                </nav>
+                <p class="page-kicker">My account</p>
+                <h1 class="page-title">Everything in one place.</h1>
+                <p class="page-lede">Your exam pass, Quote Pro, practice results, training, projects and invoices, on any phone or computer. No password: you log in with a code sent to your email.</p>
+            </div>
+        </section>
+
+        <section class="section acct-wrap">
+            <div class="container">
+                <div id="account-app" aria-live="polite">
+                    <noscript><p>Please turn on JavaScript to log in.</p></noscript>
+                </div>
+                <p class="acct-privacy">${icon('check')} <span>We only use your email to log you in and show your own records. Questions? <a href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener">WhatsApp me</a>.</span></p>
+            </div>
+        </section>
+    </main>
+` + footer();
+}
+
 /* ---------- Certificate verification ---------- */
 function verifyPage() {
     const url = SITE + 'verify/';
@@ -1840,6 +1872,7 @@ function searchIndex(projects, posts) {
         ...SECTIONS.map(([t, d, h, x]) => ({ k: 'page', t, d, u: 'index.html' + h, x })),
         ...projects.map((p) => ({ k: 'project', t: p.title, d: p.subtitle || '', u: 'projects/' + p.id + '.html', x: [p.summary, (p.tags || []).join(' '), (p.points || []).join(' '), (p.meta || []).map((m) => m[1]).join(' '), p.category].join(' ') })),
         { k: 'page', t: 'CAD training courses', d: 'AutoCAD, SolidWorks, Inventor and Fusion 360 training. Reserve a seat.', u: 'training/index.html', x: 'training course class lessons learn autocad solidworks inventor fusion cswa tutor teacher student' },
+        { k: 'page', t: 'My account', d: 'Log in with a code sent to your email: exam pass, Quote Pro, results, training, projects and invoices.', u: 'account/index.html', x: 'account login log in sign in sign up register create account profile my exam pass key licence quote pro results invoices receipts' },
         { k: 'page', t: 'Start here: choose your path', d: 'Hire me for CAD and FEA, join CAD training, or practise for your SolidWorks certification.', u: 'start/index.html', x: 'start here begin help guide path choose hire training course learn exam certification cswa cswp where' },
         { k: 'page', t: 'SolidWorks exam practice (CSWA & CSWP-style)', d: 'Timed SolidWorks practice tests: parts to model in 3 stages, centre of mass, theory with new numbers every time, instant marking. Endless exam generator. Free sample test and demo.', u: 'exams/index.html', x: 'solidworks cswa cswp exam practice test certification mock quiz questions mass centre of mass model drawing student certificate generator configurations design tables equations mates sheet metal k-factor' },
         { k: 'page', t: 'Gate, grill & railing estimator', d: 'Price steel gates, window grills and railings: cut list, 6 m lengths to buy, weight, paint, labour and fittings, then a PDF or WhatsApp quote.', u: 'steel/index.html', x: 'steel gate grill railing balustrade sliding swing welding fabrication cost estimate quote cut list jua kali square tube shs price kenya' },
@@ -1905,6 +1938,7 @@ write('share/index.html', sharePage(TRAINING, CAMPAIGN));
 write('verify/index.html', verifyPage());
 write('start/index.html', startPage());
 write(LEAD.page, cheatSheetPage());
+write('account/index.html', accountPage());
 write('cv/index.html', cvPage(loadCV()));
 write('calculators/index.html', calculatorsPage());
 write('request-review/index.html', reviewLinkPage());
@@ -1971,6 +2005,38 @@ function wantedTranslations() {
     const cv = loadCV().cv;
     pick(cv);
     return [...found].sort().slice(0, 3000);
+}
+/* ---------- Offline app: the files sw.js saves on install, and its VERSION ----------
+   Taken from the <link> and <script> tags of the pages people most need offline, with the exact
+   ?v=… they use. VERSION is a fingerprint of those files, so any change to them replaces the old
+   cache (pages are always fetched fresh when online, so their own text is not part of it). */
+{
+    const OFFLINE_PAGES = ['index.html', 'offline.html', 'start/index.html', 'account/index.html', 'exams/index.html', 'training/index.html', 'calculators/index.html'];
+    const DATA = /\/(tracker-data|projects|sheet-works|sheet-data|reviews|certificates|packages|config|i18n-sheet-fr|i18n-sheet-sw|search-index)\.js$/;
+    const list = ['./'], files = [];
+    const addFile = (rel) => { const clean = rel.split('#')[0]; if (!list.includes(clean) && fs.existsSync(path.join(ROOT, clean.split('?')[0]))) { list.push(clean); files.push(clean.split('?')[0]); } };
+    OFFLINE_PAGES.forEach((pg) => {
+        const html = pg === 'index.html' ? updated : (written[pg] || (fs.existsSync(path.join(ROOT, pg)) ? read(pg) : ''));
+        if (!html) return;
+        addFile(pg);
+        const dir = path.posix.dirname(pg);
+        const urls = [...html.matchAll(/<link[^>]*rel="(?:stylesheet|manifest|icon|apple-touch-icon)"[^>]*href="([^"]+)"/g)].map((m) => m[1]);
+        // A script tag can carry several files (i18n.js: src, data-fr, data-sw, ...)
+        for (const m of html.matchAll(/<script\b[^>]*>/g)) for (const a of m[0].matchAll(/\s(?:src|data-fr|data-sw|data-fr-sheet|data-sw-sheet)="([^"]+)"/g)) urls.push(a[1]);
+        for (const u of urls) {
+            if (/^(https?:)?\/\//.test(u) || u.startsWith('data:')) continue;
+            const rel = path.posix.normalize(path.posix.join(dir, u));
+            if (rel.startsWith('..')) continue;
+            addFile(DATA.test(rel.split('?')[0]) ? rel.split('?')[0] : rel);   // data files are looked up without ?v= (sw.js)
+        }
+    });
+    ['fonts/plus-jakarta-sans-latin.woff2', 'fonts/fraunces-latin.woff2', 'fonts/fraunces-italic-latin.woff2', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon.svg'].forEach(addFile);
+    const hash = require('crypto').createHash('sha1');
+    list.forEach((u) => hash.update(u + '\n'));
+    files.filter((f) => !/\.html$/.test(f) && !DATA.test(f)).forEach((f) => hash.update(fs.readFileSync(path.join(ROOT, f))));   // data changes often and is fetched fresh anyway
+    const block = '/* PRECACHE:START */\nconst VERSION = \'' + hash.digest('hex').slice(0, 10) + '\';\nconst PRECACHE = [\n' + list.map((u) => '    ' + JSON.stringify(u)).join(',\n') + '\n];\n/* PRECACHE:END */';
+    const sw = read('sw.js'), next = sw.replace(/\/\* PRECACHE:START \*\/[\s\S]*?\/\* PRECACHE:END \*\//, block);
+    if (next !== sw) write('sw.js', next);
 }
 const wanted = JSON.stringify(wantedTranslations(), null, 1) + '\n';
 if (!fs.existsSync(path.join(ROOT, 'js/i18n-wanted.json')) || read('js/i18n-wanted.json') !== wanted) write('js/i18n-wanted.json', wanted);

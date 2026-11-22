@@ -419,6 +419,7 @@
     window.NexusPro = {
         $, $$, store, esc, num, kes, fmt, today, fill, read, track, cfg: PRO_CFG,
         isPro, openPro, biz, nextNumber, pdfAllowed, countPdf, docTop, docBottom, printDoc, waLink,
+        activate, product: EXAMS ? 'exams' : 'quote',   // js/account.js turns on a pass the account owns
         onPlan(fn) { hooks.push(fn); fn(isPro()); },
         // Run once the tool has drawn itself: plan badge, logo, and a key from an email link
         start() {

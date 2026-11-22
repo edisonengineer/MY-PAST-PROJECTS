@@ -198,6 +198,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "My account",
+  "d": "Log in with a code sent to your email: exam pass, Quote Pro, results, training, projects and invoices.",
+  "u": "account/index.html",
+  "x": "account login log in sign in sign up register create account profile my exam pass key licence quote pro results invoices receipts"
+ },
+ {
+  "k": "page",
   "t": "Start here: choose your path",
   "d": "Hire me for CAD and FEA, join CAD training, or practise for your SolidWorks certification.",
   "u": "start/index.html",

@@ -410,6 +410,7 @@
         const hist = store.get('ex-history', []);
         $('#ex-history').innerHTML = hist.length ? hist.slice(0, 10).map((h) => '<tr><td>' + esc(h.name || (EXAMS[h.exam] ? EXAMS[h.exam].name : h.exam)) + '</td><td>' + esc(h.date) + '</td><td>' + h.score + '%</td><td>' + (h.score >= PASS * 100 ? '<span class="ex-pass">Pass</span>' : '<span class="ex-fail">Not yet</span>') + '</td></tr>').join('') :
             '<tr><td colspan="4">No attempts yet. Start with the free sample test.</td></tr>';
+        paintAccountHistory();
         const resume = store.get('ex-attempt', null);
         $('#ex-resume').hidden = !(resume && remaining(resume) > 0);
         if (resume) $('#ex-resume-name').textContent = nameOf(resume);
@@ -572,8 +573,9 @@
         const used = a.minutes ? Math.min(a.minutes * 60000, Date.now() - a.started) : Date.now() - a.started;
         const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         const hist = store.get('ex-history', []);
-        hist.unshift({ exam: a.exam, name: nameOf(a), date, score });
+        hist.unshift({ exam: a.exam, name: nameOf(a), date, iso: new Date().toISOString().slice(0, 10), score, points: got + ' of ' + total, minutes: Math.round(used / 60000) });
         hist.length = Math.min(hist.length, 30);
+        if (acct()) { saveToAccount(hist[0]); hist[0].s = 1; }   // logged in: also kept on the account
         store.set('ex-history', hist);
         store.del('ex-attempt');
         NP.track('exam-done-' + a.exam);
@@ -700,6 +702,31 @@
         show('practice'); nextPractice();
     });
     $('#pr-back').addEventListener('click', () => { show('home'); paintHome(); });
+
+    /* ---------- Account (js/account.js): results kept on every device ---------- */
+    const acct = () => (window.NexusAccount && window.NexusAccount.user() ? window.NexusAccount : null);
+    const histName = (h) => h.name || (EXAMS[h.exam] ? EXAMS[h.exam].name : h.exam);
+    const saveToAccount = (h) => acct().saveResult({ test: histName(h), score: h.score, points: h.points || '', minutes: h.minutes || 0, date: h.iso || h.date });
+    // Results from before logging in go up to the account once
+    function uploadLocal() {
+        if (!acct()) return;
+        const hist = store.get('ex-history', []);
+        let n = 0;
+        hist.slice().reverse().forEach((h) => { if (!h.s) { saveToAccount(h); h.s = 1; n++; } });
+        if (n) store.set('ex-history', hist);
+    }
+    function paintAccountHistory() {
+        const A = acct();
+        $('#ex-acct-link').hidden = !!A || !$('#ex-acct-link').dataset.api;
+        $('#ex-hist-note').textContent = A ? 'Saved to your account, on every device. Pass mark: 70%.' : 'Saved on this device. Pass mark: 70%.';
+        if (!A) return;
+        A.data().then((acc) => {
+            if (!acc || !acct() || !(acc.results || []).length) return;
+            const day = (d) => { const x = new Date(d + 'T12:00:00'); return isNaN(x) ? d : x.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); };
+            $('#ex-history').innerHTML = acc.results.slice(0, 10).map((h) => '<tr><td>' + esc(h.test) + '</td><td>' + esc(day(h.date)) + '</td><td>' + h.score + '%</td><td>' + (h.score >= PASS * 100 ? '<span class="ex-pass">Pass</span>' : '<span class="ex-fail">Not yet</span>') + '</td></tr>').join('');
+        });
+    }
+    document.addEventListener('DOMContentLoaded', () => { uploadLocal(); paintAccountHistory(); });   // js/account.js has loaded by then
 
     /* ---------- Start ---------- */
     NP.onPlan(paintHome);

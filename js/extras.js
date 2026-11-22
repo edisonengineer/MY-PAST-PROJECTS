@@ -213,20 +213,5 @@
             navigator.serviceWorker.register('sw.js').catch(() => { /* offline support unavailable */ });
         });
     }
-    let deferredPrompt = null;
-    const installBtn = $('#install-app');
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        if (installBtn) installBtn.hidden = false;
-    });
-    if (installBtn) installBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice.catch(() => null);
-        if (choice && choice.outcome === 'accepted') track('app-installed');
-        deferredPrompt = null;
-        installBtn.hidden = true;
-    });
-    window.addEventListener('appinstalled', () => { if (installBtn) installBtn.hidden = true; });
+    // The "Install the app" button (and the iPhone hint) is handled site-wide by js/account.js
 })();
