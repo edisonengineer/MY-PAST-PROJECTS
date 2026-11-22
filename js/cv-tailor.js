@@ -1,24 +1,25 @@
 /* =========================================================================
-   CV tailor page (cv-tailor/index.html). The logic is in js/cv-tailor-core.js,
-   the facts in js/cv-master.js (built from content/cv.js, the projects and
-   the certificates by tools/build-pages.js).
+   CV tailor page (cv-tailor/index.html): steps 1–5 and the three output tabs.
+   The logic is in js/cv-tailor-core.js. The person's own CV (the "master CV")
+   comes from js/cv-mycv.js, which handles logging in, the terms, the account
+   copy, uploads and the editor, and then calls CVTailorUI.boot(master).
 
-   Everything stays in this browser: the job description, your choices and
-   your prompt are saved in localStorage, nothing is sent anywhere.
-   The preview can only show lines from the master CV, word for word: to
-   change a sentence, change it in content/cv.js (or the Google Sheet), so
-   the website, the PDFs and every tailored CV stay the same and true.
+   The job description, choices, saved jobs and prompt stay in this browser
+   (per account; removed when you log out). The preview can only show lines
+   from the master CV, word for word: to change a sentence, change it in
+   "My CV", so every tailored CV, letter and email stays true.
    ========================================================================= */
 (function () {
     'use strict';
 
     const C = window.CVTailor;
-    const M = window.CV_MASTER;
+    let M = null;
     const app = document.getElementById('cvt-app');
-    if (!app) return;
-    if (!C || !M) { app.innerHTML = '<p class="cvt-error">The CV data did not load. Check your connection and reload the page.</p>'; return; }
+    if (!app || !C) return;
 
-    const KEY = { draft: 'cvTailor.draft.v1', jobs: 'cvTailor.jobs.v1', prompt: 'cvTailor.prompt.v1', preset: 'cvTailor.preset.v1' };
+    let KEY = { draft: 'cvTailor.draft.v1', jobs: 'cvTailor.jobs.v1', prompt: 'cvTailor.prompt.v1', preset: 'cvTailor.preset.v1' };
+    let OPTS = {};
+    const isEmpty = () => !M || (!M.experience.length && !M.projects.length && !M.summary.text && !M.education.length);
     const $ = (id) => document.getElementById(id);
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const store = {
@@ -29,7 +30,7 @@
     const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
     const blank = () => ({ jd: '', role: '', company: '', recipient: '', to: '', subject: 0, focus: 'auto', length: 1, include: {}, order: {}, photo: false, email: true, sources: false, tab: 'cv' });
-    let state = Object.assign(blank(), store.get(KEY.draft, {}));
+    let state = blank();
     let analysis = null, result = null;
 
     const el = {
@@ -138,13 +139,19 @@
     }
 
     /* ---------- the tailored CV preview (only master lines, never edited text) ---------- */
+    const short = (u) => String(u || '').replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+    const mailOf = (p) => p.email || OPTS.email || '';
     function renderPaper() {
+        if (isEmpty()) {
+            el.paper.classList.remove('is-compact');
+            el.paper.innerHTML = '<div class="cvt-placeholder"><h2>Your tailored CV appears here</h2><p>Add your CV in <strong>My CV</strong> (upload a PDF or Word file, or paste it), then paste a job description.</p></div>';
+            return fitPaper();
+        }
         const cv = result.cv, p = cv.person;
-        const mail = el.paper.dataset.user && el.paper.dataset.domain ? el.paper.dataset.user + '@' + el.paper.dataset.domain : '';
-        const site = p.website.replace(/^https:\/\//, '').replace(/\/$/, '');
-        const contact = [esc(p.location), esc(p.phone), state.email !== false && mail ? esc(mail) : '', '<a href="' + esc(p.linkedin) + '">linkedin.com/in/edison-ochieng</a>', '<a href="' + esc(p.website) + '">' + esc(site) + '</a>'].filter(Boolean).join('<span aria-hidden="true"> · </span>');
+        const mail = mailOf(p);
+        const contact = [esc(p.location), esc(p.phone), state.email !== false && mail ? esc(mail) : '', p.linkedin ? '<a href="' + esc(p.linkedin) + '">' + esc(short(p.linkedin)) + '</a>' : '', p.website ? '<a href="' + esc(p.website) + '">' + esc(short(p.website)) + '</a>' : ''].filter(Boolean).join('<span aria-hidden="true"> · </span>');
         const h = (t) => '<h2>' + t + '</h2>';
-        let html = '<header class="cvp-head">' + (state.photo ? '<img class="cvp-photo" src="../images/profile/edison.jpg?v=2" alt="" onerror="this.remove()">' : '') +
+        let html = '<header class="cvp-head">' + (state.photo && OPTS.photo ? '<img class="cvp-photo" src="' + esc(OPTS.photo) + '" alt="" onerror="this.remove()">' : '') +
             '<div><h1>' + esc(p.name) + '</h1><p class="cvp-title">' + esc(p.title) + '</p><p class="cvp-contact">' + contact + '</p></div></header>';
         if (cv.summary) html += '<section>' + h('Profile') + '<p>' + esc(cv.summary.text) + '</p>' + (cv.keySkills.length ? '<p class="cvp-key"><strong>Relevant skills:</strong> ' + cv.keySkills.map(esc).join(' · ') + '</p>' : '') + '</section>';
         else if (cv.keySkills.length) html += '<section><p class="cvp-key"><strong>Relevant skills:</strong> ' + cv.keySkills.map(esc).join(' · ') + '</p></section>';
@@ -206,12 +213,19 @@
     /* ---------- cover letter & application email (facts from the master CV only) ---------- */
     function renderApplication() {
         const ins = el.instructions.value;
+        if (isEmpty()) {
+            letter = null; mail = { subjects: [], body: '', to: '' };
+            el.letter.innerHTML = '<div class="cvt-placeholder"><h2>Your cover letter appears here</h2><p>It is written only from your own CV, so add your CV in <strong>My CV</strong> first.</p></div>';
+            el.subjects.innerHTML = ''; el.body.textContent = 'Add your CV in My CV first: the email is built from it.';
+            el.mailto.href = 'mailto:'; renderPrompt(); fitLetter();
+            return;
+        }
         letter = C.coverLetter(result.cv, analysis, M, target(), ins);
         mail = C.applicationEmail(result.cv, analysis, M, target(), ins);
         const part = (x) => x.src ? '<span class="cvl-fact" data-src="' + esc(x.src) + '" title="From: ' + esc(srcLabel(x.src)) + '">' + esc(x.t) + '</span>' : esc(x.t);
         const p = M.person;
         el.letter.classList.toggle('show-sources', !!state.sources);
-        el.letter.innerHTML = '<header class="cvl-head"><h1>' + esc(p.name) + '</h1><p>' + [p.location, p.phone, el.paper.dataset.user && state.email !== false ? el.paper.dataset.user + '@' + el.paper.dataset.domain : '', p.linkedin.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, '')].filter(Boolean).map(esc).join(' · ') + '</p></header>' +
+        el.letter.innerHTML = '<header class="cvl-head"><h1>' + esc(p.name) + '</h1><p>' + [p.location, p.phone, state.email !== false ? mailOf(p) : '', short(p.linkedin)].filter(Boolean).map(esc).join(' · ') + '</p></header>' +
             '<p class="cvl-date">' + esc(letter.date) + '</p>' +
             '<p class="cvl-to">' + esc(letter.recipient) + (letter.company ? '<br>' + esc(letter.company) : '') + '</p>' +
             (letter.role ? '<p class="cvl-re"><strong>Re: Application for ' + esc(letter.role) + '</strong></p>' : '') +
@@ -267,7 +281,7 @@
     const target = () => ({ role: state.role.trim(), company: state.company.trim(), recipient: (state.recipient || '').trim(), jd: state.jd, length: state.length });
     const extras = () => ({ letter, email: mail });
     function renderPrompt() {
-        el.prompt.value = state.jd.trim() ? C.prompt(result.cv, analysis, target(), el.instructions.value, extras()) : 'Paste a job description first: the prompt is built from it and from the lines you ticked.';
+        el.prompt.value = isEmpty() ? 'Add your CV in My CV first: the prompt only uses facts from your own CV.' : state.jd.trim() ? C.prompt(result.cv, analysis, target(), el.instructions.value, extras()) : 'Paste a job description first: the prompt is built from it and from the lines you ticked.';
     }
 
     function refresh(full) {
@@ -357,7 +371,7 @@
         } else if (act === 'reset-prompt') {
             el.instructions.value = C.PRESETS.balanced.text; el.preset.value = 'balanced'; store.del(KEY.prompt); store.set(KEY.preset, 'balanced'); renderApplication(); say('Prompt reset to the default.');
         } else if (act === 'copy-prompt') copy(el.prompt.value, 'Full prompt copied (CV, cover letter and email). Check every line the AI gives you against this page.');
-        else if (act === 'copy-letter') copy(letter.plain, 'Cover letter copied.');
+        else if (act === 'copy-letter') { if (letter) copy(letter.plain, 'Cover letter copied.'); }
         else if (act === 'copy-email') copy(mail.body, 'Email copied. Attach your CV and cover letter PDFs before sending.');
         else if (act === 'copy-subject') copy(mail.subjects[Number(b.dataset.i)] || '', 'Subject line copied.');
         else if (act === 'copy-md') copy(C.markdown(result.cv, target()), 'Markdown CV copied.');
@@ -366,7 +380,7 @@
         else if (act === 'dl-json') download(name() + '.json', JSON.stringify(Object.assign({ job_description: state.jd }, C.payload(result.cv, analysis, target(), extras())), null, 2), 'application/json');
         else if (act === 'print') {
             const before = document.title;
-            document.title = [M.person.name, state.tab === 'letter' ? 'Cover Letter' : 'CV', state.company, state.role].filter(Boolean).join(' - ');
+            document.title = [M.person.name || 'My', state.tab === 'letter' ? 'Cover Letter' : 'CV', state.company, state.role].filter(Boolean).join(' - ');
             const back = () => { document.title = before; window.removeEventListener('afterprint', back); };
             window.addEventListener('afterprint', back);
             window.print();
@@ -407,20 +421,42 @@
     function renderCheck() {
         const text = el.check.value;
         if (!text.trim()) { el.checkOut.innerHTML = '<p class="cvt-empty">Paste the text an AI assistant wrote for you, then check it.</p>'; return; }
+        if (isEmpty()) { el.checkOut.innerHTML = '<p class="cvt-empty">Add your CV in My CV first: the check compares the text with it.</p>'; return; }
         const flags = C.factCheck(text, M);
         const KIND = { number: 'Number', term: 'Tool / skill', cert: 'Certification', claim: 'Wording', id: 'Source id', name: 'Name' };
         el.checkOut.innerHTML = flags.length
-            ? '<p class="cvt-gapnote"><strong>' + flags.length + ' thing(s) to check</strong> before you use this text. Remove anything that isn\'t true, or add it to your master CV first if it is.</p><ul class="cvt-flags">' +
+            ? '<p class="cvt-gapnote"><strong>' + flags.length + ' thing(s) to check</strong> before you use this text. Remove anything that isn\'t true, or add it to My CV first if it is.</p><ul class="cvt-flags">' +
                 flags.map((f) => '<li><span class="cvt-flag-k">' + esc(KIND[f.kind] || f.kind) + '</span> <strong>' + esc(f.text) + '</strong><span>' + esc(f.note) + '</span></li>').join('') + '</ul>'
             : '<p class="cvt-ok">No unknown numbers, tools, certifications or names found. Still read it once against your CV: this check can\'t judge meaning.</p>';
     }
 
-    /* ---------- start ---------- */
-    el.instructions.value = store.get(KEY.prompt, null) || C.PRESETS.balanced.text;
-    el.preset.value = store.get(KEY.preset, 'balanced');
-    fillForm();
-    renderJobs();
-    refresh(true);
-    showTab(state.tab);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+    /* ---------- start: called by js/cv-mycv.js once the person's CV is known ----------
+       opts: { prefix (per-account localStorage key prefix), email (account email, shown when the CV has none),
+               photo (picture for the CV header, Edison's own copy only) } */
+    let booted = false;
+    function boot(master, opts) {
+        OPTS = opts || {};
+        M = master;
+        const pre = OPTS.prefix || 'cvTailor.';
+        KEY = { draft: pre + 'draft.v1', jobs: pre + 'jobs.v1', prompt: pre + 'prompt.v1', preset: pre + 'preset.v1' };
+        state = Object.assign(blank(), store.get(KEY.draft, {}));
+        el.photo.closest('label').hidden = !OPTS.photo;
+        el.instructions.value = store.get(KEY.prompt, null) || C.PRESETS.balanced.text;
+        el.preset.value = store.get(KEY.preset, 'balanced');
+        fillForm();
+        renderJobs();
+        analysis = null;
+        refresh(true);
+        showTab(state.tab);
+        if (!booted && document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+        booted = true;
+    }
+    // The CV changed (edited, uploaded, restored): everything is rebuilt from it
+    function setMaster(master) {
+        M = master;
+        if (!booted) return;
+        analysis = null;
+        refresh(true);
+    }
+    window.CVTailorUI = { boot, setMaster, say, fitAll, isEmpty };
 })();

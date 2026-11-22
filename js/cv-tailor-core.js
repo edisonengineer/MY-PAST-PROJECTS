@@ -5,7 +5,7 @@
    1. analyse(jd, master, focus)   finds the tools, methods, standards and
       soft skills a job description asks for, decides for each one whether it
       is required / mentioned / preferred, and looks for real evidence of it
-      in the master CV (js/cv-master.js). Each term is then:
+      in the master CV (yours from your account, or js/cv-master.js for Edison). Each term is then:
         matched  found in your experience, projects, skills or education
         partial  only found in a training course (e.g. "CSWA Cert Prep"),
                  which is not the same as holding the certification
@@ -91,7 +91,7 @@
         ['welding', 'Welding', 'mfg', 'weld(?:ing|er|s)?|mig|tig'],
         ['prototyping', 'Prototyping', 'mfg', 'prototyp(?:e|es|ing)|proof of concept|mock-?ups?'],
         ['testing', 'Testing & validation', 'mfg', '(?:lab(?:oratory)? )?test(?:ing|s)?|validat(?:e|ed|ion|ing)|verification|tensile|nakajima|experiments?'],
-        ['additive', '3D printing / additive', 'mfg', '3d print(?:ing|ed)?|additive(?:ly)? manufactur(?:e|ed|ing)|\\bam\\b|fdm|sla|slm'],
+        ['additive', '3D printing / additive', 'mfg', '3d print(?:ing|ed)?|additive(?:ly)? manufactur(?:e|ed|ing)|fdm|sla|slm'],
         ['tolerances', 'Tolerances & fits', 'std', 'toleranc(?:e|es|ing)|fits and tolerances|tolerance stack(?:-?up)?'],
         ['gdt', 'GD&T', 'std', 'gd ?& ?t|gd and t|geometric dimensioning(?: and tolerancing)?'],
         ['asme', 'ASME Y14.5', 'std', 'asme(?: y14\\.?5)?|y14\\.5'],
@@ -180,7 +180,7 @@
         balanced: { label: 'Balanced (default)', text: 'Tone: confident, plain and specific. No buzzwords, no "passionate", no first person in bullets.\nLength: fit one A4 page.\nEmphasis: lead with the experience and projects that match the job\'s required skills; keep the exact tool names the job uses where my data has them.\nSummary: 2–3 sentences aimed at this role and company.' },
         concise: { label: 'Concise 1-page', text: 'Length: strictly one A4 page. At most 3 bullets per role and 3 projects with 2 bullets each.\nEach bullet under 22 words, starting with a strong verb.\nDrop anything that does not support this job.\nSummary: 2 sentences.' },
         detailed: { label: 'Detailed 2-page', text: 'Length: up to two A4 pages.\nKeep all relevant roles with 3–5 bullets each and up to 6 projects.\nInclude a short "Selected projects" section with what I did, the tools I used and the result, exactly as in my data.\nSummary: 3–4 sentences.' },
-        technical: { label: 'Technical (FEA / simulation)', text: 'Audience: an engineering hiring manager.\nEmphasis: simulation method, software, boundary conditions, materials and validation, only where my data mentions them.\nKeep technical terms exactly (e.g. GTN–Hill\'48, Nakajima test, AlSi10Mg).\nLength: one page if possible.' },
+        technical: { label: 'Technical (FEA / simulation)', text: 'Audience: an engineering hiring manager.\nEmphasis: simulation method, software, boundary conditions, materials and validation, only where my data mentions them.\nKeep technical terms exactly as written (material names, standards, test and simulation methods).\nLength: one page if possible.' },
         ats: { label: 'Recruiter / ATS friendly', text: 'Audience: a recruiter and an applicant tracking system.\nUse the job description\'s own words for skills I really have (same spelling), in the summary and skills line.\nSimple formatting: no tables, no columns, standard headings (Profile, Experience, Projects, Education, Skills, Certifications).\nLength: one page.' }
     };
 
@@ -194,6 +194,106 @@
         'create creating run running prepare preparing build develop developing maintain perform assist review deliver handle carry out ltd limited inc plc llc group plus able ability abilities apply applicant applicants candidate candidates role roles job jobs position positions company companies team teams work working works year years experience experienced experiences skill skills strong excellent good great knowledge understanding including include includes etc must required requirements require requires preferred plus bonus nice ideal ideally minimum least new within across ensure ensuring provide providing support supporting using use used based level levels high highly well per day days time join us we\'re you\'ll you\'re our opportunity opportunities responsibilities responsibility qualifications qualification duties key relevant related various other others like similar demonstrated proven familiarity familiar proficiency proficient hands-on hands degree bachelor bachelors bsc masters equivalent field environment environments office full part salary benefits location remote hybrid onsite apply application deadline closing date send cv resume email kenya nairobi please looking seeking want wanted help make making get take').split(/\s+/));
     const stem = (w) => w.replace(/'s$/, '').replace(/(ies)$/, 'y').replace(/(sses)$/, 'ss').replace(/([^s])s$/, '$1').replace(/(ing|ed)$/, '');
     const words = (text) => (norm(text).toLowerCase().match(/[a-z][a-z0-9+#.\-']*[a-z0-9+#]|[a-z]/g) || []);
+
+    /* ---------------- the master CV: one shape for everyone ----------------
+       A "raw" CV is what a person edits (or what tools/cv-master.js reads from the website):
+         { person: { name, title, tagline, location, phone, email, linkedin, website, portfolio },
+           summary, experience: [{ role, org, dates, points: [] }],
+           projects: [{ title, subtitle, year, category, summary, points: [], tags: [], url }],
+           education: [{ title, org, dates, note }], skills: [], languages: [], memberships: [],
+           certificates: [{ title, issuer, kind: 'certification' | 'course' | 'award', verify }] }
+       normalizeMaster() cleans it (types, lengths, counts) and gives every line a stable id made
+       from its own text, so choices can be remembered and an AI assistant can cite its sources. */
+    const LIM = { text: 1200, short: 200, list: 40, points: 25 };
+    const str = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').replace(/\s+/g, ' ').trim().slice(0, n || LIM.short);
+    const arr = (v, n) => (Array.isArray(v) ? v : []).slice(0, n || LIM.list);
+    const strs = (v, n, len) => arr(v, n).map((x) => str(x, len || LIM.text)).filter(Boolean);
+    const okUrl = (u) => { const s = str(u, 300); return /^https?:\/\/[^\s<>"]+$/i.test(s) ? s : /^(www\.|linkedin\.com|[a-z0-9-]+\.[a-z]{2,}\/)/i.test(s) ? 'https://' + s : ''; };
+    const okEmail = (e) => { const s = str(e, 120); return /^[^\s@<>]+@[^\s@<>]+\.[a-z]{2,}$/i.test(s) ? s : ''; };
+    function slug(s, n) { return String(s || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, n || 24).replace(/-$/, '') || 'item'; }
+    function hash(s) { let h = 0x811c9dc5; const t = String(s); for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16).padStart(8, '0').slice(0, 6); }
+    function latestYear(d) {
+        if (/present|current|now|to date|ongoing/i.test(d || '')) return new Date().getFullYear();
+        const ys = String(d || '').match(/\b(19|20)\d{2}\b/g);
+        return ys ? Math.max(...ys.map(Number)) : null;
+    }
+    // What a certificate really is, so a prep course is never presented as the certification itself
+    function certKind(c) {
+        const t = (String(c.title || '') + ' ' + String(c.issuer || '')).toLowerCase();
+        if (/designathon|award|honou?rable|mention|winner|finalist|participant|prize|scholarship|dean'?s list/.test(t)) return 'award';
+        if (/\bprep\b|preparation|essential training|\btraining\b|\bcourse\b|bootcamp|tutorial|masterclass|workshop|\bessentials\b|fundamentals|introduction to|\bbasics\b/.test(t)) return 'course';
+        return 'certification';
+    }
+    const KINDS = ['certification', 'course', 'award'];
+    function emptyRaw() {
+        return { person: { name: '', title: '', tagline: '', location: '', phone: '', email: '', linkedin: '', website: '', portfolio: '' }, summary: '',
+            experience: [], projects: [], education: [], skills: [], certificates: [], languages: [], memberships: [] };
+    }
+    // Cleans anything (a file, an old save, a typo) into a valid raw CV
+    function sanitizeRaw(raw) {
+        const r = raw && typeof raw === 'object' ? raw : {}, p = r.person && typeof r.person === 'object' ? r.person : {};
+        return {
+            person: { name: str(p.name, 100), title: str(p.title, 160), tagline: str(p.tagline, 200), location: str(p.location, 120), phone: str(p.phone, 40),
+                email: okEmail(p.email), linkedin: okUrl(p.linkedin), website: okUrl(p.website), portfolio: okUrl(p.portfolio) },
+            summary: str(r.summary, 2000),
+            experience: arr(r.experience).map((x) => ({ role: str(x && x.role), org: str(x && x.org), dates: str(x && x.dates, 80), points: strs(x && x.points, LIM.points) })).filter((x) => x.role || x.org || x.points.length),
+            projects: arr(r.projects).map((x) => ({ title: str(x && x.title), subtitle: str(x && x.subtitle), year: str(x && x.year, 40), category: x && x.category === 'graphic' ? 'graphic' : 'engineering',
+                summary: str(x && x.summary, 1500), points: strs(x && x.points, LIM.points), tags: strs(x && x.tags, 20, 60), url: okUrl(x && x.url), source: str(x && x.source, 120) })).filter((x) => x.title || x.summary || x.points.length),
+            education: arr(r.education).map((x) => ({ title: str(x && x.title), org: str(x && x.org), dates: str(x && x.dates, 80), note: str(x && x.note, 600) })).filter((x) => x.title || x.org),
+            skills: strs(r.skills, 60, 400),
+            certificates: arr(r.certificates).map((x) => {
+                const c = { title: str(x && x.title), issuer: str(x && x.issuer, 120), verify: okUrl(x && x.verify) };
+                c.kind = KINDS.includes(x && x.kind) ? x.kind : certKind(c);
+                return c;
+            }).filter((c) => c.title),
+            languages: strs(r.languages, 20, 120),
+            memberships: strs(r.memberships, 20, 300)
+        };
+    }
+    function normalizeMaster(raw, meta) {
+        const r = sanitizeRaw(raw), m = meta || {};
+        const lines = (list, prefix) => list.map((text) => ({ id: prefix + '-' + hash(text), text }));
+        const p = r.person;
+        const master = {
+            about: m.about || 'Your CV, as saved in your account. Every tailored CV, letter and email is built only from these lines.',
+            person: { name: p.name, title: p.title, tagline: p.tagline, location: p.location, phone: p.phone, email: p.email, linkedin: p.linkedin, website: p.website, portfolio: p.portfolio || p.website },
+            summary: { id: 'summary-' + hash(r.summary), text: r.summary },
+            experience: r.experience.map((x) => {
+                const abbr = (x.org.match(/\(([A-Z][A-Za-z0-9 .]{1,12})\)/) || [])[1];   // "(KIRDI)" → kirdi
+                const id = 'exp-' + slug(abbr || x.org.split(/[,(]/)[0] || 'role', 18) + '-' + slug(x.role, 14);
+                return { id, role: x.role, org: x.org, dates: x.dates, year: latestYear(x.dates), points: lines(x.points, id) };
+            }),
+            projects: r.projects.map((x) => {
+                const id = 'prj-' + slug(x.source && !/\.js$/.test(x.source) ? x.source : x.title, 30);
+                return { id, source: x.source || '', title: x.title, subtitle: x.subtitle, category: x.category, year: x.year, summary: x.summary, outcome: '',
+                    points: lines(x.points, id), tags: x.tags, deliverables: [], url: x.url };
+            }),
+            skills: lines(r.skills, 'skill'),
+            education: r.education.map((x) => ({ id: 'edu-' + slug(x.title || x.org, 20), title: x.title, org: x.org, dates: x.dates, note: x.note })),
+            certificates: r.certificates.map((c) => ({ id: 'cert-' + slug(c.title, 22) + '-' + hash(c.title), title: c.title, issuer: c.issuer, kind: c.kind, verify: c.verify })),
+            languages: r.languages,
+            memberships: r.memberships,
+            hidden: m.hidden || { projects: 0, certificates: 0 }
+        };
+        // Outcomes (one-line results) from the website's projects
+        arr(raw && raw.projects).forEach((x, i) => { if (master.projects[i] && x && x.outcome) master.projects[i].outcome = str(x.outcome, 300); });
+        // Ids must be unique, or a choice would apply to two lines at once
+        const seen = new Set();
+        [master.summary].concat(master.experience, master.experience.flatMap((x) => x.points), master.projects, master.projects.flatMap((q) => q.points), master.skills, master.education, master.certificates).forEach((it) => {
+            let id = it.id, k = 2;
+            while (seen.has(id)) id = it.id + '-' + k++;
+            it.id = id;
+            seen.add(id);
+        });
+        return master;
+    }
+    // How full a CV is, for the "My CV" card
+    function rawStats(raw) {
+        const r = sanitizeRaw(raw);
+        return { roles: r.experience.length, bullets: r.experience.reduce((a, x) => a + x.points.length, 0) + r.projects.reduce((a, x) => a + x.points.length, 0),
+            projects: r.projects.length, skills: r.skills.length, education: r.education.length, certificates: r.certificates.length,
+            empty: !r.person.name && !r.summary && !r.experience.length && !r.projects.length };
+    }
 
     /* ---------------- master → searchable items ---------------- */
     function itemsOf(master) {
@@ -286,7 +386,8 @@
         const checks = [];
         const yrs = text.match(/(\d{1,2})\s*\+?\s*(?:-\s*\d{1,2}\s*)?(?:years?|yrs?)(?:'|’)?\s*(?:of\s+)?(?:[a-z-]+\s+){0,3}experience/i);
         if (yrs) checks.push('Asks for ' + yrs[0].replace(/\s+/g, ' ') + '. Compare with your real dates; don\'t stretch them.');
-        if (/\b(?:master'?s|msc|m\.sc|phd|doctorate)\b/i.test(text)) checks.push('Mentions a postgraduate degree (MSc / PhD). Your data has a BSc only.');
+        if (/\b(?:master'?s|msc|m\.sc|meng|mba|phd|doctorate)\b/i.test(text) && !master.education.some((e) => /\b(?:master|msc|m\.sc|meng|mba|phd|doctor)/i.test(e.title)))
+            checks.push('Mentions a postgraduate degree (MSc / PhD). Your CV doesn\'t list one: don\'t imply it.');
         if (/\b(?:driving licen[cs]e|driver'?s licen[cs]e)\b/i.test(text)) checks.push('Mentions a driving licence: not in your data, answer honestly if asked.');
         if (/\b(?:security clearance|citizenship|work permit|visa)\b/i.test(text)) checks.push('Mentions clearance / work authorisation: not in your CV data.');
 
@@ -356,7 +457,7 @@
         const sc = ranking.score;
         const on = new Set([master.summary.id, 'key-skills']);
         const order = {};
-        order.experience = master.experience.map((x) => x.id);   // newest first, as written in content/cv.js
+        order.experience = master.experience.map((x) => x.id);   // newest first, as written in the CV
         const top = Math.max(0.1, ...master.experience.map((x) => sc[x.id] || 0));
         const chosen = [];
         master.experience.forEach((x) => {
@@ -565,10 +666,11 @@
         const pos = role ? [s('the '), f(role, 'job'), s(' position')] : [s('the advertised position')];
         const at = company ? [s(' at '), f(company, 'job')] : [];
         const p1 = T.warm ? [s('I was pleased to see your advert for ')].concat(pos, at, [s(', and I would like to apply.')]) : [s('I am writing to apply for ')].concat(pos, at, [s('.')]);
-        p1.push(s(' I am a '), f(master.person.title, 'headline'));
         const edu = cv.education[0] || master.education[0];
-        if (edu && !T.concise) p1.push(s(' and studied '), f(edu.title, edu.id), s(' at '), f(theOrg(edu.org), edu.id), s(' ('), f(edu.dates, edu.id), s(')'));
-        p1.push(s('.'));
+        const eduParts = edu && !T.concise && edu.title ? [s('studied '), f(edu.title, edu.id)].concat(edu.org ? [s(' at '), f(theOrg(edu.org), edu.id)] : [], edu.dates ? [s(' ('), f(edu.dates, edu.id), s(')')] : []) : [];
+        if (master.person.title) { p1.push(s(' I am '), s(/^[aeiou]/i.test(master.person.title) ? 'an ' : 'a '), f(master.person.title, 'headline')); if (eduParts.length) p1.push(s(' and ')); }
+        else if (eduParts.length) p1.push(s(' I '));
+        if (master.person.title || eduParts.length) { p1.push(...eduParts); p1.push(s('.')); }
         if (top.length >= 2) p1.push(s(' The role\'s focus on '), f(listJoin(top.slice(0, 2).map((t) => t.label)), 'match'), s(' matches the work described below and in my attached CV.'));
         P.push(p1);
         // 2. The most relevant role, in its own words
@@ -619,12 +721,12 @@
         if (p4.length) P.push(p4);
         // 5. Close
         P.push([s(T.warm ? 'I would love the chance to talk about how I could contribute to ' : 'I would welcome the opportunity to discuss how my experience could contribute to ')].concat(company ? [f(company, 'job')] : [s('your team')],
-            [s('. My portfolio is at '), f(master.person.portfolio || master.person.website, 'person'), s('. Thank you for your time and consideration.')]));
+            (master.person.portfolio || master.person.website ? [s('. My portfolio is at '), f(master.person.portfolio || master.person.website, 'person')] : []), [s('. Thank you for your time and consideration.')]));
         const salutation = 'Dear ' + who + ',';
         const signoff = who === 'Hiring Team' || /^(hiring|recruit|sir|madam|team)/i.test(who) ? 'Yours faithfully,' : 'Yours sincerely,';
         const plainP = P.map((parts) => parts.map((x) => x.t).join('').replace(/\s+([.,])/g, '$1'));
         const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-        const head = [master.person.name, master.person.location, master.person.phone, master.person.linkedin].join('\n');
+        const head = [master.person.name, master.person.location, master.person.phone, master.person.email, master.person.linkedin].filter(Boolean).join('\n');
         const to = [who === 'Hiring Team' ? 'Hiring Team' : who, company].filter(Boolean).join('\n');
         const plain = [head, '', date, '', to, ''].concat(role ? ['Re: Application for ' + role, ''] : [], [salutation, '', plainP.join('\n\n'), '', signoff, master.person.name]).join('\n');
         return { paragraphs: P, salutation, signoff, date, recipient: who, company, role, plain, words: plain.split(/\s+/).filter(Boolean).length, tone: T };
@@ -637,12 +739,13 @@
         const proof = proofs(cv, analysis, master, 3).filter((p) => p.terms.length);
         const L = { required: 3, mentioned: 2, preferred: 1 };
         const tops = analysis.terms.filter(proven).sort((a, b) => L[b.level] - L[a.level] || b.count - a.count).slice(0, 2).map((t) => t.label);
-        const r = role || master.person.title;
+        const r = role || master.person.title || 'the advertised position';
         const subjects = [];
         const add = (x) => { if (x && !subjects.includes(x)) subjects.push(x); };
-        add('Application: ' + r + (ref ? ' (Ref ' + ref + ')' : '') + ' – ' + name);
-        add(company ? 'Application for ' + r + ' at ' + company + ' – ' + name : r + ' application – ' + name + ', ' + master.person.title);
-        if (tops.length) add(name + ' – ' + r + ' (' + tops.join(', ') + ')');
+        const by = name ? ' – ' + name : '';
+        add('Application: ' + r + (ref ? ' (Ref ' + ref + ')' : '') + by);
+        add(company ? 'Application for ' + r + ' at ' + company + by : r + ' application' + by + (master.person.title && role ? ', ' + master.person.title : ''));
+        if (tops.length) add((name ? name + ' – ' : '') + r + ' (' + tops.join(', ') + ')');
         const position = (role ? 'the ' + role + ' position' : 'the advertised position') + (company ? ' at ' + company : '') + (ref ? ' (Ref ' + ref + ')' : '');
         const lines = [
             'Dear ' + who + ',',
@@ -655,8 +758,12 @@
             proof.forEach((p) => lines.push('• ' + listJoin(p.terms.map((t) => t.label)) + ': ' + p.label));
             lines.push('');
         }
-        lines.push('Portfolio: ' + (master.person.portfolio || master.person.website), 'LinkedIn: ' + master.person.linkedin, '');
-        lines.push(T.warm ? 'Thank you for considering my application. I would be glad to talk at any time.' : 'Thank you for your time and consideration. I look forward to hearing from you.', '', 'Kind regards,', name, master.person.phone);
+        const links = [];
+        if (master.person.portfolio || master.person.website) links.push('Portfolio: ' + (master.person.portfolio || master.person.website));
+        if (master.person.linkedin) links.push('LinkedIn: ' + master.person.linkedin);
+        if (links.length) lines.push(...links, '');
+        lines.push(T.warm ? 'Thank you for considering my application. I would be glad to talk at any time.' : 'Thank you for your time and consideration. I look forward to hearing from you.', '', 'Kind regards,', name || '');
+        if (master.person.phone) lines.push(master.person.phone);
         return { subjects, body: lines.join('\n'), to: jobEmail(target && target.jd), proofs: proof.map((p) => ({ source: p.unit, label: p.label, terms: p.terms.map((t) => t.label) })), ref };
     }
 
@@ -695,7 +802,7 @@
 
     const RULES = [
         'Use ONLY the facts in VERIFIED CV DATA. Do not invent or imply employers, job titles, dates, degrees, grades, certifications, awards, tools, software, clients, metrics, numbers or results that are not written there.',
-        'You may reword, shorten, merge and reorder lines, but every bullet must stay true to its source. Put the source id(s) in [square brackets] after each bullet so I can check it, e.g. [exp-kirdi-industrial-att-3cc45b].',
+        'You may reword, shorten, merge and reorder lines, but every bullet must stay true to its source. Put the source id(s) in [square brackets] after each bullet so I can check it, e.g. [exp-acme-design-engineer-1a2b3c].',
         'Copy numbers exactly as written ("over 100", "12 weeks", "9.5 m"). Never add percentages, money, team sizes or counts that are not in the data.',
         'Items with kind "course" (e.g. "Cert Prep", "Exam Preparation", "Essential Training") are training courses. Never say I hold that certification or that I am "certified".',
         'Do not claim anything listed under gaps_do_not_claim or course_only_do_not_claim. Do not add those words to the skills line.',
@@ -776,7 +883,10 @@
                 if (term.group === 'cert' || !solid.length) flags.push({ kind: 'cert', text: term.label, note: 'Your data only has a training course for this, not the certification.' });
             }
         });
-        if (/\b(?:certified|certification holder|licensed|chartered)\b/i.test(body)) flags.push({ kind: 'claim', text: (body.match(/\b(?:certified|certification holder|licensed|chartered)\b/i) || [''])[0], note: 'Check this wording: make sure it matches a real certificate in your list, not a prep course.' });
+        // "Certified" is fine inside the exact title of a certification you really hold
+        const realCerts = master.certificates.filter((c) => c.kind === 'certification').map((c) => c.title.toLowerCase());
+        const claimText = realCerts.reduce((t, title) => t.split(title).join(' '), body.toLowerCase());
+        if (/\b(?:certified|certification holder|licensed|chartered)\b/i.test(claimText)) flags.push({ kind: 'claim', text: (body.match(/\b(?:certified|certification holder|licensed|chartered)\b/i) || [''])[0], note: 'Check this wording: make sure it matches a real certificate in your list, not a prep course.' });
         // Ids that don't exist
         (t.match(/\[([^\]]+)\]/g) || []).forEach((b) => b.slice(1, -1).split(/[,;\s]+/).filter((x) => /^(?:exp|prj|skill|summary|edu|cert)-/.test(x)).forEach((id) => {
             if (!items.some((it) => it.id === id)) flags.push({ kind: 'id', text: id, note: 'This source id does not exist in your master CV.' });
@@ -794,7 +904,7 @@
     }
     const COMMON_CAPS = new Set('profile summary experience projects project education skills skill certifications certification languages memberships notes for me selected relevant tools the a an and of in at i my with to on by key core technical professional bsc mechanical engineering engineer design designer graphic june july august december april november jan feb mar apr may jun jul aug sep sept oct nov dec january february march september october present cad 3d 2d kenya nairobi university dear yours sincerely faithfully kind regards thank thanks please why portfolio linkedin hiring team re application during several finally one in my most i\'m i\'ve as'.split(' '));
 
-    const API = { TERMS, GROUPS, FOCUS, LIMITS, PRESETS, RULES, itemsOf, analyse, rank, defaults, compose, trimOrder, grounded, markdown, payload, prompt, factCheck, norm, tone, coverLetter, applicationEmail, jobRef, jobEmail, proofs };
+    const API = { TERMS, GROUPS, FOCUS, LIMITS, PRESETS, RULES, itemsOf, analyse, rank, defaults, compose, trimOrder, grounded, markdown, payload, prompt, factCheck, norm, tone, normalizeMaster, sanitizeRaw, emptyRaw, rawStats, certKind, hash, slug, coverLetter, applicationEmail, jobRef, jobEmail, proofs };
     if (typeof module === 'object' && module.exports) module.exports = API;
     root.CVTailor = API;
 })(typeof window !== 'undefined' ? window : globalThis);

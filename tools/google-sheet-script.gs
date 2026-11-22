@@ -38,6 +38,9 @@
    switch one off. Their account page shows their exam pass / Quote Pro keys,
    training, projects and invoices from your other tabs, matched by email.
    EXAM RESULTS tab: practice exams finished by people who are logged in.
+   CVS tab: the CV each account saved in the website's CV tailor (cv-tailor/),
+   and when they accepted its terms. Only that person can read it from the
+   website. To delete someone's CV (if they ask), delete their row.
 
    PRICING, CERTIFICATES, COURSES and RECORDINGS tabs: the website's
    packages and prices, certificates, training courses and webinar videos.
@@ -170,6 +173,7 @@ function doPost(e) {
   if (p.action === 'syllabus') return out_(syllabus_(p));
   if (p.action === 'pro') return out_(proRequest_(p));
   if (p.action === 'account-result' || p.action === 'account-update') return out_(accountPost_(p));
+  if (p.action === 'cv-save' || p.action === 'cv-terms' || p.action === 'cv-delete') return out_(cvPost_(p));
   const name = clean_(p.name, 80);
   const text = clean_(p.text, 1500);
   const rating = Math.round(Number(p.rating));
@@ -2468,6 +2472,7 @@ function setup() {
   sheet_();
   accounts_();
   examResults_();
+  cvs_();
   const p = projects_();
   if (!p.getRange(1, 12).getValue()) p.getRange(1, 12).setValue('Client email').setFontWeight('bold');
   if (!p.getRange(1, 13).getValue()) p.getRange(1, 13, 1, 2).setValues([[PHEAD[12], PHEAD[13]]]).setFontWeight('bold');
@@ -3515,6 +3520,95 @@ function accountPost_(p) {
   return { ok: false };
 }
 
+/* ---------- CV tailor: each account's own CV (cv-tailor/ on the website) ----------
+   CVS tab: one row per account that accepted the CV tailor terms or saved a CV.
+   The CV is stored as text (JSON) over the "CV data" columns, because one cell holds
+   at most 50,000 characters. Only the person logged in to that account can read,
+   change or delete their row (with their login token); nobody can list CVs.
+   If someone asks you to delete their data, delete their row here (and their
+   row in Accounts). Weekly backups of the sheet keep a copy for up to 8 weeks. */
+const CVS = 'CVs';
+const CVHEAD = ['Email', 'Updated', 'Terms version accepted', 'Terms accepted on', 'Size (characters)', 'CV data 1', 'CV data 2', 'CV data 3', 'CV data 4', 'CV data 5'];
+const CV_CHUNK = 45000, CV_PARTS = 5, CV_MAX = CV_CHUNK * CV_PARTS;
+function cvs_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(CVS);
+  if (sh) return sh;
+  sh = ss.insertSheet(CVS);
+  sh.appendRow(CVHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, CVHEAD.length).setFontWeight('bold').setWrap(true);
+  sh.getRange('B2:B3000').setNumberFormat('d mmm yyyy, HH:mm');
+  sh.getRange('D2:D3000').setNumberFormat('d mmm yyyy, HH:mm');
+  sh.getRange('F2:J3000').setNumberFormat('@');   // plain text: a piece starting with "=" must never become a formula
+  [220, 140, 150, 140, 110, 260, 120, 120, 120, 120].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+function cvRowOf_(sh, email) {
+  const rows = sh.getDataRange().getValues();
+  const i = rows.findIndex((r, k) => k > 0 && String(r[0]).trim().toLowerCase() === email);
+  return i > 0 ? { row: i + 1, r: rows[i] } : null;
+}
+function cvBusy_(email, kind, max) {
+  const cache = CacheService.getScriptCache(), key = 'cv-' + kind + ':' + email, n = Number(cache.get(key) || 0);
+  if (n >= max) return true;
+  cache.put(key, String(n + 1), 3600);
+  return false;
+}
+const cvTerms_ = (v) => (/^[\w.-]{1,30}$/.test(String(v || '')) ? String(v) : '');
+const iso_ = (d) => (d instanceof Date ? d.toISOString() : String(d || ''));
+// Your CV, terms and when it was last saved
+function cvGet_(q) {
+  const a = acctFromToken_(q.t);
+  if (!a) return { ok: false, error: 'login' };
+  if (cvBusy_(a.email, 'get', 300)) return { ok: false, error: 'busy' };
+  const f = cvRowOf_(cvs_(), a.email);
+  if (!f) return { ok: true, cv: null, updated: '', terms: '', accepted: '' };
+  const text = f.r.slice(5, 5 + CV_PARTS).map((x) => String(x == null ? '' : x)).join('');
+  let cv = null;
+  try { cv = text ? JSON.parse(text) : null; } catch (err) { cv = null; }
+  return { ok: true, cv: cv, updated: iso_(f.r[1]), terms: String(f.r[2] || ''), accepted: iso_(f.r[3]) };
+}
+// From the website: save the CV, record that the terms were accepted, or delete everything
+function cvPost_(p) {
+  const a = acctFromToken_(p.t);
+  if (!a) return { ok: false, error: 'login' };
+  if (cvBusy_(a.email, 'post', 200)) return { ok: false, error: 'busy' };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sh = cvs_(), found = cvRowOf_(sh, a.email), now = new Date();
+    if (p.action === 'cv-delete') {
+      if (found) sh.deleteRow(found.row);
+      return { ok: true };
+    }
+    const terms = cvTerms_(p.terms);
+    let row = found ? found.row : 0;
+    if (!row) {
+      if (!terms) return { ok: false, error: 'terms' };   // nothing is stored before the terms are accepted
+      sh.appendRow([a.email, '', terms, now, 0]);
+      row = sh.getLastRow();
+    } else if (terms && String(found.r[2]) !== terms) {
+      sh.getRange(row, 3, 1, 2).setValues([[terms, now]]);
+    }
+    if (p.action === 'cv-terms') return { ok: true, terms: terms || String(found && found.r[2] || '') };
+    if (p.action !== 'cv-save') return { ok: false };
+    const text = String(p.cv || '');
+    if (text.length > CV_MAX) return { ok: false, error: 'too-big' };
+    let cv;
+    try { cv = JSON.parse(text); } catch (err) { return { ok: false, error: 'invalid' }; }
+    if (!cv || typeof cv !== 'object' || Array.isArray(cv)) return { ok: false, error: 'invalid' };
+    const json = JSON.stringify(cv), parts = [];
+    for (let i = 0; i < CV_PARTS; i++) parts.push(json.slice(i * CV_CHUNK, (i + 1) * CV_CHUNK));
+    sh.getRange(row, 6, 1, CV_PARTS).setNumberFormat('@').setValues([parts]);
+    sh.getRange(row, 2).setValue(now);
+    sh.getRange(row, 5).setValue(json.length);
+    return { ok: true, updated: now.toISOString(), size: json.length };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function doGet(e) {
   const q = (e && e.parameter) || {};
   if (q.action === 'track') return out_(track_(q.ref));
@@ -3532,6 +3626,7 @@ function doGet(e) {
   if (q.action === 'login-start') return out_(loginStart_(q));
   if (q.action === 'login') return out_(loginVerify_(q));
   if (q.action === 'account') return out_(accountGet_(q));
+  if (q.action === 'cv-get') return out_(cvGet_(q));
   if (q.action === 'pay-info') return out_(payInfo_(q.ref));
   return out_(reviews_());
 }

@@ -3,6 +3,14 @@
    The .cvt-paper sheet is always light (it is what gets printed), and
    @media print hides everything else so the browser saves a clean A4 PDF.
    ========================================================================= */
+/* Fixed-weight fonts for the printed CV and letter (tools/build-print-fonts.py). The site's variable
+   fonts end up as "Type 3" drawings in a PDF saved from Chrome: thin letters (l, I, i, 1, .) look
+   darker in PDF viewers and CV-reading software (ATS) reads the text less reliably. */
+@font-face { font-family: 'CV Sans'; font-weight: 400; font-style: normal; font-display: swap; src: url(../fonts/print/cv-sans-400.woff2) format('woff2'); }
+@font-face { font-family: 'CV Sans'; font-weight: 600; font-style: normal; font-display: swap; src: url(../fonts/print/cv-sans-600.woff2) format('woff2'); }
+@font-face { font-family: 'CV Sans'; font-weight: 700; font-style: normal; font-display: swap; src: url(../fonts/print/cv-sans-700.woff2) format('woff2'); }
+@font-face { font-family: 'CV Serif'; font-weight: 600; font-style: normal; font-display: swap; src: url(../fonts/print/cv-serif-600.woff2) format('woff2'); }
+
 .cvt-hero .page-lede { max-width: 760px; }
 .cvt-truth { margin-top: 18px; display: flex; gap: 10px; align-items: flex-start; max-width: 760px; font-size: 0.92rem; color: rgba(255, 255, 255, 0.86); }
 .cvt-truth svg { flex: 0 0 18px; width: 18px; height: 18px; color: var(--sun); margin-top: 2px; }
@@ -106,6 +114,9 @@
 
 /* The sheet: A4 at real size, scaled down on screen by js/cv-tailor.js */
 .cvt-paper {
+    --sans: 'CV Sans', Arial, Helvetica, sans-serif;   /* everything on the sheet uses the static fonts */
+    --serif: 'CV Serif', Georgia, 'Times New Roman', serif;
+    font-synthesis: none;   /* never fake a bold or italic: only the real weights above */
     width: 210mm; min-height: 297mm; padding: 13mm 14mm; transform-origin: top left; background: #fff; color: #18203a;
     font: 9.6pt/1.42 var(--sans); letter-spacing: -0.003em;
     /* faint line where each A4 page ends */
@@ -118,7 +129,7 @@
 .cvp-title { font-weight: 700; color: #c43d22; font-size: 10.5pt; margin-top: 1mm; }
 .cvp-contact { margin-top: 1.5mm; font-size: 8.6pt; color: #4c5470; }
 .cvt-paper section { margin-top: 3.6mm; }
-.cvt-paper h2 { font-size: 8pt; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #0e1a3a; padding-bottom: 1mm; border-bottom: 1px solid #e2d9c8; margin-bottom: 2mm; }
+.cvt-paper h2 { font-size: 8pt; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #0e1a3a; padding-bottom: 1mm; border-bottom: 1px solid #e2d9c8; margin-bottom: 2mm; }
 .cvt-paper p { color: #333a52; }
 .cvp-key { margin-top: 1.6mm; font-size: 9pt; }
 .cvp-key strong { color: #0e1a3a; }
@@ -130,7 +141,7 @@
 .cvp-org { font-size: 9pt; font-weight: 600; color: #1f4fd1 !important; }
 .cvt-paper ul { margin-top: 1mm; display: grid; gap: 0.7mm; }
 .cvt-paper li { position: relative; padding-left: 3.6mm; color: #333a52; }
-.cvt-paper li::before { content: ''; position: absolute; left: 0.4mm; top: 0.58em; width: 1.3mm; height: 1.3mm; border-radius: 50%; background: #c43d22; }
+.cvt-paper li::before { content: '\2022'; position: absolute; left: 0.3mm; top: 0; color: #c43d22; font-weight: 700; }   /* a real bullet character: shows in every PDF viewer and in ATS text */
 /* 1-page mode: a little tighter, still easy to read */
 .cvt-paper.is-compact { font-size: 9pt; line-height: 1.36; }
 .cvt-paper.is-compact section { margin-top: 3mm; }
@@ -144,6 +155,63 @@
 .cvp-cols section:first-child { grid-row: span 3; }
 .cvp-certs li strong { font-weight: 600; color: #0e1a3a; }
 .cvp-tags { margin-top: 0.8mm; font-size: 8.2pt; color: #646a82 !important; }
+
+/* Anything hidden stays hidden, even where a layout sets display (grid, flex) */
+.cvt-wrap [hidden] { display: none !important; }
+
+/* Log-in and terms screens */
+.cvt-gate { max-width: 760px; }
+.cvt-gate-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(22px, 4vw, 40px); box-shadow: var(--shadow-sm); }
+.cvt-gate-card h2 { font: 600 clamp(1.5rem, 3vw, 1.9rem)/1.2 var(--serif); color: var(--heading); margin-bottom: 12px; }
+.cvt-gate-card > p { color: var(--text-soft); margin-top: 10px; }
+.cvt-gate-card .cvt-actions { margin-top: 22px; }
+.cvt-gate-list { display: grid; gap: 10px; margin-top: 18px; }
+.cvt-gate-list li { display: flex; gap: 10px; align-items: flex-start; color: var(--text); }
+.cvt-gate-list svg { flex: 0 0 20px; width: 20px; height: 20px; color: var(--green); margin-top: 2px; }
+.cvt-gate-msg { margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; background: #e9f0ff; color: #173a8a; font-weight: 600; }
+[data-theme="dark"] .cvt-gate-msg { background: #1a2a55; color: #c9d8ff; }
+.cvt-loading { color: var(--muted); font-weight: 600; }
+.cvt-docs { display: flex; flex-wrap: wrap; gap: 10px; }
+.cvt-docs .btn { min-height: 44px; font-size: 0.9rem; }
+.cvt-agree { display: flex; gap: 12px; align-items: flex-start; margin-top: 20px; padding: 16px; border-radius: 14px; background: var(--cream); border: 1px solid var(--line); cursor: pointer; font-weight: 600; color: var(--heading); }
+.cvt-agree input { margin-top: 4px; width: 20px; height: 20px; flex: 0 0 auto; accent-color: var(--navy); }
+.cvt-agree a, .cvt-gate-card .cvt-help a, .cvt-my-more a, .track-privacy a { color: var(--blue-text); font-weight: 700; text-decoration: underline; }
+
+/* My CV */
+.cvt-mycv { border-color: var(--sun); box-shadow: 0 0 0 1px var(--sun) inset, var(--shadow-sm); }
+.cvt-mycv.is-empty { background: linear-gradient(180deg, #fff8e8, var(--paper)); }
+[data-theme="dark"] .cvt-mycv.is-empty { background: linear-gradient(180deg, #2a2412, var(--paper)); }
+.cvt-mycv .cvt-h { flex-wrap: wrap; }
+#cvt-my-who { flex-basis: 100%; margin-left: 38px; font-weight: 600; overflow-wrap: anywhere; }
+.cvt-my-stats { color: var(--text); font-weight: 600; font-size: 0.93rem; margin-bottom: 4px; }
+.cvt-my-status { min-height: 1.3em; font-size: 0.85rem; font-weight: 700; color: var(--green); margin-bottom: 14px; }
+.cvt-my-status.is-pending { color: #b07a00; }
+.cvt-my-more { margin-top: 16px; font-size: 0.86rem; color: var(--muted); }
+.cvt-link { background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: var(--blue-text); text-decoration: underline; cursor: pointer; }
+.cvt-link.is-danger { color: var(--coral-text); }
+.cvt-paste { margin-top: 16px; }
+.cvt-import-notes { margin-top: 16px; padding: 14px 16px; border-radius: 12px; background: #fff6e0; color: #5c4300; font-size: 0.9rem; }
+.cvt-import-notes ul { margin: 8px 0 12px 18px; list-style: disc; }
+[data-theme="dark"] .cvt-import-notes { background: #3a2f10; color: #f3dfa6; }
+.cvt-editor-wrap { margin-top: 18px; padding-top: 6px; border-top: 1px dashed var(--line); }
+.cvt-ed-sec { border-bottom: 1px solid var(--line); }
+.cvt-ed-sec > summary { cursor: pointer; padding: 14px 2px; font-weight: 800; color: var(--heading); list-style-position: inside; }
+.cvt-ed-sec > summary small { font-weight: 600; color: var(--muted); margin-left: 6px; }
+.cvt-ed-body { padding: 4px 0 16px; }
+.cvt-ed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.cvt-ed-grid .cvt-ed-wide { grid-column: 1 / -1; }
+.cvt-ed-body .field { margin-bottom: 12px; }
+.cvt-ed-body .field input, .cvt-ed-body .field textarea, .cvt-ed-body .field select { font-size: 0.9rem; min-height: 44px; }
+.cvt-ed-body .field textarea { min-height: 0; }
+.cvt-ed-card { margin-bottom: 12px; padding: 12px 14px 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--cream); }
+.cvt-ed-card-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.88rem; color: var(--heading); }
+.cvt-ed-card-h span { display: inline-flex; gap: 4px; }
+.cvt-ed-btn { min-width: 30px; height: 30px; padding: 0 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--heading); font: 600 0.8rem var(--sans); cursor: pointer; }
+.cvt-ed-btn[disabled] { opacity: 0.3; cursor: default; }
+.cvt-ed-btn.is-del { color: var(--coral-text); }
+.cvt-placeholder { padding: 30mm 10mm; text-align: center; color: #646a82; }
+.cvt-placeholder h2 { font: 600 16pt var(--serif) !important; color: #0e1a3a !important; border: 0 !important; text-transform: none !important; letter-spacing: 0 !important; margin-bottom: 4mm !important; }
+@media (max-width: 560px) { .cvt-ed-grid { grid-template-columns: 1fr; } }
 
 /* Output tabs: Tailored CV · Cover Letter · Application Email */
 .cvt-tabs { display: flex; gap: 4px; padding: 4px; margin-bottom: 14px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); overflow-x: auto; }

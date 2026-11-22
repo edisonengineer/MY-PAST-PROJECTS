@@ -86,5 +86,11 @@ window.SITE_CONFIG = {
     },
 
     // 3D viewer library, only downloaded when someone opens a project's 3D model
+    // CV tailor (cv-tailor/): free for everyone with an account. The owner's account (split in two
+    // so it isn't one plain address in the code) can also use the website's own CV (content/cv.js).
+    cvTailor: {
+        owner: ['edisonochieng24', 'gmail.com']
+    },
+
     modelViewerSrc: 'https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js'
 };

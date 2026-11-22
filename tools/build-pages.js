@@ -400,6 +400,7 @@ function footer(extraScripts = '') {
                 <a href="../track/index.html">Track your project</a>
                 <a href="../verify/index.html">Verify a certificate</a>
                 <a href="../cv/index.html">Online CV</a>
+                <a href="../cv-tailor/index.html">Free CV tailor</a>
                 <a href="../index.html#faq">FAQ</a>
             </nav>
             <div class="footer-col">
@@ -1480,25 +1481,77 @@ ${cv.education.map((x) => `                            <article class="cv-item">
 function cvTailorPage() {
     const url = SITE + 'cv-tailor/';
     const step = (n, title, body, id) => `<section class="cvt-card"${id ? ` id="${id}"` : ''}><h2 class="cvt-h"><span class="cvt-n">${n}</span> ${title}</h2>${body}</section>`;
-    return head({ title: 'CV tailor | Edison Ochieng', description: 'Make a CV for one job from your real experience: match the job description, choose what goes in, print or hand off to an AI assistant.', url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'CV tailor', url } })
-        .replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, nofollow">')
-        .replace('</head>', '    <link rel="stylesheet" href="../css/cv-tailor.css?v=2">\n</head>') + '\n' + header('').replace('<body class="subpage">', '<body class="subpage cvt-body">') + `
+    const description = 'Free CV tailor for members: upload your CV (PDF or Word), paste a job advert, and get a matching one-page CV, cover letter and application email built only from your real experience.';
+    return head({ title: 'Free CV tailor: CV, cover letter & email for every job | Nexus CAD Studio', description, url, image: SITE + 'og-image.jpg?v=2', type: 'website',
+        jsonld: { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'CV tailor', url, description, applicationCategory: 'BusinessApplication', operatingSystem: 'Any', offers: { '@type': 'Offer', price: 0, priceCurrency: 'KES' } } })
+        .replace('</head>', '    <link rel="stylesheet" href="../css/cv-tailor.css?v=5">\n</head>') + '\n' + header('').replace('<body class="subpage">', '<body class="subpage cvt-body">') + `
     <main id="main">
         <section class="page-hero theme-violet cvt-hero">
             <div class="container page-hero-inner">
                 <nav class="crumbs" aria-label="Breadcrumb">
                     <a href="../index.html">Home</a><span aria-hidden="true">/</span><a href="../cv/index.html">CV</a><span aria-hidden="true">/</span><span aria-current="page">CV tailor</span>
                 </nav>
-                <p class="page-kicker">For Edison</p>
-                <h1 class="page-title">Tailor your CV to one job.</h1>
-                <p class="page-lede">Paste a job description. See what it asks for and what your real experience covers, pick the most relevant lines, then print a clean CV and cover letter, send the application email, or hand a strict prompt to an AI assistant.</p>
-                <p class="cvt-truth">${icon('check')} <span>Built only from your master CV (content/cv.js, your projects and certificates). Nothing here can add a role, number, tool or certificate you don't have. Items marked "not for the job portfolio" are left out.</span></p>
+                <p class="page-kicker">Free with your account</p>
+                <h1 class="page-title">Tailor your CV to every job.</h1>
+                <p class="page-lede">Upload your CV once (PDF or Word). For each job advert you paste, see what it asks for and what you can prove, then print a matching CV and cover letter and send the application email.</p>
+                <p class="cvt-truth">${icon('check')} <span>Built only from your own CV: the tool picks and orders your real experience for each job. It never adds a role, number, tool or certificate you don't have.</span></p>
             </div>
         </section>
 
         <section class="section cvt-wrap">
-            <div class="container cvt-app" id="cvt-app">
+            <div class="container cvt-gate" id="cvt-gate">
+                <noscript><p class="cvt-error">The CV tailor needs JavaScript. Turn it on in your browser and reload the page.</p></noscript>
+                <p class="cvt-gate-msg" id="cvt-gate-msg" role="status" hidden></p>
+                <div class="cvt-gate-card" id="cvt-gate-loading" hidden><p class="cvt-loading">Loading your CV…</p></div>
+                <div class="cvt-gate-card" id="cvt-gate-login">
+                    <h2>Log in to use the CV tailor</h2>
+                    <p>It's free with a Nexus CAD Studio account. You log in with a code sent to your email (no password), and your CV is kept in your account, so you can use it on any phone or computer.</p>
+                    <ul class="cvt-gate-list">
+                        <li>${icon('check')} Upload your CV as a PDF or Word file, or paste it</li>
+                        <li>${icon('check')} Paste any job advert: see which requirements you meet, honestly</li>
+                        <li>${icon('check')} Print a one-page CV, a cover letter and an application email for that job</li>
+                        <li>${icon('check')} Nothing is made up: everything comes from your own CV</li>
+                    </ul>
+                    <p class="cvt-actions"><a class="btn btn-sun btn-lg" href="../account/index.html?next=cv-tailor/index.html">Log in or create a free account ${icon('arrow')}</a></p>
+                    <p class="cvt-help">By using the CV tailor you agree to its <a href="terms.html" target="_blank" rel="noopener">Terms and conditions</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a>.</p>
+                </div>
+                <div class="cvt-gate-card" id="cvt-gate-consent" hidden>
+                    <h2>Before you start</h2>
+                    <p>The CV tailor keeps <strong>your CV in your account</strong> so you can use it on any device. Job adverts, saved jobs and drafts stay on this device only. Files you upload are read in your browser and are never sent anywhere. Only you can see your CV, and you can download it or delete it at any time.</p>
+                    <p>Please read the terms and the privacy notice (they open in a new tab):</p>
+                    <p class="cvt-docs"><a class="btn btn-outline" href="terms.html" target="_blank" rel="noopener">Read the Terms and conditions</a> <a class="btn btn-outline" href="privacy.html" target="_blank" rel="noopener">Read the Privacy notice</a></p>
+                    <label class="cvt-agree"><input type="checkbox" id="cvt-agree"> <span>I have read and I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and conditions</a> and the <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a> of the CV tailor.</span></label>
+                    <p class="cvt-actions"><button type="button" class="btn btn-navy" id="cvt-agree-go" disabled>Agree and continue</button></p>
+                </div>
+            </div>
+            <div class="container cvt-app" id="cvt-app" hidden>
                 <div class="cvt-ui">
+                    <section class="cvt-card cvt-mycv" id="cvt-mycv">
+                        <h2 class="cvt-h"><span class="cvt-n">0</span> My CV <small id="cvt-my-who"></small></h2>
+                        <div class="field" id="cvt-source-wrap" hidden><label for="cvt-source">CV to use</label><select id="cvt-source"><option value="site">The website CV (content/cv.js, projects, certificates)</option><option value="account">The CV saved in my account</option></select></div>
+                        <p class="cvt-my-stats" id="cvt-my-stats"></p>
+                        <p class="cvt-my-status" id="cvt-my-status" role="status" aria-live="polite"></p>
+                        <div class="cvt-actions" data-my-account>
+                            <button type="button" class="btn btn-navy" data-act-my="upload">${icon('doc')} Upload CV (PDF or Word)</button>
+                            <button type="button" class="btn btn-outline" data-act-my="paste">Paste CV text</button>
+                            <button type="button" class="btn btn-outline" data-act-my="edit">Check / edit my CV</button>
+                        </div>
+                        <input type="file" id="cvt-file" accept=".pdf,.docx,.doc,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+                        <input type="file" id="cvt-restore" accept=".json,application/json" hidden>
+                        <div class="cvt-paste" id="cvt-paste-wrap" hidden data-my-account>
+                            <div class="field"><label for="cvt-paste">Paste the text of your CV</label><textarea id="cvt-paste" rows="8" spellcheck="false" placeholder="Copy everything from your CV document and paste it here."></textarea></div>
+                            <button type="button" class="btn btn-navy cvt-sm" data-act-my="read-paste">Read my CV</button>
+                        </div>
+                        <div class="cvt-import-notes" id="cvt-import-notes" hidden></div>
+                        <div class="cvt-editor-wrap" id="cvt-editor-wrap" hidden data-my-account><div id="cvt-editor" data-no-i18n></div></div>
+                        <p class="cvt-my-more" data-my-account>
+                            <button type="button" class="cvt-link" data-act-my="backup">Download backup</button> ·
+                            <button type="button" class="cvt-link" data-act-my="restore">Restore a backup</button> ·
+                            <button type="button" class="cvt-link is-danger" data-act-my="delete">Delete my CV</button> ·
+                            <a href="privacy.html" target="_blank" rel="noopener">Privacy</a> · <a href="terms.html" target="_blank" rel="noopener">Terms</a>
+                        </p>
+                        <p class="cvt-help">Your files are read in your browser and never uploaded. Only the CV you check is saved, in your account. On a shared computer, log out when you're done: that removes it from the device.</p>
+                    </section>
                     ${step(1, 'The job', `
                     <div class="field-grid">
                         <div class="field"><label for="cvt-role">Job title <small>(optional)</small></label><input id="cvt-role" type="text" autocomplete="off" placeholder="e.g. Mechanical Design Engineer"></div>
@@ -1525,7 +1578,7 @@ function cvTailorPage() {
                     </div>`)}
                     ${step(2, 'What the job asks for, and what you can prove', '<div id="cvt-match" aria-live="polite"></div>', 'cvt-match-card')}
                     ${step(3, 'Choose what goes in', `
-                    <p class="cvt-help">Ticked lines are on the CV, in this order. The bar shows how well each line matches this job (hover for the words it matched). To change the wording of a line, edit it in your master CV so every CV stays true.</p>
+                    <p class="cvt-help">Ticked lines are on the CV, in this order. The bar shows how well each line matches this job (hover for the words it matched). To change the wording of a line, edit it in My CV (step 0) so every CV stays true.</p>
                     <div class="cvt-opts">
                         <label><input type="checkbox" id="cvt-photo"> Photo</label>
                         <label><input type="checkbox" id="cvt-email" checked> Email address</label>
@@ -1553,7 +1606,7 @@ function cvTailorPage() {
                     <div class="cvt-actions"><button type="button" class="btn btn-navy" data-act="check">Check against my CV</button></div>
                     <div id="cvt-check-out" aria-live="polite"></div>`)}
                     <p class="cvt-status" id="cvt-status" role="status" aria-live="polite"></p>
-                    <p class="track-privacy">${icon('check')} <span>This page isn't linked anywhere on the site or shown in search engines, and nothing you paste leaves this browser. Bookmark it.</span></p>
+                    <p class="track-privacy">${icon('check')} <span>Job adverts, saved jobs and drafts stay on this device. Only your CV is kept in your account. <a href="privacy.html">Privacy notice</a> · <a href="terms.html">Terms</a></span></p>
                 </div>
 
                 <div class="cvt-preview">
@@ -1569,7 +1622,7 @@ function cvTailorPage() {
                             <button type="button" class="btn btn-sun" data-act="print">${icon('doc')} Print / save as PDF</button></span>
                         </div>
                         <p class="cvt-help cvt-print-tip">In the print window choose "Save as PDF", paper A4, margins Default, and turn off headers and footers.</p>
-                        <div class="cvt-stage" id="cvt-stage"><article class="cvt-paper" id="cvt-paper" data-no-i18n data-user="edisonochieng24" data-domain="gmail.com" lang="en"></article></div>
+                        <div class="cvt-stage" id="cvt-stage"><article class="cvt-paper" id="cvt-paper" data-no-i18n lang="en"></article></div>
                     </div>
                     <div class="cvt-panel" id="cvt-panel-letter" role="tabpanel" aria-labelledby="cvt-tab-letter" hidden>
                         <div class="cvt-toolbar">
@@ -1598,7 +1651,139 @@ function cvTailorPage() {
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/cv-master.js"></script>\n    <script defer src="../js/cv-tailor-core.js?v=2"></script>\n    <script defer src="../js/cv-tailor.js?v=2"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=14"></script>\n    <script defer src="../js/cv-tailor-core.js?v=3"></script>\n    <script defer src="../js/cv-import.js?v=1"></script>\n    <script defer src="../js/cv-tailor.js?v=3"></script>\n    <script defer src="../js/cv-mycv.js?v=1"></script>\n');
+}
+
+/* ---------- CV tailor: Terms and conditions, Privacy notice ----------
+   Change the text here, then raise TERMS_VERSION in js/cv-mycv.js (and LEGAL_DATE below):
+   everyone is asked to accept the new version the next time they open the CV tailor. */
+const LEGAL_DATE = '22 November 2026';
+function legalPage(file, title, description, kicker, body) {
+    const url = SITE + 'cv-tailor/' + file;
+    const contact = '<a href="../index.html#contact" class="js-email" data-user="edisonochieng24" data-domain="gmail.com">email</a> or <a href="https://wa.me/' + WHATSAPP + '" target="_blank" rel="noopener">WhatsApp ' + WHATSAPP.replace(/^254/, '+254 ').replace(/(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3') + '</a>';
+    return head({ title: title + ' | CV tailor | Nexus CAD Studio', description, url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: title, url, dateModified: '2026-11-22' } }) + '\n' + header('') + `
+    <main id="main">
+        <section class="page-hero theme-violet">
+            <div class="container page-hero-inner narrow">
+                <nav class="crumbs" aria-label="Breadcrumb">
+                    <a href="../index.html">Home</a><span aria-hidden="true">/</span><a href="index.html">CV tailor</a><span aria-hidden="true">/</span><span aria-current="page">${esc(title)}</span>
+                </nav>
+                <p class="page-kicker">${esc(kicker)}</p>
+                <h1 class="page-title">${esc(title)}</h1>
+                <p class="page-byline"><span>Version of ${LEGAL_DATE}</span></p>
+            </div>
+        </section>
+        <section class="section article-wrap">
+            <div class="container narrow">
+                <p class="article-lang-note">This page is available in English only, so that its meaning is exact.</p>
+                <article class="article legal" data-no-i18n>
+${body.replace(/\{contact\}/g, contact)}
+                </article>
+                <p class="cvt-legal-back"><a class="btn btn-navy" href="index.html">Back to the CV tailor ${icon('arrow')}</a></p>
+            </div>
+        </section>
+    </main>
+` + footer();
+}
+
+function cvTermsPage() {
+    return legalPage('terms.html', 'Terms and conditions', 'The terms for using the free CV tailor of Nexus CAD Studio: your account, your CV, accuracy, AI assistants and availability.', 'CV tailor', `
+<p>These terms apply when you use the CV tailor at <a href="index.html">edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/</a>. It is run by Edison Ochieng, trading as Nexus CAD Studio, Nairobi, Kenya ("we", "us"). By ticking "I agree" and using the CV tailor, you accept these terms and our <a href="privacy.html">Privacy notice</a>. If you don't agree, please don't use it.</p>
+
+<h2>1. The service</h2>
+<p>The CV tailor helps you make a CV, cover letter and application email for a specific job, using only the information in the CV you give it. It is a free extra for anyone with a Nexus CAD Studio account. We may change it, add limits, or stop offering it at any time. When we can, we will tell you in advance, so keep a backup of your CV ("Download backup").</p>
+
+<h2>2. Your account</h2>
+<ul>
+<li>You log in with a code sent to your email. Keep access to your email safe: anyone who can read it can log in to your account.</li>
+<li>An account is for one person. Don't share it, and don't use someone else's.</li>
+<li>On a shared or public computer, log out when you finish. Logging out removes the CV tailor's data from that device.</li>
+</ul>
+
+<h2>3. Your CV and content</h2>
+<ul>
+<li>Your CV stays yours. You allow us to store it and show it back to you only so that the CV tailor works for you (see the <a href="privacy.html">Privacy notice</a>).</li>
+<li>Only upload or enter your own CV, or one you have permission to use.</li>
+<li>Don't add anything unlawful, offensive or harmful, or anything that belongs to someone else without permission.</li>
+<li>Leave out information employers don't need, such as your ID number, date of birth, religion, health or bank details.</li>
+</ul>
+
+<h2>4. Accuracy is your responsibility</h2>
+<ul>
+<li>The CV tailor only selects, orders and arranges what is in your CV. It does not check that your CV is true, and it can make mistakes when it reads files.</li>
+<li><strong>Read every CV, cover letter and email before you send it</strong>, and correct anything that is wrong. Never claim a qualification, job, certificate or result you don't have.</li>
+<li>The job match (what you have, what is missing) is an automatic guide, not career or legal advice. We can't promise that using the CV tailor will get you an interview or a job.</li>
+</ul>
+
+<h2>5. AI assistants</h2>
+<p>The CV tailor itself does not send your information to any AI service. If you choose to copy its prompt into an AI assistant (for example ChatGPT, Claude or Gemini), that service's own terms and privacy policy apply, and it may get things wrong. Check its output against your CV; the "Check text" step helps, but it can't catch everything.</p>
+
+<h2>6. Fair use</h2>
+<p>Don't try to access other people's accounts or data, overload or attack the service, copy it in bulk with automated tools, or resell it. We may suspend or close accounts that break these terms or are used for fraud.</p>
+
+<h2>7. Availability and liability</h2>
+<p>The CV tailor is free and is provided "as is", without guarantees that it will always be available or error-free. As far as the law of Kenya allows, we are not responsible for any loss that comes from using it or from not being able to use it, including lost job opportunities or lost data. Nothing in these terms limits rights you have under the law that cannot be limited.</p>
+
+<h2>8. Changes to these terms</h2>
+<p>We may update these terms. The version date is at the top of this page. When the terms change in a way that matters, the CV tailor asks you to read and accept them again before you continue.</p>
+
+<h2>9. Law</h2>
+<p>These terms are governed by the laws of Kenya. If there is a problem, please contact us first so we can try to solve it together.</p>
+
+<h2>10. Contact</h2>
+<p>Questions about these terms: {contact}.</p>`);
+}
+
+function cvPrivacyPage() {
+    return legalPage('privacy.html', 'Privacy notice', 'How the CV tailor and your Nexus CAD Studio account use your personal data: what is stored, where, for how long, and your rights under Kenya\'s Data Protection Act.', 'CV tailor', `
+<p>This notice explains how we handle your personal data when you use your Nexus CAD Studio account and the CV tailor. We follow Kenya's Data Protection Act, 2019. The data controller is Edison Ochieng, trading as Nexus CAD Studio, Nairobi, Kenya. Contact: {contact}.</p>
+
+<h2>What we keep, and why</h2>
+<ul>
+<li><strong>Your account:</strong> your email address, and your name and phone number if you add them, with the dates you created the account and last logged in. We use them to log you in and run your account.</li>
+<li><strong>Your CV, in your account:</strong> the CV you upload, paste or type into the CV tailor (for example your contact details, experience, education, skills and certificates), the date it was last saved, and when you accepted the terms. We keep it so that you can use your CV on any device.</li>
+</ul>
+
+<h2>What stays on your device only</h2>
+<ul>
+<li><strong>Files you upload</strong> (PDF or Word) are read inside your browser. The file itself is never sent to us. Only the CV you check and save is stored in your account.</li>
+<li><strong>Job descriptions, saved jobs, drafts, your prompt, cover letters and emails</strong> are made in your browser and kept in its storage on that device. We never receive them.</li>
+<li>When you <strong>log out</strong>, the CV tailor removes everything it kept on that device.</li>
+</ul>
+<p>The website also counts page visits anonymously with GoatCounter, which doesn't use cookies.</p>
+
+<h2>Why we are allowed to use it</h2>
+<p>We use your data because you asked for the service and agreed to these terms (your consent), and because we need it to provide the account and the CV tailor to you. You can withdraw your consent at any time by deleting your CV (and, if you wish, your account).</p>
+
+<h2>Where it is stored, and who can see it</h2>
+<ul>
+<li>Your account and saved CV are stored in a Google Sheet in our Google account. Google provides the storage as our service provider, and its servers may be outside Kenya; Google protects the data with its own security and contractual safeguards. A copy of the sheet is saved weekly as a backup in our Google Drive and kept for up to 8 weeks.</li>
+<li>On the website, only you can see your CV, after logging in. Nobody else can list or search CVs.</li>
+<li>As the administrator, Edison can technically open the sheet. We only look at a saved CV when you ask for help, to fix a problem, to stop abuse, or when the law requires it.</li>
+<li>We <strong>don't sell</strong> your data, don't share your CV with employers or anyone else, and don't use it for advertising. You only get our newsletter if you subscribe to it separately.</li>
+</ul>
+
+<h2>How long we keep it</h2>
+<ul>
+<li>Your CV stays in your account until you delete it. <strong>"Delete my CV"</strong> removes it from your account and the device straight away; backup copies are gone within 8 weeks.</li>
+<li>To delete your whole account, contact us and we will do it within 30 days.</li>
+<li>We may delete CVs of accounts that haven't been used for 2 years.</li>
+</ul>
+
+<h2>Your rights</h2>
+<p>Under the Data Protection Act you can ask to be informed about how your data is used, to see it, to correct it, to delete it, to object to its use, and to get a copy you can take elsewhere. You can do most of this yourself in the CV tailor ("Check / edit my CV", "Download backup", "Delete my CV"); for anything else, contact us. If you are not happy with how we handled your data, you can complain to the Office of the Data Protection Commissioner (<a href="https://www.odpc.go.ke/" target="_blank" rel="noopener">odpc.go.ke</a>).</p>
+
+<h2>Keeping it safe</h2>
+<p>You log in with a one-time code sent to your email, sessions end after 30 days, data travels over encrypted connections (HTTPS), and only your login can read your CV from the website. No system is completely secure, so please leave out information employers don't need (such as your ID number, date of birth or bank details), and log out on shared computers.</p>
+
+<h2>AI assistants</h2>
+<p>The CV tailor does not send your data to any AI service. If you copy its prompt into an AI assistant yourself, that service's privacy policy applies to what you paste there.</p>
+
+<h2>Children</h2>
+<p>If you are under 18, please use the CV tailor with the permission of a parent or guardian.</p>
+
+<h2>Changes</h2>
+<p>If this notice changes in a way that matters, the version date above changes and the CV tailor asks you to accept it again.</p>`);
 }
 
 /* ---------- Review-request link maker (for Edison) ---------- */
@@ -1931,6 +2116,7 @@ function accountPage() {
                 <div id="account-app" aria-live="polite">
                     <noscript><p>Please turn on JavaScript to log in.</p></noscript>
                 </div>
+                <p class="acct-privacy"><a class="btn btn-outline" href="../cv-tailor/index.html">Free CV tailor: a matching CV, cover letter and email for every job ${icon('arrow')}</a></p>
                 <p class="acct-privacy">${icon('check')} <span>We only use your email to log you in and show your own records. Questions? <a href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener">WhatsApp me</a>.</span></p>
             </div>
         </section>
@@ -1993,6 +2179,9 @@ ${[
         u('cv/', '0.8', 'monthly'),
         u('calculators/', '0.9', 'monthly'),
         u('quote/', '0.8', 'monthly'),
+        u('cv-tailor/', '0.7', 'monthly'),
+        u('cv-tailor/terms.html', '0.2', 'yearly'),
+        u('cv-tailor/privacy.html', '0.2', 'yearly'),
         u('steel/', '0.8', 'monthly'),
         u('exams/', '0.8', 'monthly'),
         u('verify/', '0.4', 'yearly'),
@@ -2045,6 +2234,7 @@ function searchIndex(projects, posts) {
         { k: 'page', t: 'Print size & DPI calculator', d: 'Pixels needed for A4, A3, A1, banners and business cards, and check if your image is big enough.', u: 'calculators/index.html#print', x: 'print size dpi pixels resolution a4 a3 a2 a1 a0 banner roll-up bleed poster image quality calculator tool free' },
         { k: 'page', t: 'Engineering unit converter', d: 'Convert length, area, mass, force, pressure, torque and temperature units.', u: 'calculators/index.html#units', x: 'unit converter mm inch mpa psi newton lbf torque nm kg lb celsius fahrenheit conversion tool free' },
         { k: 'page', t: 'Online CV', d: 'Experience, education, skills and certifications. Download as PDF.', u: 'cv/index.html', x: 'cv resume curriculum vitae hire job employment experience education skills portfolio pdf' },
+        { k: 'page', t: 'Free CV tailor', d: 'Upload your CV and make a matching CV, cover letter and application email for every job advert. Free with an account.', u: 'cv-tailor/index.html', x: 'cv resume tailor job application cover letter email ats keywords match advert vacancy graduate internship attachment' },
         { k: 'page', t: 'Verify a certificate', d: 'Check a Nexus CAD Studio training certificate with its code.', u: 'verify/index.html', x: 'verify certificate code training trainee check authentic employer' },
         { k: 'page', t: 'Track your project', d: 'Check the status of your project with your reference.', u: 'track/index.html', x: 'status progress order client reference tracker delivery' },
         { k: 'page', t: 'CAD Tips', d: 'All articles on CAD software, DFM and working with a designer.', u: 'blog/index.html', x: 'blog articles tips tutorials' },
@@ -2110,6 +2300,8 @@ write('cv/index.html', cvPage(loadCV()));
     const master = CVM.buildMaster(ROOT);
     write('js/cv-master.js', CVM.masterJs(master));
     write('cv-tailor/index.html', cvTailorPage());
+    write('cv-tailor/terms.html', cvTermsPage());
+    write('cv-tailor/privacy.html', cvPrivacyPage());
 }
 write('calculators/index.html', calculatorsPage());
 write('request-review/index.html', reviewLinkPage());
@@ -2167,7 +2359,7 @@ function wantedTranslations() {
         for (const m of h.matchAll(/\s(?:alt|title|placeholder|aria-label)="([^"]*)"/g)) add(m[1]);
         h.replace(/^[\s\S]*?<body[^>]*>/i, '').split(/<[^>]+>/).forEach(add);
     };
-    Object.keys(written).filter((f) => f.endsWith('.html') && !f.startsWith('share/') && !f.startsWith('downloads/')).forEach((f) => fromHtml(written[f]));   // pages only; share/ is for you, in English
+    Object.keys(written).filter((f) => f.endsWith('.html') && !f.startsWith('share/') && !f.startsWith('downloads/') && !/^cv-tailor\/(terms|privacy)\.html$/.test(f)).forEach((f) => fromHtml(written[f]));   // pages only; share/ is for you, in English
     fromHtml(updated);
     const deep = (v) => { if (typeof v === 'string') add(v); else if (Array.isArray(v)) v.forEach(deep); else if (v && typeof v === 'object') pick(v); };
     const skip = new Set(['id', 'theme', 'icon', 'cover', 'gallery', 'pdf', 'model', 'href', 'category', 'file', 'verify', 'linkedin', 'phone', 'year', 'tone']);

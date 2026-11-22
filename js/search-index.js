@@ -268,6 +268,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "Free CV tailor",
+  "d": "Upload your CV and make a matching CV, cover letter and application email for every job advert. Free with an account.",
+  "u": "cv-tailor/index.html",
+  "x": "cv resume tailor job application cover letter email ats keywords match advert vacancy graduate internship attachment"
+ },
+ {
+  "k": "page",
   "t": "Verify a certificate",
   "d": "Check a Nexus CAD Studio training certificate with its code.",
   "u": "verify/index.html",

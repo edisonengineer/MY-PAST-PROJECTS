@@ -1,10 +1,37 @@
-# CV tailor: a true CV for each job
+# CV tailor: a true CV, cover letter and email for every job
 
-**Address:** `https://edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/` (bookmark it).
-The page isn't linked anywhere on the site, is hidden from search engines (`noindex` + `robots.txt`) and works offline once opened.
-Nothing you paste leaves your browser.
+**Address:** `https://edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/`, linked from the site footer ("Free CV tailor"), the account page and the site search.
 
-## Daily use
+**Who can use it:** anyone with a (free) Nexus CAD Studio account. A shared link always opens the log-in screen first; after logging in (a code by email, no password) the visitor comes straight back to the tool. The first time, and whenever the terms change, they must tick that they accept the [Terms and conditions](../cv-tailor/terms.html) and the [Privacy notice](../cv-tailor/privacy.html).
+
+## ⚠️ One-time set-up: update the Google Sheet script
+
+Saving CVs to accounts needs the new version of `tools/google-sheet-script.gs` (it adds the **CVs** tab):
+
+1. Open your Google Sheet → **Extensions → Apps Script**. Select everything, paste the whole of `tools/google-sheet-script.gs`, save.
+2. Choose **setup** in the function list and click **Run** (this creates the CVs tab).
+3. **Deploy → Manage deployments → pencil icon → Version: New version → Deploy.** The link stays the same.
+
+Until you do this, logged-in visitors can still use the tool, but their CV is only kept on their own device and the page says it couldn't reach their account.
+
+## For clients (and you): My CV
+
+Step **0 · My CV** holds the person's own CV:
+
+- **Upload CV (PDF or Word):** the file is read *in the browser* (never uploaded). Word `.docx` and text PDFs work; old `.doc` files must be saved as `.docx` or PDF first, and scanned (picture) PDFs have no text to read, so paste the text instead.
+- **Paste CV text:** for anything else.
+- **Check / edit my CV:** the result is always shown in an editor (name and contact, profile, roles with one point per line, projects, education, skills, certificates with *what it is*: certification / course / award, languages, memberships). Reading CVs is guesswork, so people are asked to check it.
+- Every change is saved on the device at once and **in their account** a few seconds later ("Saved in your account · date"). On another computer they log in and their CV is there.
+- **Download backup / Restore a backup:** a `.json` file of their CV. **Delete my CV:** removes it from their account and the device.
+- **Log out** removes everything the tool kept on that device (CV copy, saved jobs, drafts, prompt). Tell clients to log out on shared computers.
+
+**Your own account** (`SITE_CONFIG.cvTailor.owner` in `js/config.js`) also gets a "CV to use" choice: *the website CV* (built from `content/cv.js`, your projects and certificates, as before) or *the CV saved in my account*.
+
+**Where client CVs are kept:** the **CVs** tab of your Google Sheet: one row per account (email, last saved, terms version and date, size, and the CV as text over the "CV data" columns). Only the logged-in owner of a row can read or change it from the website; nobody can list CVs. If someone asks you to delete their data, delete their row there (and in *Accounts*). The weekly sheet backups keep copies for up to 8 weeks, as the privacy notice says.
+
+**Terms and privacy:** the text is in `tools/build-pages.js` (`cvTermsPage`, `cvPrivacyPage`). If you change them in a way that matters, change `LEGAL_DATE` there and `TERMS_VERSION` in `js/cv-mycv.js`: everyone is asked to accept again. The texts were written for this tool and Kenya's Data Protection Act, 2019, but they are not legal advice: have them checked if you want certainty, and make sure what they promise stays true (e.g. deleting accounts within 30 days when asked).
+
+## Daily use (steps 1–5)
 
 1. **The job.** Paste the whole job advert. Optionally add the job title, company, a focus area (Mechanical CAD, FEA / Simulation, Sheet metal / DFM, Engineering + web / automation, Graphic design) and the length (1 or 2 pages).
 2. **What the job asks for.** Every tool, method, standard and soft skill found in the advert, marked as *required*, *mentioned* or *nice to have*, and coloured:
@@ -30,9 +57,9 @@ The job-portfolio link comes from `portfolio:` in `content/cv.js`.
 
 **Save job** keeps the job and your choices in this browser (up to 25). **Clear / new job** starts fresh. Saved jobs and your prompt are kept.
 
-## Where the facts come from (the "master CV")
+## Your website CV (Edison's "master CV")
 
-The tailor never has its own copy of your CV. `node tools/build-pages.js` (run automatically by GitHub after every edit and every sheet sync) builds `js/cv-master.js` from:
+When you choose *the website CV*, the tailor never has its own copy of your CV. `node tools/build-pages.js` (run automatically by GitHub after every edit and every sheet sync) builds `js/cv-master.js` from:
 
 | What | Edit it in |
 |---|---|
@@ -57,11 +84,14 @@ After editing locally: `node tools/build-pages.js && node tools/test-cv-tailor.j
 - **Keywords:** `TERMS` at the top of `js/cv-tailor-core.js`, with one line per term: `[id, label, group, pattern]`. Add the id to a `FOCUS` list to make it count extra for that focus area.
 - **Prompt presets and the hard rules:** `PRESETS` and `RULES` in the same file. The rules are always added to the prompt and can't be switched off on the page.
 - **Default lengths:** `LIMITS` (how many bullets, projects, skills and certificates are ticked for 1 and 2 pages).
+- **Fonts on the printed CV and letter:** fixed-weight copies of the site fonts in `fonts/print/` (made by `tools/build-print-fonts.py`). The site's own fonts are variable fonts, which Chrome puts into a PDF as "Type 3" drawings: thin letters (l, I, i, 1, .) then look unevenly dark in many PDF viewers, and CV-reading software (ATS) reads them less reliably. With the static copies the PDF has real TrueType fonts. Keep the sheet's weights to 400, 600 and 700 (the ones that exist).
 - **Look of the printed CV:** `.cvt-paper` / `.cvp-*` in `css/cv-tailor.css`. After changing a file, raise its `?v=` number in `tools/build-pages.js` (`cvTailorPage`) and run the build, so browsers and the offline app fetch the new copy.
 
 ## Checks
 
-- `node tools/test-cv-tailor.js` runs 179 checks. It confirms that hidden items never reach the master CV and that every tailored line is a master line, word for word, across 6 sample job adverts × every focus × both lengths. It also checks that prep courses never count as certifications, that the fact checker catches invented numbers, employers and tools, and that old saved choices don't break anything. For 90 combinations of job, focus and tone, it checks that every letter and email fact has a real source, that only proven skills are named, that nothing fails the fact check, and that "Hiring Team" is the default. GitHub runs it after every rebuild and sheet sync.
-- `node tools/check-site.js` also loads `cv-tailor/` and `js/cv-master.js`.
+- `node tools/test-cv-tailor.js` runs 186 checks, including clients' CVs: pasted text, Word and PDF layouts are sorted into the right places, untrusted data is cleaned, and a client's CV, letter and email contain only their own facts.
+- `node tools/test-cv-sheet.js` runs the real Google Sheet script against stand-ins for Google's services: nothing is stored before the terms are accepted, a CV comes back exactly as saved (also when split over cells), other accounts and wrong tokens are refused, delete removes the row.
+- Earlier checks in `test-cv-tailor.js`: It confirms that hidden items never reach the master CV and that every tailored line is a master line, word for word, across 6 sample job adverts × every focus × both lengths. It also checks that prep courses never count as certifications, that the fact checker catches invented numbers, employers and tools, and that old saved choices don't break anything. For 90 combinations of job, focus and tone, it checks that every letter and email fact has a real source, that only proven skills are named, that nothing fails the fact check, and that "Hiring Team" is the default. GitHub runs both after every rebuild and sheet sync.
+- `node tools/check-site.js` checks `cv-tailor/` (now in the sitemap), its terms and privacy pages, and `js/cv-master.js`.
 
 Translations: the page's buttons and labels go to `js/i18n-wanted.json`, and the Google Sheet's hourly translation job fills in French and Kiswahili like the rest of the site. The CV sheet itself stays in English, like the online CV.
