@@ -1,0 +1,80 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1d1d1f;
+  --muted: #6b6b70;
+  --border: #e3e3e6;
+  --accent: #c2410c;
+  --accent-fg: #ffffff;
+  --soft: #f5f5f7;
+  --error: #b42318;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e;
+    --fg: #f2f2f7;
+    --muted: #a1a1a6;
+    --border: #3a3a3c;
+    --accent: #f97316;
+    --accent-fg: #1c1c1e;
+    --soft: #2c2c2e;
+    --error: #ff6b6b;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  width: 420px;
+  min-height: 160px;
+  padding: 14px 16px 16px;
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+header { display: flex; align-items: center; justify-content: space-between; }
+h1 { font-size: 15px; margin: 0; font-weight: 650; }
+.page-title {
+  margin: 6px 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.controls { display: flex; gap: 8px; }
+select, button {
+  font: inherit;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--soft);
+  color: var(--fg);
+  padding: 7px 10px;
+  cursor: pointer;
+}
+button.primary {
+  flex: 1;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: transparent;
+  font-weight: 600;
+}
+button.primary:disabled { opacity: 0.6; cursor: default; }
+button.icon { background: none; border: none; font-size: 17px; padding: 2px 6px; color: var(--muted); }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.status { margin-top: 10px; font-size: 12px; color: var(--muted); min-height: 1em; }
+.status.error { color: var(--error); }
+.output {
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.output h3 { font-size: 14px; margin: 12px 0 4px; }
+.output h3:first-child { margin-top: 0; }
+.output p { margin: 0 0 8px; }
+.output ul { margin: 0 0 8px; padding-left: 18px; }
+.output li { margin-bottom: 4px; }
+.output code { background: var(--soft); padding: 0 4px; border-radius: 4px; }
+footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+a { color: var(--accent); }

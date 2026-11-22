@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Article Summarizer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>Article Summarizer</h1>
+    <button id="settings" class="icon" title="Settings" aria-label="Settings">⚙</button>
+  </header>
+
+  <div id="page" class="page-title"></div>
+
+  <div class="controls">
+    <select id="length" aria-label="Summary length">
+      <option value="short">Short</option>
+      <option value="medium">Medium</option>
+      <option value="detailed">Detailed</option>
+    </select>
+    <button id="go" class="primary">Summarize</button>
+    <button id="stop" class="secondary" hidden>Stop</button>
+  </div>
+
+  <div id="status" class="status" role="status"></div>
+  <div id="output" class="output" hidden></div>
+
+  <footer id="actions" hidden>
+    <button id="copy" class="secondary">Copy</button>
+    <button id="redo" class="secondary">Regenerate</button>
+  </footer>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
