@@ -10,7 +10,7 @@
    deleted when the new worker takes over. Don't edit between the markers.
    ========================================================================= */
 /* PRECACHE:START */
-const VERSION = '83f7ba00c2';
+const VERSION = '65eaf9c266';
 const PRECACHE = [
     "./",
     "index.html",
@@ -62,7 +62,7 @@ const PRECACHE = [
     "calculators/index.html",
     "js/calculators.js?v=1",
     "cv-tailor/index.html",
-    "css/cv-tailor.css?v=4",
+    "css/cv-tailor.css?v=5",
     "js/cv-tailor-core.js?v=3",
     "js/cv-import.js?v=1",
     "js/cv-tailor.js?v=3",

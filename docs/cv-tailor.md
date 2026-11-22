@@ -84,6 +84,7 @@ After editing locally: `node tools/build-pages.js && node tools/test-cv-tailor.j
 - **Keywords:** `TERMS` at the top of `js/cv-tailor-core.js`, with one line per term: `[id, label, group, pattern]`. Add the id to a `FOCUS` list to make it count extra for that focus area.
 - **Prompt presets and the hard rules:** `PRESETS` and `RULES` in the same file. The rules are always added to the prompt and can't be switched off on the page.
 - **Default lengths:** `LIMITS` (how many bullets, projects, skills and certificates are ticked for 1 and 2 pages).
+- **Fonts on the printed CV and letter:** fixed-weight copies of the site fonts in `fonts/print/` (made by `tools/build-print-fonts.py`). The site's own fonts are variable fonts, which Chrome puts into a PDF as "Type 3" drawings: thin letters (l, I, i, 1, .) then look unevenly dark in many PDF viewers, and CV-reading software (ATS) reads them less reliably. With the static copies the PDF has real TrueType fonts. Keep the sheet's weights to 400, 600 and 700 (the ones that exist).
 - **Look of the printed CV:** `.cvt-paper` / `.cvp-*` in `css/cv-tailor.css`. After changing a file, raise its `?v=` number in `tools/build-pages.js` (`cvTailorPage`) and run the build, so browsers and the offline app fetch the new copy.
 
 ## Checks

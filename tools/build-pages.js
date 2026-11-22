@@ -1484,7 +1484,7 @@ function cvTailorPage() {
     const description = 'Free CV tailor for members: upload your CV (PDF or Word), paste a job advert, and get a matching one-page CV, cover letter and application email built only from your real experience.';
     return head({ title: 'Free CV tailor: CV, cover letter & email for every job | Nexus CAD Studio', description, url, image: SITE + 'og-image.jpg?v=2', type: 'website',
         jsonld: { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'CV tailor', url, description, applicationCategory: 'BusinessApplication', operatingSystem: 'Any', offers: { '@type': 'Offer', price: 0, priceCurrency: 'KES' } } })
-        .replace('</head>', '    <link rel="stylesheet" href="../css/cv-tailor.css?v=4">\n</head>') + '\n' + header('').replace('<body class="subpage">', '<body class="subpage cvt-body">') + `
+        .replace('</head>', '    <link rel="stylesheet" href="../css/cv-tailor.css?v=5">\n</head>') + '\n' + header('').replace('<body class="subpage">', '<body class="subpage cvt-body">') + `
     <main id="main">
         <section class="page-hero theme-violet cvt-hero">
             <div class="container page-hero-inner">

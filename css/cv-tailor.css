@@ -3,6 +3,14 @@
    The .cvt-paper sheet is always light (it is what gets printed), and
    @media print hides everything else so the browser saves a clean A4 PDF.
    ========================================================================= */
+/* Fixed-weight fonts for the printed CV and letter (tools/build-print-fonts.py). The site's variable
+   fonts end up as "Type 3" drawings in a PDF saved from Chrome: thin letters (l, I, i, 1, .) look
+   darker in PDF viewers and CV-reading software (ATS) reads the text less reliably. */
+@font-face { font-family: 'CV Sans'; font-weight: 400; font-style: normal; font-display: swap; src: url(../fonts/print/cv-sans-400.woff2) format('woff2'); }
+@font-face { font-family: 'CV Sans'; font-weight: 600; font-style: normal; font-display: swap; src: url(../fonts/print/cv-sans-600.woff2) format('woff2'); }
+@font-face { font-family: 'CV Sans'; font-weight: 700; font-style: normal; font-display: swap; src: url(../fonts/print/cv-sans-700.woff2) format('woff2'); }
+@font-face { font-family: 'CV Serif'; font-weight: 600; font-style: normal; font-display: swap; src: url(../fonts/print/cv-serif-600.woff2) format('woff2'); }
+
 .cvt-hero .page-lede { max-width: 760px; }
 .cvt-truth { margin-top: 18px; display: flex; gap: 10px; align-items: flex-start; max-width: 760px; font-size: 0.92rem; color: rgba(255, 255, 255, 0.86); }
 .cvt-truth svg { flex: 0 0 18px; width: 18px; height: 18px; color: var(--sun); margin-top: 2px; }
@@ -106,6 +114,9 @@
 
 /* The sheet: A4 at real size, scaled down on screen by js/cv-tailor.js */
 .cvt-paper {
+    --sans: 'CV Sans', Arial, Helvetica, sans-serif;   /* everything on the sheet uses the static fonts */
+    --serif: 'CV Serif', Georgia, 'Times New Roman', serif;
+    font-synthesis: none;   /* never fake a bold or italic: only the real weights above */
     width: 210mm; min-height: 297mm; padding: 13mm 14mm; transform-origin: top left; background: #fff; color: #18203a;
     font: 9.6pt/1.42 var(--sans); letter-spacing: -0.003em;
     /* faint line where each A4 page ends */
@@ -118,7 +129,7 @@
 .cvp-title { font-weight: 700; color: #c43d22; font-size: 10.5pt; margin-top: 1mm; }
 .cvp-contact { margin-top: 1.5mm; font-size: 8.6pt; color: #4c5470; }
 .cvt-paper section { margin-top: 3.6mm; }
-.cvt-paper h2 { font-size: 8pt; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #0e1a3a; padding-bottom: 1mm; border-bottom: 1px solid #e2d9c8; margin-bottom: 2mm; }
+.cvt-paper h2 { font-size: 8pt; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #0e1a3a; padding-bottom: 1mm; border-bottom: 1px solid #e2d9c8; margin-bottom: 2mm; }
 .cvt-paper p { color: #333a52; }
 .cvp-key { margin-top: 1.6mm; font-size: 9pt; }
 .cvp-key strong { color: #0e1a3a; }
@@ -130,7 +141,7 @@
 .cvp-org { font-size: 9pt; font-weight: 600; color: #1f4fd1 !important; }
 .cvt-paper ul { margin-top: 1mm; display: grid; gap: 0.7mm; }
 .cvt-paper li { position: relative; padding-left: 3.6mm; color: #333a52; }
-.cvt-paper li::before { content: ''; position: absolute; left: 0.4mm; top: 0.58em; width: 1.3mm; height: 1.3mm; border-radius: 50%; background: #c43d22; }
+.cvt-paper li::before { content: '\2022'; position: absolute; left: 0.3mm; top: 0; color: #c43d22; font-weight: 700; }   /* a real bullet character: shows in every PDF viewer and in ATS text */
 /* 1-page mode: a little tighter, still easy to read */
 .cvt-paper.is-compact { font-size: 9pt; line-height: 1.36; }
 .cvt-paper.is-compact section { margin-top: 3mm; }
