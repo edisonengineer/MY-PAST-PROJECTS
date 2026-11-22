@@ -198,6 +198,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "Start here: choose your path",
+  "d": "Hire me for CAD and FEA, join CAD training, or practise for your SolidWorks certification.",
+  "u": "start/index.html",
+  "x": "start here begin help guide path choose hire training course learn exam certification cswa cswp where"
+ },
+ {
+  "k": "page",
   "t": "SolidWorks exam practice (CSWA & CSWP-style)",
   "d": "Timed SolidWorks practice tests: parts to model in 3 stages, centre of mass, theory with new numbers every time, instant marking. Endless exam generator. Free sample test and demo.",
   "u": "exams/index.html",

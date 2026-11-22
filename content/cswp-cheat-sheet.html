@@ -1,0 +1,143 @@
+<!-- The SolidWorks CSWP quick-reference cheat sheet (the free download on the exams, blog and course pages).
+     tools/build-pages.js wraps this in downloads/cswp-cheat-sheet.html; tools/build-cheat-sheet.js makes the PDF and preview. -->
+<section class="cs-box cs-wide cs-habits">
+    <h2><span>1</span> Exam habits that save marks</h2>
+    <ul>
+        <li><b>Units first.</b> Tools › Options › Document Properties › Units: <b>MMGS</b>, and the decimal places the question asks for (usually 2).</li>
+        <li><b>Save each stage as a new file</b> (Part_S1, Part_S2, Part_S3). A later mistake never costs you an earlier answer.</li>
+        <li><b>Read the whole question</b> before you sketch: origin position, material, units and which sizes change in later stages.</li>
+        <li><b>Rebuild before you read results:</b> Ctrl+Q forces a full rebuild.</li>
+        <li><b>Far off the answer choices?</b> Answers are usually accepted within about 1%, so a big miss is a modelling error (a cut through all, the wrong material, the wrong origin), not rounding.</li>
+    </ul>
+</section>
+
+<section class="cs-box">
+    <h2><span>2</span> Mass properties</h2>
+    <ul>
+        <li>Evaluate › <b>Mass Properties</b>. Set the material first: right-click <i>Material</i> in the tree › Edit Material.</li>
+        <li><b>Mass = volume × density.</b> 1 g/cm³ = 1000 kg/m³ = 0.001 g/mm³.</li>
+        <li>The <b>centre of mass</b> is measured from the part origin, unless you pick a coordinate system under "Report coordinate values relative to".</li>
+        <li>Drawing origin not at your part origin? Insert › Reference Geometry › <b>Coordinate System</b> at that point, then report relative to it.</li>
+        <li>Mass Properties shows the <b>active configuration</b> only.</li>
+    </ul>
+    <table class="cs-table">
+        <thead><tr><th>Material (SOLIDWORKS library)</th><th>kg/m³</th></tr></thead>
+        <tbody>
+            <tr><td>1060 Alloy · 6061-T6 (SS)</td><td>2700</td></tr>
+            <tr><td>Plain Carbon Steel</td><td>7800</td></tr>
+            <tr><td>AISI 1020</td><td>7900</td></tr>
+            <tr><td>AISI 304</td><td>8000</td></tr>
+            <tr><td>Cast Alloy Steel</td><td>7300</td></tr>
+            <tr><td>Brass · Copper</td><td>8500 · 8900</td></tr>
+            <tr><td>ABS</td><td>1020</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="cs-box">
+    <h2><span>3</span> Equations and global variables</h2>
+    <ul>
+        <li>Tools › <b>Equations</b>. Names go in double quotes.</li>
+        <li>Global variable: <code>"Width" = 80</code></li>
+        <li>Dimension: <code>"D1@Sketch1" = "Width" / 2 - 5</code></li>
+        <li>Choice: <code>IIF("Width" &gt; 60, 6, 4)</code></li>
+        <li>Whole number: <code>int(("L" - 2 * "E") / 40) + 1</code></li>
+        <li>A dimension driven by an equation shows <b>Σ</b>. Change the variable, not the dimension.</li>
+        <li>Rename key dimensions (e.g. <i>Width@Sketch1</i>) so equations stay readable.</li>
+        <li>Order matters: × and ÷ come before + and −. Use brackets.</li>
+    </ul>
+</section>
+
+<section class="cs-box">
+    <h2><span>4</span> Configurations and design tables</h2>
+    <ul>
+        <li>Insert › Tables › <b>Design Table</b> (an Excel sheet inside the part).</li>
+        <li>First column = <b>configuration names</b>. Header row = what each column controls.</li>
+    </ul>
+    <table class="cs-table cs-code">
+        <thead><tr><th>Header</th><th>Controls</th></tr></thead>
+        <tbody>
+            <tr><td>D1@Sketch1</td><td>a dimension</td></tr>
+            <tr><td>$STATE@Fillet1</td><td>S = suppressed, U = unsuppressed</td></tr>
+            <tr><td>$PRP@Description</td><td>a custom property</td></tr>
+            <tr><td>$CONFIGURATION@Bolt&lt;1&gt;</td><td>a component's configuration (assembly)</td></tr>
+            <tr><td>$STATE@Bolt&lt;1&gt;</td><td>suppress a component (assembly)</td></tr>
+        </tbody>
+    </table>
+    <ul>
+        <li>Editing a value: <b>This configuration</b> changes one, <b>All configurations</b> changes every one.</li>
+        <li><b>Derived</b> configurations inherit everything they don't change from their parent.</li>
+    </ul>
+</section>
+
+<section class="cs-box">
+    <h2><span>5</span> Assemblies: mates</h2>
+    <table class="cs-table">
+        <thead><tr><th>Mate</th><th>Rule</th></tr></thead>
+        <tbody>
+            <tr><td>Linear coupler r₁ : r₂</td><td>d₂ = d₁ × r₂ ÷ r₁</td></tr>
+            <tr><td>Gear N₁ : N₂ (teeth)</td><td>turns₂ = turns₁ × N₁ ÷ N₂</td></tr>
+            <tr><td>Rack and pinion</td><td>travel per turn = π × pitch Ø</td></tr>
+            <tr><td>Screw (pitch p)</td><td>distance = turns × p</td></tr>
+            <tr><td>Distance / angle limit</td><td>stays between min and max</td></tr>
+        </tbody>
+    </table>
+    <ul>
+        <li><b>Width:</b> centres a tab between two faces. <b>Symmetric:</b> mirror about a plane. <b>Path:</b> a point along a curve. <b>Cam:</b> follower on a profile.</li>
+        <li>The first component is <b>fixed (f)</b>; right-click › Float to move it.</li>
+        <li>Assembly centre of mass: from the assembly origin, or a coordinate system you choose.</li>
+    </ul>
+</section>
+
+<section class="cs-box">
+    <h2><span>6</span> Interference and collisions</h2>
+    <ul>
+        <li>Evaluate › <b>Interference Detection</b> checks the assembly <b>where it is now</b>, and lists each clash with its volume.</li>
+        <li><b>Treat coincidence as interference</b> also lists faces that only touch.</li>
+        <li>Move Component › <b>Collision Detection</b> › <i>Stop at collision</i>: dragging stops when parts touch. <i>Physical Dynamics</i> pushes them instead.</li>
+        <li><b>Clearance Verification</b> lists gaps smaller than a value you set.</li>
+        <li>Pin Ø d in hole Ø D: clearance = D − d. If d &gt; D, the overlap volume is π/4 × (d² − D²) × length.</li>
+        <li>Tools › Evaluate › <b>Measure</b> for distances and angles between any two entities.</li>
+    </ul>
+</section>
+
+<section class="cs-box">
+    <h2><span>7</span> Sheet metal</h2>
+    <table class="cs-table">
+        <tbody>
+            <tr><td>Bend allowance</td><td>BA = θ × π/180 × (R + K·T)</td></tr>
+            <tr><td>K-factor</td><td>K = t ÷ T (usually 0.3–0.5)</td></tr>
+            <tr><td>Outside setback</td><td>OSSB = tan(θ/2) × (R + T)</td></tr>
+            <tr><td>Bend deduction</td><td>BD = 2 × OSSB − BA</td></tr>
+            <tr><td>Flat length (outside sizes)</td><td>L₁ + L₂ − BD</td></tr>
+        </tbody>
+    </table>
+    <p class="cs-small">R = inside radius, T = thickness, θ = bend angle, t = distance from the inside face to the neutral axis.</p>
+</section>
+
+<section class="cs-box">
+    <h2><span>8</span> Simulation hand checks</h2>
+    <table class="cs-table">
+        <tbody>
+            <tr><td>Axial stress</td><td>σ = F ÷ A (N/mm² = MPa)</td></tr>
+            <tr><td>Factor of safety</td><td>FoS = yield ÷ max von Mises</td></tr>
+            <tr><td>Rectangle, b × h</td><td>I = b·h³ ÷ 12</td></tr>
+            <tr><td>Cantilever, end load</td><td>δ = F·L³ ÷ (3·E·I)</td></tr>
+            <tr><td>Cantilever, bending</td><td>σ = 6·F·L ÷ (b·h²)</td></tr>
+        </tbody>
+    </table>
+    <p class="cs-small">E: steel ≈ 210 GPa, aluminium ≈ 69 GPa. If the simulation and the hand check differ a lot, check units, fixtures and the load direction.</p>
+</section>
+
+<section class="cs-box">
+    <h2><span>9</span> Shortcuts</h2>
+    <table class="cs-table cs-keys">
+        <tbody>
+            <tr><td>Ctrl+Q</td><td>Full rebuild</td><td>F</td><td>Zoom to fit</td></tr>
+            <tr><td>Ctrl+B</td><td>Rebuild</td><td>Space</td><td>View orientation</td></tr>
+            <tr><td>Ctrl+1</td><td>Front view</td><td>Ctrl+7</td><td>Isometric</td></tr>
+            <tr><td>Ctrl+5</td><td>Top view</td><td>Ctrl+8</td><td>Normal to</td></tr>
+            <tr><td>S</td><td>Shortcut bar</td><td>Tab</td><td>Hide component</td></tr>
+        </tbody>
+    </table>
+</section>

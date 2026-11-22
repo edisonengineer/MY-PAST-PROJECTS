@@ -43,7 +43,7 @@
     <link rel="preload" href="fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 
-    <link rel="stylesheet" href="css/style.css?v=39">
+    <link rel="stylesheet" href="css/style.css?v=40">
     <script>
         document.documentElement.classList.add('js');
         (function () {
@@ -260,6 +260,7 @@
             </a>
 
             <nav class="site-nav" id="site-nav" aria-label="Primary">
+                <a href="start/index.html">Start here</a>
                 <a href="#services">Services</a>
                 <a href="#work">Work</a>
                 <a href="#experience">Experience</a>
@@ -331,6 +332,7 @@
                             <svg><use href="#i-whatsapp"/></svg> Chat on WhatsApp
                         </a>
                     </div>
+                    <a class="hero-path" href="start/index.html" data-track="hero-choose-path"><span>Not sure where to start?</span> <strong>Choose your path</strong> <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
                     <a class="hero-rating" id="hero-rating" href="#reviews" hidden>
                         <span class="hr-stars" aria-hidden="true"><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg></span>
                         <strong class="hr-score"></strong>
@@ -404,6 +406,59 @@
         </section>
 
         <!-- ===================== SERVICES ===================== -->
+        <!-- PATHS:START -->
+        <section class="section paths" id="paths" aria-labelledby="paths-title">
+            <div class="container">
+                <header class="section-head center">
+                    <p class="kicker">Choose your path</p>
+                    <h2 class="section-title" id="paths-title">Where would you like to <em>start</em>?</h2>
+                    <p class="section-lede">Pick what you need and go straight there.</p>
+                </header>
+                <div class="path-grid">
+                    <article class="path-card theme-blue" id="path-hire">
+                        <div class="path-top"><span class="path-icon"><svg aria-hidden="true"><use href="#i-gear"/></svg></span><span class="path-letter" aria-hidden="true">A</span></div>
+                        <p class="path-kicker">For clients</p>
+                        <h3 class="path-title">Hire me for CAD &amp; FEA</h3>
+                        <p class="path-text">3D models, manufacturing drawings and FEA simulation for your product, machine or fabrication job.</p>
+                        <ul class="path-links">
+                            <li><a href="index.html#services">Services <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                            <li><a href="index.html#estimator">Instant cost estimate <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                            <li><a href="index.html#pricing">Packages &amp; prices <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                            <li><a href="index.html#work">Past projects <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                        </ul>
+                        <a class="btn btn-sun btn-block" href="index.html#brief" data-track="path-hire">Send a project brief <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+                    </article>
+                    <article class="path-card theme-teal" id="path-train">
+                        <div class="path-top"><span class="path-icon"><svg aria-hidden="true"><use href="#i-cap"/></svg></span><span class="path-letter" aria-hidden="true">B</span></div>
+                        <p class="path-kicker">For learners</p>
+                        <h3 class="path-title">Join CAD training</h3>
+                        <p class="path-text">SolidWorks, AutoCAD, Inventor, Fusion 360 and more: one-on-one, in small groups or for teams, online or in Nairobi.</p>
+                        <ul class="path-links">
+                            <li><a href="training/index.html#compare">Compare the courses <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                            <li><a href="training/index.html#courses">Next classes &amp; seats <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                            <li><a href="training/solidworks.html#syllabus">Full syllabus (free PDF) <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                            <li><a href="training/index.html#downloads">Free cheat sheets <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                        </ul>
+                        <a class="btn btn-sun btn-block" href="training/index.html#reserve" data-track="path-train">Reserve a seat <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+                    </article>
+                    <article class="path-card theme-violet" id="path-exam">
+                        <div class="path-top"><span class="path-icon"><svg aria-hidden="true"><use href="#i-award"/></svg></span><span class="path-letter" aria-hidden="true">C</span></div>
+                        <p class="path-kicker">For certification</p>
+                        <h3 class="path-title">Pass your SolidWorks exam</h3>
+                        <p class="path-text">Timed CSWA and CSWP-style practice: parts to model, centre of mass, and an exam generator that never runs out.</p>
+                        <ul class="path-links">
+                            <li><a href="exams/index.html#ex-demo-card">Free CSWP-style demo <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                            <li><a href="exams/index.html#ex-gen-card">Exam generator <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                            <li><a href="exams/index.html#cswp-sheet">Free CSWP cheat sheet <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                            <li><a href="training/solidworks.html">SolidWorks course <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+                        </ul>
+                        <a class="btn btn-sun btn-block" href="exams/index.html" data-track="path-exam">Try a free practice test <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+                    </article>
+                </div>
+            </div>
+        </section>
+        <!-- PATHS:END -->
+
         <section class="section services" id="services" aria-labelledby="services-title">
             <div class="container">
                 <header class="section-head center">
@@ -1471,6 +1526,7 @@
             </div>
             <nav class="footer-col" aria-label="Footer">
                 <h2>Explore</h2>
+                <a href="start/index.html">Start here: choose your path</a>
                 <a href="#services">Services</a>
                 <a href="#work">Work</a>
                 <a href="#experience">Experience</a>
@@ -1879,14 +1935,14 @@
     <script defer src="js/certificates.js?v=5"></script>
     <script defer src="js/sheet-data.js"></script>
     <script defer src="js/rates.js?v=2"></script>
-    <script defer src="js/i18n.js?v=6" data-fr="js/i18n-fr.js?v=35" data-sw="js/i18n-sw.js?v=32" data-fr-sheet="js/i18n-sheet-fr.js" data-sw-sheet="js/i18n-sheet-sw.js"></script>
+    <script defer src="js/i18n.js?v=6" data-fr="js/i18n-fr.js?v=36" data-sw="js/i18n-sw.js?v=33" data-fr-sheet="js/i18n-sheet-fr.js" data-sw-sheet="js/i18n-sheet-sw.js"></script>
     <script defer src="js/main.js?v=11"></script>
     <script defer src="js/discount.js?v=1"></script>
     <script defer src="js/forms.js?v=13"></script>
     <script defer src="js/instagram-snapshot.js?v=1"></script>
     <script defer src="js/shop.js?v=5"></script>
     <script defer src="js/extras.js?v=9"></script>
-    <script defer src="js/analytics.js?v=2"></script>
+    <script defer src="js/analytics.js?v=3"></script>
     <script defer src="js/promo.js?v=1"></script>
     <script defer src="js/search.js?v=1"></script>
     <script defer src="js/colours.js?v=1"></script>

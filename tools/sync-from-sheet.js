@@ -153,11 +153,35 @@ async function main() {
 
     /* ---------- Works ---------- */
     const ownWorks = new Set(manifest.works || []);
-    const handIds = (() => { const c = { window: {} }; vm.runInNewContext(fs.readFileSync(abs('js/projects.js'), 'utf8'), c); return new Set((c.window.PROJECTS || []).map((p) => p.id)); })();
-    const works = [];
+    const handProjects = (() => { const c = { window: {} }; vm.runInNewContext(fs.readFileSync(abs('js/projects.js'), 'utf8'), c); return c.window.PROJECTS || []; })();
+    // Before / after images of a row → { before, after, beforeLabel, afterLabel } (null when it has neither)
+    async function compareImages(w, dir, keep) {
+        const c = w.compare || {}, out = {};
+        for (const side of ['before', 'after']) {
+            const ref = c[side];
+            if (!ref || !ref.id) continue;
+            const rel = dir + '/' + side + '-' + short(ref.id) + '-' + ref.v + '.jpg';
+            if (await photo(rel, { id: ref.id })) { out[side] = rel; keep.add(rel); }
+        }
+        if (!out.before && !out.after) return null;
+        const labels = String(c.labels || '').split('|').map((t) => t.trim());
+        if (labels[0]) out.beforeLabel = labels[0].slice(0, 40);
+        if (labels[1]) out.afterLabel = labels[1].slice(0, 40);
+        return out;
+    }
+    const works = [], extras = {};
     for (const w of data.works) {
         if (!safeSlug(w.slug) || !w.title) continue;
-        if (handIds.has(w.slug)) { console.warn('! "' + w.title + '": a project called ' + w.slug + ' already exists; skipped.'); continue; }
+        // A row named like a project already on the site only adds its before / after images to it
+        const hand = handProjects.find((p) => p.id === w.slug || String(p.title).trim().toLowerCase() === String(w.title).trim().toLowerCase());
+        if (hand) {
+            const dir = 'images/works/extra-' + hand.id, keep = new Set();
+            const cmp = await compareImages(w, dir, keep);
+            prune(dir, keep);
+            if (cmp) { extras[hand.id] = { compare: cmp }; console.log('Before / after images for:', hand.title); }
+            else console.warn('! "' + w.title + '": a project with this name is already on the site; add a Before or After image to give it a comparison slider.');
+            continue;
+        }
         if (w.error) console.warn('! "' + w.title + '": ' + w.error);
         console.log('Work:', w.title);
         const dir = 'images/works/' + w.slug;
@@ -168,6 +192,7 @@ async function main() {
             const rel = dir + '/' + String(k).padStart(2, '0') + '-' + short(ph.id) + '-' + ph.v + '.jpg';
             if (await photo(rel, { id: ph.id })) { gallery.push(rel); keep.add(rel); k++; }
         }
+        const cmp = await compareImages(w, dir, keep);
         prune(dir, keep);
         const graphic = w.category === 'graphic';
         works.push(Object.assign({
@@ -187,6 +212,7 @@ async function main() {
             pdf: null
         }, (w.deliverables || []).length ? { deliverables: w.deliverables.slice(0, 6).map((t) => String(t).slice(0, 80)) } : {},
         w.outcome ? { outcome: String(w.outcome).slice(0, 200) } : {},
+        cmp ? { compare: cmp } : {},
         w.portfolio === false ? { portfolio: false } : {}));
     }
     for (const slug of ownWorks) {
@@ -194,8 +220,11 @@ async function main() {
         if (fs.existsSync(abs('projects/' + slug + '.html'))) { fs.rmSync(abs('projects/' + slug + '.html')); console.log('- removed projects/' + slug + '.html'); }
         if (fs.existsSync(abs('images/works/' + slug))) fs.rmSync(abs('images/works/' + slug), { recursive: true });
     }
+    // Before / after images added to projects that are already on the site
+    if (fs.existsSync(abs('images/works'))) fs.readdirSync(abs('images/works')).filter((d) => d.startsWith('extra-') && !extras[d.slice(6)]).forEach((d) => { fs.rmSync(abs('images/works/' + d), { recursive: true }); console.log('- removed images/works/' + d); });
     const js = '/* Generated from the Works tab of the Google Sheet by tools/sync-from-sheet.js: edit the sheet, not this file. */\n' +
-        'window.PROJECTS = (window.PROJECTS || []).concat(' + JSON.stringify(works, null, 2) + ');\n';
+        'window.PROJECTS = (window.PROJECTS || []).concat(' + JSON.stringify(works, null, 2) + ');\n' +
+        (Object.keys(extras).length ? 'window.PROJECT_EXTRAS = ' + JSON.stringify(extras, null, 2) + ';\n' : '');
     if (!fs.existsSync(abs(WORKS_JS)) || fs.readFileSync(abs(WORKS_JS), 'utf8') !== js) { fs.writeFileSync(abs(WORKS_JS), js); console.log('wrote', WORKS_JS); }
 
     /* ---------- Pricing, certificates, courses, recordings ---------- */

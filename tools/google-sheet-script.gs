@@ -26,7 +26,12 @@
 
    WORKS tab: add a new project (title, summary, highlights and photos from
    Google Drive) and set Status to "Published". It appears in "My work"
-   with its own page within about 30 minutes.
+   with its own page within about 30 minutes. Optional "Before image" and
+   "After image" (e.g. CAD model and FEA result) add a drag-to-compare
+   slider to the project page; with only one of them, it is shown as a photo.
+   To add a before / after pair to one of the projects already on the site
+   (e.g. EV Battery Pack Cooling), add a row with exactly that project's
+   title, fill in only the two images, and publish it.
 
    PRICING, CERTIFICATES, COURSES and RECORDINGS tabs: the website's
    packages and prices, certificates, training courses and webinar videos.
@@ -306,7 +311,8 @@ function brief_(p) {
 const ARTICLES = 'Articles';
 const AHEAD = ['Title', 'Status', 'Date', 'Google Doc link', 'Summary (1–2 sentences)', 'Cover photo (Google Drive link)', 'Tags (comma separated)', 'Web address (automatic)', 'Email to subscribers?', 'Emailed (automatic)'];
 const WORKS = 'Works';
-const WHEAD = ['Title', 'Status', 'Category', 'Subtitle', 'Year', 'Summary', 'Highlights (one per line)', 'Software / tags (comma separated)', 'Photos (Drive folder link, or Drive photo links one per line)', 'Web address (automatic)', 'Job portfolio (Yes/No; empty = Yes)', 'Client deliverables (comma separated, e.g. 3D assembly, Drawings, Renders)', 'Outcome (one line shown on the card)'];
+const WHEAD = ['Title', 'Status', 'Category', 'Subtitle', 'Year', 'Summary', 'Highlights (one per line)', 'Software / tags (comma separated)', 'Photos (Drive folder link, or Drive photo links one per line)', 'Web address (automatic)', 'Job portfolio (Yes/No; empty = Yes)', 'Client deliverables (comma separated, e.g. 3D assembly, Drawings, Renders)', 'Outcome (one line shown on the card)',
+  'Before image (optional: CAD model or raw geometry, a Google Drive photo link)', 'After image (optional: FEA result or final prototype, a Google Drive photo link)', 'Before / after labels (optional, e.g. CAD model | FEA result)'];
 
 function contentTab_(name, head, widths, example) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -450,8 +456,11 @@ function content_() {
     };
   });
   const works = ensureSlugs_(works_(), 9).filter(published_).map((r) => {
-    let photos = [], error = '';
+    let photos = [], error = '', before = null, after = null;
     try { photos = photoIds_(r[8]); } catch (err) { error = 'Could not open the photos: ' + err.message; }
+    // Before / after comparison slider on the project page (either image may be empty)
+    try { if (driveId_(r[13])) before = fileRef_(DriveApp.getFileById(driveId_(r[13]))); } catch (err) { error += ' Could not open the before image: ' + err.message; }
+    try { if (driveId_(r[14])) after = fileRef_(DriveApp.getFileById(driveId_(r[14]))); } catch (err) { error += ' Could not open the after image: ' + err.message; }
     return {
       slug: String(r[9]), title: String(r[0]).trim(),
       category: /graphic/i.test(r[2]) ? 'graphic' : 'engineering',
@@ -461,7 +470,8 @@ function content_() {
       photos: photos, error: error,
       portfolio: !/^no$/i.test(String(r[10] == null ? '' : r[10]).trim()),   // "No" = main site only, hidden from the job-application portfolio
       deliverables: String(r[11] || '').split(',').map((t) => t.trim()).filter(Boolean),
-      outcome: String(r[12] || '').trim()
+      outcome: String(r[12] || '').trim(),
+      compare: { before: before, after: after, labels: String(r[15] || '').trim() }
     };
   });
   return { articles: articles, works: works, site: siteLists_(), translations: translationsOut_(), campaign: campaignSafe_(true) };
@@ -476,7 +486,7 @@ function image_(q) {
   } else if (q.id) {
     const ok = arts.some((r) => driveId_(r[5]) === q.id) ||
       certs_().getDataRange().getValues().slice(1).some((r) => shown_(r, 4) && driveId_(r[3]) === q.id) ||
-      works_().getDataRange().getValues().slice(1).filter(published_).some((r) => photoIds_(r[8]).some((p) => p.id === q.id)) ||
+      works_().getDataRange().getValues().slice(1).filter(published_).some((r) => driveId_(r[13]) === q.id || driveId_(r[14]) === q.id || photoIds_(r[8]).some((p) => p.id === q.id)) ||
       campaignRows_(false).some((c) => driveId_(c.r[7]) === q.id) ||
       studentsTab_().getDataRange().getValues().slice(1).filter(studentShown_).some((r) => photoIds_(r[3]).some((p) => p.id === q.id));
     if (ok) blob = DriveApp.getFileById(q.id).getBlob();
@@ -2186,6 +2196,25 @@ function syllabus_(p) {
   return { ok: true };
 }
 
+// Free guides offered on the website for an email address. The key is the sign-up's source tag.
+const LEAD_MAGNETS = {
+  'lead-magnet-cswp': { title: 'SolidWorks CSWP quick-reference cheat sheet', file: 'pdfs/cswp-cheat-sheet.pdf', page: 'downloads/cswp-cheat-sheet.html', label: 'CSWP cheat sheet' }
+};
+function sendLeadMagnet_(email, name, m) {
+  const unsub = unsubLink_(email), url = SITE_URL + m.file;
+  MailApp.sendEmail({ to: email, name: SENDER, subject: 'Your free ' + m.title,
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+      '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">CAD TIPS · NEXUS CAD STUDIO</p>' +
+      '<p>Hello' + (name ? ' ' + html_(name) : '') + ',</p>' +
+      '<p>Here is your free <b>' + html_(m.title) + '</b>. Print it and keep it next to your keyboard while you practise.</p>' +
+      '<p><a href="' + html_(url) + '" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Download the PDF</a></p>' +
+      '<p>Or <a href="' + html_(SITE_URL + m.page) + '">open it in your browser</a>.</p>' +
+      '<p>Ready to test yourself? Try the free timed <a href="' + SITE_URL + 'exams/">CSWP-style practice exam</a>: parts to model in 3 stages, with the mass and centre of mass marked straight away.</p>' +
+      '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p>' +
+      '<p style="margin-top:24px;font-size:11px;color:#888"><a href="' + unsub + '" style="color:#888">Unsubscribe from CAD tips</a></p></div>',
+    body: 'Here is your free ' + m.title + ': ' + url + '\n\nPractise for the exam: ' + SITE_URL + 'exams/\n\nUnsubscribe: ' + unsub });
+}
+
 function subscribe_(p) {
   const email = clean_(p.email, 120).toLowerCase();
   if (!validEmail_(email)) return { ok: false, error: 'invalid' };
@@ -2207,10 +2236,13 @@ function subscribe_(p) {
   } finally {
     lock.releaseLock();
   }
+  // A free guide from the website (e.g. the CSWP cheat sheet): email them a copy
+  const magnet = LEAD_MAGNETS[source.toLowerCase()];
+  if (magnet) { try { sendLeadMagnet_(email, name, magnet); } catch (err) { console.error('lead magnet email: ' + err); } }
   // Gmail alert to you for each genuinely new subscriber (not for someone already on the list)
   if (isNew) {
     try {
-      const what = /^syllabus: /i.test(source) ? source.replace(/^syllabus: /i, '') + ' syllabus' : /^free download: /i.test(source) ? source.replace(/^free download: /i, '') : /webinar/i.test(source) ? 'webinar' : 'newsletter';
+      const what = magnet ? magnet.label : /^syllabus: /i.test(source) ? source.replace(/^syllabus: /i, '') + ' syllabus' : /^free download: /i.test(source) ? source.replace(/^free download: /i, '') : /webinar/i.test(source) ? 'webinar' : 'newsletter';
       newRequestAlert_({
         setting: 'Email me new subscribers', tab: SUBSCRIBERS, email: email, phone: '', name: name,
         subject: '📬 New subscriber: ' + (name || email) + ' (' + what + ')',
@@ -2463,7 +2495,8 @@ function setup() {
   });
   // Works: "Client deliverables" (L) and "Outcome" (M) columns for tabs made before they existed
   const wk = works_();
-  [12, 13].forEach((col) => { if (!wk.getRange(1, col).getValue()) wk.getRange(1, col).setValue(WHEAD[col - 1]).setFontWeight('bold').setWrap(true); wk.setColumnWidth(col, 280); });
+  // ... and the before / after comparison columns (N, O, P)
+  [12, 13, 14, 15, 16].forEach((col) => { if (!wk.getRange(1, col).getValue()) { wk.getRange(1, col).setValue(WHEAD[col - 1]).setFontWeight('bold').setWrap(true); wk.setColumnWidth(col, 280); } });
   pricing_();
   courses_();
   recordings_();
