@@ -2719,3 +2719,16 @@ html:not([lang="en"]) .article-lang-note { display: block; }
 @media (max-width: 420px) { .header-tools { gap: 6px; } }
 @media (max-width: 380px) { .header-tools .search-btn { display: none; } .header-tools { gap: 4px; margin-left: 0; } }
 @media (max-width: 350px) { .header-inner { gap: 6px; } .header-tools .theme-toggle { display: none; } }
+/* Install the app (js/account.js) */
+.acct-install { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; margin: 0 auto 18px; max-width: 760px; border-color: var(--sun); }
+.acct-install[hidden] { display: none; }
+.acct-install h2 { margin-bottom: 2px; font-size: 1.15rem; }
+.acct-install p { font-size: 0.92rem; color: var(--text-soft); }
+.acct-install-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: var(--navy); color: var(--sun); flex-shrink: 0; }
+.acct-install-icon svg { width: 24px; height: 24px; }
+.acct-install-copy { flex: 1; min-width: 200px; }
+.acct-install-actions { display: flex; align-items: center; gap: 14px; }
+.acct-install .acct-ios { margin-top: 6px; color: var(--heading); }
+.ios-install { flex-basis: 100%; margin-top: 8px; font-size: 0.85rem; line-height: 1.6; color: rgba(255, 255, 255, 0.85); }
+.ios-install svg { display: inline-block; width: 16px; height: 16px; vertical-align: -3px; margin: 0 2px; }
+.footer-bottom-links { flex-wrap: wrap; }

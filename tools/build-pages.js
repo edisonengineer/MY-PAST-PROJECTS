@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=41';
+const CSS_V = 'css/style.css?v=43';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
@@ -419,9 +419,9 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=37" data-sw="../js/i18n-sw.js?v=34" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=38" data-sw="../js/i18n-sw.js?v=35" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
     <script defer src="../js/pages.js?v=19"></script>
-    <script defer src="../js/account.js?v=1" data-api="${esc(CFG.trackerApi || CFG.reviewsApi || '')}"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=3" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
+    <script defer src="../js/account.js?v=2" data-api="${esc(CFG.trackerApi || CFG.reviewsApi || '')}"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=3" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -2005,6 +2005,38 @@ function wantedTranslations() {
     const cv = loadCV().cv;
     pick(cv);
     return [...found].sort().slice(0, 3000);
+}
+/* ---------- Offline app: the files sw.js saves on install, and its VERSION ----------
+   Taken from the <link> and <script> tags of the pages people most need offline, with the exact
+   ?v=… they use. VERSION is a fingerprint of those files, so any change to them replaces the old
+   cache (pages are always fetched fresh when online, so their own text is not part of it). */
+{
+    const OFFLINE_PAGES = ['index.html', 'offline.html', 'start/index.html', 'account/index.html', 'exams/index.html', 'training/index.html', 'calculators/index.html'];
+    const DATA = /\/(tracker-data|projects|sheet-works|sheet-data|reviews|certificates|packages|config|i18n-sheet-fr|i18n-sheet-sw|search-index)\.js$/;
+    const list = ['./'], files = [];
+    const addFile = (rel) => { const clean = rel.split('#')[0]; if (!list.includes(clean) && fs.existsSync(path.join(ROOT, clean.split('?')[0]))) { list.push(clean); files.push(clean.split('?')[0]); } };
+    OFFLINE_PAGES.forEach((pg) => {
+        const html = pg === 'index.html' ? updated : (written[pg] || (fs.existsSync(path.join(ROOT, pg)) ? read(pg) : ''));
+        if (!html) return;
+        addFile(pg);
+        const dir = path.posix.dirname(pg);
+        const urls = [...html.matchAll(/<link[^>]*rel="(?:stylesheet|manifest|icon|apple-touch-icon)"[^>]*href="([^"]+)"/g)].map((m) => m[1]);
+        // A script tag can carry several files (i18n.js: src, data-fr, data-sw, ...)
+        for (const m of html.matchAll(/<script\b[^>]*>/g)) for (const a of m[0].matchAll(/\s(?:src|data-fr|data-sw|data-fr-sheet|data-sw-sheet)="([^"]+)"/g)) urls.push(a[1]);
+        for (const u of urls) {
+            if (/^(https?:)?\/\//.test(u) || u.startsWith('data:')) continue;
+            const rel = path.posix.normalize(path.posix.join(dir, u));
+            if (rel.startsWith('..')) continue;
+            addFile(DATA.test(rel.split('?')[0]) ? rel.split('?')[0] : rel);   // data files are looked up without ?v= (sw.js)
+        }
+    });
+    ['fonts/plus-jakarta-sans-latin.woff2', 'fonts/fraunces-latin.woff2', 'fonts/fraunces-italic-latin.woff2', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon.svg'].forEach(addFile);
+    const hash = require('crypto').createHash('sha1');
+    list.forEach((u) => hash.update(u + '\n'));
+    files.filter((f) => !/\.html$/.test(f) && !DATA.test(f)).forEach((f) => hash.update(fs.readFileSync(path.join(ROOT, f))));   // data changes often and is fetched fresh anyway
+    const block = '/* PRECACHE:START */\nconst VERSION = \'' + hash.digest('hex').slice(0, 10) + '\';\nconst PRECACHE = [\n' + list.map((u) => '    ' + JSON.stringify(u)).join(',\n') + '\n];\n/* PRECACHE:END */';
+    const sw = read('sw.js'), next = sw.replace(/\/\* PRECACHE:START \*\/[\s\S]*?\/\* PRECACHE:END \*\//, block);
+    if (next !== sw) write('sw.js', next);
 }
 const wanted = JSON.stringify(wantedTranslations(), null, 1) + '\n';
 if (!fs.existsSync(path.join(ROOT, 'js/i18n-wanted.json')) || read('js/i18n-wanted.json') !== wanted) write('js/i18n-wanted.json', wanted);

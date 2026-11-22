@@ -1477,6 +1477,13 @@ window.I18N_FR = {
     "We only use your email to log you in and show your own records. Questions?": "Nous utilisons votre e-mail uniquement pour vous connecter et afficher vos propres informations. Des questions ?",
     "Log in or create an account with a code sent to your email: your exam pass, Quote Pro, practice results, training, projects and invoices in one place.": "Connectez-vous ou créez un compte avec un code envoyé par e-mail : pass examen, Quote Pro, résultats, formations, projets et factures au même endroit.",
     "My account | Nexus CAD Studio": "Mon compte | Nexus CAD Studio",
+    // Install the app
+    "Open your account, exam practice and tools from your home screen, even with a weak connection.": "Ouvrez votre compte, l’entraînement aux examens et les outils depuis votre écran d’accueil, même avec une connexion faible.",
+    "On iPhone or iPad: tap": "Sur iPhone ou iPad : touchez",
+    ", then": ", puis",
+    "Add to Home Screen": "Sur l’écran d’accueil",
+    "Install": "Installer",
+    "Not now": "Pas maintenant",
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

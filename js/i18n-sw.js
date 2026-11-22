@@ -1477,6 +1477,13 @@ window.I18N_SW = {
     "We only use your email to log you in and show your own records. Questions?": "Tunatumia barua pepe yako tu kukuingiza na kuonyesha rekodi zako. Maswali?",
     "Log in or create an account with a code sent to your email: your exam pass, Quote Pro, practice results, training, projects and invoices in one place.": "Ingia au fungua akaunti kwa msimbo unaotumwa kwa barua pepe: pasi ya mtihani, Quote Pro, matokeo, mafunzo, miradi na ankara mahali pamoja.",
     "My account | Nexus CAD Studio": "Akaunti yangu | Nexus CAD Studio",
+    // Install the app
+    "Open your account, exam practice and tools from your home screen, even with a weak connection.": "Fungua akaunti yako, mazoezi ya mtihani na zana kutoka skrini yako ya mwanzo, hata kwa mtandao dhaifu.",
+    "On iPhone or iPad: tap": "Kwenye iPhone au iPad: gusa",
+    ", then": ", kisha",
+    "Add to Home Screen": "Ongeza kwenye Skrini ya Mwanzo",
+    "Install": "Sakinisha",
+    "Not now": "Si sasa",
 };
 
 /* Patterns for text built at runtime. Functions use window.I18N.t to translate a nested title. */

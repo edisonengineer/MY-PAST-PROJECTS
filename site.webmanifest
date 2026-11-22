@@ -26,7 +26,7 @@
         }
     ],
     "id": "./",
-    "description": "Mechanical design engineer and graphic designer: CAD design, simulation, training and graphic design.",
+    "description": "CAD design, FEA simulation and CAD training from Nairobi, plus SolidWorks exam practice and your account: passes, results, training and projects.",
     "scope": "./",
     "orientation": "portrait-primary",
     "categories": [
@@ -36,7 +36,30 @@
     ],
     "shortcuts": [
         {
+            "name": "SolidWorks exam practice",
+            "short_name": "Exam practice",
+            "url": "./exams/index.html?source=app",
+            "icons": [
+                {
+                    "src": "icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "My account",
+            "short_name": "My account",
+            "url": "./account/index.html?source=app",
+            "icons": [
+                {
+                    "src": "icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
             "name": "Start a project",
+            "short_name": "Start a project",
             "url": "./#brief",
             "icons": [
                 {
@@ -46,18 +69,9 @@
             ]
         },
         {
-            "name": "Cost estimator",
-            "url": "./#estimator",
-            "icons": [
-                {
-                    "src": "icon-192.png",
-                    "sizes": "192x192"
-                }
-            ]
-        },
-        {
-            "name": "Book a call",
-            "url": "./#contact",
+            "name": "Start here: choose your path",
+            "short_name": "Start here",
+            "url": "./start/index.html?source=app",
             "icons": [
                 {
                     "src": "icon-192.png",

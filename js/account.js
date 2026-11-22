@@ -138,7 +138,7 @@
     const nextPage = () => { const n = new URLSearchParams(location.search).get('next') || ''; return /^(?:[\w-]+\/)?(?:[\w.-]+\.html)?(?:\?[\w=&%.+-]*)?$/.test(n) && n && !/^account\//.test(n) ? ROOT + n : ''; };
 
     function renderLogin(email, step) {
-        app.innerHTML = `<div class="acct-card acct-login">
+        app.innerHTML = installCard() + `<div class="acct-card acct-login">
             <h2>${step === 2 ? tr('Check your email') : tr('Log in or create an account')}</h2>
             ${step === 2 ? `<p>${tr('We sent a 6-digit code to')} <strong data-no-i18n>${esc(email)}</strong>. ${tr('It works for 10 minutes.')}</p>` :
                 `<p>${tr('No password needed: type your email and we\'ll send you a 6-digit code. New here? The same step creates your account.')}</p>`}
@@ -156,6 +156,7 @@
                 <li>${tr('Your training, projects and invoices in one place')}</li>
             </ul>
         </div>`;
+        paintInstall();
         const form = app.querySelector('#acct-form'), box = form.querySelector('.form-error'), btn = form.querySelector('button[type=submit]');
         const fail = (r) => { box.textContent = err(r); box.hidden = false; btn.disabled = false; };
         form.querySelector('input').focus();
@@ -203,7 +204,7 @@
             </div>`;
         };
         const results = (a.results || []).slice(0, 12);
-        app.innerHTML = `<div class="acct-hello">
+        app.innerHTML = installCard() + `<div class="acct-hello">
                 <span class="acct-avatar" data-no-i18n>${esc(initials({ name: a.name, email: a.email }))}</span>
                 <div><h2>${a.name ? tr('Hello') + ', <span data-no-i18n>' + esc(a.name.split(' ')[0]) + '</span>' : tr('Welcome!')}</h2><p data-no-i18n>${esc(a.email)}</p></div>
                 <button type="button" class="btn btn-outline" data-acct="logout">${tr('Log out')}</button>
@@ -228,6 +229,7 @@
                 <button type="submit" class="btn btn-navy">${tr('Save')}</button> <span class="acct-saved" role="status" hidden>${tr('Saved')}</span>
             </form>`)}
             </div>`;
+        paintInstall();
         app.querySelector('[data-acct=logout]').addEventListener('click', () => { logout(); renderLogin('', 1); window.scrollTo(0, 0); });
         const pf = app.querySelector('#acct-profile');
         pf.addEventListener('submit', (e) => {
@@ -250,7 +252,63 @@
         if (a || !c || force) renderAccount(a);
     }
 
+    /* ---------- Install the app (PWA): footer button on every page, a card on the account page ----------
+       Chrome, Edge and Android: the browser's own install prompt (beforeinstallprompt).
+       iPhone / iPad (no prompt there): a short "Share → Add to Home Screen" hint.
+       Hidden once installed; the account-page card can be dismissed for 60 days. */
+    const standalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    let installEvent = null;
+    const installable = () => !standalone() && (!!installEvent || ios);
+    const hiddenCard = () => { const t = load('nca-install-hide'); return t && Date.now() - t < 60 * 864e5; };
+    async function install(fromCard) {
+        if (installEvent) {
+            const e = installEvent;
+            e.prompt();
+            const choice = await e.userChoice.catch(() => null);
+            if (choice && choice.outcome === 'accepted') { installEvent = null; if (typeof window.track === 'function') window.track('app-installed'); }
+            paintInstall();
+            return;
+        }
+        if (ios) {
+            const box = fromCard ? document.querySelector('.acct-install .acct-ios') : document.getElementById('ios-install');
+            if (box) { box.hidden = !box.hidden; return; }
+            const tip = document.createElement('p');
+            tip.id = 'ios-install';
+            tip.className = 'ios-install';
+            tip.innerHTML = 'On iPhone or iPad: tap <strong>Share</strong> <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M6 11H5v10h14V11h-1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>, then <strong>Add to Home Screen</strong>.';
+            document.getElementById('install-app').insertAdjacentElement('afterend', tip);
+        }
+    }
+    function paintInstall() {
+        const links = document.querySelector('.footer-bottom-links');
+        let btn = document.getElementById('install-app');
+        if (!btn && links) {
+            btn = document.createElement('button');
+            btn.type = 'button'; btn.className = 'install-btn'; btn.id = 'install-app'; btn.hidden = true;
+            btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2.5h10a1.5 1.5 0 0 1 1.5 1.5v16a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 20V4A1.5 1.5 0 0 1 7 2.5Z M12 7v7M9 11l3 3 3-3M10.5 18.5h3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Install the app';
+            links.insertBefore(btn, links.firstChild);
+        }
+        if (btn && !btn.dataset.wired) { btn.dataset.wired = '1'; btn.addEventListener('click', () => install(false)); }
+        if (btn) btn.hidden = !installable();
+        // Account page card
+        const card = document.querySelector('.acct-install');
+        if (card) card.hidden = !installable() || hiddenCard();
+    }
+    const installCard = () => `<div class="acct-card acct-install" hidden>
+            <span class="acct-install-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2.5h10a1.5 1.5 0 0 1 1.5 1.5v16a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 20V4A1.5 1.5 0 0 1 7 2.5Z M12 7v7M9 11l3 3 3-3M10.5 18.5h3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div class="acct-install-copy"><h2>Install the app</h2><p>Open your account, exam practice and tools from your home screen, even with a weak connection.</p>
+            <p class="acct-ios" hidden>On iPhone or iPad: tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</p></div>
+            <div class="acct-install-actions"><button type="button" class="btn btn-sun" data-install>Install</button><button type="button" class="link-btn" data-install-hide>Not now</button></div>
+        </div>`;
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('[data-install]')) install(true);
+        if (e.target.closest('[data-install-hide]')) { save('nca-install-hide', Date.now()); paintInstall(); }
+    });
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvent = e; paintInstall(); });
+    window.addEventListener('appinstalled', () => { installEvent = null; paintInstall(); });
+
     window.NexusAccount = { user: () => session, data, saveResult, logout, onChange(fn) { hooks.push(fn); } };
-    const ready = () => { paintButton(); start(); unlockPass(); };
+    const ready = () => { paintButton(); start(); unlockPass(); paintInstall(); };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready); else ready();
 })();
