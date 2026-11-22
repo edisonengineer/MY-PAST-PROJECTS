@@ -33,7 +33,8 @@
                once the file exists. Export .glb from Fusion 360 / SolidWorks
                (via a GLTF exporter) / Inventor, or convert a STEP/STL online.
      portfolio false = show on this site only, not on the separate
-               job-application portfolio (optional; default: shown on both).
+               job-application portfolio or the CV tailor (cv-tailor/)
+               (optional; default: shown on both).
                Projects from the sheet use its "Job portfolio" column instead.
    ========================================================================= */
 window.PROJECTS = [

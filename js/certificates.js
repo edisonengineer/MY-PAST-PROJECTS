@@ -3,7 +3,7 @@
    file    image or PDF of the certificate (optional). A "View" button
            appears once the file exists, e.g. images/certificates/cswa.jpg
    verify  online credential link (optional): shows a "View credential" button
-   portfolio  false = hide from the job-application portfolio (optional)
+   portfolio  false = hide from the job-application portfolio and the CV tailor (optional)
    ========================================================================= */
 window.CERTIFICATES = [
     { title: 'Certified SOLIDWORKS Associate (CSWA) Cert Prep', issuer: 'LinkedIn Learning', tone: 'blue', icon: 'cube', file: 'images/certificates/cswa-linkedin.jpg', verify: 'https://www.linkedin.com/learning/certificates/02dd967cc0613a683c80a08ea44bbfa46d1d73ca0be389a0979e2d0e829e80e2' },

@@ -10,7 +10,7 @@
    deleted when the new worker takes over. Don't edit between the markers.
    ========================================================================= */
 /* PRECACHE:START */
-const VERSION = 'b47e56a100';
+const VERSION = 'cafc204c95';
 const PRECACHE = [
     "./",
     "index.html",
@@ -61,6 +61,11 @@ const PRECACHE = [
     "js/training.js?v=2",
     "calculators/index.html",
     "js/calculators.js?v=1",
+    "cv-tailor/index.html",
+    "css/cv-tailor.css?v=1",
+    "js/cv-master.js",
+    "js/cv-tailor-core.js?v=1",
+    "js/cv-tailor.js?v=1",
     "fonts/plus-jakarta-sans-latin.woff2",
     "fonts/fraunces-latin.woff2",
     "fonts/fraunces-italic-latin.woff2",
@@ -111,7 +116,7 @@ self.addEventListener('fetch', (event) => {
     if (sameSite && /\.pdf$/i.test(url.pathname)) return; // let PDFs stream normally
 
     // Site data (projects, reviews, sheet translations, search list...): always try for the latest, use the saved copy only offline
-    if (sameSite && /\/js\/(tracker-data|projects|sheet-works|sheet-data|reviews|certificates|packages|config|i18n-sheet-fr|i18n-sheet-sw|search-index)\.js$/.test(url.pathname)) {
+    if (sameSite && /\/js\/(tracker-data|projects|sheet-works|sheet-data|reviews|certificates|packages|config|i18n-sheet-fr|i18n-sheet-sw|search-index|cv-master)\.js$/.test(url.pathname)) {
         event.respondWith(
             fetch(req, { cache: 'no-store' })
                 .then((res) => { if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(bare(url), copy)); } return res; })
