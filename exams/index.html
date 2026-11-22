@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolidWorks Exam Practice Tests (CSWA-style) | Nexus CAD Studio</title>
-    <meta name="description" content="Timed SolidWorks practice tests in the style of the CSWA exam: theory questions and drawings to model, with new sizes every attempt and instant marking. Free sample test.">
+    <title>SolidWorks Exam Practice Tests (CSWA & CSWP-style) | Nexus CAD Studio</title>
+    <meta name="description" content="Timed SolidWorks practice tests in the style of the CSWA and CSWP exams: parts to model in 3 stages, centre of mass, and theory questions with new numbers every time. Free sample test and demo.">
     <meta name="author" content="Edison Ochieng">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#0e1a3a">
@@ -16,7 +16,7 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Nexus CAD Studio">
     <meta property="og:title" content="SolidWorks Exam Practice Tests (CSWA-style) | Nexus CAD Studio">
-    <meta property="og:description" content="Timed SolidWorks practice tests in the style of the CSWA exam: theory questions and drawings to model, with new sizes every attempt and instant marking. Free sample test.">
+    <meta property="og:description" content="Timed SolidWorks practice tests in the style of the CSWA and CSWP exams: parts to model in 3 stages, centre of mass, and theory questions with new numbers every time. Free sample test and demo.">
     <meta property="og:url" content="https://edisonengineer.github.io/MY-PAST-PROJECTS/exams/">
     <meta property="og:image" content="https://edisonengineer.github.io/MY-PAST-PROJECTS/og-image.jpg?v=2">
     <meta property="og:image:width" content="1200">
@@ -28,7 +28,7 @@
     <meta property="og:locale:alternate" content="sw_KE">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="SolidWorks Exam Practice Tests (CSWA-style) | Nexus CAD Studio">
-    <meta name="twitter:description" content="Timed SolidWorks practice tests in the style of the CSWA exam: theory questions and drawings to model, with new sizes every attempt and instant marking. Free sample test.">
+    <meta name="twitter:description" content="Timed SolidWorks practice tests in the style of the CSWA and CSWP exams: parts to model in 3 stages, centre of mass, and theory questions with new numbers every time. Free sample test and demo.">
     <meta name="twitter:image" content="https://edisonengineer.github.io/MY-PAST-PROJECTS/og-image.jpg?v=2">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
@@ -37,7 +37,7 @@
     <link rel="preload" href="../fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../css/style.css?v=39">
-    <link rel="stylesheet" href="../css/quote.css?v=4">
+    <link rel="stylesheet" href="../css/quote.css?v=5">
     <script>
         document.documentElement.classList.add('js');
         (function () {
@@ -147,9 +147,9 @@
                 <nav class="crumbs" aria-label="Breadcrumb">
                     <a href="../index.html">Home</a><span aria-hidden="true">/</span><a href="../training/index.html">Training</a><span aria-hidden="true">/</span><span aria-current="page">SolidWorks exam practice</span>
                 </nav>
-                <p class="page-kicker">CSWA-style practice tests</p>
+                <p class="page-kicker">CSWA and CSWP-style practice tests</p>
                 <h1 class="page-title">Practise for your SolidWorks exam.</h1>
-                <p class="page-lede">Timed tests like the real thing: theory questions, and drawings you model in SolidWorks to find the mass. New sizes every attempt, so you can practise again and again. Your answers are marked straight away.</p>
+                <p class="page-lede">Timed tests like the real thing: drawings you model in SolidWorks to find the mass and centre of mass, parts you update in 3 stages, and theory questions. The exam generator makes a brand-new exam every time, so you never run out of practice. Your answers are marked straight away.</p>
                 <div class="nq-hero-actions">
                     <span class="nq-plan" id="nq-plan" data-no-i18n>Free plan</span>
                     <button type="button" class="btn btn-sun" data-pro-open><svg aria-hidden="true"><use href="#i-award"/></svg> <span id="nq-pro-btn">Get the exam pass</span></button>
@@ -164,6 +164,28 @@
                 <div id="ex-home">
                     <p class="ex-resume" id="ex-resume" hidden>You have an unfinished <strong id="ex-resume-name"></strong>. <button type="button" class="btn btn-navy" id="ex-resume-btn">Carry on</button></p>
                     <div class="ex-cards">
+                        <article class="ex-card is-free" id="ex-demo-card">
+                            <span class="ex-tag">Free demo</span>
+                            <h2>CSWP-style part</h2>
+                            <p>5 questions · 30 minutes</p>
+                            <p class="ex-desc">Build a part from a drawing, update it in 2 more stages, find its centre of mass, plus a theory question.</p>
+                            <p class="ex-best"></p>
+                            <button type="button" class="btn btn-sun btn-block">Start the demo</button>
+                        </article>
+                        <article class="ex-card ex-gen" id="ex-gen-card">
+                            <span class="ex-tag">Exam pass · endless</span>
+                            <h2>Exam generator</h2>
+                            <p class="ex-desc">A brand-new exam every time: 9 kinds of part with random sizes and materials, and theory questions with new numbers.</p>
+                            <div class="ex-gen-form">
+                                <label>Style <select id="gen-style"><option value="cswp">CSWP-style: parts and theory</option><option value="parts">Parts only (3 stages each)</option><option value="theory">Theory only</option></select></label>
+                                <label>Length <select id="gen-len"><option value="short">Short</option><option value="std" selected>Standard</option><option value="long">Long</option></select></label>
+                                <label class="ex-gen-wide">Theory topics <select id="gen-topic"></select></label>
+                                <label class="ex-check"><input type="checkbox" id="gen-timed" checked> Timed</label>
+                            </div>
+                            <p class="ex-gen-sum" id="gen-sum"></p>
+                            <p class="ex-best"></p>
+                            <button type="button" class="btn btn-navy btn-block" id="gen-start">Generate my exam</button>
+                        </article>
                         <article class="ex-card is-free" data-exam="sample">
                             <span class="ex-tag">Free</span>
                             <h2>Sample test</h2>
@@ -216,9 +238,12 @@
                             <h2>Exam pass</h2>
                             <p class="nq-price"><span data-price="exams" data-no-i18n>KES 500</span> <small>for <span data-exam-days>30</span> days</small></p>
                             <ul>
-                                <li><svg aria-hidden="true"><use href="#i-check"/></svg> 3 full timed practice exams, new sizes every time</li>
+                                <li><svg aria-hidden="true"><use href="#i-check"/></svg> Endless exam generator: CSWP-style parts in 3 stages, centre of mass, timed or untimed</li>
+                                <li><svg aria-hidden="true"><use href="#i-check"/></svg> Theory with new numbers: configurations, design tables, equations, mates, interference, sheet metal, FEA</li>
+                                <li><svg aria-hidden="true"><use href="#i-check"/></svg> 3 full CSWA-style exams, new sizes every time</li>
                                 <li><svg aria-hidden="true"><use href="#i-check"/></svg> Practice by topic: 5 theory topics and 9 part types</li>
                                 <li><svg aria-hidden="true"><use href="#i-check"/></svg> Every answer explained, with the correct mass worked out</li>
+                                <li><svg aria-hidden="true"><use href="#i-check"/></svg> Printable performance summary (PDF) and results download</li>
                                 <li><svg aria-hidden="true"><use href="#i-check"/></svg> Use it on up to 3 phones or computers</li>
                             </ul>
                             <button type="button" class="btn btn-sun btn-block" data-pro-open>Pay with M-Pesa</button>
@@ -231,6 +256,8 @@
                             <li><strong>Theory questions</strong> are multiple choice: drawings, sketching, features, assemblies, mass and units.</li>
                             <li><strong>Modelling questions</strong> give a dimensioned drawing (third-angle projection) and the material. Model the part in SolidWorks, open Mass Properties and type the mass in grams. Answers within 1% count as right.</li>
                             <li><strong>Follow-up questions</strong> ask you to change one size of the part you just made, like the real exam.</li>
+                            <li><strong>CSWP-style parts</strong> come in 3 stages: build the part, then change sizes (and sometimes the material) twice, entering the mass each time. The last question asks for the centre of mass (X, Y, Z) from the origin marked O. Answers within 1% count, like the real exam.</li>
+                            <li><strong>The exam generator</strong> picks the parts, sizes, materials and theory numbers at random, so every exam is new. Choose timed or untimed.</li>
                             <li>Your test is saved as you go, so a dropped connection or a closed tab doesn't lose it.</li>
                         </ul>
                         <p>These are original practice questions written by Nexus CAD Studio. They are not questions from the real exam. CSWA and SolidWorks are trademarks of Dassault Systèmes, which has no connection with this site.</p>
@@ -265,13 +292,15 @@
                         </div>
                     </div>
                     <div class="ex-upsell" id="ex-upsell">
-                        <p><strong>Ready for more?</strong> The exam pass gives you 3 full timed exams and unlimited practice by topic, for <span data-price="exams" data-no-i18n>KES 500</span>.</p>
+                        <p><strong>Ready for more?</strong> The exam pass gives you an endless exam generator, 3 full timed exams, unlimited practice by topic and a printable summary, for <span data-price="exams" data-no-i18n>KES 500</span>.</p>
                         <button type="button" class="btn btn-sun" data-pro-open>Get the exam pass</button>
                     </div>
                     <h2 class="ex-review-title">Review your answers</h2>
                     <div id="ex-review"></div>
                     <div class="ex-actions">
                         <button type="button" class="btn btn-navy" id="ex-again">Back to the tests</button>
+                        <button type="button" class="btn btn-outline" id="ex-print"><svg aria-hidden="true"><use href="#i-doc"/></svg> Print or save summary (PDF)</button>
+                        <button type="button" class="btn btn-outline" id="ex-csv">Download results (CSV)</button>
                         <button type="button" class="btn btn-green" data-share-tool data-share-text="Practising for the SolidWorks CSWA exam? Free timed practice test with drawings to model and instant marking:"><svg aria-hidden="true"><use href="#i-whatsapp"/></svg> Share with classmates</button>
                     </div>
                 </div>
@@ -386,8 +415,9 @@
     <a class="fab-wa" href="https://wa.me/254708639473" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"><svg aria-hidden="true"><use href="#i-whatsapp"/></svg></a>
 
     <script defer src="../js/config.js?v=14"></script>
-    <script defer src="../js/pro.js?v=4"></script>
-    <script defer src="../js/exams.js?v=1"></script>
+    <script defer src="../js/pro.js?v=5"></script>
+    <script defer src="../js/exam-gen.js?v=1"></script>
+    <script defer src="../js/exams.js?v=2"></script>
     <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=35" data-sw="../js/i18n-sw.js?v=32" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
     <script defer src="../js/pages.js?v=18"></script>
     <script defer src="../js/analytics.js?v=2" data-code="necuscad"></script>
