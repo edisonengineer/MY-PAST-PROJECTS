@@ -2,6 +2,11 @@
    CV: used for the online CV page (cv/index.html) and the portfolio PDF.
    After editing run:  node tools/build-pages.js  and  node tools/build-portfolio.js
    The email address is never written here (it stays hidden on the site).
+   This is also the master CV for the CV tailor (cv-tailor/): only write what
+   is true, because tailored CVs are built from these exact words.
+   projects: id = the project's id in js/projects.js, so the tailor shows it
+   once (with this text as its summary) instead of twice.
+   How to use the tailor: docs/cv-tailor.md
    ========================================================================= */
 window.CV = {
     name: 'Edison Ochieng',
@@ -10,6 +15,7 @@ window.CV = {
     phone: '+254 708 639 473',
     location: 'Nairobi, Kenya',
     linkedin: 'https://www.linkedin.com/in/edison-ochieng-870a37229/',
+    portfolio: 'https://edisonengineer.github.io/',   // job-application portfolio: linked in cover letters and application emails
     summary: 'Mechanical Engineering graduate from the University of Nairobi with hands-on CAD experience in SolidWorks, Autodesk Inventor and Fusion 360. I produce 3D models, assemblies and 2D technical drawings for industrial prototypes, and run Nexus CAD Studio, a CAD and graphic design studio that has trained over 100 people. My final-year project used coupled FE simulation of sheet metal forming, reflecting strong manufacturing and design fundamentals. I am eager to contribute to product development, prototyping and technical support.',
     skills: [
         'CAD & engineering design: SolidWorks, Inventor, Fusion 360, AutoCAD, Revit',
@@ -66,8 +72,8 @@ window.CV = {
         }
     ],
     projects: [
-        { name: 'EV Battery Cooling Pack (freelance client)', text: 'Design and thermal simulation of an electric-vehicle battery cooling pack in SolidWorks and Inventor: 3D models, assemblies and thermal analysis to keep cells within their operating temperature range.' },
-        { name: 'Final-year project (2025 – 2026)', text: "Forming limit curve prediction for AM AlSi10Mg through a GTN–Hill'48 coupled simulation of the Nakajima test: failure prediction for sheet-metal parts before they are manufactured." }
+        { id: 'ev-battery-cooling', name: 'EV Battery Cooling Pack (freelance client)', text: 'Design and thermal simulation of an electric-vehicle battery cooling pack in SolidWorks and Inventor: 3D models, assemblies and thermal analysis to keep cells within their operating temperature range.' },
+        { id: 'final-year-project', name: 'Final-year project (2025 – 2026)', text: "Forming limit curve prediction for AM AlSi10Mg through a GTN–Hill'48 coupled simulation of the Nakajima test: failure prediction for sheet-metal parts before they are manufactured." }
     ],
     education: [
         { title: 'BSc Mechanical Engineering', org: 'University of Nairobi', dates: '2021 – 2026', note: 'Coursework: Engineering Design I–III, CAD/CAM, Manufacturing Processes, Strength of Materials, Thermodynamics, Fluid Mechanics, Control Systems, Materials Science.' },

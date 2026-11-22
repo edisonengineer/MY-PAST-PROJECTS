@@ -6,6 +6,7 @@
      blog/index.html      the CAD Tips list
      index.html           refreshes the "Latest CAD tips" cards on the homepage
      sitemap.xml          every page above
+     js/cv-master.js      the master CV for cv-tailor/ (tools/cv-master.js)
 
    Run it after editing projects or articles:   node tools/build-pages.js
 
@@ -1473,6 +1474,133 @@ ${cv.education.map((x) => `                            <article class="cv-item">
 ` + footer();
 }
 
+/* ---------- CV tailor (for Edison): a CV for one job, from the master CV ----------
+   The facts come from js/cv-master.js, written below from content/cv.js, the projects and
+   the certificates (tools/cv-master.js). The page only picks and orders those lines. */
+function cvTailorPage() {
+    const url = SITE + 'cv-tailor/';
+    const step = (n, title, body, id) => `<section class="cvt-card"${id ? ` id="${id}"` : ''}><h2 class="cvt-h"><span class="cvt-n">${n}</span> ${title}</h2>${body}</section>`;
+    return head({ title: 'CV tailor | Edison Ochieng', description: 'Make a CV for one job from your real experience: match the job description, choose what goes in, print or hand off to an AI assistant.', url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'CV tailor', url } })
+        .replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, nofollow">')
+        .replace('</head>', '    <link rel="stylesheet" href="../css/cv-tailor.css?v=2">\n</head>') + '\n' + header('').replace('<body class="subpage">', '<body class="subpage cvt-body">') + `
+    <main id="main">
+        <section class="page-hero theme-violet cvt-hero">
+            <div class="container page-hero-inner">
+                <nav class="crumbs" aria-label="Breadcrumb">
+                    <a href="../index.html">Home</a><span aria-hidden="true">/</span><a href="../cv/index.html">CV</a><span aria-hidden="true">/</span><span aria-current="page">CV tailor</span>
+                </nav>
+                <p class="page-kicker">For Edison</p>
+                <h1 class="page-title">Tailor your CV to one job.</h1>
+                <p class="page-lede">Paste a job description. See what it asks for and what your real experience covers, pick the most relevant lines, then print a clean CV and cover letter, send the application email, or hand a strict prompt to an AI assistant.</p>
+                <p class="cvt-truth">${icon('check')} <span>Built only from your master CV (content/cv.js, your projects and certificates). Nothing here can add a role, number, tool or certificate you don't have. Items marked "not for the job portfolio" are left out.</span></p>
+            </div>
+        </section>
+
+        <section class="section cvt-wrap">
+            <div class="container cvt-app" id="cvt-app">
+                <div class="cvt-ui">
+                    ${step(1, 'The job', `
+                    <div class="field-grid">
+                        <div class="field"><label for="cvt-role">Job title <small>(optional)</small></label><input id="cvt-role" type="text" autocomplete="off" placeholder="e.g. Mechanical Design Engineer"></div>
+                        <div class="field"><label for="cvt-company">Company <small>(optional)</small></label><input id="cvt-company" type="text" autocomplete="off" placeholder="e.g. Acme Fabrication Ltd"></div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="field"><label for="cvt-recipient">Hiring manager / recipient <small>(optional)</small></label><input id="cvt-recipient" type="text" autocomplete="off" placeholder="Hiring Team"></div>
+                        <div class="field"><label for="cvt-focus">Focus area</label><select id="cvt-focus"></select></div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="field"><label for="cvt-length">CV length</label><select id="cvt-length"><option value="1">1 page</option><option value="2">2 pages</option></select></div>
+                    </div>
+                    <div class="field"><label for="cvt-jd">Job description</label><textarea id="cvt-jd" rows="12" spellcheck="false" placeholder="Paste the whole advert: responsibilities, requirements and nice-to-haves."></textarea></div>
+                    <div class="cvt-actions">
+                        <button type="button" class="btn btn-navy" data-act="analyse">Analyse the job</button>
+                        <button type="button" class="btn btn-outline" data-act="save-job">Save job</button>
+                        <button type="button" class="btn btn-outline" data-act="new">Clear / new job</button>
+                    </div>
+                    <div class="cvt-jobs">
+                        <label for="cvt-jobs">Saved jobs</label>
+                        <select id="cvt-jobs"></select>
+                        <button type="button" class="btn btn-outline" data-act="load-job">Load</button>
+                        <button type="button" class="btn btn-outline" data-act="delete-job">Delete</button>
+                    </div>`)}
+                    ${step(2, 'What the job asks for, and what you can prove', '<div id="cvt-match" aria-live="polite"></div>', 'cvt-match-card')}
+                    ${step(3, 'Choose what goes in', `
+                    <p class="cvt-help">Ticked lines are on the CV, in this order. The bar shows how well each line matches this job (hover for the words it matched). To change the wording of a line, edit it in your master CV so every CV stays true.</p>
+                    <div class="cvt-opts">
+                        <label><input type="checkbox" id="cvt-photo"> Photo</label>
+                        <label><input type="checkbox" id="cvt-email" checked> Email address</label>
+                        <button type="button" class="btn btn-outline" data-act="reset-choices">Reset to the job's ranking</button>
+                    </div>
+                    <div id="cvt-pick" data-no-i18n></div>`)}
+                    ${step(4, 'Hand off to an AI assistant <small>(optional)</small>', `
+                    <p class="cvt-warn">${icon('check')} <span>AI assistants can still make things up. The prompt below forbids it and asks for a source id after every bullet: check each line against this page before you send your CV. Then paste the result in step 5.</span></p>
+                    <div class="field">
+                        <div class="cvt-label-row"><label for="cvt-instructions">Your instructions: tone, length, emphasis</label>
+                            <span><label class="sr-only" for="cvt-preset">Preset</label><select id="cvt-preset"></select> <button type="button" class="btn btn-outline cvt-sm" data-act="reset-prompt">Reset</button></span></div>
+                        <textarea id="cvt-instructions" rows="5"></textarea>
+                        <small>Saved in this browser. Also sets the cover letter and email tone: write "warm" or "friendly" for a warmer letter, "concise" or "short" for a shorter one (formal otherwise). The hard rules against invented facts are always added and can't be switched off.</small>
+                    </div>
+                    <div class="field"><label for="cvt-prompt">Full prompt to copy (rules + your instructions + job + your verified CV data + cover letter and email drafts)</label><textarea id="cvt-prompt" rows="10" readonly spellcheck="false"></textarea></div>
+                    <div class="cvt-actions">
+                        <button type="button" class="btn btn-navy" data-act="copy-prompt">Copy full AI prompt</button>
+                        <button type="button" class="btn btn-outline" data-act="copy-md">Copy CV as Markdown</button>
+                        <button type="button" class="btn btn-outline" data-act="copy-json">Copy JSON</button>
+                        <button type="button" class="btn btn-outline" data-act="dl-md">Download .md</button>
+                        <button type="button" class="btn btn-outline" data-act="dl-json">Download .json</button>
+                    </div>`)}
+                    ${step(5, 'Check text from an AI assistant', `
+                    <div class="field"><label for="cvt-check-text">Paste what the AI wrote</label><textarea id="cvt-check-text" rows="6" spellcheck="false" placeholder="Paste the tailored summary or bullets here."></textarea></div>
+                    <div class="cvt-actions"><button type="button" class="btn btn-navy" data-act="check">Check against my CV</button></div>
+                    <div id="cvt-check-out" aria-live="polite"></div>`)}
+                    <p class="cvt-status" id="cvt-status" role="status" aria-live="polite"></p>
+                    <p class="track-privacy">${icon('check')} <span>This page isn't linked anywhere on the site or shown in search engines, and nothing you paste leaves this browser. Bookmark it.</span></p>
+                </div>
+
+                <div class="cvt-preview">
+                    <div class="cvt-tabs" role="tablist" aria-label="Output">
+                        <button type="button" role="tab" id="cvt-tab-cv" aria-controls="cvt-panel-cv" aria-selected="true">Tailored CV</button>
+                        <button type="button" role="tab" id="cvt-tab-letter" aria-controls="cvt-panel-letter" aria-selected="false" tabindex="-1">Cover Letter</button>
+                        <button type="button" role="tab" id="cvt-tab-email" aria-controls="cvt-panel-email" aria-selected="false" tabindex="-1">Application Email</button>
+                    </div>
+                    <div class="cvt-panel" id="cvt-panel-cv" role="tabpanel" aria-labelledby="cvt-tab-cv">
+                        <div class="cvt-toolbar">
+                            <p><strong>Tailored CV</strong> <span id="cvt-pages" class="cvt-pages"></span></p>
+                            <span class="cvt-tools"><button type="button" class="btn btn-outline" data-act="fit">Fit to length</button>
+                            <button type="button" class="btn btn-sun" data-act="print">${icon('doc')} Print / save as PDF</button></span>
+                        </div>
+                        <p class="cvt-help cvt-print-tip">In the print window choose "Save as PDF", paper A4, margins Default, and turn off headers and footers.</p>
+                        <div class="cvt-stage" id="cvt-stage"><article class="cvt-paper" id="cvt-paper" data-no-i18n data-user="edisonochieng24" data-domain="gmail.com" lang="en"></article></div>
+                    </div>
+                    <div class="cvt-panel" id="cvt-panel-letter" role="tabpanel" aria-labelledby="cvt-tab-letter" hidden>
+                        <div class="cvt-toolbar">
+                            <p><strong>Cover letter</strong> <span id="cvt-letter-pages" class="cvt-pages"></span></p>
+                            <span class="cvt-tools"><button type="button" class="btn btn-outline" data-act="copy-letter">Copy Cover Letter</button>
+                            <button type="button" class="btn btn-sun" data-act="print">${icon('doc')} Print / save as PDF</button></span>
+                        </div>
+                        <p class="cvt-help cvt-print-tip"><label class="cvt-inline"><input type="checkbox" id="cvt-sources"> Show where each fact comes from</label> Every fact is copied from your master CV; the wording around it claims nothing new. <span id="cvt-letter-tone"></span></p>
+                        <div class="cvt-stage" id="cvt-letter-stage"><article class="cvt-paper cvt-letter" id="cvt-letter" data-no-i18n lang="en"></article></div>
+                    </div>
+                    <div class="cvt-panel cvt-email" id="cvt-panel-email" role="tabpanel" aria-labelledby="cvt-tab-email" hidden>
+                        <div class="cvt-card">
+                            <h3 class="cvt-sub-h">Subject line</h3>
+                            <ul class="cvt-subjects" id="cvt-subjects" data-no-i18n></ul>
+                            <div class="field cvt-to"><label for="cvt-to">Send to <small>(optional, filled in from the advert when it lists an email address)</small></label><input id="cvt-to" type="email" autocomplete="off" placeholder="e.g. careers@company.com"></div>
+                            <h3 class="cvt-sub-h">Email body</h3>
+                            <pre class="cvt-email-body" id="cvt-email-body" data-no-i18n lang="en"></pre>
+                            <div class="cvt-actions">
+                                <button type="button" class="btn btn-navy" data-act="copy-email">Copy Email</button>
+                                <a class="btn btn-sun" id="cvt-mailto" href="mailto:">${icon('mail')} Open in my email app</a>
+                            </div>
+                            <p class="cvt-help cvt-mail-tip">Your email app can't attach files from a link: attach the CV and cover letter PDFs you saved from the other two tabs before you send.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+` + footer('    <script defer src="../js/cv-master.js"></script>\n    <script defer src="../js/cv-tailor-core.js?v=2"></script>\n    <script defer src="../js/cv-tailor.js?v=2"></script>\n');
+}
+
 /* ---------- Review-request link maker (for Edison) ---------- */
 function reviewLinkPage() {
     const url = SITE + 'request-review/';
@@ -1977,6 +2105,12 @@ write(LEAD.page, cheatSheetPage());
 write('account/index.html', accountPage());
 write('pay/index.html', payPage());
 write('cv/index.html', cvPage(loadCV()));
+{
+    const CVM = require('./cv-master.js');
+    const master = CVM.buildMaster(ROOT);
+    write('js/cv-master.js', CVM.masterJs(master));
+    write('cv-tailor/index.html', cvTailorPage());
+}
 write('calculators/index.html', calculatorsPage());
 write('request-review/index.html', reviewLinkPage());
 write('sitemap.xml', sitemap(projects, posts));
@@ -2033,9 +2167,9 @@ function wantedTranslations() {
         for (const m of h.matchAll(/\s(?:alt|title|placeholder|aria-label)="([^"]*)"/g)) add(m[1]);
         h.replace(/^[\s\S]*?<body[^>]*>/i, '').split(/<[^>]+>/).forEach(add);
     };
-    Object.keys(written).filter((f) => !f.startsWith('share/') && !f.startsWith('downloads/')).forEach((f) => fromHtml(written[f]));   // share/ is for you, in English
+    Object.keys(written).filter((f) => f.endsWith('.html') && !f.startsWith('share/') && !f.startsWith('downloads/')).forEach((f) => fromHtml(written[f]));   // pages only; share/ is for you, in English
     fromHtml(updated);
-    const deep = (v) => { if (typeof v === 'string') add(v); else if (v && typeof v === 'object') Object.values(v).forEach(deep); };
+    const deep = (v) => { if (typeof v === 'string') add(v); else if (Array.isArray(v)) v.forEach(deep); else if (v && typeof v === 'object') pick(v); };
     const skip = new Set(['id', 'theme', 'icon', 'cover', 'gallery', 'pdf', 'model', 'href', 'category', 'file', 'verify', 'linkedin', 'phone', 'year', 'tone']);
     const pick = (o) => Object.keys(o).filter((k) => !skip.has(k)).forEach((k) => deep(o[k]));
     projects.forEach(pick);
@@ -2048,8 +2182,8 @@ function wantedTranslations() {
    ?v=… they use. VERSION is a fingerprint of those files, so any change to them replaces the old
    cache (pages are always fetched fresh when online, so their own text is not part of it). */
 {
-    const OFFLINE_PAGES = ['index.html', 'offline.html', 'start/index.html', 'account/index.html', 'pay/index.html', 'exams/index.html', 'training/index.html', 'calculators/index.html'];
-    const DATA = /\/(tracker-data|projects|sheet-works|sheet-data|reviews|certificates|packages|config|i18n-sheet-fr|i18n-sheet-sw|search-index)\.js$/;
+    const OFFLINE_PAGES = ['index.html', 'offline.html', 'start/index.html', 'account/index.html', 'pay/index.html', 'exams/index.html', 'training/index.html', 'calculators/index.html', 'cv-tailor/index.html'];
+    const DATA = /\/(tracker-data|projects|sheet-works|sheet-data|reviews|certificates|packages|config|i18n-sheet-fr|i18n-sheet-sw|search-index|cv-master)\.js$/;
     const list = ['./'], files = [];
     const addFile = (rel) => { const clean = rel.split('#')[0]; if (!list.includes(clean) && fs.existsSync(path.join(ROOT, clean.split('?')[0]))) { list.push(clean); files.push(clean.split('?')[0]); } };
     OFFLINE_PAGES.forEach((pg) => {

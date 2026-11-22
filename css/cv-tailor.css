@@ -1,0 +1,208 @@
+/* =========================================================================
+   CV tailor (cv-tailor/). Uses the site's colours and fonts from style.css.
+   The .cvt-paper sheet is always light (it is what gets printed), and
+   @media print hides everything else so the browser saves a clean A4 PDF.
+   ========================================================================= */
+.cvt-hero .page-lede { max-width: 760px; }
+.cvt-truth { margin-top: 18px; display: flex; gap: 10px; align-items: flex-start; max-width: 760px; font-size: 0.92rem; color: rgba(255, 255, 255, 0.86); }
+.cvt-truth svg { flex: 0 0 18px; width: 18px; height: 18px; color: var(--sun); margin-top: 2px; }
+.cvt-wrap { background: var(--cream); padding-top: clamp(32px, 5vw, 56px); }
+.cvt-app { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 36px); align-items: start; }
+.cvt-ui { display: grid; gap: 18px; min-width: 0; }
+.cvt-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: clamp(18px, 2.4vw, 26px); box-shadow: var(--shadow-sm); min-width: 0; }
+.cvt-h { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-weight: 600; font-size: 1.2rem; color: var(--heading); margin-bottom: 16px; }
+.cvt-h small { font-family: var(--sans); font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+.cvt-n { flex: 0 0 28px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--navy); color: #fff; font: 700 0.85rem var(--sans); }
+[data-theme="dark"] .cvt-n { background: var(--sun); color: var(--navy); }
+.cvt-card .field textarea { min-height: 0; font-size: 0.92rem; }
+#cvt-prompt { font: 0.8rem/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--cream); }
+.cvt-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.cvt-actions .btn, .cvt-jobs .btn, .cvt-opts .btn, .cvt-sm { min-height: 42px; padding: 0 16px; font-size: 0.88rem; }
+.cvt-jobs { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cvt-jobs label { font-size: 0.85rem; font-weight: 700; color: var(--heading); margin-right: 4px; }
+.cvt-jobs select, #cvt-preset { flex: 1 1 180px; min-height: 42px; border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; background: var(--paper); color: var(--text); font: inherit; font-size: 0.88rem; }
+.cvt-label-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+.cvt-label-row > span { display: flex; gap: 8px; align-items: center; flex: 1 1 260px; justify-content: flex-end; }
+.cvt-help, .cvt-hint { font-size: 0.86rem; color: var(--muted); margin-bottom: 12px; }
+.cvt-hint { margin: 8px 0 0; }
+.cvt-empty { color: var(--muted); font-size: 0.92rem; }
+.cvt-error { padding: 16px; border-radius: 12px; background: #fff3ef; color: #a3301b; font-weight: 600; }
+.cvt-status { min-height: 1.4em; font-size: 0.9rem; font-weight: 700; color: var(--green); }
+.cvt-warn { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: #fff6e0; color: #5c4300; font-size: 0.88rem; margin-bottom: 16px; }
+.cvt-warn svg { flex: 0 0 18px; width: 18px; height: 18px; margin-top: 1px; color: #b07a00; }
+[data-theme="dark"] .cvt-warn { background: #3a2f10; color: #f3dfa6; }
+
+/* Match */
+.cvt-score p { font-size: 0.92rem; color: var(--text-soft); margin-top: 8px; }
+.cvt-score strong { font-size: 1.2rem; color: var(--heading); }
+.cvt-meter { height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.cvt-meter span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--teal), var(--green)); transition: width 0.4s var(--ease-out); }
+.cvt-gapnote { margin-top: 12px; padding: 10px 14px; border-radius: 12px; background: #fff1ec; color: #8a2c17; font-size: 0.88rem; }
+[data-theme="dark"] .cvt-gapnote { background: #3b1d16; color: #ffc6b6; }
+.cvt-ok { margin-top: 12px; padding: 10px 14px; border-radius: 12px; background: #e8f8ef; color: #0d5a35; font-size: 0.9rem; }
+[data-theme="dark"] .cvt-ok { background: #123426; color: #a9ecc8; }
+.cvt-warnings { margin-top: 12px; display: grid; gap: 6px; font-size: 0.87rem; color: var(--text-soft); }
+.cvt-warnings li { padding-left: 16px; position: relative; }
+.cvt-warnings li::before { content: '!'; position: absolute; left: 0; font-weight: 800; color: #c47f00; }
+.cvt-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 6px; font-size: 0.78rem; }
+.cvt-group { margin-top: 14px; }
+.cvt-group h4, .cvt-sec h4 { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--coral-text); margin-bottom: 8px; }
+.cvt-sec h4 small { text-transform: none; letter-spacing: 0; font-weight: 600; color: var(--muted); }
+.cvt-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cvt-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 99px; font-size: 0.82rem; font-weight: 600; border: 1px solid transparent; cursor: help; }
+.cvt-chip .cvt-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: 0 0 8px; }
+.cvt-chip.is-matched { background: #e6f7ee; color: #0e6b3e; border-color: #bfe8d1; }
+.cvt-chip.is-partial { background: #fff4dc; color: #855a00; border-color: #f2d999; }
+.cvt-chip.is-gap { background: var(--paper); color: #a3301b; border-color: #f1c4b8; border-style: dashed; }
+[data-theme="dark"] .cvt-chip.is-matched { background: #123426; color: #8fe3b6; border-color: #1f5a3f; }
+[data-theme="dark"] .cvt-chip.is-partial { background: #3a2f10; color: #f3d27a; border-color: #6b5520; }
+[data-theme="dark"] .cvt-chip.is-gap { color: #ff9f85; border-color: #6b3326; }
+.cvt-req { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.8; }
+.cvt-pref { font-size: 0.72rem; font-weight: 500; opacity: 0.75; }
+.cvt-evidence { margin-top: 16px; font-size: 0.86rem; }
+.cvt-evidence summary { cursor: pointer; font-weight: 700; color: var(--blue-text); }
+.cvt-evidence ul { margin-top: 10px; display: grid; gap: 8px; }
+.cvt-evidence li { display: grid; gap: 2px; }
+.cvt-evidence li span { color: var(--muted); font-size: 0.82rem; }
+
+/* Choose */
+.cvt-opts { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-bottom: 14px; font-size: 0.9rem; font-weight: 600; color: var(--heading); }
+.cvt-opts label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.cvt-sec + .cvt-sec { margin-top: 18px; }
+.cvt-list, .cvt-sub { display: grid; gap: 4px; }
+.cvt-sub { margin: 2px 0 6px 26px; padding-left: 10px; border-left: 2px solid var(--line); }
+.cvt-row { display: grid; grid-template-columns: minmax(0, 1fr) 56px auto; gap: 10px; align-items: center; padding: 6px 8px; border-radius: 10px; }
+.cvt-row:hover { background: var(--cream); }
+.cvt-row.is-off { opacity: 0.55; }
+.cvt-row label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 0.9rem; min-width: 0; }
+.cvt-row input { margin-top: 3px; flex: 0 0 auto; width: 16px; height: 16px; accent-color: var(--navy); }
+[data-theme="dark"] .cvt-row input { accent-color: var(--sun); }
+.cvt-row label > span { min-width: 0; }
+.cvt-row-t { display: block; color: var(--heading); font-weight: 600; overflow-wrap: anywhere; }
+.cvt-row.is-bullet .cvt-row-t { font-weight: 500; color: var(--text-soft); font-size: 0.86rem; }
+.cvt-row small { display: block; color: var(--muted); font-size: 0.78rem; margin-top: 1px; overflow-wrap: anywhere; }
+.cvt-rel { height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.cvt-rel span { display: block; height: 100%; background: var(--teal); border-radius: inherit; }
+.cvt-move { display: inline-flex; gap: 2px; }
+.cvt-move button { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--heading); font-size: 0.85rem; cursor: pointer; }
+.cvt-move button:hover:not([disabled]) { border-color: var(--heading); }
+.cvt-move button[disabled] { opacity: 0.3; cursor: default; }
+.cvt-nest { list-style: none; }
+.cvt-flags { margin-top: 10px; display: grid; gap: 8px; font-size: 0.88rem; }
+.cvt-flags li { display: grid; gap: 2px; padding: 8px 12px; border-radius: 10px; background: var(--cream); }
+.cvt-flags li span:last-child { color: var(--muted); font-size: 0.84rem; }
+.cvt-flag-k { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--coral-text); }
+
+/* Preview */
+.cvt-preview { position: sticky; top: calc(var(--header-h) + 16px); min-width: 0; }
+.cvt-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+.cvt-toolbar p { color: var(--heading); font-size: 0.95rem; }
+.cvt-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+.cvt-tools .btn { min-height: 44px; padding: 0 18px; font-size: 0.9rem; }
+.cvt-pages { margin-left: 6px; font-size: 0.8rem; font-weight: 700; color: var(--green); }
+.cvt-pages.is-over { color: var(--coral-text); }
+.cvt-print-tip { font-size: 0.8rem; margin-bottom: 10px; }
+.cvt-stage { position: relative; overflow: hidden; border-radius: 6px; box-shadow: var(--shadow-md); background: #fff; }
+
+/* The sheet: A4 at real size, scaled down on screen by js/cv-tailor.js */
+.cvt-paper {
+    width: 210mm; min-height: 297mm; padding: 13mm 14mm; transform-origin: top left; background: #fff; color: #18203a;
+    font: 9.6pt/1.42 var(--sans); letter-spacing: -0.003em;
+    /* faint line where each A4 page ends */
+    background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(297mm - 1px), #f0b9a8 calc(297mm - 1px), #f0b9a8 297mm);
+}
+.cvt-paper a { color: #1f4fd1; text-decoration: none; }
+.cvp-head { display: flex; gap: 6mm; align-items: center; padding-bottom: 4mm; border-bottom: 2px solid #0e1a3a; margin-bottom: 4mm; }
+.cvp-photo { width: 24mm; height: 24mm; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
+.cvt-paper h1 { font: 600 21pt/1.1 var(--serif); color: #0e1a3a; letter-spacing: -0.01em; }
+.cvp-title { font-weight: 700; color: #c43d22; font-size: 10.5pt; margin-top: 1mm; }
+.cvp-contact { margin-top: 1.5mm; font-size: 8.6pt; color: #4c5470; }
+.cvt-paper section { margin-top: 3.6mm; }
+.cvt-paper h2 { font-size: 8pt; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #0e1a3a; padding-bottom: 1mm; border-bottom: 1px solid #e2d9c8; margin-bottom: 2mm; }
+.cvt-paper p { color: #333a52; }
+.cvp-key { margin-top: 1.6mm; font-size: 9pt; }
+.cvp-key strong { color: #0e1a3a; }
+.cvp-item { margin-top: 2.4mm; break-inside: avoid; page-break-inside: avoid; }
+.cvp-item:first-of-type { margin-top: 0; }
+.cvp-item header { display: flex; justify-content: space-between; gap: 4mm; align-items: baseline; }
+.cvt-paper h3 { font-size: 10pt; font-weight: 700; color: #0e1a3a; }
+.cvp-item header span { font-size: 8.6pt; font-weight: 600; color: #646a82; white-space: nowrap; }
+.cvp-org { font-size: 9pt; font-weight: 600; color: #1f4fd1 !important; }
+.cvt-paper ul { margin-top: 1mm; display: grid; gap: 0.7mm; }
+.cvt-paper li { position: relative; padding-left: 3.6mm; color: #333a52; }
+.cvt-paper li::before { content: ''; position: absolute; left: 0.4mm; top: 0.58em; width: 1.3mm; height: 1.3mm; border-radius: 50%; background: #c43d22; }
+/* 1-page mode: a little tighter, still easy to read */
+.cvt-paper.is-compact { font-size: 9pt; line-height: 1.36; }
+.cvt-paper.is-compact section { margin-top: 3mm; }
+.cvt-paper.is-compact .cvp-item { margin-top: 1.8mm; }
+.cvt-paper.is-compact h3 { font-size: 9.6pt; }
+.cvt-paper.is-compact .cvp-tags { display: none; }
+.cvt-paper.is-compact .cvp-cols { grid-template-columns: 1.15fr 1.15fr 0.7fr; gap: 0 5mm; }
+.cvt-paper.is-compact .cvp-cols section:first-child { grid-row: auto; }
+.cvt-paper.is-compact .cvp-head { padding-bottom: 3mm; margin-bottom: 3mm; }
+.cvp-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 7mm; align-items: start; }
+.cvp-cols section:first-child { grid-row: span 3; }
+.cvp-certs li strong { font-weight: 600; color: #0e1a3a; }
+.cvp-tags { margin-top: 0.8mm; font-size: 8.2pt; color: #646a82 !important; }
+
+/* Output tabs: Tailored CV · Cover Letter · Application Email */
+.cvt-tabs { display: flex; gap: 4px; padding: 4px; margin-bottom: 14px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); overflow-x: auto; }
+.cvt-tabs [role="tab"] { flex: 1 0 auto; min-height: 42px; padding: 0 14px; border: 0; border-radius: 10px; background: transparent; color: var(--text-soft); font: 700 0.9rem var(--sans); cursor: pointer; white-space: nowrap; }
+.cvt-tabs [role="tab"]:hover { color: var(--heading); background: var(--cream); }
+.cvt-tabs [role="tab"][aria-selected="true"] { background: var(--navy); color: #fff; }
+[data-theme="dark"] .cvt-tabs [role="tab"][aria-selected="true"] { background: var(--sun); color: var(--navy); }
+.cvt-tabs [role="tab"]:focus-visible { outline: 3px solid var(--blue); outline-offset: 1px; }
+.cvt-inline { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; color: var(--heading); margin-right: 6px; cursor: pointer; }
+
+/* Cover letter sheet */
+.cvt-letter { font-size: 10.6pt; line-height: 1.52; }
+.cvt-letter p { margin-top: 3.4mm; color: #222a40; }
+.cvl-head { padding-bottom: 3mm; border-bottom: 2px solid #0e1a3a; }
+.cvl-head h1 { font: 600 19pt/1.1 var(--serif); color: #0e1a3a; }
+.cvl-head p { margin-top: 1.4mm !important; font-size: 8.8pt; color: #4c5470 !important; }
+.cvl-date { margin-top: 6mm !important; }
+.cvl-re { margin-top: 5mm !important; }
+.cvl-sign { margin-top: 6mm !important; }
+.cvt-letter.show-sources .cvl-fact { background: #e6f7ee; box-shadow: inset 0 -1px 0 #1fae6a; border-radius: 2px; cursor: help; }
+
+/* Application email */
+.cvt-email .cvt-card { box-shadow: none; }
+.cvt-sub-h { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--coral-text); margin: 4px 0 10px; }
+.cvt-sub-h:not(:first-child) { margin-top: 20px; }
+.cvt-subjects { display: grid; gap: 8px; }
+.cvt-subjects li { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; }
+.cvt-subjects label { display: flex; gap: 10px; align-items: flex-start; font-size: 0.92rem; color: var(--heading); font-weight: 600; cursor: pointer; min-width: 0; overflow-wrap: anywhere; }
+.cvt-subjects input { margin-top: 4px; accent-color: var(--navy); }
+.cvt-subjects .btn { flex: 0 0 auto; min-height: 36px; padding: 0 14px; }
+.cvt-to { margin-top: 16px; }
+.cvt-email-body { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 14px; padding: 16px 18px; border-radius: 12px; background: var(--cream); border: 1px solid var(--line); color: var(--text); font: 0.93rem/1.6 var(--sans); }
+.cvt-mail-tip { margin: 12px 0 0; }
+
+@media (max-width: 1100px) {
+    .cvt-app { grid-template-columns: 1fr; }
+    .cvt-preview { position: static; }
+}
+@media (max-width: 560px) {
+    .cvt-row { grid-template-columns: minmax(0, 1fr) auto; }
+    .cvt-rel { display: none; }
+    .cvt-sub { margin-left: 8px; }
+}
+
+@media print {
+    @page { size: A4; margin: 12mm 14mm; }   /* js/cv-tailor.js counts pages with these margins */
+    html { font-size: 16px; }
+    body.cvt-body { background: #fff !important; }
+    .cvt-body .site-header, .cvt-body .site-footer, .cvt-body .fab-wa, .cvt-body .scroll-progress, .cvt-body .skip-link, .cvt-body .page-hero, .cvt-body .newsletter-band,
+    .cvt-body .search-overlay, .cvt-ui, .cvt-toolbar, .cvt-print-tip, .cvt-tabs, .cvt-panel[hidden], .cvt-mail-tip, [class*="install"], .acct-btn, .acct-toast, .acct-doc-view { display: none !important; }
+    .cvt-wrap { padding: 0 !important; background: #fff !important; }
+    .cvt-body .container { padding: 0 !important; max-width: none !important; }
+    .cvt-app { display: block; }
+    .cvt-preview { position: static; }
+    .cvt-stage { height: auto !important; overflow: visible; box-shadow: none; border-radius: 0; }
+    .cvt-paper { width: auto; min-height: 0; padding: 0; transform: none !important; background-image: none; }
+    .cvt-paper h2 { break-after: avoid; page-break-after: avoid; }
+    .cvt-paper a { color: #1f4fd1 !important; }
+    .cvt-letter { font-size: 10.6pt; }
+    .cvt-letter .cvl-fact { background: none !important; box-shadow: none !important; }
+    .cvt-email .cvt-card { border: 0; padding: 0; }
+}
