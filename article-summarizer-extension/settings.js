@@ -1,4 +1,6 @@
 export const DEFAULTS = {
+  // "free" = Chrome built-in AI, falling back to offline; "offline"; or "claude" (needs an API key).
+  provider: "free",
   apiKey: "",
   model: "claude-opus-5-5",
   length: "medium",

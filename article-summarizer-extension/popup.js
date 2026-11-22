@@ -1,6 +1,8 @@
 import { extractArticle } from "./extract.js";
 import { summarize, ClaudeError, MAX_CHARS } from "./claude.js";
 import { loadSettings, saveSettings } from "./settings.js";
+import { chromeAIStatus, prepareChromeAI, summarizeWithChromeAI } from "./chrome-ai.js";
+import { summarizeOffline } from "./offline.js";
 
 const $ = (id) => document.getElementById(id);
 const els = {
@@ -13,6 +15,9 @@ let settings;
 let tab;
 let controller = null;
 let summaryText = "";
+let aiStatus = "unsupported";
+
+const ENGINE_NAMES = { claude: "Claude", chrome: "Chrome built-in AI", offline: "Offline mode" };
 
 init();
 
@@ -30,8 +35,10 @@ async function init() {
   els.copy.addEventListener("click", copySummary);
   els.length.addEventListener("change", () => saveSettings({ length: els.length.value }));
 
-  if (!settings.apiKey) {
-    showStatus("Add your Anthropic API key in Settings to get started. ", true);
+  if (settings.provider === "free") aiStatus = await chromeAIStatus();
+
+  if (settings.provider === "claude" && !settings.apiKey) {
+    showStatus("Add your Anthropic API key in Settings, or switch to a free engine. ", true);
     const link = document.createElement("a");
     link.href = "#";
     link.textContent = "Open Settings";
@@ -49,7 +56,27 @@ async function init() {
     els.length.value = cached.length;
     showStatus("Summary from earlier — click Regenerate for a fresh one.");
     els.actions.hidden = false;
+  } else {
+    showStatus(engineHint());
   }
+}
+
+// Which engine will actually run for this click.
+function pickEngine() {
+  if (settings.provider === "claude") return "claude";
+  if (settings.provider === "offline") return "offline";
+  return ["available", "downloadable", "downloading"].includes(aiStatus) ? "chrome" : "offline";
+}
+
+function engineHint() {
+  const engine = pickEngine();
+  if (settings.provider === "free" && engine === "offline") {
+    return "Using free Offline mode (Chrome built-in AI isn't available in this browser).";
+  }
+  if (engine === "chrome" && aiStatus !== "available") {
+    return "Using Chrome built-in AI. The first summary downloads the model once, which can take a few minutes.";
+  }
+  return `Engine: ${ENGINE_NAMES[engine]}`;
 }
 
 async function run() {
@@ -58,6 +85,21 @@ async function run() {
     showStatus("Browser pages can't be summarized. Open an article and try again.", true);
     return;
   }
+
+  const engine = pickEngine();
+  const length = els.length.value;
+  // Must start inside the click (before any await): Chrome only lets the model download on a user click.
+  const prepared = engine === "chrome"
+    ? prepareChromeAI({
+        length,
+        language: settings.language,
+        onDownload: (p) => showStatus(`Downloading Chrome's built-in AI model… ${Math.round(p * 100)}% (one time only)`),
+      })
+    : null;
+  const release = () => {
+    prepared?.points.then((x) => x.destroy?.(), () => {});
+    prepared?.tldr?.then((x) => x.destroy?.(), () => {});
+  };
 
   setBusy(true);
   summaryText = "";
@@ -73,12 +115,14 @@ async function run() {
     });
     article = result?.result;
   } catch (e) {
+    release();
     setBusy(false);
     showStatus("Couldn't read this page (the browser blocks extensions on some sites, like the Web Store or PDF viewer).", true);
     return;
   }
 
   if (!article || article.text.trim().length < 80) {
+    release();
     setBusy(false);
     showStatus("Couldn't find article text on this page. Try selecting the text you want summarized, then click Summarize.", true);
     return;
@@ -92,27 +136,43 @@ async function run() {
   showStatus(`${note}… ${wordCount(article.text).toLocaleString()} words`);
 
   controller = new AbortController();
-  const length = els.length.value;
   let pending = false;
+  const show = (full) => {
+    summaryText = full;
+    // Batch DOM updates to one per frame.
+    if (!pending) {
+      pending = true;
+      requestAnimationFrame(() => { pending = false; render(summaryText); });
+    }
+  };
+
+  let used = engine;
   try {
-    await summarize({
-      apiKey: settings.apiKey,
-      model: settings.model,
-      length,
-      language: settings.language,
-      article,
-      signal: controller.signal,
-      onText: (chunk) => {
-        summaryText += chunk;
-        // Batch DOM updates to one per frame.
-        if (!pending) {
-          pending = true;
-          requestAnimationFrame(() => { pending = false; render(summaryText); });
-        }
-      },
-    });
+    if (engine === "claude") {
+      let acc = "";
+      await summarize({
+        apiKey: settings.apiKey,
+        model: settings.model,
+        length,
+        language: settings.language,
+        article,
+        signal: controller.signal,
+        onText: (chunk) => show((acc += chunk)),
+      });
+    } else if (engine === "chrome") {
+      try {
+        await summarizeWithChromeAI(prepared, article, { signal: controller.signal, onText: show });
+      } catch (e) {
+        if (e.name === "AbortError") throw e;
+        console.warn("Chrome built-in AI failed, using offline mode:", e);
+        used = "offline";
+        show(summarizeOffline(article, length));
+      }
+    } else {
+      show(summarizeOffline(article, length));
+    }
     render(summaryText);
-    showStatus(`Done · ${wordCount(article.text).toLocaleString()} words → ${wordCount(summaryText).toLocaleString()}`);
+    showStatus(`Done with ${ENGINE_NAMES[used]} · ${wordCount(article.text).toLocaleString()} words → ${wordCount(summaryText).toLocaleString()}`);
     await setCached({ text: summaryText, length });
     els.actions.hidden = false;
   } catch (e) {

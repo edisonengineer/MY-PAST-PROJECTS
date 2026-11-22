@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Article Summarizer",
   "version": "1.0.0",
-  "description": "Summarize the article you're reading with one click, powered by Claude.",
+  "description": "Summarize the article you're reading with one click. Free on-device AI, offline mode, or Claude.",
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": ["https://api.anthropic.com/*"],
   "action": {
