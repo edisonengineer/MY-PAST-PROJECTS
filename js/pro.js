@@ -319,7 +319,8 @@
             const note = document.createElement('p');
             note.className = 'form-intro';
             note.textContent = 'Pay with M-Pesa: you get a prompt on your phone, enter your PIN, and ' + (EXAMS ? 'your pass' : 'Pro') + ' turns on straight away.';
-            $('[data-pane=buy] .form-intro', modal).after(note);
+            // Under the intro (exam pass) or the plan choice (Quote Pro, which has no intro)
+            ($('[data-pane=buy] .form-intro', modal) || $('[data-pane=buy] .nq-plan-pick', modal) || $('[data-pane=buy] h2', modal)).after(note);
             form.after(stkPanel);
             code.addEventListener('input', paintPayBtn);
             $$('input[name=plan]', modal).forEach((r) => r.addEventListener('change', paintPayBtn));

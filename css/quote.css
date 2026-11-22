@@ -110,7 +110,7 @@
 .nq-plan-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 18px; }
 .nq-plan-pick label { position: relative; cursor: pointer; }
 .nq-plan-pick input { position: absolute; opacity: 0; }
-.nq-plan-pick span { display: grid; gap: 2px; padding: 12px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--cream); }
+.nq-plan-pick label > span { display: grid; gap: 2px; padding: 12px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--cream); }
 .nq-plan-pick em { font-style: normal; font-weight: 700; color: var(--heading); }
 .nq-plan-pick small { color: var(--green); font-weight: 700; }
 .nq-plan-pick input:checked + span { border-color: var(--sun); background: rgba(255, 182, 39, 0.14); }
@@ -294,4 +294,44 @@
 .ex-rev summary b { margin-left: auto; white-space: nowrap; }
 .ex-rev > :not(summary) { margin-left: 16px; margin-right: 16px; }
 .ex-rev > :last-child { margin-bottom: 16px; }
+/* Exam generator (js/exam-gen.js) */
+.ex-card { min-width: 0; }
+.ex-card.ex-gen { grid-column: span 2; border: 2px solid var(--navy); }
+.ex-gen-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-top: 4px; }
+.ex-gen-form label { display: grid; gap: 4px; font-size: 0.82rem; font-weight: 700; color: var(--text-soft); }
+.ex-gen-form select { width: 100%; min-width: 0; padding: 9px 10px; border-radius: 10px; border: 1.5px solid var(--line); background-color: var(--cream); color: var(--text); font: inherit; font-weight: 600; }
+.ex-gen-form select:disabled { opacity: 0.5; }
+.ex-gen-form .ex-gen-wide { grid-column: 1 / -1; }
+.ex-check { display: flex !important; align-items: center; gap: 8px !important; font-size: 0.95rem !important; color: var(--text) !important; }
+.ex-check input { width: 18px; height: 18px; accent-color: var(--blue); }
+.ex-gen-sum { font-size: 0.88rem; font-weight: 700; color: var(--heading); }
+.ex-table-wrap { overflow-x: auto; margin-bottom: 14px; }
+.ex-vals, .ex-dt { border-collapse: collapse; font-size: 0.92rem; min-width: 100%; }
+.ex-vals th, .ex-vals td, .ex-dt th, .ex-dt td { padding: 8px 12px; border: 1px solid var(--line); text-align: left; }
+.ex-vals th, .ex-dt thead th { background: var(--cream); color: var(--heading); font-weight: 800; }
+.ex-vals th small { display: block; font-weight: 600; color: var(--muted); font-size: 0.75rem; }
+.ex-vals td { font-weight: 800; color: var(--heading); font-size: 1.02rem; }
+.ex-vals td.is-changed { background: rgba(255, 182, 39, 0.22); }
+.ex-dt tbody th { font-weight: 700; }
+.ex-com { display: flex; flex-wrap: wrap; gap: 12px; }
+.ex-com .ex-mass { width: 160px; }
+.ex-draw .og { fill: none; stroke: #13875a; stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.ex-draw text.og { fill: #13875a; stroke: none; font-weight: 800; }
+.ex-draw polyline { fill: none; }
+/* Printed performance summary */
+.ex-sum { font-family: var(--sans); color: #18203a; font-size: 10pt; line-height: 1.45; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.ex-sum-brand { color: #13a89e; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 8.5pt; }
+.ex-sum h1 { font-family: var(--serif); font-size: 22pt; color: #0e1a3a; margin: 2px 0 4px; }
+.ex-sum h2 { font-family: var(--serif); font-size: 13pt; color: #0e1a3a; margin: 16px 0 6px; }
+.ex-sum-meta { color: #4c5470; }
+.ex-sum-score { display: flex; align-items: center; gap: 14px; margin-top: 10px; padding: 10px 14px; border-radius: 8px; border: 2px solid #ff6b4a; }
+.ex-sum-score.is-pass { border-color: #1fae6a; }
+.ex-sum-score b { font-family: var(--serif); font-size: 26pt; color: #0e1a3a; }
+.ex-sum table { width: 100%; border-collapse: collapse; }
+.ex-sum th, .ex-sum td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #dfe3ec; vertical-align: top; }
+.ex-sum th { background: #f1f8f7; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.05em; }
+.ex-sum-q td { font-size: 9pt; }
+.ex-sum tr { break-inside: avoid; }
+.ex-sum-foot { margin-top: 16px; color: #646a82; font-size: 8.5pt; }
 @media (max-width: 760px) { .ex-lower { grid-template-columns: 1fr; } .ex-timer { margin-left: 0; } }
+@media (max-width: 560px) { .ex-card.ex-gen { grid-column: auto; } .ex-gen-form { grid-template-columns: 1fr; } .ex-com .ex-mass { width: calc(50% - 6px); } }

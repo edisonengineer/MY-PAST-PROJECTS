@@ -198,10 +198,10 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
-  "t": "SolidWorks exam practice (CSWA-style)",
-  "d": "Timed SolidWorks practice tests: theory questions and drawings to model for the mass, new sizes every attempt, instant marking. Free sample test.",
+  "t": "SolidWorks exam practice (CSWA & CSWP-style)",
+  "d": "Timed SolidWorks practice tests: parts to model in 3 stages, centre of mass, theory with new numbers every time, instant marking. Endless exam generator. Free sample test and demo.",
   "u": "exams/index.html",
-  "x": "solidworks cswa exam practice test certification mock quiz questions mass model drawing student certificate"
+  "x": "solidworks cswa cswp exam practice test certification mock quiz questions mass centre of mass model drawing student certificate generator configurations design tables equations mates sheet metal k-factor"
  },
  {
   "k": "page",

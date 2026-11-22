@@ -5,8 +5,10 @@
      - modelling: a dimensioned drawing with new random sizes every attempt;
        the student models it and enters the mass. The exact mass is worked
        out here, and answers within 1% count as right.
-   Free: the sample test. The exam pass (js/pro.js, plan "Exams") opens the
-   full exams and practice by topic. Attempts and scores stay on the device.
+   Free: the sample test and a CSWP-style demo. The exam pass (js/pro.js,
+   plan "Exams") opens the full exams, the endless exam generator (parts in
+   3 stages, centre of mass, generated theory: js/exam-gen.js), practice by
+   topic and the printable summary. Attempts and scores stay on the device.
    ========================================================================= */
 (function () {
     'use strict';
@@ -14,6 +16,7 @@
     const NP = window.NexusPro;
     if (!NP || !document.getElementById('ex-home')) return;
     const { $, $$, store, esc, fmt, isPro, openPro } = NP;
+    const EG = window.ExamGen;
     const rnd = (a, b, step) => { step = step || 1; return a + step * Math.floor(Math.random() * (Math.floor((b - a) / step) + 1)); };
     const even = (a, b) => rnd(Math.ceil(a / 2) * 2, b, 2);
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -298,7 +301,7 @@
     /* =====================================================================
        Exams
        ===================================================================== */
-    const POINTS = { theory: 5, model: 15 };
+    const POINTS = { theory: 5, model: 15, gen: 5, cad: 15 };
     const PASS = 0.7;
     const EXAMS = {
         sample: { name: 'Sample test', minutes: 30, free: true, items: ['T', 'T', 'T', 'T', 'plate', 'bracket', 'bracket+', 'shaft'] },
@@ -328,9 +331,53 @@
         return { exam: examId, started: Date.now(), minutes: ex.minutes, qs, answers: qs.map(() => ''), flags: qs.map(() => false), at: 0 };
     }
     const massOf = (q) => TPL[q.tpl].vol(q.p) * q.mat[1];
+
+    /* =====================================================================
+       Generated exams (js/exam-gen.js): a new exam every time
+       Each CSWP-style part gives 4 questions: the mass after stages 1, 2 and 3,
+       then the centre of mass of the stage 3 part.
+       ===================================================================== */
+    const DEMO_PARTS = ['lbracket', 'pillow', 'clevis'];
+    const GEN_SIZES = {   // [parts, theory questions, minutes]
+        cswp: { short: [1, 3, 35], std: [2, 6, 75], long: [3, 10, 120] },
+        parts: { short: [1, 0, 30], std: [2, 0, 60], long: [4, 0, 120] },
+        theory: { short: [0, 10, 20], std: [0, 20, 40], long: [0, 40, 80] }
+    };
+    const STYLE_NAMES = { cswp: 'CSWP-style exam', parts: 'CSWP-style parts', theory: 'Theory exam' };
+    const LEN_NAMES = { short: 'short', std: 'standard', long: 'long' };
+    function cadQs(tpl, start) {
+        const pr = EG.problem(tpl), qs = pr.stages.map((st, k) => ({ kind: 'cad', tpl, stage: k + 1, ask: 'mass', p: st.p, mat: st.mat, changes: st.changes, matFrom: st.matFrom ? st.matFrom.name : '', first: start, prev: start + k - 1 }));
+        qs.push(Object.assign({}, qs[2], { ask: 'com', prev: start + 2 }));
+        return qs;
+    }
+    function buildGen(cfg) {
+        // cfg: { id, name, parts, theory, minutes, group, pool }
+        const qs = [], seen = new Set();
+        shuffle(cfg.pool || Object.keys(EG.TEMPLATES)).slice(0, cfg.parts).forEach((t) => { cadQs(t, qs.length).forEach((q) => qs.push(q)); });
+        for (let i = 0; i < cfg.theory; i++) qs.push(EG.theory(cfg.group || 'all', seen));
+        return { exam: cfg.id, name: cfg.name, started: Date.now(), minutes: cfg.minutes, qs, answers: qs.map(() => ''), flags: qs.map(() => false), at: 0 };
+    }
+    const genConfig = () => {
+        const style = $('#gen-style').value, len = $('#gen-len').value, sz = GEN_SIZES[style][len], timed = $('#gen-timed').checked;
+        return { id: 'gen-' + style, name: STYLE_NAMES[style] + ' (' + LEN_NAMES[len] + ')', parts: sz[0], theory: sz[1], minutes: timed ? sz[2] : 0, group: $('#gen-topic').value };
+    };
+    function paintGenSummary() {
+        const c = genConfig(), n = c.parts * 4 + c.theory;
+        $('#gen-sum').textContent = n + ' questions' + (c.parts ? ' · ' + c.parts + ' part' + (c.parts > 1 ? 's' : '') + ' in 3 stages' : '') + (c.theory ? ' · ' + c.theory + ' theory' : '') + ' · ' + (c.minutes ? c.minutes + ' minutes' : 'untimed');
+        $('#gen-topic').disabled = !c.theory;
+    }
+    const nameOf = (a) => a.name || (EXAMS[a.exam] || {}).name || 'Practice test';
+    const solved = (q) => EG.solve(q.tpl, q.p, q.mat);
+    const comText = (c) => 'X ' + fmt(c[0], 2) + ', Y ' + fmt(c[1], 2) + ', Z ' + fmt(c[2], 2) + ' mm';
     const isRight = (q, ans) => {
         if (ans === '' || ans == null) return false;
-        if (q.kind === 'theory') return +ans === 0;   // option 0 is always the right one (shown shuffled)
+        if (q.kind === 'theory' || q.kind === 'gen') return +ans === 0;   // option 0 is always the right one (shown shuffled)
+        if (q.kind === 'cad') {
+            const a = String(ans).split('|'), s = solved(q);
+            if (q.ask === 'mass') return EG.within(a[0], s.mass);
+            const com = q.ask === 'com' ? a : a.slice(1);
+            return (q.ask === 'com' || EG.within(a[0], s.mass)) && com.length === 3 && com.every((v, k) => EG.within(v, s.com[k]));
+        }
         const v = parseFloat(String(ans).replace(',', '.'));
         const m = massOf(q);
         return isFinite(v) && Math.abs(v - m) <= m * 0.01;
@@ -361,30 +408,51 @@
         $('#ex-practice-open').textContent = pro ? 'Open practice' : 'Get the exam pass';
         $('#ex-practice-card').classList.toggle('is-locked', !pro);
         const hist = store.get('ex-history', []);
-        $('#ex-history').innerHTML = hist.length ? hist.slice(0, 10).map((h) => '<tr><td>' + esc(EXAMS[h.exam] ? EXAMS[h.exam].name : h.exam) + '</td><td>' + esc(h.date) + '</td><td>' + h.score + '%</td><td>' + (h.score >= PASS * 100 ? '<span class="ex-pass">Pass</span>' : '<span class="ex-fail">Not yet</span>') + '</td></tr>').join('') :
+        $('#ex-history').innerHTML = hist.length ? hist.slice(0, 10).map((h) => '<tr><td>' + esc(h.name || (EXAMS[h.exam] ? EXAMS[h.exam].name : h.exam)) + '</td><td>' + esc(h.date) + '</td><td>' + h.score + '%</td><td>' + (h.score >= PASS * 100 ? '<span class="ex-pass">Pass</span>' : '<span class="ex-fail">Not yet</span>') + '</td></tr>').join('') :
             '<tr><td colspan="4">No attempts yet. Start with the free sample test.</td></tr>';
         const resume = store.get('ex-attempt', null);
         $('#ex-resume').hidden = !(resume && remaining(resume) > 0);
-        if (resume) $('#ex-resume-name').textContent = EXAMS[resume.exam].name;
+        if (resume) $('#ex-resume-name').textContent = nameOf(resume);
+        // Demo and generator cards
+        const best = (pre) => { const b = hist.filter((h) => h.exam.indexOf(pre) === 0).sort((x, y) => y.score - x.score)[0]; return b ? 'Best: ' + b.score + '%' : ''; };
+        $('#ex-demo-card .ex-best').textContent = best('demo');
+        $('#ex-gen-card .ex-best').textContent = best('gen-');
+        $('#ex-gen-card').classList.toggle('is-locked', !pro);
+        $('#gen-start').textContent = pro ? 'Generate my exam' : 'Get the exam pass';
+        paintGenSummary();
     }
+    // Start a test; checks for an unfinished one first
+    function begin(a) {
+        const cur = store.get('ex-attempt', null);
+        if (cur && remaining(cur) > 0 && !confirm('You have an unfinished ' + nameOf(cur) + '. Start a new test anyway?')) return;
+        attempt = a;
+        store.set('ex-attempt', attempt);
+        startRun();
+        NP.track('exam-start-' + a.exam);
+    }
+    $('#ex-demo-card button').addEventListener('click', () => begin(buildGen({ id: 'demo', name: 'CSWP-style demo', parts: 1, theory: 1, minutes: 30, pool: DEMO_PARTS })));
+    $('#gen-start').addEventListener('click', () => {
+        if (!isPro()) { openPro('buy', 'The exam generator is part of the exam pass.'); return; }
+        begin(buildGen(genConfig()));
+    });
+    ['#gen-style', '#gen-len', '#gen-timed'].forEach((sel) => $(sel).addEventListener('change', paintGenSummary));
+    $('#gen-topic').innerHTML = ['all', 'seg2', 'seg3', 'sheet', 'fea'].map((g) => '<option value="' + g + '">' + esc(EG.GROUPS[g].name) + '</option>').join('');
     $$('[data-exam] button').forEach((b) => b.addEventListener('click', () => {
         const id = b.closest('[data-exam]').dataset.exam;
         if (!EXAMS[id].free && !isPro()) { openPro('buy', 'The full practice exams are part of the exam pass.'); return; }
-        const cur = store.get('ex-attempt', null);
-        if (cur && remaining(cur) > 0 && !confirm('You have an unfinished ' + EXAMS[cur.exam].name + '. Start a new test anyway?')) return;
-        attempt = build(id);
-        store.set('ex-attempt', attempt);
-        startRun();
-        NP.track('exam-start-' + id);
+        begin(build(id));
     }));
     $('#ex-resume-btn').addEventListener('click', () => { attempt = store.get('ex-attempt', null); if (attempt) startRun(); });
 
+    // Typed answers of a question; a centre of mass is "x|y|z" (blank when nothing is typed)
+    const collect = (box) => { const v = $$('[data-ans]', box).map((el) => el.value.trim()); return v.every((x) => x === '') ? '' : v.join('|'); };
+
     /* ---------- Running an exam ---------- */
     let attempt = null, tick = 0;
-    const remaining = (a) => a.started + a.minutes * 60000 - Date.now();
+    const remaining = (a) => (a.minutes ? a.started + a.minutes * 60000 - Date.now() : Infinity);   // untimed: never runs out
     function startRun() {
         show('run');
-        $('#ex-run-name').textContent = EXAMS[attempt.exam].name;
+        $('#ex-run-name').textContent = nameOf(attempt);
         clearInterval(tick);
         tick = setInterval(paintTimer, 1000);
         paintTimer();
@@ -392,12 +460,59 @@
     }
     function paintTimer() {
         const ms = remaining(attempt);
+        if (ms === Infinity) {   // untimed: show the time spent
+            const e = Date.now() - attempt.started, m = Math.floor(e / 60000), s = Math.floor(e / 1000) % 60;
+            $('#ex-timer').textContent = 'Untimed · ' + m + ':' + String(s).padStart(2, '0');
+            return;
+        }
         if (ms <= 0) { clearInterval(tick); finish(true); return; }
         const m = Math.floor(ms / 60000), s = Math.floor(ms / 1000) % 60;
         $('#ex-timer').textContent = m + ':' + String(s).padStart(2, '0');
         $('#ex-timer').classList.toggle('is-low', ms < 5 * 60000);
     }
+    function optionsHtml(q, i, ans, review, texts) {
+        return '<div class="ex-options" role="radiogroup">' + q.order.map((o) => '<label class="ex-opt' + (review ? (o === 0 ? ' is-right' : String(ans) === String(o) ? ' is-wrong' : '') : '') + '"><input type="radio" name="ans-' + i + '" value="' + o + '"' + (String(ans) === String(o) ? ' checked' : '') + (review ? ' disabled' : '') + '> <span>' + esc(texts[o]) + '</span></label>').join('') + '</div>';
+    }
+    // A generated theory question (new numbers every time), with an optional table (design tables)
+    function genHtml(q, i, ans, review) {
+        const tb = q.table ? '<div class="ex-table-wrap"><table class="ex-dt"><thead><tr>' + q.table.head.map((h) => '<th>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' +
+            q.table.rows.map((r) => '<tr>' + r.map((c, k) => (k ? '<td>' : '<th>') + esc(c) + (k ? '</td>' : '</th>')).join('') + '</tr>').join('') + '</tbody></table></div>' : '';
+        return '<p class="ex-topic">' + esc(q.topic) + ' · ' + POINTS.gen + ' points</p><h3 class="ex-q">' + esc(q.q) + '</h3>' + tb + optionsHtml(q, i, ans, review, q.options) +
+            (review ? '<p class="ex-explain">' + esc(q.explain) + '</p>' : '');
+    }
+    // A CSWP-style part: stage 1 build, stages 2 and 3 change sizes, then the centre of mass
+    function cadHtml(q, i, ans, review) {
+        const t = EG.TEMPLATES[q.tpl], s = solved(q), a = String(ans || '').split('|'), ro = review ? ' disabled' : '';
+        const ref = (k) => (typeof i === 'number' && k >= 0 ? 'question ' + (k + 1) : 'the previous stage');
+        let head = '', title;
+        if (q.ask === 'com') { head = '<p class="ex-follow">Use your stage 3 part from ' + ref(q.prev) + ', with no changes.</p>'; title = 'Find the centre of mass, measured from the origin O.'; }
+        else if (q.stage > 1) {
+            head = '<p class="ex-follow">Stage ' + q.stage + ': open your part from ' + ref(q.prev) + '. Change ' + q.changes.map((c) => '<strong>' + c.key + '</strong> from ' + EG.N(c.from) + ' mm to <strong>' + EG.N(c.to) + ' mm</strong>').join(' and ') +
+                (q.matFrom ? ', and change the material from ' + esc(q.matFrom) + ' to <strong>' + esc(q.mat.name) + '</strong>' : '') + '. Everything else stays the same.</p>';
+            title = 'What is the mass now?';
+        } else title = esc(t.title) + ': build it and find its ' + (q.ask === 'all' ? 'mass and centre of mass.' : 'mass.');
+        const changed = new Set(q.ask === 'com' ? [] : q.changes.map((c) => c.key)), L = ['A', 'B', 'C', 'D'];
+        const vals = '<div class="ex-table-wrap"><table class="ex-vals"><tr>' + L.map((k) => '<th>' + k + ' <small>' + esc(t.letters[k]) + '</small></th>').join('') + '</tr><tr>' +
+            L.map((k) => '<td' + (changed.has(k) ? ' class="is-changed"' : '') + '>' + EG.N(q.p[k]) + ' mm</td>').join('') + '</tr></table></div>';
+        const given = '<ul class="ex-given"><li>Material: <strong>' + esc(q.mat.name) + '</strong>, density ' + q.mat.rho + ' kg/m³ (' + EG.gmm3(q.mat.rho) + ' g/mm³)</li>' +
+            '<li>Units: MMGS (millimetre, gram, second), 2 decimal places. Third-angle projection.</li>' +
+            '<li>Origin O: ' + esc(t.origin) + '. X to the right, Y up, Z towards you in the front view.</li>' + t.notes(q.p).map((n) => '<li>' + esc(n) + '</li>').join('') + '</ul>';
+        const fld = (k, label, ph, v) => '<div class="field ex-mass"><label for="ans-' + i + '-' + k + '">' + label + '</label><input id="ans-' + i + '-' + k + '" data-ans type="text" inputmode="decimal" autocomplete="off" value="' + esc(v || '') + '"' + ro + ' placeholder="' + ph + '"></div>';
+        let inputs;
+        if (q.ask === 'mass') inputs = fld(0, 'Mass (grams)', 'e.g. 1234.56', a[0]);
+        else {
+            const c = q.ask === 'com' ? a : a.slice(1);
+            inputs = '<div class="ex-com">' + (q.ask === 'all' ? fld(0, 'Mass (grams)', 'e.g. 1234.56', a[0]) : '') + ['X', 'Y', 'Z'].map((x, k) => fld(k + 1, x + ' (mm)', 'e.g. 12.34', c[k])).join('') + '</div>';
+        }
+        const exp = review ? '<p class="ex-explain">' + (q.ask !== 'com' ? 'Correct mass: <strong>' + fmt(s.mass, 2) + ' g</strong> (volume ' + fmt(s.V, 2) + ' mm³ × ' + EG.gmm3(q.mat.rho) + ' g/mm³). ' : '') +
+            (q.ask !== 'mass' ? 'Centre of mass: <strong>' + comText(s.com) + '</strong>. ' : '') + 'Answers within 1% count as right' + (q.ask !== 'mass' ? ' (within 0.01 mm for a value close to 0)' : '') + '.' +
+            (ans !== '' && !isRight(q, ans) ? ' If you were far off, check the material, the origin and that every cut goes the right depth.' : '') + '</p>' : '';
+        return '<p class="ex-topic">CSWP-style part · ' + (q.ask === 'com' ? 'centre of mass' : 'stage ' + q.stage + ' of 3') + ' · ' + POINTS.cad + ' points</p>' + head + '<h3 class="ex-q">' + title + '</h3>' +
+            vals + given + '<div class="ex-drawing">' + t.draw(q.p) + '</div>' + inputs + exp;
+    }
     function questionHtml(q, i, ans, review) {
+        if (q.kind === 'gen') return genHtml(q, i, ans, review);
+        if (q.kind === 'cad') return cadHtml(q, i, ans, review);
         if (q.kind === 'theory') {
             const t = THEORY.find((x) => x.id === q.id);
             return '<p class="ex-topic">' + esc(t.topic) + ' · ' + POINTS.theory + ' points</p><h3 class="ex-q">' + esc(t.q) + '</h3>' +
@@ -411,7 +526,7 @@
             '<h3 class="ex-q">' + esc(t.title) + ': model the part and find its mass.</h3>' +
             '<ul class="ex-given"><li><strong>' + esc(letters(q)) + '</strong></li><li>Material: <strong>' + esc(q.mat[0]) + '</strong> (density ' + q.mat[1] + ' g/mm³)</li><li>Units: MMGS (millimetre, gram, second), 2 decimal places</li><li>All holes go through unless shown otherwise. Third-angle projection.</li></ul>' +
             '<div class="ex-drawing">' + t.draw(q.p) + '</div>' +
-            '<div class="field ex-mass"><label for="mass-' + i + '">Mass (grams)</label><input id="mass-' + i + '" data-mass="' + i + '" type="text" inputmode="decimal" autocomplete="off" value="' + esc(ans) + '"' + (review ? ' disabled' : '') + ' placeholder="e.g. 1234.56"></div>' +
+            '<div class="field ex-mass"><label for="mass-' + i + '">Mass (grams)</label><input id="mass-' + i + '" data-ans type="text" inputmode="decimal" autocomplete="off" value="' + esc(ans) + '"' + (review ? ' disabled' : '') + ' placeholder="e.g. 1234.56"></div>' +
             (review ? '<p class="ex-explain">Correct mass: <strong>' + fmt(m, 2) + ' g</strong> (volume ' + fmt(v, 2) + ' mm³ × ' + q.mat[1] + ' g/mm³). Answers within 1% count as right.' +
                 (ans !== '' && !isRight(q, ans) ? ' If you were far off, check the material and that every hole and cut goes the right depth.' : '') + '</p>' : '');
     }
@@ -428,7 +543,7 @@
         if (e.target.type === 'radio') { attempt.answers[attempt.at] = e.target.value; store.set('ex-attempt', attempt); paintNav(); }
     });
     $('#ex-question').addEventListener('input', (e) => {
-        if (e.target.dataset.mass !== undefined) { attempt.answers[attempt.at] = e.target.value.trim(); store.set('ex-attempt', attempt); paintNav(); }
+        if (e.target.dataset.ans !== undefined) { attempt.answers[attempt.at] = collect($('#ex-question')); store.set('ex-attempt', attempt); paintNav(); }
     });
     // After moving to another question, bring its top into view (below the sticky bar)
     function toTop() {
@@ -454,9 +569,10 @@
         let got = 0, total = 0;
         a.qs.forEach((q, i) => { const pts = POINTS[q.kind]; total += pts; if (isRight(q, a.answers[i])) got += pts; });
         const score = Math.round(got / total * 100);
-        const used = Math.min(a.minutes * 60000, Date.now() - a.started);
+        const used = a.minutes ? Math.min(a.minutes * 60000, Date.now() - a.started) : Date.now() - a.started;
+        const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         const hist = store.get('ex-history', []);
-        hist.unshift({ exam: a.exam, date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), score });
+        hist.unshift({ exam: a.exam, name: nameOf(a), date, score });
         hist.length = Math.min(hist.length, 30);
         store.set('ex-history', hist);
         store.del('ex-attempt');
@@ -465,26 +581,101 @@
         $('#ex-score').textContent = score + '%';
         $('#ex-score-box').classList.toggle('is-pass', pass);
         $('#ex-verdict').textContent = (timeUp ? 'Time is up. ' : '') + (pass ? 'Pass! You scored ' + got + ' of ' + total + ' points.' : 'Not yet: ' + got + ' of ' + total + ' points. You need ' + Math.round(PASS * 100) + '% to pass.');
-        $('#ex-used').textContent = Math.round(used / 60000) + ' of ' + a.minutes + ' minutes used';
-        const theory = a.qs.filter((q) => q.kind === 'theory'), model = a.qs.filter((q) => q.kind === 'model');
+        $('#ex-used').textContent = a.minutes ? Math.round(used / 60000) + ' of ' + a.minutes + ' minutes used' : Math.round(used / 60000) + ' minutes (untimed)';
+        // Keep a running tally by topic, for the summary
+        const stats = store.get('ex-stats', {});
+        a.qs.forEach((q, i) => { const t = topicOf(q), r = stats[t] || [0, 0]; r[1]++; if (isRight(q, a.answers[i])) r[0]++; stats[t] = r; });
+        store.set('ex-stats', stats);
+        last = { a, score, got, total, used, date, timeUp, pass };
+        const theory = a.qs.filter((q) => q.kind === 'theory' || q.kind === 'gen'), model = a.qs.filter((q) => q.kind === 'model' || q.kind === 'cad');
         const right = (list) => list.filter((q) => isRight(q, a.answers[a.qs.indexOf(q)])).length;
         $('#ex-split').innerHTML = '<li>Theory: <strong>' + right(theory) + ' of ' + theory.length + '</strong></li><li>Part modelling: <strong>' + right(model) + ' of ' + model.length + '</strong></li>';
         $('#ex-review').innerHTML = a.qs.map((q, i) => '<details class="ex-rev ' + (isRight(q, a.answers[i]) ? 'is-right' : 'is-wrong') + '"><summary><span>' + (i + 1) + '</span> ' +
-            (q.kind === 'theory' ? esc(THEORY.find((x) => x.id === q.id).q) : esc(TPL[q.tpl].title) + (q.follow ? ' (changed ' + q.follow.key + ')' : '')) +
+            esc(shortQ(q)) +
             '<b>' + (isRight(q, a.answers[i]) ? '✓' : a.answers[i] === '' ? 'No answer' : '✗') + '</b></summary>' + questionHtml(q, i, a.answers[i], true) + '</details>').join('');
         $('#ex-upsell').hidden = isPro();
         show('result');
     }
     $('#ex-again').addEventListener('click', () => { show('home'); paintHome(); });
 
+    /* ---------- Performance summary: print / PDF and CSV (exam pass) ---------- */
+    let last = null;
+    function topicOf(q) {
+        if (q.kind === 'theory') return THEORY.find((x) => x.id === q.id).topic;
+        if (q.kind === 'gen') return q.topic;
+        if (q.kind === 'cad') return q.ask === 'com' ? 'CSWP parts: centre of mass' : 'CSWP parts: mass';
+        return 'Part modelling (CSWA)';
+    }
+    function shortQ(q) {
+        if (q.kind === 'theory') return THEORY.find((x) => x.id === q.id).q;
+        if (q.kind === 'gen') return q.q;
+        if (q.kind === 'cad') return EG.TEMPLATES[q.tpl].title + (q.ask === 'com' ? ': centre of mass' : ': stage ' + q.stage + ' mass');
+        return TPL[q.tpl].title + (q.follow ? ' (changed ' + q.follow.key + ')' : '');
+    }
+    function answerText(q, ans) {
+        if (ans === '' || ans == null) return '';
+        if (q.kind === 'theory') return THEORY.find((x) => x.id === q.id).options[+ans];
+        if (q.kind === 'gen') return q.options[+ans];
+        if (q.kind === 'cad' && q.ask === 'com') return String(ans).split('|').map((v, k) => 'XYZ'[k] + ' ' + (v || '–')).join(', ');
+        return String(ans) + ' g';
+    }
+    function correctText(q) {
+        if (q.kind === 'theory') return THEORY.find((x) => x.id === q.id).options[0];
+        if (q.kind === 'gen') return q.options[0];
+        if (q.kind === 'cad') { const s = solved(q); return q.ask === 'com' ? comText(s.com) : fmt(s.mass, 2) + ' g'; }
+        return fmt(massOf(q), 2) + ' g';
+    }
+    function topicRows(pairs) {
+        return Object.keys(pairs).sort().map((t) => { const [r, n] = pairs[t]; return '<tr><td>' + esc(t) + '</td><td>' + r + ' of ' + n + '</td><td>' + Math.round(r / n * 100) + '%</td></tr>'; }).join('');
+    }
+    function printSummary() {
+        if (!last) return;
+        if (!isPro()) { openPro('buy', 'The printable summary is part of the exam pass.'); return; }
+        const { a } = last, mine = {};
+        a.qs.forEach((q, i) => { const t = topicOf(q), r = mine[t] || [0, 0]; r[1]++; if (isRight(q, a.answers[i])) r[0]++; mine[t] = r; });
+        const hist = store.get('ex-history', []), avg = hist.length ? Math.round(hist.reduce((x, h) => x + h.score, 0) / hist.length) : 0;
+        const html = '<div class="ex-sum">' +
+            '<p class="ex-sum-brand">Nexus CAD Studio · SolidWorks exam practice</p><h1>Performance summary</h1>' +
+            '<p class="ex-sum-meta">' + esc(nameOf(a)) + ' · ' + esc(last.date) + ' · ' + Math.round(last.used / 60000) + ' minutes' + (a.minutes ? ' of ' + a.minutes : ' (untimed)') + (last.timeUp ? ' · time ran out' : '') + '</p>' +
+            '<div class="ex-sum-score ' + (last.pass ? 'is-pass' : '') + '"><b>' + last.score + '%</b><span>' + (last.pass ? 'Pass' : 'Not yet (pass mark 70%)') + ' · ' + last.got + ' of ' + last.total + ' points</span></div>' +
+            '<h2>By topic (this test)</h2><table><thead><tr><th>Topic</th><th>Right</th><th>Score</th></tr></thead><tbody>' + topicRows(mine) + '</tbody></table>' +
+            '<h2>Question by question</h2><table class="ex-sum-q"><thead><tr><th>#</th><th>Question</th><th>Your answer</th><th>Correct answer</th><th></th></tr></thead><tbody>' +
+            a.qs.map((q, i) => '<tr><td>' + (i + 1) + '</td><td>' + esc(shortQ(q)) + '</td><td>' + esc(answerText(q, a.answers[i]) || 'No answer') + '</td><td>' + esc(correctText(q)) + '</td><td>' + (isRight(q, a.answers[i]) ? '✓' : '✗') + '</td></tr>').join('') + '</tbody></table>' +
+            '<h2>All your practice so far</h2><p>' + hist.length + ' test' + (hist.length === 1 ? '' : 's') + ' · average ' + avg + '% · best ' + Math.max(0, ...hist.map((h) => h.score)) + '%</p>' +
+            '<table><thead><tr><th>Topic</th><th>Right</th><th>Score</th></tr></thead><tbody>' + topicRows(store.get('ex-stats', {})) + '</tbody></table>' +
+            '<p class="ex-sum-foot">Practise again: edisonengineer.github.io/MY-PAST-PROJECTS/exams/ · Original practice questions; not questions from the real exam.</p></div>';
+        NP.printDoc(html, 'Exam practice summary ' + last.date);
+        NP.track('exam-summary-print');
+    }
+    function downloadCsv() {
+        if (!last) return;
+        if (!isPro()) { openPro('buy', 'Downloading your results is part of the exam pass.'); return; }
+        const cell = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        const rows = [['Test', nameOf(last.a)], ['Date', last.date], ['Score', last.score + '%'], ['Points', last.got + ' of ' + last.total], [], ['#', 'Topic', 'Question', 'Your answer', 'Correct answer', 'Result']]
+            .concat(last.a.qs.map((q, i) => [i + 1, topicOf(q), shortQ(q), answerText(q, last.a.answers[i]), correctText(q), isRight(q, last.a.answers[i]) ? 'Right' : 'Wrong']));
+        const blob = new Blob(['\ufeff' + rows.map((r) => r.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'exam-results-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+        NP.track('exam-summary-csv');
+    }
+    $('#ex-print').addEventListener('click', printSummary);
+    $('#ex-csv').addEventListener('click', downloadCsv);
+
     /* ---------- Practice by topic (exam pass) ---------- */
     const TOPICS = [['theory-all', 'Theory: all topics']].concat(['Drawings', 'Sketching', 'Features', 'Assemblies', 'Mass & units'].map((t) => ['theory-' + t, 'Theory: ' + t]))
+        .concat(EG.TOPICS.map((t) => ['gen-' + t, 'New numbers: ' + t]))
+        .concat(Object.keys(EG.TEMPLATES).map((k) => ['cad-' + k, 'CSWP part: ' + EG.TEMPLATES[k].title]))
         .concat(Object.keys(TPL).map((k) => ['model-' + k, 'Modelling: ' + TPL[k].title]));
     $('#pr-topic').innerHTML = TOPICS.map((t) => '<option value="' + t[0] + '">' + esc(t[1]) + '</option>').join('');
     let pq = null, done = 0, ok = 0;
     function nextPractice() {
         const v = $('#pr-topic').value;
         if (v.startsWith('model-')) pq = modelQ(v.slice(6));
+        else if (v.startsWith('cad-')) pq = Object.assign(cadQs(v.slice(4), 0)[0], { ask: 'all', prev: -1 });
+        else if (v.startsWith('gen-')) pq = EG.theory(v.slice(4));
         else {
             const topic = v.slice(7), list = THEORY.filter((t) => topic === 'all' || t.topic === topic);
             pq = theoryQ(pick(list).id);
@@ -494,7 +685,7 @@
         $('#pr-check').hidden = false; $('#pr-next').hidden = true;
     }
     $('#pr-q').addEventListener('change', (e) => { if (e.target.type === 'radio') pq.ans = e.target.value; });
-    $('#pr-q').addEventListener('input', (e) => { if (e.target.dataset.mass !== undefined) pq.ans = e.target.value.trim(); });
+    $('#pr-q').addEventListener('input', (e) => { if (e.target.dataset.ans !== undefined) pq.ans = collect($('#pr-q')); });
     $('#pr-check').addEventListener('click', () => {
         if (pq.ans === '') return;
         done++; if (isRight(pq, pq.ans)) ok++;
@@ -518,5 +709,5 @@
         Object.keys(TPL).forEach((k) => { for (let i = 0; i < 50; i++) { const p = TPL[k].make(); if (!(TPL[k].vol(p) > 0)) console.error('bad volume', k, p); TPL[k].draw(p); } });
         console.log('templates ok');
     }
-    window.__exams = { TPL, THEORY, massOf, build };   // for automated tests
+    window.__exams = { TPL, THEORY, massOf, build, buildGen, isRight, solved };   // for automated tests
 })();
