@@ -198,6 +198,13 @@ window.SEARCH_INDEX = [
  },
  {
   "k": "page",
+  "t": "Make a payment",
+  "d": "Pay a deposit, an instalment or your balance by M-Pesa, against your project or training reference.",
+  "u": "pay/index.html",
+  "x": "pay payment mpesa m-pesa deposit balance instalment installment till lipa receipt invoice amount"
+ },
+ {
+  "k": "page",
   "t": "My account",
   "d": "Log in with a code sent to your email: exam pass, Quote Pro, results, training, projects and invoices.",
   "u": "account/index.html",

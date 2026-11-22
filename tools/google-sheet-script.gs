@@ -196,7 +196,8 @@ function doPost(e) {
 /* ---------- Client project tracker ---------- */
 const PROJECTS = 'Projects';
 const STAGES = ['Brief received', 'Quote sent', 'Deposit received', 'Design in progress', 'Review & revisions', 'Delivered'];
-const PHEAD = ['Reference', 'Project', 'Client', 'Stage', 'Progress %', 'Due date', 'Note to client', 'Deposit', 'Balance due (KES)', 'Files link', 'Last updated', 'Client email', 'Client approval (automatic)', 'Client feedback (automatic)', 'Follow-ups (automatic; type Off to skip)'];
+const PHEAD = ['Reference', 'Project', 'Client', 'Stage', 'Progress %', 'Due date', 'Note to client', 'Deposit', 'Balance due (KES)', 'Files link', 'Last updated', 'Client email', 'Client approval (automatic)', 'Client feedback (automatic)', 'Follow-ups (automatic; type Off to skip)',
+  'Final files link (Google Drive; the client\'s Download button appears at 100%)'];
 const SITE_URL = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
 const SENDER = 'Edison Ochieng · Nexus CAD Studio';
@@ -2393,6 +2394,7 @@ const SROWS = [
   ['Training next intake', SEED_TRAINING.intake, 'Training page: e.g. Saturday classes from 7 November 2026. Leave empty for "Dates on request"'],
   ['Training starting price (KES)', SEED_TRAINING.price, 'Training page: starting price per trainee, e.g. 4500'],
   ['Email me new project briefs', 'Yes', 'Yes = the moment someone sends a project brief / quote request on the website, you get the full details in Gmail (press Reply to answer the client)'],
+  ['Deliver files only when fully paid', 'No', 'Yes = the client\'s "Download project files" button (account page) appears only once their balance is 0. No = it appears at 100% progress'],
   ['Email me new accounts', 'Yes', 'Yes = you get an email in Gmail when someone creates an account on the website. No = they are only added to the Accounts tab'],
   ['Email me new subscribers', 'Yes', 'Yes = you get an email in Gmail for each new subscriber (newsletter, syllabus downloads, free downloads). No = they are only added to the Subscribers tab'],
   ['Email me new training seat requests', 'Yes', 'Yes = you get an email in Gmail each time someone reserves a training seat'],
@@ -2470,6 +2472,7 @@ function setup() {
   if (!p.getRange(1, 12).getValue()) p.getRange(1, 12).setValue('Client email').setFontWeight('bold');
   if (!p.getRange(1, 13).getValue()) p.getRange(1, 13, 1, 2).setValues([[PHEAD[12], PHEAD[13]]]).setFontWeight('bold');
   if (!p.getRange(1, 15).getValue()) p.getRange(1, 15).setValue(PHEAD[14]).setFontWeight('bold').setWrap(true);
+  if (!p.getRange(1, 16).getValue()) { p.getRange(1, 16).setValue(PHEAD[15]).setFontWeight('bold').setWrap(true); p.setColumnWidth(16, 260); }
   faq_();
   const ex = expenses_();
   if (!ex.getRange(1, 8).getValue()) ex.getRange(1, 8).setValue(EHEAD[7]).setFontWeight('bold');
@@ -2590,8 +2593,9 @@ function notifyClient(e) {
   if (sh.getName() === TRAINEES && e.range.getColumn() === 9) return traineeChanged_(sh, e.range.getRow());
   if (sh.getName() === PAYMENTS && e.range.getColumn() === 7) return paymentChanged_(sh, e.range.getRow());
   if (sh.getName() === PRO && e.range.getColumn() === 8) return proChanged_(sh, e.range.getRow());
+  if (sh.getName() === PROJECTS && [5, 16].indexOf(e.range.getColumn()) > -1) return filesReady_(sh, e.range.getRow());
   if (sh.getName() !== PROJECTS || e.range.getColumn() !== 4) return;
-  if (/^delivered$/i.test(String(e.value || '').trim())) markDelivered_(sh, e.range.getRow());
+  if (/^delivered$/i.test(String(e.value || '').trim())) { markDelivered_(sh, e.range.getRow()); try { filesReady_(sh, e.range.getRow()); } catch (err) { console.error('files ready: ' + err); } }
   const r = sh.getRange(e.range.getRow(), 1, 1, 12).getValues()[0];
   const to = String(r[11] || '').trim();
   const stage = String(r[3] || '').trim();
@@ -3245,6 +3249,76 @@ function mpesaTest() {
   }
 }
 
+/* ---------- Money per project reference: quoted total, paid, balance (pay page and accounts) ----------
+   Total: the latest sent quote, else the latest sent invoice, else balance + paid.
+   Paid: the receipts sent for that reference (each confirmed payment makes one).
+   Balance: the project's "Balance due" column (kept up to date when receipts are sent), else total - paid.
+   Pending: payments the client reported that you haven't confirmed yet. */
+function moneyTabs_() {
+  return { inv: invoices_().getDataRange().getValues().slice(1), pay: payments_().getDataRange().getValues().slice(1), proj: projects_().getDataRange().getValues().slice(1) };
+}
+function money_(ref, t) {
+  t = t || moneyTabs_();
+  const n = normRef_(ref);
+  const sent = (type) => t.inv.filter((x) => normRef_(x[3]) === n && String(x[1]).trim() === type && String(x[10]).trim() === 'Sent');
+  const docTotal = (x) => num_(x[7]) || invoiceItems_(x[6]).reduce((a, it) => a + (it.amount || 0), 0);
+  const quotes = sent('Quote'), invoices = sent('Invoice'), receipts = sent('Receipt');
+  const paid = receipts.reduce((a, x) => a + num_(x[8]), 0);
+  const pending = t.pay.filter((x) => normRef_(x[1]) === n && /^to confirm$/i.test(String(x[6]).trim())).reduce((a, x) => a + num_(x[4]), 0);
+  const p = t.proj.find((x) => normRef_(x[0]) === n);
+  const colBalance = p && String(p[8]).trim() !== '' && !isNaN(num_(p[8])) ? num_(p[8]) : null;
+  let total = quotes.length ? docTotal(quotes[quotes.length - 1]) : invoices.length ? docTotal(invoices[invoices.length - 1]) : 0;
+  if (!total && colBalance !== null) total = colBalance + paid;
+  const balance = colBalance !== null ? colBalance : total ? Math.max(0, total - paid) : null;
+  return { total: total, paid: paid, balance: balance, pending: pending };
+}
+// The pay page: what a reference owes, with suggested amounts (anyone who knows the reference, like /track/)
+function payInfo_(ref) {
+  const want = normRef_(ref);
+  if (want.length < 6) return { found: false };
+  const cache = CacheService.getScriptCache(), misses = Number(cache.get('track-miss') || 0);
+  if (misses >= 40) return { error: 'busy' };
+  const who = clientOf_(want);
+  if (!who) { cache.put('track-miss', String(misses + 1), 600); return { found: false }; }
+  const m = money_(want);
+  const out = { found: true, ref: String(ref).trim().toUpperCase(), title: who.title || '', name: String(who.name || '').split(/\s+/)[0] || '',
+    total: m.total, paid: m.paid, balance: m.balance, pending: m.pending, options: [] };
+  if (m.total && !m.paid) out.options.push({ kind: 'deposit', amount: Math.round(m.total / 2) });
+  if (m.balance > 0) out.options.push({ kind: 'balance', amount: Math.round(m.balance) });
+  return out;
+}
+// Final files: shown at 100% (or "Delivered") when a link is in the Projects tab; optionally only once fully paid
+function finalFiles_(r, m) {
+  const link = String(r[15] || '').trim();
+  if (!/^https?:\/\//i.test(link)) return '';
+  const done = /^delivered$/i.test(String(r[3]).trim()) || num_(r[4]) >= 100;
+  if (!done) return '';
+  if (/^yes$/i.test(setting_('Deliver files only when fully paid')) && m && m.balance > 0) return 'unpaid';
+  return link;
+}
+// Projects tab edit: progress, stage or the final files link → email the client once when their files unlock
+function filesReady_(sh, row) {
+  const r = sh.getRange(row, 1, 1, PHEAD.length).getValues()[0];
+  const ref = String(r[0] || '').trim(), to = String(r[11] || '').trim();
+  if (!ref || !validEmail_(to)) return;
+  const link = finalFiles_(r, money_(ref));
+  if (!link || link === 'unpaid') return;
+  const props = PropertiesService.getScriptProperties(), key = 'files-sent-' + normRef_(ref);
+  if (props.getProperty(key) === link) return;
+  props.setProperty(key, link);
+  const title = String(r[1] || 'your project');
+  MailApp.sendEmail({ to: to, name: SENDER, subject: 'Your files are ready: ' + title,
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0e1a3a">' +
+      '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · ' + html_(ref) + '</p>' +
+      '<p>Hello' + (r[2] ? ' ' + html_(String(r[2])) : '') + ',</p><p>Good news: the final files for <b>' + html_(title) + '</b> are ready.</p>' +
+      '<p><a href="' + html_(link) + '" style="background:#ffb627;color:#0e1a3a;padding:12px 20px;border-radius:99px;text-decoration:none;font-weight:bold">Download your project files</a></p>' +
+      '<p>They are also in <a href="' + SITE_URL + 'account/">your account</a> (log in with this email), with your receipts and project history.</p>' +
+      '<p style="font-size:13px;color:#555">Questions or changes? Reply to this email or <a href="https://wa.me/' + WHATSAPP + '">message me on WhatsApp</a>.</p>' +
+      '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Mechanical Design Engineer · Nexus CAD Studio</span></p></div>',
+    body: 'The final files for ' + title + ' are ready: ' + link + '\n\nThey are also in your account: ' + SITE_URL + 'account/' });
+  sh.getRange(row, 11).setValue(new Date());
+}
+
 /* ---------- Accounts: log in with a code sent by email (no passwords) ----------
    ACCOUNTS tab: one row per person. "Blocked" in Status switches an account off at once.
    EXAM RESULTS tab: the practice exams each account has finished.
@@ -3381,12 +3455,35 @@ function accountData_(email) {
     .map((x) => ({ date: ymdOr_(x[0]), test: String(x[2] || ''), score: num_(x[3]), points: String(x[4] || ''), minutes: num_(x[5]) }));
   const training = rowsOf(TRAINEES).filter((x) => same(x[3])).map((x) => ({ id: String(x[0] || ''), course: String(x[5] || ''), cls: String(x[6] || ''),
     format: String(x[7] || ''), status: String(x[8] || ''), completed: ymdOr_(x[9]), certificate: String(x[10] || '') }));
-  const projects = rowsOf(PROJECTS).filter((x) => same(x[11]) && String(x[0]).trim()).map((x) => ({ ref: String(x[0]).trim(), project: String(x[1] || ''),
-    stage: String(x[3] || ''), progress: num_(x[4]), due: ymdOr_(x[5]) }));
-  const documents = rowsOf(INVOICES).filter((x) => same(x[5]) && String(x[12] || '').trim()).map((x) => ({ number: String(x[0] || ''), type: String(x[1] || ''),
-    date: ymdOr_(x[2]), ref: String(x[3] || ''), total: num_(x[7]), paid: num_(x[8]) })).reverse();
+  // Projects (and briefs not yet moved to Projects), each with its money and files
+  const mt = moneyTabs_(), projRows = rowsOf(PROJECTS);
+  const projects = projRows.filter((x) => same(x[11]) && String(x[0]).trim()).map((x) => {
+    const ref = String(x[0]).trim(), m = money_(ref, mt), q = quoteFor_(ref);
+    let stage = STAGES.findIndex((st) => st.toLowerCase() === String(x[3]).trim().toLowerCase());
+    if (stage < 0) stage = Math.max(0, Math.min(5, parseInt(String(x[3]), 10) || 0));
+    const delivered = stage === STAGES.length - 1, progress = x[4] !== '' && !isNaN(Number(x[4])) ? num_(x[4]) : Math.round(stage / (STAGES.length - 1) * 100);
+    const files = finalFiles_(x, m);
+    return { ref: ref, project: String(x[1] || ''), stage: STAGES[stage], progress: delivered ? Math.max(progress, 100) : progress, due: ymdOr_(x[5]),
+      working: /^https?:\/\//i.test(String(x[9] || '')) ? String(x[9]).trim() : '', final: files === 'unpaid' ? '' : files, finalLocked: files === 'unpaid',
+      quote: q ? { number: q.number, total: q.total, state: q.state } : null, money: m };
+  });
+  const moved = new Set(projRows.map((x) => normRef_(x[0])));
+  rowsOf(SUBS).filter((x) => same(x[4]) && String(x[0]).trim() && !moved.has(normRef_(x[0])) && !/^declined$/i.test(String(x[2]).trim())).forEach((x) => {
+    const ref = String(x[0]).trim(), q = quoteFor_(ref);
+    projects.push({ ref: ref, project: String(x[7] || x[6] || ''), stage: /quote sent|accepted/i.test(String(x[2])) ? 'Quote sent' : 'Brief received',
+      progress: /quote sent|accepted/i.test(String(x[2])) ? 20 : 5, due: ymdOr_(x[9]), working: '', final: '', finalLocked: false,
+      quote: q ? { number: q.number, total: q.total, state: q.state } : null, money: money_(ref, mt), brief: true });
+  });
+  // Sent invoices and receipts, with what a printable copy needs (the PDFs themselves stay private in your Drive)
+  const documents = rowsOf(INVOICES).filter((x) => same(x[5]) && String(x[10]).trim() === 'Sent' && /^(invoice|receipt)$/i.test(String(x[1]).trim())).map((x) => {
+    const total = num_(x[7]) || invoiceItems_(x[6]).reduce((a, it) => a + (it.amount || 0), 0), paid = num_(x[8]);
+    return { number: String(x[0] || ''), type: String(x[1] || '').trim(), date: ymdOr_(x[2]), ref: String(x[3] || ''), client: String(x[4] || ''),
+      items: invoiceItems_(x[6]).slice(0, 20), total: total, paid: paid, balance: Math.max(0, total - paid), note: String(x[9] || '').slice(0, 200) };
+  }).reverse();
+  const pending = rowsOf(PAYMENTS).filter((x) => /^to confirm$/i.test(String(x[6]).trim()) && projects.some((p) => normRef_(p.ref) === normRef_(x[1])))
+    .map((x) => ({ ref: String(x[1]), amount: num_(x[4]), date: ymdOr_(x[0]) }));
   return { email: email, name: String(acc[1] || ''), phone: String(acc[2] || ''), created: ymdOr_(acc[3]),
-    passes: passes, results: results, training: training, projects: projects, documents: documents };
+    passes: passes, results: results, training: training, projects: projects, documents: documents, pending: pending };
 }
 function accountGet_(q) {
   const a = acctFromToken_(q.t);
@@ -3435,6 +3532,7 @@ function doGet(e) {
   if (q.action === 'login-start') return out_(loginStart_(q));
   if (q.action === 'login') return out_(loginVerify_(q));
   if (q.action === 'account') return out_(accountGet_(q));
+  if (q.action === 'pay-info') return out_(payInfo_(q.ref));
   return out_(reviews_());
 }
 

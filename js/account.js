@@ -186,6 +186,91 @@
         }));
     }
 
+    /* ---------- Projects: progress, money, files ---------- */
+    const payLink = (ref, amount) => ROOT + 'pay/index.html?ref=' + encodeURIComponent(ref) + (amount > 0 ? '&amount=' + Math.round(amount) : '');
+    function projectsSection(a) {
+        const list = a.projects || [];
+        if (!list.length) return section('Your projects', `<p>${tr('No projects yet.')} <a href="${ROOT}index.html#brief">${tr('Start a project')}</a></p>`, 'acct-wide');
+        const sum = (k) => list.reduce((x, p) => x + ((p.money && Number(p.money[k])) || 0), 0);
+        const due = sum('balance'), pending = (a.pending || []).reduce((x, p) => x + (p.amount || 0), 0);
+        const head = `<dl class="acct-money acct-money-total">
+                <div><dt>${tr('Total quoted')}</dt><dd data-no-i18n>${esc(kes(sum('total')))}</dd></div>
+                <div><dt>${tr('Paid so far')}</dt><dd data-no-i18n>${esc(kes(sum('paid')))}</dd></div>
+                <div class="${due > 0 ? 'is-due' : 'is-clear'}"><dt>${tr('Balance due')}</dt><dd data-no-i18n>${esc(kes(due))}</dd></div>
+            </dl>${pending ? `<p class="acct-pending"><span data-no-i18n>${esc(kes(pending))}</span> <span>${tr('you sent is waiting for my confirmation.')}</span></p>` : ''}`;
+        const card = (p) => {
+            const m = p.money || {}, pct = Math.max(0, Math.min(100, Number(p.progress) || 0));
+            const deposit = m.total && !m.paid ? Math.round(m.total / 2) : 0;
+            return `<article class="acct-project">
+                <div class="acct-project-head">
+                    <div><h3 data-no-i18n>${esc(p.project || p.ref)}</h3><p class="acct-muted"><span data-no-i18n>${esc(p.ref)}</span>${p.due ? ` · <span>${tr('Due')}</span> <span data-no-i18n>${esc(fmtDate(p.due))}</span>` : ''}</p></div>
+                    <span class="acct-pill${pct >= 100 ? ' is-on' : ''}">${esc(tr(p.stage || ''))}</span>
+                </div>
+                <div class="acct-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="${esc(tr('Progress'))}"><span style="width:${pct}%"></span></div>
+                <p class="acct-bar-pct" data-no-i18n>${pct}%</p>
+                ${m.total || m.paid || (m.balance !== null && m.balance !== undefined) ? `<dl class="acct-money">
+                    ${m.total ? `<div><dt>${tr('Total')}</dt><dd data-no-i18n>${esc(kes(m.total))}</dd></div>` : ''}
+                    <div><dt>${tr('Paid')}</dt><dd data-no-i18n>${esc(kes(m.paid))}</dd></div>
+                    ${m.balance !== null && m.balance !== undefined ? `<div class="${m.balance > 0 ? 'is-due' : 'is-clear'}"><dt>${tr('Balance')}</dt><dd data-no-i18n>${esc(kes(m.balance))}</dd></div>` : ''}
+                </dl>` : ''}
+                ${p.final ? `<a class="btn btn-sun btn-block acct-files" href="${esc(p.final)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4.5 19.5h15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg> ${tr('Download project files')}</a>` : ''}
+                ${p.finalLocked ? `<p class="acct-locked">${tr('Your files are ready. They unlock here as soon as the balance is paid.')}</p>` : ''}
+                <div class="acct-actions">
+                    ${m.balance > 0 ? `<a class="btn btn-navy" href="${payLink(p.ref, deposit || m.balance)}">${deposit ? tr('Pay deposit') : tr('Pay balance')}</a>` : ''}
+                    ${m.balance > 0 && deposit ? `<a class="btn btn-outline" href="${payLink(p.ref, m.balance)}">${tr('Pay in full')}</a>` : ''}
+                    ${p.quote && p.quote.state === 'open' ? `<a class="btn btn-outline" href="${ROOT}track/index.html?ref=${encodeURIComponent(p.ref)}">${tr('Review & accept your quote')}</a>` : ''}
+                    <a class="btn btn-outline" href="${ROOT}track/index.html?ref=${encodeURIComponent(p.ref)}">${tr('Track')}</a>
+                    ${p.working && !p.final ? `<a class="btn btn-outline" href="${esc(p.working)}" target="_blank" rel="noopener">${tr('Shared files')}</a>` : ''}
+                    ${!(m.balance > 0) ? `<a class="link-btn acct-pay-any" href="${payLink(p.ref, 0)}">${tr('Make a payment')}</a>` : ''}
+                </div>
+            </article>`;
+        };
+        return section('Your projects', head + `<div class="acct-projects">${list.map(card).join('')}</div>`, 'acct-wide');
+    }
+    /* ---------- Receipts and invoices: printable copies made from the sheet (the PDFs stay private in Drive) ---------- */
+    function documentsSection(a) {
+        const docs = a.documents || [];
+        if (!docs.length) return section('Receipts and invoices', `<p>${tr('Nothing yet.')}</p>`, 'acct-wide');
+        return section('Receipts and invoices', `<ul class="acct-docs">${docs.map((d, i) => `<li>
+                <span class="acct-doc-type acct-doc-${d.type === 'Receipt' ? 'r' : 'i'}">${tr(d.type)}</span>
+                <span class="acct-doc-main"><strong data-no-i18n>${esc(d.number)}</strong> <span class="acct-muted" data-no-i18n>${esc(fmtDate(d.date))}${d.ref ? ' · ' + esc(d.ref) : ''}</span></span>
+                <span class="acct-doc-amt" data-no-i18n>${esc(kes(d.type === 'Receipt' ? d.paid : d.total))}</span>
+                <button type="button" class="btn btn-outline acct-doc-btn" data-doc="${i}">${d.type === 'Receipt' ? tr('View receipt') : tr('View invoice')}</button>
+            </li>`).join('')}</ul><p class="acct-note">${tr('Open any receipt to print it or save it as a PDF. The original was also emailed to you.')}</p>`, 'acct-wide');
+    }
+    function viewDocument(d, a) {
+        const onKey = (e) => { if (e.key === 'Escape') close(); };
+        const close = () => { view.remove(); document.body.classList.remove('acct-viewing'); document.removeEventListener('keydown', onKey); };
+        const items = (d.items || []).map((it) => `<tr><td>${esc(it.text)}</td><td>${it.amount === null || it.amount === undefined ? '' : esc(kes(it.amount))}</td></tr>`).join('');
+        const isR = d.type === 'Receipt';
+        const view = document.createElement('div');
+        view.className = 'acct-doc-view';
+        view.setAttribute('role', 'dialog');
+        view.setAttribute('aria-modal', 'true');
+        view.setAttribute('aria-label', d.type + ' ' + d.number);
+        view.innerHTML = `<div class="acct-doc-bar"><button type="button" class="btn btn-sun" data-doc-print>${tr('Print or save as PDF')}</button><button type="button" class="btn btn-outline" data-doc-close>${tr('Close')}</button></div>
+            <article class="acct-doc" data-no-i18n>
+                <header class="acct-doc-head"><div><p class="acct-doc-brand">Nexus CAD Studio</p><p>Edison Ochieng · Mechanical Design Engineer · Nairobi, Kenya</p><p>WhatsApp +254 708 639 473 · edisonochieng24@gmail.com</p></div>
+                    <div class="acct-doc-title"><h2>${isR ? 'RECEIPT' : 'INVOICE'}</h2><p>${esc(d.number)}</p><p>${esc(fmtDate(d.date))}</p></div></header>
+                <dl class="acct-doc-to"><div><dt>${isR ? 'Received from' : 'Billed to'}</dt><dd>${esc(d.client || a.name || a.email)}</dd></div>${d.ref ? `<div><dt>Project reference</dt><dd>${esc(d.ref)}</dd></div>` : ''}</dl>
+                <table class="acct-doc-items"><thead><tr><th>Description</th><th>Amount</th></tr></thead><tbody>${items || `<tr><td>${esc(d.type)} ${esc(d.number)}</td><td>${esc(kes(d.total))}</td></tr>`}</tbody></table>
+                <table class="acct-doc-totals"><tbody>
+                    <tr><td>Total</td><td>${esc(kes(d.total))}</td></tr>
+                    <tr><td>${isR ? 'Amount received' : 'Paid so far'}</td><td>${esc(kes(d.paid))}</td></tr>
+                    <tr class="is-strong"><td>${isR ? 'Balance remaining' : 'Balance due'}</td><td>${esc(kes(d.balance))}</td></tr>
+                </tbody></table>
+                ${d.note ? `<p class="acct-doc-note">${esc(d.note)}</p>` : ''}
+                <p class="acct-doc-foot">${isR ? 'Thank you for your payment.' : 'Pay by M-Pesa Buy Goods Till 8438334 (EDISON OCHIENG), or online at edisonengineer.github.io/MY-PAST-PROJECTS/pay/ with your project reference.'} · Copy printed from your account on ${esc(fmtDate(new Date().toISOString().slice(0, 10)))}.</p>
+            </article>`;
+        document.body.appendChild(view);
+        document.body.classList.add('acct-viewing');
+        view.querySelector('[data-doc-close]').addEventListener('click', close);
+        view.querySelector('[data-doc-print]').addEventListener('click', () => window.print());
+        document.addEventListener('keydown', onKey);
+        view.querySelector('[data-doc-print]').focus();
+        if (typeof window.track === 'function') window.track('account-view-' + d.type.toLowerCase());
+    }
+
     function section(title, body, cls) { return `<section class="acct-card ${cls || ''}"><h2>${tr(title)}</h2>${body}</section>`; }
     function renderAccount(a) {
         if (!a) { app.innerHTML = `<div class="acct-card"><p>${tr('Could not load your account. Check your connection and try again.')}</p><button type="button" class="btn btn-navy" data-acct="retry">${tr('Try again')}</button></div>`; app.querySelector('[data-acct=retry]').addEventListener('click', () => start(true)); return; }
@@ -210,6 +295,8 @@
                 <button type="button" class="btn btn-outline" data-acct="logout">${tr('Log out')}</button>
             </div>
             <div class="acct-grid">
+            ${projectsSection(a)}
+            ${documentsSection(a)}
             ${section('Your passes', `<div class="acct-passes">${passCard('exams', 'SolidWorks exam pass', 'exams/index.html', 'Open exam practice')}${passCard('quote', 'Quote Pro', 'quote/index.html', 'Open the quote tool')}</div>
                 <p class="acct-note">${tr('Log in on any phone or computer and your pass turns on by itself (up to 3 devices).')}</p>`, 'acct-wide')}
             ${section('Practice exam results', results.length ? `<table class="acct-table"><thead><tr><th>${tr('Date')}</th><th>${tr('Test')}</th><th>${tr('Score')}</th></tr></thead><tbody>${results.map((r) => `<tr><td data-no-i18n>${esc(fmtDate(r.date))}</td><td data-no-i18n>${esc(r.test)}</td><td><strong data-no-i18n>${esc(r.score)}%</strong> ${r.score >= 70 ? `<span class="acct-pill is-on">${tr('Pass')}</span>` : ''}</td></tr>`).join('')}</tbody></table>` :
@@ -217,12 +304,6 @@
             ${section('Your training', (a.training || []).length ? `<ul class="acct-list">${a.training.map((t) => `<li><strong data-no-i18n>${esc(t.course)}</strong>${t.cls ? ' <span data-no-i18n>· ' + esc(t.cls) + '</span>' : ''}${t.format ? ' <span data-no-i18n>· ' + esc(t.format) + '</span>' : ''}
                 <span class="acct-pill" data-no-i18n>${esc(t.status || '')}</span>${t.certificate ? ` <a href="${ROOT}verify/index.html?code=${encodeURIComponent(t.certificate)}">${tr('View certificate')}</a>` : ''}</li>`).join('')}</ul>` :
                 `<p>${tr('No courses yet.')} <a href="${ROOT}training/index.html">${tr('See the courses')}</a></p>`)}
-            ${section('Your projects', (a.projects || []).length ? `<ul class="acct-list">${a.projects.map((p) => `<li><strong data-no-i18n>${esc(p.project || p.ref)}</strong> <span class="acct-muted" data-no-i18n>${esc(p.ref)}</span>
-                <span class="acct-progress" role="img" aria-label="${esc(p.progress)}%"><span style="width:${Math.max(0, Math.min(100, Number(p.progress) || 0))}%"></span></span>
-                <span data-no-i18n>${esc(p.stage)}</span> · <a href="${ROOT}track/index.html?ref=${encodeURIComponent(p.ref)}">${tr('Track')}</a></li>`).join('')}</ul>` :
-                `<p>${tr('No projects yet.')} <a href="${ROOT}index.html#brief">${tr('Start a project')}</a></p>`)}
-            ${section('Invoices and receipts', (a.documents || []).length ? `<table class="acct-table"><thead><tr><th>${tr('Document')}</th><th>${tr('Date')}</th><th>${tr('Total')}</th><th>${tr('Paid')}</th></tr></thead><tbody>${a.documents.map((d) => `<tr><td><span data-no-i18n>${esc(d.type)} ${esc(d.number)}</span></td><td data-no-i18n>${esc(fmtDate(d.date))}</td><td data-no-i18n>${esc(kes(d.total))}</td><td data-no-i18n>${esc(kes(d.paid))}</td></tr>`).join('')}</tbody></table><p class="acct-note">${tr('The PDF of each one was emailed to you.')}</p>` :
-                `<p>${tr('Nothing yet.')}</p>`)}
             ${section('Your details', `<form id="acct-profile" class="acct-profile" novalidate>
                 <div class="field"><label for="ap-name">${tr('Name')}</label><input id="ap-name" name="name" type="text" maxlength="80" autocomplete="name" value="${esc(a.name)}"></div>
                 <div class="field"><label for="ap-phone">${tr('Phone / WhatsApp')}</label><input id="ap-phone" name="phone" type="tel" maxlength="30" autocomplete="tel" value="${esc(a.phone)}"></div>
@@ -230,6 +311,7 @@
             </form>`)}
             </div>`;
         paintInstall();
+        app.querySelectorAll('[data-doc]').forEach((b) => b.addEventListener('click', () => viewDocument(a.documents[Number(b.dataset.doc)], a)));
         app.querySelector('[data-acct=logout]').addEventListener('click', () => { logout(); renderLogin('', 1); window.scrollTo(0, 0); });
         const pf = app.querySelector('#acct-profile');
         pf.addEventListener('submit', (e) => {

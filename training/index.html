@@ -36,7 +36,7 @@
     <link rel="manifest" href="../site.webmanifest">
     <link rel="preload" href="../fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="../css/style.css?v=43">
+    <link rel="stylesheet" href="../css/style.css?v=46">
     <script>
         document.documentElement.classList.add('js');
         (function () {
@@ -970,13 +970,19 @@
                         <p class="seat-ref" hidden>Your reference: <strong data-no-i18n data-seat-ref></strong></p>
                         <div class="seat-deposit" data-deposit="2250" data-sheet="https://script.google.com/macros/s/AKfycbzhZ6fb-p7uUTFm7GCl3dvCEaiIM1p___NvuTYyAhejrTvfyUEGOq5fXxVbpROj9ok0/exec">
                             <h4>Hold your seat with a deposit</h4>
-                            <p>Pay <strong data-no-i18n>KES 2,250</strong> by M-Pesa to hold your seat. It's part of your fee, not extra.</p>
+                            <p>Pay the suggested deposit, the full fee, or any amount you like by M-Pesa. It's part of your fee, not extra.</p>
+                            <div class="amt-pick" role="group" aria-label="Amount">
+                                <button type="button" class="amt-chip is-on" data-amt="2250"><span>Deposit</span> <strong data-no-i18n>KES 2,250</strong></button>
+                                <button type="button" class="amt-chip" data-amt="4500"><span>Full fee</span> <strong data-no-i18n>KES 4,500</strong></button>
+                                <button type="button" class="amt-chip" data-amt="">Other amount</button>
+                            </div>
+                            <div class="field amt-field"><label for="seat-amount">Amount (KES)</label><input id="seat-amount" class="seat-amount" type="number" min="1" max="1000000" step="1" inputmode="numeric" value="2250"></div>
                             <div class="seat-pay">
                                 <img src="../images/payments/mpesa-till-qr.png" alt="M-Pesa till QR code" width="110" height="110" loading="lazy">
                                 <ol>
                                     <li>M-Pesa → Lipa na M-Pesa → <strong>Buy Goods and Services</strong></li>
                                     <li>Till number <strong data-no-i18n>8438334</strong> (<span data-no-i18n>EDISON OCHIENG</span>)</li>
-                                    <li>Amount <strong data-no-i18n>KES 2,250</strong>, then enter the M-Pesa code below</li>
+                                    <li>Amount <strong class="seat-amt-text" data-no-i18n>KES 2,250</strong>, then enter the M-Pesa code below</li>
                                 </ol>
                             </div>
                             <form class="seat-code-form" novalidate>
@@ -1123,6 +1129,7 @@
                 <h2>Explore</h2>
                 <a href="../start/index.html">Start here: choose your path</a>
                 <a href="../account/index.html">My account</a>
+                <a href="../pay/index.html">Make a payment</a>
                 <a href="../index.html#services">Services</a>
                 <a href="../index.html#work">Work</a>
                 <a href="../blog/index.html">CAD Tips</a>
@@ -1161,9 +1168,9 @@
     <script defer src="../js/currency.js?v=1"></script>
     <script defer src="../js/training.js?v=2"></script>
     <script defer src="../js/discount.js?v=1"></script>
-    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=38" data-sw="../js/i18n-sw.js?v=35" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
-    <script defer src="../js/pages.js?v=19"></script>
-    <script defer src="../js/account.js?v=2" data-api="https://script.google.com/macros/s/AKfycbzhZ6fb-p7uUTFm7GCl3dvCEaiIM1p___NvuTYyAhejrTvfyUEGOq5fXxVbpROj9ok0/exec"></script>
+    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=39" data-sw="../js/i18n-sw.js?v=36" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+    <script defer src="../js/pages.js?v=20"></script>
+    <script defer src="../js/account.js?v=4" data-api="https://script.google.com/macros/s/AKfycbzhZ6fb-p7uUTFm7GCl3dvCEaiIM1p___NvuTYyAhejrTvfyUEGOq5fXxVbpROj9ok0/exec"></script>
     <script defer src="../js/analytics.js?v=3" data-code="necuscad"></script>
     <script defer src="../js/search.js?v=1"></script>
 </body>

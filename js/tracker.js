@@ -297,7 +297,7 @@
                 payBox(p) +
                 '<div class="pm-actions">' +
                     (p.files ? '<a class="btn btn-sun" href="' + esc(p.files) + '" target="_blank" rel="noopener">' + icon('doc') + ' Download your files</a>' : '') +
-                    (p.deposit === 'due' || (typeof p.amountDue === 'number' && p.amountDue > 0) ? '<a class="btn btn-navy" href="../index.html#pay">' + icon('wallet') + ' Pay by M-Pesa</a>' : '') +
+                    (p.deposit === 'due' || (typeof p.amountDue === 'number' && p.amountDue > 0) ? '<a class="btn btn-navy" href="../pay/index.html?ref=' + encodeURIComponent(p.ref) + '">' + icon('wallet') + ' Pay by M-Pesa</a>' : '') +
                     '<a class="btn btn-green" href="https://wa.me/' + WHATSAPP + '?text=' + msg + '" target="_blank" rel="noopener">' + icon('whatsapp') + ' Ask about this project</a>' +
                 '</div>' +
             '</article>';

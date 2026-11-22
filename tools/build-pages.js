@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=43';
+const CSS_V = 'css/style.css?v=46';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
@@ -385,6 +385,7 @@ function footer(extraScripts = '') {
                 <h2>Explore</h2>
                 <a href="../start/index.html">Start here: choose your path</a>
                 <a href="../account/index.html">My account</a>
+                <a href="../pay/index.html">Make a payment</a>
                 <a href="../index.html#services">Services</a>
                 <a href="../index.html#work">Work</a>
                 <a href="../blog/index.html">CAD Tips</a>
@@ -419,9 +420,9 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=38" data-sw="../js/i18n-sw.js?v=35" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
-    <script defer src="../js/pages.js?v=19"></script>
-    <script defer src="../js/account.js?v=2" data-api="${esc(CFG.trackerApi || CFG.reviewsApi || '')}"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=3" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
+${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=39" data-sw="../js/i18n-sw.js?v=36" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+    <script defer src="../js/pages.js?v=20"></script>
+    <script defer src="../js/account.js?v=4" data-api="${esc(CFG.trackerApi || CFG.reviewsApi || '')}"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=3" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -962,15 +963,22 @@ function seatDeposit(T) {
     const api = CFG.trackerApi || CFG.reviewsApi;
     if (!amount || !pay.mpesaTill || !api) return '';
     const qr = pay.mpesaQr && fs.existsSync(path.join(ROOT, pay.mpesaQr)) ? '../' + pay.mpesaQr : '';
+    const full = Math.round(Number(T.price) || 0);
     return `                        <div class="seat-deposit" data-deposit="${amount}" data-sheet="${esc(api)}">
                             <h4>Hold your seat with a deposit</h4>
-                            <p>Pay <strong data-no-i18n>KES ${amount.toLocaleString('en-US')}</strong> by M-Pesa to hold your seat. It's part of your fee, not extra.</p>
+                            <p>Pay the suggested deposit, the full fee, or any amount you like by M-Pesa. It's part of your fee, not extra.</p>
+                            <div class="amt-pick" role="group" aria-label="Amount">
+                                <button type="button" class="amt-chip is-on" data-amt="${amount}"><span>Deposit</span> <strong data-no-i18n>KES ${amount.toLocaleString('en-US')}</strong></button>
+                                ${full > amount ? `<button type="button" class="amt-chip" data-amt="${full}"><span>Full fee</span> <strong data-no-i18n>KES ${full.toLocaleString('en-US')}</strong></button>` : ''}
+                                <button type="button" class="amt-chip" data-amt="">Other amount</button>
+                            </div>
+                            <div class="field amt-field"><label for="seat-amount">Amount (KES)</label><input id="seat-amount" class="seat-amount" type="number" min="1" max="1000000" step="1" inputmode="numeric" value="${amount}"></div>
                             <div class="seat-pay">
                                 ${qr ? `<img src="${esc(qr)}" alt="M-Pesa till QR code" width="110" height="110" loading="lazy">` : ''}
                                 <ol>
                                     <li>M-Pesa → Lipa na M-Pesa → <strong>Buy Goods and Services</strong></li>
                                     <li>Till number <strong data-no-i18n>${esc(pay.mpesaTill)}</strong>${pay.mpesaName ? ` (<span data-no-i18n>${esc(pay.mpesaName)}</span>)` : ''}</li>
-                                    <li>Amount <strong data-no-i18n>KES ${amount.toLocaleString('en-US')}</strong>, then enter the M-Pesa code below</li>
+                                    <li>Amount <strong class="seat-amt-text" data-no-i18n>KES ${amount.toLocaleString('en-US')}</strong>, then enter the M-Pesa code below</li>
                                 </ol>
                             </div>
                             <form class="seat-code-form" novalidate>
@@ -1666,7 +1674,7 @@ function trackPage() {
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/config.js?v=14"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=9"></script>\n');
+` + footer('    <script defer src="../js/config.js?v=14"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=10"></script>\n');
 }
 
 /* ---------- Choose your path: homepage section and /start/ ----------
@@ -1743,6 +1751,33 @@ function startPage() {
         </section>
     </main>
 ` + footer();
+}
+
+/* ---------- Make a payment (any amount, against a project or training reference: js/pay.js) ---------- */
+function payPage() {
+    const url = SITE + 'pay/';
+    const description = 'Pay a deposit, an instalment or your full balance by M-Pesa, against your project or training reference. Your receipt is emailed to you.';
+    return head({ title: 'Make a payment | Nexus CAD Studio', description, url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Make a payment', url, description } })
+        .replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, follow">') + '\n' + header('pay') + `
+    <main id="main">
+        <section class="page-hero theme-green">
+            <div class="container page-hero-inner narrow">
+                <nav class="crumbs" aria-label="Breadcrumb">
+                    <a href="../index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">Make a payment</span>
+                </nav>
+                <p class="page-kicker">Secure payment</p>
+                <h1 class="page-title">Make a payment.</h1>
+                <p class="page-lede">Pay a deposit, an instalment or your full balance, whenever suits you. Choose a suggested amount or type your own.</p>
+            </div>
+        </section>
+        <section class="section pay-wrap">
+            <div class="container narrow">
+                <div id="pay-app" aria-live="polite"><noscript><p>Please turn on JavaScript to pay online, or pay M-Pesa Buy Goods Till <strong>${esc((CFG.payments || {}).mpesaTill || '')}</strong> and send me the code on WhatsApp.</p></noscript></div>
+                <p class="acct-privacy">${icon('check')} <span>Every payment is recorded against your reference, and your receipt is emailed to you. Card or bank transfer? <a href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener">WhatsApp me</a>.</span></p>
+            </div>
+        </section>
+    </main>
+` + footer('    <script defer src="../js/config.js?v=14"></script>\n    <script defer src="../js/pay.js?v=3"></script>\n');
 }
 
 /* ---------- My account (log in with an email code: js/account.js) ---------- */
@@ -1872,6 +1907,7 @@ function searchIndex(projects, posts) {
         ...SECTIONS.map(([t, d, h, x]) => ({ k: 'page', t, d, u: 'index.html' + h, x })),
         ...projects.map((p) => ({ k: 'project', t: p.title, d: p.subtitle || '', u: 'projects/' + p.id + '.html', x: [p.summary, (p.tags || []).join(' '), (p.points || []).join(' '), (p.meta || []).map((m) => m[1]).join(' '), p.category].join(' ') })),
         { k: 'page', t: 'CAD training courses', d: 'AutoCAD, SolidWorks, Inventor and Fusion 360 training. Reserve a seat.', u: 'training/index.html', x: 'training course class lessons learn autocad solidworks inventor fusion cswa tutor teacher student' },
+        { k: 'page', t: 'Make a payment', d: 'Pay a deposit, an instalment or your balance by M-Pesa, against your project or training reference.', u: 'pay/index.html', x: 'pay payment mpesa m-pesa deposit balance instalment installment till lipa receipt invoice amount' },
         { k: 'page', t: 'My account', d: 'Log in with a code sent to your email: exam pass, Quote Pro, results, training, projects and invoices.', u: 'account/index.html', x: 'account login log in sign in sign up register create account profile my exam pass key licence quote pro results invoices receipts' },
         { k: 'page', t: 'Start here: choose your path', d: 'Hire me for CAD and FEA, join CAD training, or practise for your SolidWorks certification.', u: 'start/index.html', x: 'start here begin help guide path choose hire training course learn exam certification cswa cswp where' },
         { k: 'page', t: 'SolidWorks exam practice (CSWA & CSWP-style)', d: 'Timed SolidWorks practice tests: parts to model in 3 stages, centre of mass, theory with new numbers every time, instant marking. Endless exam generator. Free sample test and demo.', u: 'exams/index.html', x: 'solidworks cswa cswp exam practice test certification mock quiz questions mass centre of mass model drawing student certificate generator configurations design tables equations mates sheet metal k-factor' },
@@ -1939,6 +1975,7 @@ write('verify/index.html', verifyPage());
 write('start/index.html', startPage());
 write(LEAD.page, cheatSheetPage());
 write('account/index.html', accountPage());
+write('pay/index.html', payPage());
 write('cv/index.html', cvPage(loadCV()));
 write('calculators/index.html', calculatorsPage());
 write('request-review/index.html', reviewLinkPage());
@@ -2011,7 +2048,7 @@ function wantedTranslations() {
    ?v=… they use. VERSION is a fingerprint of those files, so any change to them replaces the old
    cache (pages are always fetched fresh when online, so their own text is not part of it). */
 {
-    const OFFLINE_PAGES = ['index.html', 'offline.html', 'start/index.html', 'account/index.html', 'exams/index.html', 'training/index.html', 'calculators/index.html'];
+    const OFFLINE_PAGES = ['index.html', 'offline.html', 'start/index.html', 'account/index.html', 'pay/index.html', 'exams/index.html', 'training/index.html', 'calculators/index.html'];
     const DATA = /\/(tracker-data|projects|sheet-works|sheet-data|reviews|certificates|packages|config|i18n-sheet-fr|i18n-sheet-sw|search-index)\.js$/;
     const list = ['./'], files = [];
     const addFile = (rel) => { const clean = rel.split('#')[0]; if (!list.includes(clean) && fs.existsSync(path.join(ROOT, clean.split('?')[0]))) { list.push(clean); files.push(clean.split('?')[0]); } };
