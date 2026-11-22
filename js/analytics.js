@@ -27,7 +27,8 @@
     document.addEventListener('click', (e) => {
         const a = e.target.closest('a, button');
         if (!a) return;
-        if (a.href && a.href.indexOf('wa.me') > -1) window.track('whatsapp-click');
+        if (a.dataset.track) window.track(a.dataset.track);   // buttons and links named in the page (e.g. path-hire)
+        else if (a.href && a.href.indexOf('wa.me') > -1) window.track('whatsapp-click');
         else if (a.classList.contains('js-email')) window.track('email-click');
         else if (a.href && /cv\.pdf$/.test(a.href)) window.track('cv-download');
     });

@@ -1,0 +1,46 @@
+/* The CSWP quick-reference cheat sheet (downloads/cswp-cheat-sheet.html and its PDF): two A4 pages */
+@font-face { font-family: 'Fraunces'; font-weight: 400 600; font-display: swap; src: url(../fonts/fraunces-latin.woff2) format('woff2'); }
+@font-face { font-family: 'Plus Jakarta Sans'; font-weight: 400 700; font-display: swap; src: url(../fonts/plus-jakarta-sans-latin.woff2) format('woff2'); }
+@page { size: A4; margin: 10mm; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html { background: #e9eef6; }
+body { margin: 0; font: 8.6pt/1.42 'Plus Jakarta Sans', Arial, sans-serif; color: #12203f; }
+.cs-bar { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 16px; background: #0e1a3a; font-size: 14px; }
+.cs-bar a, .cs-bar button { color: #fff; text-decoration: none; font: 600 14px 'Plus Jakarta Sans', Arial, sans-serif; background: none; border: 0; cursor: pointer; }
+.cs-bar span { display: flex; gap: 8px; }
+.cs-bar button, .cs-btn { padding: 8px 14px; border-radius: 999px; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; }
+.cs-btn { background: #ffb627 !important; color: #0e1a3a !important; border-color: #ffb627 !important; }
+.cs-page { width: 210mm; max-width: 100%; margin: 18px auto; padding: 9mm; background: #fff; box-shadow: 0 10px 40px rgba(14, 26, 58, 0.18); }
+.cs-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; padding: 5mm 6mm; margin-bottom: 4mm; border-radius: 3mm; background: linear-gradient(120deg, #0e1a3a, #1f3b8f); color: #fff; }
+.cs-brand { margin: 0; font-size: 7.5pt; letter-spacing: 0.12em; text-transform: uppercase; color: #ffd36b; font-weight: 700; }
+.cs-head h1 { margin: 1.5mm 0 1mm; font: 600 21pt/1.05 'Fraunces', Georgia, serif; }
+.cs-head h1 em { font-style: normal; color: #ffb627; }
+.cs-sub { margin: 0; font-size: 8.5pt; color: #dfe7ff; }
+.cs-practice { margin: 0; text-align: right; font-size: 7.4pt; color: #dfe7ff; }
+.cs-practice b { color: #fff; }
+.cs-grid { columns: 3; column-gap: 4mm; }
+.cs-box { break-inside: avoid; margin: 0 0 3.5mm; padding: 3mm 3.4mm; border: 1px solid #d6deec; border-top: 2.2mm solid #2f6bff; border-radius: 2mm; background: #fff; }
+.cs-box:nth-of-type(3n+2) { border-top-color: #13a89e; }
+.cs-box:nth-of-type(3n) { border-top-color: #ff6b4a; }
+.cs-wide { column-span: all; border-top-color: #ffb627; background: #fffaf0; }
+.cs-wide ul { columns: 2; column-gap: 6mm; }
+.cs-box h2 { display: flex; align-items: center; gap: 2mm; margin: 0 0 1.6mm; font: 600 10.5pt/1.2 'Fraunces', Georgia, serif; color: #0e1a3a; }
+.cs-box h2 span { display: grid; place-items: center; width: 5mm; height: 5mm; border-radius: 50%; background: #0e1a3a; color: #ffb627; font: 700 7.5pt 'Plus Jakarta Sans', Arial, sans-serif; flex-shrink: 0; }
+.cs-box ul { margin: 0; padding: 0 0 0 3.4mm; }
+.cs-box li { margin: 0 0 1.1mm; break-inside: avoid; }
+.cs-box li::marker { color: #2f6bff; }
+.cs-box b { color: #0e1a3a; }
+code, .cs-code td:first-child, .cs-keys td:nth-child(odd) { font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 7.8pt; color: #1f3b8f; }
+code { padding: 0.2mm 1mm; border-radius: 1mm; background: #eef3ff; }
+.cs-table { width: 100%; border-collapse: collapse; margin: 1mm 0 1.6mm; font-size: 8pt; }
+.cs-table th { text-align: left; font-size: 7pt; letter-spacing: 0.04em; text-transform: uppercase; color: #4c5470; background: #f1f5fc; padding: 1mm 1.4mm; }
+.cs-table td { padding: 1mm 1.4mm; border-top: 1px solid #e3e9f3; vertical-align: top; }
+.cs-table td:last-child { font-weight: 600; }
+.cs-keys td:nth-child(odd) { font-weight: 700; white-space: nowrap; }
+.cs-small { margin: 1mm 0 0; font-size: 7.2pt; color: #4c5470; }
+.cs-foot { margin-top: 2mm; padding-top: 2mm; border-top: 1px solid #d6deec; font-size: 6.8pt; color: #646a82; }
+@media (max-width: 760px) { .cs-page { padding: 14px; margin: 0; box-shadow: none; } .cs-grid { columns: 1; } .cs-wide ul { columns: 1; } .cs-head { flex-direction: column; align-items: flex-start; } .cs-practice { text-align: left; } body { font-size: 10pt; } }
+@media print { html { background: #fff; } .cs-bar { display: none; } .cs-page { width: auto; margin: 0; padding: 0; box-shadow: none; } }
+.cs-code { table-layout: fixed; }
+.cs-code td, .cs-code th { overflow-wrap: anywhere; }
+.cs-code td:first-child, .cs-code th:first-child { width: 54%; }

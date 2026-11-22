@@ -556,6 +556,74 @@
         if (o) sel.value = o.value;
     })();
 
+    /* ---------- Free CSWP cheat sheet: email in, PDF out (the sheet's "subscribe" action, source lead-magnet-cswp) ---------- */
+    $$('form[data-lead]').forEach((form) => {
+        const err = $('.form-error', form), done = form.parentElement.querySelector('.lead-done'), email = $('input[type="email"]', form);
+        form.addEventListener('input', () => { email.closest('.field').classList.remove('is-invalid'); err.hidden = true; });
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (form.botcheck && form.botcheck.checked) return;
+            const v = email.value.trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) {
+                email.closest('.field').classList.add('is-invalid');
+                err.textContent = tr('Please enter a valid email address.');
+                err.hidden = false;
+                email.focus();
+                return;
+            }
+            const btn = $('button[type="submit"]', form);
+            btn.disabled = true;
+            fetch(form.dataset.sheet, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'subscribe', email: v, source: form.dataset.lead }) })
+                .catch(() => { /* the download still works */ })
+                .finally(() => {
+                    form.hidden = true;
+                    form.reset();
+                    btn.disabled = false;
+                    done.hidden = false;
+                    done.focus();
+                    // Start the download straight away (the buttons in the message stay as a fallback)
+                    const a = document.createElement('a');
+                    a.href = form.dataset.pdf; a.download = ''; a.hidden = true;
+                    document.body.appendChild(a); a.click(); a.remove();
+                    if (typeof window.track === 'function') window.track(form.dataset.lead);
+                });
+        });
+    });
+
+    /* ---------- Before / after slider (project pages): drag, tap or use the arrow keys ---------- */
+    $$('[data-ba]').forEach((ba) => {
+        const range = $('.ba-range', ba);
+        const set = (v) => { v = Math.max(0, Math.min(100, v)); ba.style.setProperty('--pos', v + '%'); range.value = Math.round(v); };
+        const at = (x) => { const r = ba.getBoundingClientRect(); set((x - r.left) / r.width * 100); };
+        range.addEventListener('input', () => set(+range.value));
+        range.addEventListener('focus', () => ba.classList.add('is-focus'));
+        range.addEventListener('blur', () => ba.classList.remove('is-focus'));
+        // Mouse and pen move it at once; a finger only once it moves sideways, so the page still scrolls
+        let drag = null;
+        ba.addEventListener('pointerdown', (e) => {
+            if (e.button > 0) return;
+            drag = { id: e.pointerId, x: e.clientX, y: e.clientY, on: e.pointerType !== 'touch' };
+            if (drag.on) { ba.setPointerCapture(e.pointerId); at(e.clientX); ba.classList.add('is-drag'); e.preventDefault(); range.focus({ preventScroll: true }); }
+        });
+        ba.addEventListener('pointermove', (e) => {
+            if (!drag || drag.id !== e.pointerId) return;
+            if (!drag.on) {
+                const dx = Math.abs(e.clientX - drag.x), dy = Math.abs(e.clientY - drag.y);
+                if (dx < 6 && dy < 6) return;
+                if (dy > dx) { drag = null; return; }
+                drag.on = true; ba.setPointerCapture(e.pointerId); ba.classList.add('is-drag');
+            }
+            at(e.clientX);
+        });
+        const end = (e) => {
+            if (drag && !drag.on && e.type === 'pointerup') at(e.clientX);   // a tap moves the handle there
+            if (drag && drag.on && typeof window.track === 'function' && !ba.dataset.used) { ba.dataset.used = '1'; window.track('before-after-used'); }
+            drag = null; ba.classList.remove('is-drag');
+        };
+        ba.addEventListener('pointerup', end);
+        ba.addEventListener('pointercancel', end);
+    });
+
     /* ---------- Offline app ---------- */
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
         window.addEventListener('load', () => navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(() => {}));

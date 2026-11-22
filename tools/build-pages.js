@@ -23,7 +23,7 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = 'https://edisonengineer.github.io/MY-PAST-PROJECTS/';
 const WHATSAPP = '254708639473';
-const CSS_V = 'css/style.css?v=39';
+const CSS_V = 'css/style.css?v=40';
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const written = {};   // every page built in this run, for the translation list at the end
@@ -38,7 +38,9 @@ function loadProjects() {
     vm.runInNewContext(read('js/projects.js'), ctx);
     // Works published from the Google Sheet (tools/sync-from-sheet.js)
     if (fs.existsSync(path.join(ROOT, 'js/sheet-works.js'))) vm.runInNewContext(read('js/sheet-works.js'), ctx);
-    return ctx.window.PROJECTS;
+    // Before / after images the sheet adds to projects written here (Works tab rows with the same title)
+    const extras = ctx.window.PROJECT_EXTRAS || {};
+    return ctx.window.PROJECTS.map((p) => (extras[p.id] ? Object.assign({}, p, extras[p.id]) : p));
 }
 
 function loadReviews() {
@@ -138,6 +140,93 @@ ${DOWNLOADS.map((d) => `                    <article class="dl-card">
                 <p class="dl-note">You'll also get occasional CAD tips by email. Unsubscribe any time.</p>
             </div>
         </section>
+`;
+}
+
+/* ---------- Free CSWP cheat sheet: a lead magnet (email in, PDF out) ----------
+   The cheat sheet itself is content/cswp-cheat-sheet.html, published as downloads/cswp-cheat-sheet.html
+   (a printable page) and pdfs/cswp-cheat-sheet.pdf (node tools/build-cheat-sheet.js).
+   The sign-up uses the sheet's "subscribe" action with the source lead-magnet-cswp. */
+const LEAD = { id: 'lead-magnet-cswp', page: 'downloads/cswp-cheat-sheet.html', pdf: 'pdfs/cswp-cheat-sheet.pdf', thumb: 'images/cswp-cheat-sheet-preview.jpg' };
+function leadMagnet(prefix, inline) {
+    const api = CFG.trackerApi || CFG.reviewsApi;
+    if (!api) return '';
+    const has = (f) => fs.existsSync(path.join(ROOT, f));
+    const card = `<div class="lead-card" id="cswp-sheet">
+                <div class="lead-copy">
+                    <span class="lead-badge">${icon('doc')} Free PDF</span>
+                    <h2 class="lead-title">SolidWorks CSWP quick-reference <em>cheat sheet</em></h2>
+                    <p>The formulas, settings and habits that matter in the exam, on two printable pages.</p>
+                    <ul class="lead-points">
+                        <li>${icon('check')}<span>Mass properties, materials and the centre of mass</span></li>
+                        <li>${icon('check')}<span>Equations, design table headers and configurations</span></li>
+                        <li>${icon('check')}<span>Mate rules: gear, rack and pinion, screw, coupler</span></li>
+                        <li>${icon('check')}<span>Interference checks, sheet metal and FEA hand checks</span></li>
+                    </ul>
+                </div>
+                <div class="lead-box">
+                    ${has(LEAD.thumb) ? `<img class="lead-thumb" src="${prefix}${LEAD.thumb}" alt="Page 1 of the CSWP cheat sheet" width="320" height="453" loading="lazy" decoding="async">` : ''}
+                    <form class="lead-form" data-lead="${LEAD.id}" data-sheet="${esc(api)}" data-pdf="${prefix}${LEAD.pdf}" novalidate>
+                        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                        <div class="field"><label for="lead-email-${inline ? 'b' : 'a'}">Your email address</label><input id="lead-email-${inline ? 'b' : 'a'}" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+                        <button type="submit" class="btn btn-sun btn-block">${icon('doc')} Get the free cheat sheet</button>
+                        <p class="form-error" role="alert" hidden></p>
+                        <p class="lead-note">You'll also get occasional CAD tips by email. Unsubscribe any time.</p>
+                    </form>
+                    <div class="lead-done" hidden tabindex="-1">
+                        <p class="lead-done-msg">${icon('check')} <span>Your cheat sheet is downloading. A copy is on its way to your inbox too.</span></p>
+                        <a class="btn btn-navy btn-block" href="${prefix}${LEAD.page}" target="_blank" rel="noopener">Open it in your browser</a>
+                        <a class="btn btn-outline btn-block" href="${prefix}${LEAD.pdf}" download>${icon('doc')} Download the PDF again</a>
+                    </div>
+                </div>
+            </div>`;
+    return inline ? card : `
+        <section class="section lead-band">
+            <div class="container">
+            ${card}
+            </div>
+        </section>
+`;
+}
+function cheatSheetPage() {
+    const url = SITE + LEAD.page;
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolidWorks CSWP quick-reference cheat sheet | Nexus CAD Studio</title>
+    <meta name="description" content="The formulas, settings and habits that matter in the CSWP exam, on two printable pages.">
+    <meta name="robots" content="noindex, follow">
+    <link rel="canonical" href="${url}">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../css/cheat-sheet.css?v=1">
+</head>
+<body>
+    <div class="cs-bar">
+        <a href="../exams/index.html">← SolidWorks exam practice</a>
+        <span>
+            <button type="button" onclick="window.print()">Print</button>
+            <a class="cs-btn" href="../${LEAD.pdf}" download>Download PDF</a>
+        </span>
+    </div>
+    <main class="cs-page">
+        <header class="cs-head">
+            <div>
+                <p class="cs-brand">Nexus CAD Studio · Edison Ochieng · Nairobi</p>
+                <h1>SolidWorks CSWP <em>quick reference</em></h1>
+                <p class="cs-sub">Formulas, settings and habits for the Certified SOLIDWORKS Professional exam</p>
+            </div>
+            <p class="cs-practice">Practise with timed CSWP-style parts:<br><b>edisonengineer.github.io/MY-PAST-PROJECTS/exams/</b></p>
+        </header>
+        <div class="cs-grid">
+${read('content/cswp-cheat-sheet.html').replace(/^<!--[\s\S]*?-->\s*/, '')}
+        </div>
+        <footer class="cs-foot">An unofficial study aid by Nexus CAD Studio. SOLIDWORKS and CSWP are trademarks of Dassault Systèmes, which has no connection with it. Check the current exam guide for the rules of your exam.</footer>
+    </main>
+</body>
+</html>
 `;
 }
 
@@ -246,6 +335,7 @@ function header(current) {
             </a>
 
             <nav class="site-nav" id="site-nav" aria-label="Primary">
+                ${a('../start/index.html', 'Start here', 'start')}
                 ${a('../index.html#services', 'Services')}
                 ${a('../index.html#work', 'Work', 'work')}
                 ${a('../blog/index.html', 'CAD Tips', 'blog')}
@@ -293,6 +383,7 @@ function footer(extraScripts = '') {
             </div>
             <nav class="footer-col" aria-label="Footer">
                 <h2>Explore</h2>
+                <a href="../start/index.html">Start here: choose your path</a>
                 <a href="../index.html#services">Services</a>
                 <a href="../index.html#work">Work</a>
                 <a href="../blog/index.html">CAD Tips</a>
@@ -327,8 +418,8 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=35" data-sw="../js/i18n-sw.js?v=32" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
-    <script defer src="../js/pages.js?v=18"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=2" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
+${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=36" data-sw="../js/i18n-sw.js?v=33" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+    <script defer src="../js/pages.js?v=19"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=3" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
     <script defer src="../js/search.js?v=1"></script>
 </body>
 </html>
@@ -338,6 +429,36 @@ ${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.
 const cover = (o, cls) => `<div class="${cls} theme-${esc(o.theme || 'blue')}" aria-hidden="true">
                         <span class="pc-cover-icon">${icon(o.icon || 'cube')}</span>
                     </div>`;
+
+/* ---------- Before / after comparison slider (project pages) ----------
+   p.compare = { before, after, beforeLabel, afterLabel }: e.g. the CAD model and the FEA result.
+   Both images: a drag-to-compare slider (js/pages.js). Only one: shown as a plain photo. */
+function compareSection(p, has) {
+    const c = p.compare || {}, b = has(c.before) ? c.before : '', a = has(c.after) ? c.after : '';
+    if (!b && !a) return '';
+    const bl = c.beforeLabel || 'Before', al = c.afterLabel || 'After';
+    const sz = imageSize(path.join(ROOT, a || b)) || { w: 1200, h: 800 };
+    const dims = ` width="${sz.w}" height="${sz.h}"`;
+    const body = b && a ? `<figure class="ba" data-ba style="--pos: 50%; aspect-ratio: ${sz.w} / ${sz.h}">
+                    <img class="ba-img" src="../${esc(a)}" alt="${esc(p.title)}: ${esc(al)}"${dims} loading="lazy" decoding="async">
+                    <div class="ba-before"><img class="ba-img" src="../${esc(b)}" alt="${esc(p.title)}: ${esc(bl)}"${dims} loading="lazy" decoding="async"></div>
+                    <span class="ba-tag ba-tag-l">${esc(bl)}</span>
+                    <span class="ba-tag ba-tag-r">${esc(al)}</span>
+                    <span class="ba-handle" aria-hidden="true"><span class="ba-knob"><svg viewBox="0 0 24 24"><path d="M9 6 3 12l6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+                    <input class="ba-range" type="range" min="0" max="100" value="50" step="1" aria-label="Compare ${esc(bl)} and ${esc(al)}: move to reveal more of either image">
+                </figure>
+                <p class="ba-hint">Drag the handle (or use the arrow keys) to compare.</p>` :
+        `<figure class="ba-single"><img src="../${esc(a || b)}" alt="${esc(p.title)}: ${esc(a ? al : bl)}"${dims} loading="lazy" decoding="async"><figcaption>${esc(a ? al : bl)}</figcaption></figure>`;
+    return `
+        <section class="section case-compare" aria-labelledby="compare-title">
+            <div class="container">
+                <p class="kicker">${b && a ? 'Before &amp; after' : 'Project image'}</p>
+                <h2 class="section-title" id="compare-title">${b && a ? `${esc(bl)} <em>vs</em> ${esc(al)}` : esc(a ? al : bl)}.</h2>
+                ${body}
+            </div>
+        </section>
+`;
+}
 
 /* ---------- Project pages ---------- */
 function projectPage(p, i, all) {
@@ -430,6 +551,7 @@ ${(p.tags || []).map((t) => `                        <li class="chip">${esc(t)}<
             </div>
         </section>
 
+${compareSection(p, has)}
 ${p.story && (p.story.brief || p.story.approach || p.story.result) ? `
         <section class="section case-story" aria-labelledby="story-title">
             <div class="container">
@@ -542,7 +664,7 @@ ${others.length ? `
                 </div>
             </div>
         </section>
-` : ''}${downloadsBand('../')}${newsletter()}    </main>
+` : ''}${leadMagnet('../')}${downloadsBand('../')}${newsletter()}    </main>
 ` + footer();
 }
 
@@ -578,7 +700,7 @@ function blogIndex(posts) {
                 </div>
             </div>
         </section>
-${downloadsBand('../')}${newsletter()}    </main>
+${leadMagnet('../')}${downloadsBand('../')}${newsletter()}    </main>
 ` + footer();
 }
 
@@ -787,7 +909,7 @@ ${syllabusSection(c)}${studentSection(students, '../', T, 'Built by ' + esc(c.na
                 </div>
                 <div class="band-actions"><a class="btn btn-navy" href="../exams/index.html">Free practice test ${icon('arrow')}</a></div>
             </div>
-        </section>` : ''}
+        </section>${leadMagnet('../')}` : ''}
         <section class="section course-reserve-band">
             <div class="container verify-cta">
                 <span class="verify-cta-icon">${icon('cap')}</span>
@@ -1040,7 +1162,7 @@ ${seatDeposit(T)}                        <a class="btn btn-outline" href="../ind
             </div>
         </section>
 
-${downloadsBand('../')}
+${leadMagnet('../')}${downloadsBand('../')}
         <section class="section verify-band">
             <div class="container verify-cta">
                 <span class="verify-cta-icon">${icon('award')}</span>
@@ -1545,6 +1667,82 @@ function trackPage() {
 ` + footer('    <script defer src="../js/config.js?v=14"></script>\n    <script defer src="../js/currency.js?v=1"></script>\n    <script defer src="../js/tracker-data.js"></script>\n    <script defer src="../js/tracker.js?v=9"></script>\n');
 }
 
+/* ---------- Choose your path: homepage section and /start/ ----------
+   Three routes through the site: hire me, learn CAD, practise for a SolidWorks exam.
+   Links are relative to the site root; prefix is '' on the homepage and '../' on sub-pages. */
+const PATHS = [
+    { id: 'hire', letter: 'A', theme: 'blue', icon: 'gear', kicker: 'For clients', title: 'Hire me for CAD & FEA',
+        text: '3D models, manufacturing drawings and FEA simulation for your product, machine or fabrication job.',
+        cta: ['index.html#brief', 'Send a project brief'],
+        links: [['index.html#services', 'Services'], ['index.html#estimator', 'Instant cost estimate'], ['index.html#pricing', 'Packages & prices'], ['index.html#work', 'Past projects']] },
+    { id: 'train', letter: 'B', theme: 'teal', icon: 'cap', kicker: 'For learners', title: 'Join CAD training',
+        text: 'SolidWorks, AutoCAD, Inventor, Fusion 360 and more: one-on-one, in small groups or for teams, online or in Nairobi.',
+        cta: ['training/index.html#reserve', 'Reserve a seat'],
+        links: [['training/index.html#compare', 'Compare the courses'], ['training/index.html#courses', 'Next classes & seats'], ['training/solidworks.html#syllabus', 'Full syllabus (free PDF)'], ['training/index.html#downloads', 'Free cheat sheets']] },
+    { id: 'exam', letter: 'C', theme: 'violet', icon: 'award', kicker: 'For certification', title: 'Pass your SolidWorks exam',
+        text: 'Timed CSWA and CSWP-style practice: parts to model, centre of mass, and an exam generator that never runs out.',
+        cta: ['exams/index.html', 'Try a free practice test'],
+        links: [['exams/index.html#ex-demo-card', 'Free CSWP-style demo'], ['exams/index.html#ex-gen-card', 'Exam generator'], ['exams/index.html#cswp-sheet', 'Free CSWP cheat sheet'], ['training/solidworks.html', 'SolidWorks course']] }
+];
+function pathCards(prefix, h = 'h3') {
+    return PATHS.map((p) => `<article class="path-card theme-${p.theme}" id="path-${p.id}">
+                        <div class="path-top"><span class="path-icon">${icon(p.icon)}</span><span class="path-letter" aria-hidden="true">${p.letter}</span></div>
+                        <p class="path-kicker">${esc(p.kicker)}</p>
+                        <${h} class="path-title">${esc(p.title)}</${h}>
+                        <p class="path-text">${esc(p.text)}</p>
+                        <ul class="path-links">
+${p.links.map((l) => `                            <li><a href="${prefix}${l[0]}">${esc(l[1])} ${icon('arrow')}</a></li>`).join('\n')}
+                        </ul>
+                        <a class="btn btn-sun btn-block" href="${prefix}${p.cta[0]}" data-track="path-${p.id}">${esc(p.cta[1])} ${icon('arrow')}</a>
+                    </article>`).join('\n                    ');
+}
+function pathsSection() {
+    return `<section class="section paths" id="paths" aria-labelledby="paths-title">
+            <div class="container">
+                <header class="section-head center">
+                    <p class="kicker">Choose your path</p>
+                    <h2 class="section-title" id="paths-title">Where would you like to <em>start</em>?</h2>
+                    <p class="section-lede">Pick what you need and go straight there.</p>
+                </header>
+                <div class="path-grid">
+                    ${pathCards('')}
+                </div>
+            </div>
+        </section>`;
+}
+function startPage() {
+    const url = SITE + 'start/';
+    const description = 'Hire Edison Ochieng for CAD and FEA, join CAD training in Nairobi or online, or practise for your SolidWorks certification. Pick your path and go straight there.';
+    return head({ title: 'Start here: choose your path | Nexus CAD Studio', description, url, image: SITE + 'og-image.jpg?v=2', type: 'website',
+        jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Start here', url, description,
+            hasPart: PATHS.map((p) => ({ '@type': 'WebPage', name: p.title, url: SITE + p.cta[0].replace('index.html', '') })) } }) + '\n' + header('start') + `
+    <main id="main">
+        <section class="page-hero theme-blue">
+            <div class="container page-hero-inner">
+                <nav class="crumbs" aria-label="Breadcrumb">
+                    <a href="../index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">Start here</span>
+                </nav>
+                <p class="page-kicker">Start here</p>
+                <h1 class="page-title">What brings you here today?</h1>
+                <p class="page-lede">Pick the path that fits. Each one takes you straight to what you need.</p>
+            </div>
+        </section>
+
+        <section class="section paths paths-page">
+            <div class="container">
+                <div class="path-grid">
+                    ${pathCards('../', 'h2')}
+                </div>
+                <div class="path-help">
+                    <p><strong>Still not sure?</strong> <span>Tell me what you need and I'll point you the right way.</span></p>
+                    <a class="btn btn-green" href="https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hi Edison, I found your website and would like some advice on where to start.')}" target="_blank" rel="noopener">${icon('whatsapp')} Ask on WhatsApp</a>
+                </div>
+            </div>
+        </section>
+    </main>
+` + footer();
+}
+
 /* ---------- Certificate verification ---------- */
 function verifyPage() {
     const url = SITE + 'verify/';
@@ -1593,6 +1791,7 @@ function sitemap(projects, posts) {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${[
         u('', '1.0', 'monthly'),
+        u('start/', '0.8', 'monthly'),
         u('blog/', '0.8', 'weekly'),
         u('training/', '0.8', 'monthly'),
         ...loadTraining().courses.map((c) => u('training/' + c.id + '.html', '0.7', 'monthly')),
@@ -1641,6 +1840,7 @@ function searchIndex(projects, posts) {
         ...SECTIONS.map(([t, d, h, x]) => ({ k: 'page', t, d, u: 'index.html' + h, x })),
         ...projects.map((p) => ({ k: 'project', t: p.title, d: p.subtitle || '', u: 'projects/' + p.id + '.html', x: [p.summary, (p.tags || []).join(' '), (p.points || []).join(' '), (p.meta || []).map((m) => m[1]).join(' '), p.category].join(' ') })),
         { k: 'page', t: 'CAD training courses', d: 'AutoCAD, SolidWorks, Inventor and Fusion 360 training. Reserve a seat.', u: 'training/index.html', x: 'training course class lessons learn autocad solidworks inventor fusion cswa tutor teacher student' },
+        { k: 'page', t: 'Start here: choose your path', d: 'Hire me for CAD and FEA, join CAD training, or practise for your SolidWorks certification.', u: 'start/index.html', x: 'start here begin help guide path choose hire training course learn exam certification cswa cswp where' },
         { k: 'page', t: 'SolidWorks exam practice (CSWA & CSWP-style)', d: 'Timed SolidWorks practice tests: parts to model in 3 stages, centre of mass, theory with new numbers every time, instant marking. Endless exam generator. Free sample test and demo.', u: 'exams/index.html', x: 'solidworks cswa cswp exam practice test certification mock quiz questions mass centre of mass model drawing student certificate generator configurations design tables equations mates sheet metal k-factor' },
         { k: 'page', t: 'Gate, grill & railing estimator', d: 'Price steel gates, window grills and railings: cut list, 6 m lengths to buy, weight, paint, labour and fittings, then a PDF or WhatsApp quote.', u: 'steel/index.html', x: 'steel gate grill railing balustrade sliding swing welding fabrication cost estimate quote cut list jua kali square tube shs price kenya' },
         { k: 'page', t: 'Sheet-metal quote tool', d: 'Price sheet-metal parts: flat blank, weight, sheet nesting, cutting, bending and finishing, then a PDF or WhatsApp quote.', u: 'quote/index.html', x: 'sheet metal quote price cost estimate fabrication laser cutting bending powder coating nesting pdf whatsapp workshop' },
@@ -1703,6 +1903,8 @@ const CAMPAIGN = loadCampaign();
 write('offer/index.html', offerPage(CAMPAIGN));
 write('share/index.html', sharePage(TRAINING, CAMPAIGN));
 write('verify/index.html', verifyPage());
+write('start/index.html', startPage());
+write(LEAD.page, cheatSheetPage());
 write('cv/index.html', cvPage(loadCV()));
 write('calculators/index.html', calculatorsPage());
 write('request-review/index.html', reviewLinkPage());
@@ -1722,9 +1924,16 @@ function faqSchema() {
 }
 
 const START = '<!-- BLOG-CARDS:START -->', END = '<!-- BLOG-CARDS:END -->';
+const PSTART = '<!-- PATHS:START -->', PEND = '<!-- PATHS:END -->';
+// The exams page is written by hand; only its cheat-sheet card comes from here
+{
+    const LS = '<!-- CSWP-SHEET:START -->', LE = '<!-- CSWP-SHEET:END -->', ex = read('exams/index.html');
+    if (ex.includes(LS)) { const next = ex.replace(new RegExp(LS + '[\\s\\S]*?' + LE), () => LS + '\n                    ' + leadMagnet('../', true) + '\n                    ' + LE); if (next !== ex) write('exams/index.html', next); }
+}
 const FSTART = '<!-- FAQ-SCHEMA:START -->', FEND = '<!-- FAQ-SCHEMA:END -->';
 let updated = index;
 if (updated.includes(START)) updated = updated.replace(new RegExp(START + '[\\s\\S]*?' + END), START + '\n                    ' + homeCards(posts) + '\n                    ' + END);
+if (updated.includes(PSTART)) updated = updated.replace(new RegExp(PSTART + '[\\s\\S]*?' + PEND), () => PSTART + '\n        ' + pathsSection() + '\n        ' + PEND);
 if (updated.includes(FSTART)) updated = updated.replace(new RegExp(FSTART + '[\\s\\S]*?' + FEND), () => FSTART + '\n    ' + faqSchema() + '\n    ' + FEND);
 if (updated !== indexOriginal) write('index.html', updated);
 /* ---------- Text still waiting for a French / Kiswahili translation ----------
@@ -1753,7 +1962,7 @@ function wantedTranslations() {
         for (const m of h.matchAll(/\s(?:alt|title|placeholder|aria-label)="([^"]*)"/g)) add(m[1]);
         h.replace(/^[\s\S]*?<body[^>]*>/i, '').split(/<[^>]+>/).forEach(add);
     };
-    Object.keys(written).filter((f) => !f.startsWith('share/')).forEach((f) => fromHtml(written[f]));   // share/ is for you, in English
+    Object.keys(written).filter((f) => !f.startsWith('share/') && !f.startsWith('downloads/')).forEach((f) => fromHtml(written[f]));   // share/ is for you, in English
     fromHtml(updated);
     const deep = (v) => { if (typeof v === 'string') add(v); else if (v && typeof v === 'object') Object.values(v).forEach(deep); };
     const skip = new Set(['id', 'theme', 'icon', 'cover', 'gallery', 'pdf', 'model', 'href', 'category', 'file', 'verify', 'linkedin', 'phone', 'year', 'tone']);
