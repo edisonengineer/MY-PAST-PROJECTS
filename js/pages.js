@@ -434,6 +434,27 @@
     document.querySelectorAll('.seat-deposit').forEach((dep) => {
         const form = dep.querySelector('.seat-code-form'), err = form.querySelector('.form-error'), input = form.querySelector('input');
         const t = (s) => (window.I18N ? window.I18N.t(s) : s);
+        // Any amount: the suggested deposit, the full fee, or their own
+        const amtEl = dep.querySelector('.seat-amount');
+        const seatAmount = () => (amtEl ? Math.round(Number(amtEl.value) || 0) : Number(dep.dataset.deposit));
+        const paintAmount = () => {
+            const a = seatAmount();
+            dep.querySelectorAll('.seat-amt-text').forEach((el) => { el.textContent = 'KES ' + (a > 0 ? a.toLocaleString('en-US') : '…'); });
+            const b = dep.querySelector('.seat-stk .btn-mpesa');
+            if (b && window.NexusMpesa) b.innerHTML = window.NexusMpesa.button(a > 0 ? a : 0);
+            const chips = Array.from(dep.querySelectorAll('.amt-chip'));
+            chips.forEach((c) => c.classList.toggle('is-on', c.dataset.amt ? Number(c.dataset.amt) === a : !chips.some((x) => x.dataset.amt && Number(x.dataset.amt) === a)));
+        };
+        const amountOk = (errEl) => {
+            const a = seatAmount();
+            if (a >= 1 && a <= 1000000) return true;
+            errEl.textContent = t('Please enter the amount to pay.'); errEl.hidden = false; if (amtEl) amtEl.focus();
+            return false;
+        };
+        if (amtEl) {
+            amtEl.addEventListener('input', paintAmount);
+            dep.querySelectorAll('.amt-chip').forEach((c) => c.addEventListener('click', () => { if (c.dataset.amt) amtEl.value = c.dataset.amt; else { amtEl.value = ''; amtEl.focus(); } paintAmount(); }));
+        }
         // M-Pesa prompt: pay from the phone, no code to type. The till + code stay as "Paid the till directly?"
         const MP = window.NexusMpesa;
         if (MP && MP.enabled()) {
@@ -459,11 +480,13 @@
             phone.addEventListener('input', () => { perr.hidden = true; });
             box.querySelector('button').addEventListener('click', () => {
                 const num = MP.normalize(phone.value);
+                if (!amountOk(perr)) return;
                 if (!num) { perr.textContent = t('Enter a Safaricom number, like 0712 345 678.'); perr.hidden = false; phone.focus(); return; }
+                const amt = seatAmount();
                 box.hidden = true; alt.hidden = true;
                 MP.pay({
-                    api: dep.dataset.sheet, panel, amount: dep.dataset.deposit,
-                    params: { for: 'payment', ref: dep.dataset.ref || '', amount: dep.dataset.deposit, payer: dep.dataset.name || '', phone: num },
+                    api: dep.dataset.sheet, panel, amount: amt,
+                    params: { for: 'payment', ref: dep.dataset.ref || '', amount: amt, payer: dep.dataset.name || '', phone: num },
                     onPaid: (r) => {
                         panel.hidden = true;
                         dep.querySelector('.seat-later').hidden = true;
@@ -481,13 +504,15 @@
                 });
             });
         }
+        paintAmount();
         input.addEventListener('input', () => { input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); err.hidden = true; });
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const code = input.value.trim();
             if (!/^[A-Z0-9]{10}$/.test(code)) { err.textContent = t('An M-Pesa code has 10 letters and numbers, e.g. SKL4ABCD12.'); err.hidden = false; input.focus(); return; }
+            if (!amountOk(err)) return;
             form.querySelector('button').disabled = true;
-            fetch(dep.dataset.sheet, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'payment', ref: dep.dataset.ref || '', code, amount: dep.dataset.deposit, payer: dep.dataset.name || '' }) })
+            fetch(dep.dataset.sheet, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ action: 'payment', ref: dep.dataset.ref || '', code, amount: seatAmount(), payer: dep.dataset.name || '' }) })
                 .catch(() => { /* recorded on WhatsApp instead if needed */ })
                 .finally(() => {
                     form.hidden = true;

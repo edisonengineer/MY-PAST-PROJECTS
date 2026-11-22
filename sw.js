@@ -10,7 +10,7 @@
    deleted when the new worker takes over. Don't edit between the markers.
    ========================================================================= */
 /* PRECACHE:START */
-const VERSION = '579345fe2e';
+const VERSION = 'b47e56a100';
 const PRECACHE = [
     "./",
     "index.html",
@@ -18,7 +18,7 @@ const PRECACHE = [
     "favicon.svg",
     "apple-touch-icon.png",
     "site.webmanifest",
-    "css/style.css?v=43",
+    "css/style.css?v=46",
     "js/config.js",
     "js/live-data.js?v=2",
     "js/currency.js?v=1",
@@ -30,8 +30,8 @@ const PRECACHE = [
     "js/sheet-data.js",
     "js/rates.js?v=2",
     "js/i18n.js?v=6",
-    "js/i18n-fr.js?v=38",
-    "js/i18n-sw.js?v=35",
+    "js/i18n-fr.js?v=39",
+    "js/i18n-sw.js?v=36",
     "js/i18n-sheet-fr.js",
     "js/i18n-sheet-sw.js",
     "js/main.js?v=11",
@@ -40,7 +40,7 @@ const PRECACHE = [
     "js/instagram-snapshot.js?v=1",
     "js/shop.js?v=5",
     "js/extras.js?v=10",
-    "js/account.js?v=2",
+    "js/account.js?v=4",
     "js/analytics.js?v=3",
     "js/promo.js?v=1",
     "js/search.js?v=1",
@@ -48,8 +48,10 @@ const PRECACHE = [
     "js/pdf-viewer.js?v=3",
     "offline.html",
     "start/index.html",
-    "js/pages.js?v=19",
+    "js/pages.js?v=20",
     "account/index.html",
+    "pay/index.html",
+    "js/pay.js?v=3",
     "exams/index.html",
     "css/quote.css?v=5",
     "js/pro.js?v=6",
