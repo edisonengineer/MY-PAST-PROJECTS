@@ -33,6 +33,12 @@
    (e.g. EV Battery Pack Cooling), add a row with exactly that project's
    title, fill in only the two images, and publish it.
 
+   ACCOUNTS tab: people who made an account on the website (they log in with a
+   code sent to their email; there are no passwords). Set Status to "Blocked" to
+   switch one off. Their account page shows their exam pass / Quote Pro keys,
+   training, projects and invoices from your other tabs, matched by email.
+   EXAM RESULTS tab: practice exams finished by people who are logged in.
+
    PRICING, CERTIFICATES, COURSES and RECORDINGS tabs: the website's
    packages and prices, certificates, training courses and webinar videos.
    They start filled with what the website shows today. Edit, add or
@@ -163,6 +169,7 @@ function doPost(e) {
   if (p.action === 'download') return out_(download_(p));
   if (p.action === 'syllabus') return out_(syllabus_(p));
   if (p.action === 'pro') return out_(proRequest_(p));
+  if (p.action === 'account-result' || p.action === 'account-update') return out_(accountPost_(p));
   const name = clean_(p.name, 80);
   const text = clean_(p.text, 1500);
   const rating = Math.round(Number(p.rating));
@@ -2386,6 +2393,7 @@ const SROWS = [
   ['Training next intake', SEED_TRAINING.intake, 'Training page: e.g. Saturday classes from 7 November 2026. Leave empty for "Dates on request"'],
   ['Training starting price (KES)', SEED_TRAINING.price, 'Training page: starting price per trainee, e.g. 4500'],
   ['Email me new project briefs', 'Yes', 'Yes = the moment someone sends a project brief / quote request on the website, you get the full details in Gmail (press Reply to answer the client)'],
+  ['Email me new accounts', 'Yes', 'Yes = you get an email in Gmail when someone creates an account on the website. No = they are only added to the Accounts tab'],
   ['Email me new subscribers', 'Yes', 'Yes = you get an email in Gmail for each new subscriber (newsletter, syllabus downloads, free downloads). No = they are only added to the Subscribers tab'],
   ['Email me new training seat requests', 'Yes', 'Yes = you get an email in Gmail each time someone reserves a training seat'],
   ['Monday summary email', 'Yes', 'Yes = every Monday morning you get an email summary of briefs, projects, balances, reviews and subscribers'],
@@ -2456,6 +2464,8 @@ function readSettings_() {
 // turns on the automatic client emails (Google will ask for permission).
 function setup() {
   sheet_();
+  accounts_();
+  examResults_();
   const p = projects_();
   if (!p.getRange(1, 12).getValue()) p.getRange(1, 12).setValue('Client email').setFontWeight('bold');
   if (!p.getRange(1, 13).getValue()) p.getRange(1, 13, 1, 2).setValues([[PHEAD[12], PHEAD[13]]]).setFontWeight('bold');
@@ -3235,6 +3245,179 @@ function mpesaTest() {
   }
 }
 
+/* ---------- Accounts: log in with a code sent by email (no passwords) ----------
+   ACCOUNTS tab: one row per person. "Blocked" in Status switches an account off at once.
+   EXAM RESULTS tab: the practice exams each account has finished.
+   A login is a signed token kept in the browser for 30 days. The account page shows the
+   person's own rows from your other tabs, matched by their email: exam pass and Quote Pro
+   keys (Quote Pro tab), training (Trainees), projects (Projects) and invoices (Invoices). */
+const ACCOUNTS = 'Accounts', EXRESULTS = 'Exam results';
+const ACHEAD = ['Email', 'Name', 'Phone', 'Created', 'Last login', 'Status (Active / Blocked)', 'Notes'];
+const XRHEAD = ['Date', 'Email', 'Test', 'Score %', 'Points', 'Minutes', 'By topic'];
+const ACCT_DAYS = 30;
+function accounts_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(ACCOUNTS);
+  if (sh) return sh;
+  sh = ss.insertSheet(ACCOUNTS);
+  sh.appendRow(ACHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, ACHEAD.length).setFontWeight('bold').setWrap(true);
+  sh.getRange('D2:E3000').setNumberFormat('d mmm yyyy, HH:mm');
+  sh.getRange('F2:F3000').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['Active', 'Blocked'], true).build());
+  [220, 160, 130, 140, 140, 130, 260].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+function examResults_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(EXRESULTS);
+  if (sh) return sh;
+  sh = ss.insertSheet(EXRESULTS);
+  sh.appendRow(XRHEAD);
+  sh.setFrozenRows(1);
+  sh.getRange(1, 1, 1, XRHEAD.length).setFontWeight('bold');
+  sh.getRange('A2:A5000').setNumberFormat('d mmm yyyy, HH:mm');
+  [140, 220, 220, 80, 90, 80, 360].forEach((w, i) => sh.setColumnWidth(i + 1, w));
+  return sh;
+}
+function acctSecret_() {
+  const props = PropertiesService.getScriptProperties();
+  let s = props.getProperty('ACCT_SECRET');
+  if (!s) { s = Utilities.getUuid() + Utilities.getUuid(); props.setProperty('ACCT_SECRET', s); }
+  return s;
+}
+const hex_ = (bytes) => bytes.map((b) => ((b + 256) % 256).toString(16).padStart(2, '0')).join('');
+const acctSig_ = (text) => hex_(Utilities.computeHmacSha256Signature(text, acctSecret_())).slice(0, 40);
+function acctToken_(email) {
+  const payload = email + '|' + (Date.now() + ACCT_DAYS * 864e5);
+  return Utilities.base64EncodeWebSafe(payload, Utilities.Charset.UTF_8).replace(/=+$/, '') + '.' + acctSig_(payload);
+}
+// The account a token belongs to: { email, row (1-based), r } or null (bad, expired or blocked)
+function acctFromToken_(t) {
+  const parts = String(t || '').split('.');
+  if (parts.length !== 2) return null;
+  let payload = '';
+  try { payload = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[0] + '==='.slice((parts[0].length + 3) % 4))).getDataAsString(); } catch (err) { return null; }
+  if (acctSig_(payload) !== parts[1]) return null;
+  const m = /^(.+)\|(\d+)$/.exec(payload);
+  if (!m || Number(m[2]) < Date.now()) return null;
+  const email = m[1], rows = accounts_().getDataRange().getValues();
+  const i = rows.findIndex((r, k) => k > 0 && String(r[0]).trim().toLowerCase() === email);
+  if (i < 1 || /^blocked$/i.test(String(rows[i][5]).trim())) return null;
+  return { email: email, row: i + 1, r: rows[i] };
+}
+// Step 1: email a 6-digit code (valid 10 minutes)
+function loginStart_(q) {
+  const email = clean_(q.email, 120).toLowerCase();
+  if (!validEmail_(email)) return { ok: false, error: 'invalid' };
+  const cache = CacheService.getScriptCache();
+  const all = Number(cache.get('login-all') || 0), mine = Number(cache.get('login-n:' + email) || 0);
+  if (all >= 120 || mine >= 5) return { ok: false, error: 'busy' };
+  cache.put('login-all', String(all + 1), 3600);
+  cache.put('login-n:' + email, String(mine + 1), 900);
+  const blocked = accounts_().getDataRange().getValues().some((r, k) => k > 0 && String(r[0]).trim().toLowerCase() === email && /^blocked$/i.test(String(r[5]).trim()));
+  if (blocked) return { ok: false, error: 'blocked' };
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  cache.put('login:' + email, JSON.stringify({ h: acctSig_('code|' + email + '|' + code), tries: 0 }), 600);
+  MailApp.sendEmail({ to: email, name: SENDER, subject: code + ' is your Nexus CAD Studio login code',
+    htmlBody: '<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#0e1a3a">' +
+      '<p style="font-size:13px;letter-spacing:.08em;color:#c4422a;font-weight:bold;margin:0 0 6px">NEXUS CAD STUDIO · MY ACCOUNT</p>' +
+      '<p>Your login code is:</p><p style="font-size:30px;letter-spacing:8px;font-weight:bold;background:#fbf6ec;border-left:4px solid #ffb627;padding:12px 16px">' + code + '</p>' +
+      '<p>Type it on the website within 10 minutes. If you didn\'t ask for it, ignore this email: nobody can log in without the code.</p>' +
+      '<p>Edison Ochieng<br><span style="color:#555;font-size:13px">Nexus CAD Studio</span></p></div>',
+    body: 'Your Nexus CAD Studio login code is ' + code + '. It works for 10 minutes. If you did not ask for it, ignore this email.' });
+  return { ok: true };
+}
+// Step 2: check the code; makes the account the first time
+function loginVerify_(q) {
+  const email = clean_(q.email, 120).toLowerCase(), code = String(q.code || '').replace(/\D/g, '');
+  const cache = CacheService.getScriptCache(), key = 'login:' + email;
+  let c = null;
+  try { c = JSON.parse(cache.get(key) || 'null'); } catch (err) { c = null; }
+  if (!c) return { ok: false, error: 'expired' };
+  if (c.h !== acctSig_('code|' + email + '|' + code)) {
+    c.tries++;
+    if (c.tries >= 5) { cache.remove(key); return { ok: false, error: 'expired' }; }
+    cache.put(key, JSON.stringify(c), 600);
+    return { ok: false, error: 'wrong', left: 5 - c.tries };
+  }
+  cache.remove(key);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  let isNew = false;
+  try {
+    const sh = accounts_(), rows = sh.getDataRange().getValues();
+    const i = rows.findIndex((r, k) => k > 0 && String(r[0]).trim().toLowerCase() === email);
+    if (i > 0) sh.getRange(i + 1, 5).setValue(new Date());
+    else { sh.appendRow([email, clean_(q.name, 80), '', new Date(), new Date(), 'Active', '']); isNew = true; }
+  } finally {
+    lock.releaseLock();
+  }
+  if (isNew) {
+    try {
+      newRequestAlert_({ setting: 'Email me new accounts', tab: ACCOUNTS, email: email, phone: '', name: clean_(q.name, 80),
+        subject: '👤 New account: ' + email, kicker: 'New account on the website', title: email + ' created an account', waText: '',
+        fields: [['Email', email], ['Accounts now', accounts_().getLastRow() - 1]] });
+    } catch (err) { console.error('account alert: ' + err); }
+  }
+  return { ok: true, token: acctToken_(email), isNew: isNew, account: accountData_(email) };
+}
+const ymdOr_ = (v) => (v instanceof Date ? ymd_(v) : String(v || '').trim());
+// Everything the account page shows, matched by email
+function accountData_(email) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet(), tab = (n) => ss.getSheetByName(n);
+  const same = (v) => String(v || '').trim().toLowerCase() === email;
+  const rowsOf = (n) => (tab(n) ? tab(n).getDataRange().getValues().slice(1) : []);
+  const acc = accounts_().getDataRange().getValues().find((r, k) => k > 0 && same(r[0])) || [];
+  // Exam pass and Quote Pro keys
+  const keys = {};
+  rowsOf(PRO).forEach((x) => { const k = proKey_(x[8]); if (k && same(x[2]) && String(x[7]).trim() === 'Confirmed') keys[k] = x; });
+  const passes = Object.keys(keys).map((k) => {
+    const x = keys[k], until = proUntil_(k, -1), cancelled = rowsOf(PRO).some((y) => proKey_(y[8]) === k && String(y[7]).trim() === 'Cancelled');
+    return { product: isExam_(x[4]) ? 'exams' : 'quote', plan: String(x[4] || ''), key: String(x[8]).trim().toUpperCase(), expires: until ? ymd_(until) : '',
+      active: !cancelled && !!until && until >= new Date() };
+  }).sort((a, b) => (b.expires > a.expires ? 1 : -1));
+  const results = examResults_().getDataRange().getValues().slice(1).filter((x) => same(x[1])).slice(-60).reverse()
+    .map((x) => ({ date: ymdOr_(x[0]), test: String(x[2] || ''), score: num_(x[3]), points: String(x[4] || ''), minutes: num_(x[5]) }));
+  const training = rowsOf(TRAINEES).filter((x) => same(x[3])).map((x) => ({ id: String(x[0] || ''), course: String(x[5] || ''), cls: String(x[6] || ''),
+    format: String(x[7] || ''), status: String(x[8] || ''), completed: ymdOr_(x[9]), certificate: String(x[10] || '') }));
+  const projects = rowsOf(PROJECTS).filter((x) => same(x[11]) && String(x[0]).trim()).map((x) => ({ ref: String(x[0]).trim(), project: String(x[1] || ''),
+    stage: String(x[3] || ''), progress: num_(x[4]), due: ymdOr_(x[5]) }));
+  const documents = rowsOf(INVOICES).filter((x) => same(x[5]) && String(x[12] || '').trim()).map((x) => ({ number: String(x[0] || ''), type: String(x[1] || ''),
+    date: ymdOr_(x[2]), ref: String(x[3] || ''), total: num_(x[7]), paid: num_(x[8]) })).reverse();
+  return { email: email, name: String(acc[1] || ''), phone: String(acc[2] || ''), created: ymdOr_(acc[3]),
+    passes: passes, results: results, training: training, projects: projects, documents: documents };
+}
+function accountGet_(q) {
+  const a = acctFromToken_(q.t);
+  if (!a) return { ok: false, error: 'login' };
+  const cache = CacheService.getScriptCache(), n = Number(cache.get('acct-get:' + a.email) || 0);
+  if (n >= 120) return { ok: false, error: 'busy' };
+  cache.put('acct-get:' + a.email, String(n + 1), 3600);
+  return { ok: true, account: accountData_(a.email) };
+}
+// From the website: a finished practice exam, or new profile details
+function accountPost_(p) {
+  const a = acctFromToken_(p.t);
+  if (!a) return { ok: false, error: 'login' };
+  const cache = CacheService.getScriptCache(), n = Number(cache.get('acct-post:' + a.email) || 0);
+  if (n >= 60) return { ok: false, error: 'busy' };
+  cache.put('acct-post:' + a.email, String(n + 1), 3600);
+  if (p.action === 'account-result') {
+    const score = Math.max(0, Math.min(100, Math.round(num_(p.score))));
+    const d = p.date ? new Date(p.date) : null, when = d && !isNaN(d) && d <= new Date() && d > new Date(Date.now() - 400 * 864e5) ? d : new Date();   // results from before logging in keep their date
+    examResults_().appendRow([when, a.email, clean_(p.test, 80), score, clean_(p.points, 20), Math.max(0, Math.round(num_(p.minutes))), clean_(p.topics, 900)]);
+    return { ok: true };
+  }
+  if (p.action === 'account-update') {
+    const sh = accounts_();
+    if (p.name != null) sh.getRange(a.row, 2).setValue(clean_(p.name, 80));
+    if (p.phone != null) sh.getRange(a.row, 3).setValue(clean_(p.phone, 30));
+    return { ok: true };
+  }
+  return { ok: false };
+}
+
 function doGet(e) {
   const q = (e && e.parameter) || {};
   if (q.action === 'track') return out_(track_(q.ref));
@@ -3249,6 +3432,9 @@ function doGet(e) {
   if (q.action === 'pro') return out_(proCheck_(q));
   if (q.action === 'mpesa-pay') return out_(mpesaPay_(q));
   if (q.action === 'mpesa-status') return out_(mpesaStatus_(q));
+  if (q.action === 'login-start') return out_(loginStart_(q));
+  if (q.action === 'login') return out_(loginVerify_(q));
+  if (q.action === 'account') return out_(accountGet_(q));
   return out_(reviews_());
 }
 
