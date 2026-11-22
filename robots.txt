@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /MY-PAST-PROJECTS/share/
-Disallow: /MY-PAST-PROJECTS/cv-tailor/
 
 Sitemap: https://edisonengineer.github.io/MY-PAST-PROJECTS/sitemap.xml

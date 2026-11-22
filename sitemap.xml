@@ -121,6 +121,24 @@
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>https://edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/</loc>
+        <lastmod>2026-11-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/terms.html</loc>
+        <lastmod>2026-11-22</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.2</priority>
+    </url>
+    <url>
+        <loc>https://edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/privacy.html</loc>
+        <lastmod>2026-11-22</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.2</priority>
+    </url>
+    <url>
         <loc>https://edisonengineer.github.io/MY-PAST-PROJECTS/steel/</loc>
         <lastmod>2026-11-22</lastmod>
         <changefreq>monthly</changefreq>

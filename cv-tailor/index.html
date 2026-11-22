@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV tailor | Edison Ochieng</title>
-    <meta name="description" content="Make a CV for one job from your real experience: match the job description, choose what goes in, print or hand off to an AI assistant.">
+    <title>Free CV tailor: CV, cover letter &amp; email for every job | Nexus CAD Studio</title>
+    <meta name="description" content="Free CV tailor for members: upload your CV (PDF or Word), paste a job advert, and get a matching one-page CV, cover letter and application email built only from your real experience.">
     <meta name="author" content="Edison Ochieng">
-    <meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#0e1a3a">
     <link rel="canonical" href="https://edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/">
     <link rel="alternate" hreflang="en" href="https://edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/">
@@ -15,20 +15,20 @@
     <link rel="alternate" hreflang="x-default" href="https://edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Nexus CAD Studio">
-    <meta property="og:title" content="CV tailor | Edison Ochieng">
-    <meta property="og:description" content="Make a CV for one job from your real experience: match the job description, choose what goes in, print or hand off to an AI assistant.">
+    <meta property="og:title" content="Free CV tailor: CV, cover letter &amp; email for every job | Nexus CAD Studio">
+    <meta property="og:description" content="Free CV tailor for members: upload your CV (PDF or Word), paste a job advert, and get a matching one-page CV, cover letter and application email built only from your real experience.">
     <meta property="og:url" content="https://edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/">
     <meta property="og:image" content="https://edisonengineer.github.io/MY-PAST-PROJECTS/og-image.jpg?v=2">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="CV tailor | Edison Ochieng">
-    <meta name="twitter:image:alt" content="CV tailor | Edison Ochieng">
+    <meta property="og:image:alt" content="Free CV tailor: CV, cover letter &amp; email for every job | Nexus CAD Studio">
+    <meta name="twitter:image:alt" content="Free CV tailor: CV, cover letter &amp; email for every job | Nexus CAD Studio">
     <meta property="og:locale" content="en_KE">
     <meta property="og:locale:alternate" content="fr_FR">
     <meta property="og:locale:alternate" content="sw_KE">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="CV tailor | Edison Ochieng">
-    <meta name="twitter:description" content="Make a CV for one job from your real experience: match the job description, choose what goes in, print or hand off to an AI assistant.">
+    <meta name="twitter:title" content="Free CV tailor: CV, cover letter &amp; email for every job | Nexus CAD Studio">
+    <meta name="twitter:description" content="Free CV tailor for members: upload your CV (PDF or Word), paste a job advert, and get a matching one-page CV, cover letter and application email built only from your real experience.">
     <meta name="twitter:image" content="https://edisonengineer.github.io/MY-PAST-PROJECTS/og-image.jpg?v=2">
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
@@ -49,12 +49,20 @@
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "WebPage",
+        "@type": "WebApplication",
         "name": "CV tailor",
-        "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/"
+        "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/cv-tailor/",
+        "description": "Free CV tailor for members: upload your CV (PDF or Word), paste a job advert, and get a matching one-page CV, cover letter and application email built only from your real experience.",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": 0,
+            "priceCurrency": "KES"
+        }
     }
     </script>
-    <link rel="stylesheet" href="../css/cv-tailor.css?v=2">
+    <link rel="stylesheet" href="../css/cv-tailor.css?v=4">
 </head>
 <body class="subpage cvt-body">
 
@@ -142,16 +150,67 @@
                 <nav class="crumbs" aria-label="Breadcrumb">
                     <a href="../index.html">Home</a><span aria-hidden="true">/</span><a href="../cv/index.html">CV</a><span aria-hidden="true">/</span><span aria-current="page">CV tailor</span>
                 </nav>
-                <p class="page-kicker">For Edison</p>
-                <h1 class="page-title">Tailor your CV to one job.</h1>
-                <p class="page-lede">Paste a job description. See what it asks for and what your real experience covers, pick the most relevant lines, then print a clean CV and cover letter, send the application email, or hand a strict prompt to an AI assistant.</p>
-                <p class="cvt-truth"><svg aria-hidden="true"><use href="#i-check"/></svg> <span>Built only from your master CV (content/cv.js, your projects and certificates). Nothing here can add a role, number, tool or certificate you don't have. Items marked "not for the job portfolio" are left out.</span></p>
+                <p class="page-kicker">Free with your account</p>
+                <h1 class="page-title">Tailor your CV to every job.</h1>
+                <p class="page-lede">Upload your CV once (PDF or Word). For each job advert you paste, see what it asks for and what you can prove, then print a matching CV and cover letter and send the application email.</p>
+                <p class="cvt-truth"><svg aria-hidden="true"><use href="#i-check"/></svg> <span>Built only from your own CV: the tool picks and orders your real experience for each job. It never adds a role, number, tool or certificate you don't have.</span></p>
             </div>
         </section>
 
         <section class="section cvt-wrap">
-            <div class="container cvt-app" id="cvt-app">
+            <div class="container cvt-gate" id="cvt-gate">
+                <noscript><p class="cvt-error">The CV tailor needs JavaScript. Turn it on in your browser and reload the page.</p></noscript>
+                <p class="cvt-gate-msg" id="cvt-gate-msg" role="status" hidden></p>
+                <div class="cvt-gate-card" id="cvt-gate-loading" hidden><p class="cvt-loading">Loading your CV…</p></div>
+                <div class="cvt-gate-card" id="cvt-gate-login">
+                    <h2>Log in to use the CV tailor</h2>
+                    <p>It's free with a Nexus CAD Studio account. You log in with a code sent to your email (no password), and your CV is kept in your account, so you can use it on any phone or computer.</p>
+                    <ul class="cvt-gate-list">
+                        <li><svg aria-hidden="true"><use href="#i-check"/></svg> Upload your CV as a PDF or Word file, or paste it</li>
+                        <li><svg aria-hidden="true"><use href="#i-check"/></svg> Paste any job advert: see which requirements you meet, honestly</li>
+                        <li><svg aria-hidden="true"><use href="#i-check"/></svg> Print a one-page CV, a cover letter and an application email for that job</li>
+                        <li><svg aria-hidden="true"><use href="#i-check"/></svg> Nothing is made up: everything comes from your own CV</li>
+                    </ul>
+                    <p class="cvt-actions"><a class="btn btn-sun btn-lg" href="../account/index.html?next=cv-tailor/index.html">Log in or create a free account <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></p>
+                    <p class="cvt-help">By using the CV tailor you agree to its <a href="terms.html" target="_blank" rel="noopener">Terms and conditions</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a>.</p>
+                </div>
+                <div class="cvt-gate-card" id="cvt-gate-consent" hidden>
+                    <h2>Before you start</h2>
+                    <p>The CV tailor keeps <strong>your CV in your account</strong> so you can use it on any device. Job adverts, saved jobs and drafts stay on this device only. Files you upload are read in your browser and are never sent anywhere. Only you can see your CV, and you can download it or delete it at any time.</p>
+                    <p>Please read the terms and the privacy notice (they open in a new tab):</p>
+                    <p class="cvt-docs"><a class="btn btn-outline" href="terms.html" target="_blank" rel="noopener">Read the Terms and conditions</a> <a class="btn btn-outline" href="privacy.html" target="_blank" rel="noopener">Read the Privacy notice</a></p>
+                    <label class="cvt-agree"><input type="checkbox" id="cvt-agree"> <span>I have read and I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms and conditions</a> and the <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a> of the CV tailor.</span></label>
+                    <p class="cvt-actions"><button type="button" class="btn btn-navy" id="cvt-agree-go" disabled>Agree and continue</button></p>
+                </div>
+            </div>
+            <div class="container cvt-app" id="cvt-app" hidden>
                 <div class="cvt-ui">
+                    <section class="cvt-card cvt-mycv" id="cvt-mycv">
+                        <h2 class="cvt-h"><span class="cvt-n">0</span> My CV <small id="cvt-my-who"></small></h2>
+                        <div class="field" id="cvt-source-wrap" hidden><label for="cvt-source">CV to use</label><select id="cvt-source"><option value="site">The website CV (content/cv.js, projects, certificates)</option><option value="account">The CV saved in my account</option></select></div>
+                        <p class="cvt-my-stats" id="cvt-my-stats"></p>
+                        <p class="cvt-my-status" id="cvt-my-status" role="status" aria-live="polite"></p>
+                        <div class="cvt-actions" data-my-account>
+                            <button type="button" class="btn btn-navy" data-act-my="upload"><svg aria-hidden="true"><use href="#i-doc"/></svg> Upload CV (PDF or Word)</button>
+                            <button type="button" class="btn btn-outline" data-act-my="paste">Paste CV text</button>
+                            <button type="button" class="btn btn-outline" data-act-my="edit">Check / edit my CV</button>
+                        </div>
+                        <input type="file" id="cvt-file" accept=".pdf,.docx,.doc,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+                        <input type="file" id="cvt-restore" accept=".json,application/json" hidden>
+                        <div class="cvt-paste" id="cvt-paste-wrap" hidden data-my-account>
+                            <div class="field"><label for="cvt-paste">Paste the text of your CV</label><textarea id="cvt-paste" rows="8" spellcheck="false" placeholder="Copy everything from your CV document and paste it here."></textarea></div>
+                            <button type="button" class="btn btn-navy cvt-sm" data-act-my="read-paste">Read my CV</button>
+                        </div>
+                        <div class="cvt-import-notes" id="cvt-import-notes" hidden></div>
+                        <div class="cvt-editor-wrap" id="cvt-editor-wrap" hidden data-my-account><div id="cvt-editor" data-no-i18n></div></div>
+                        <p class="cvt-my-more" data-my-account>
+                            <button type="button" class="cvt-link" data-act-my="backup">Download backup</button> ·
+                            <button type="button" class="cvt-link" data-act-my="restore">Restore a backup</button> ·
+                            <button type="button" class="cvt-link is-danger" data-act-my="delete">Delete my CV</button> ·
+                            <a href="privacy.html" target="_blank" rel="noopener">Privacy</a> · <a href="terms.html" target="_blank" rel="noopener">Terms</a>
+                        </p>
+                        <p class="cvt-help">Your files are read in your browser and never uploaded. Only the CV you check is saved, in your account. On a shared computer, log out when you're done: that removes it from the device.</p>
+                    </section>
                     <section class="cvt-card"><h2 class="cvt-h"><span class="cvt-n">1</span> The job</h2>
                     <div class="field-grid">
                         <div class="field"><label for="cvt-role">Job title <small>(optional)</small></label><input id="cvt-role" type="text" autocomplete="off" placeholder="e.g. Mechanical Design Engineer"></div>
@@ -178,7 +237,7 @@
                     </div></section>
                     <section class="cvt-card" id="cvt-match-card"><h2 class="cvt-h"><span class="cvt-n">2</span> What the job asks for, and what you can prove</h2><div id="cvt-match" aria-live="polite"></div></section>
                     <section class="cvt-card"><h2 class="cvt-h"><span class="cvt-n">3</span> Choose what goes in</h2>
-                    <p class="cvt-help">Ticked lines are on the CV, in this order. The bar shows how well each line matches this job (hover for the words it matched). To change the wording of a line, edit it in your master CV so every CV stays true.</p>
+                    <p class="cvt-help">Ticked lines are on the CV, in this order. The bar shows how well each line matches this job (hover for the words it matched). To change the wording of a line, edit it in My CV (step 0) so every CV stays true.</p>
                     <div class="cvt-opts">
                         <label><input type="checkbox" id="cvt-photo"> Photo</label>
                         <label><input type="checkbox" id="cvt-email" checked> Email address</label>
@@ -206,7 +265,7 @@
                     <div class="cvt-actions"><button type="button" class="btn btn-navy" data-act="check">Check against my CV</button></div>
                     <div id="cvt-check-out" aria-live="polite"></div></section>
                     <p class="cvt-status" id="cvt-status" role="status" aria-live="polite"></p>
-                    <p class="track-privacy"><svg aria-hidden="true"><use href="#i-check"/></svg> <span>This page isn't linked anywhere on the site or shown in search engines, and nothing you paste leaves this browser. Bookmark it.</span></p>
+                    <p class="track-privacy"><svg aria-hidden="true"><use href="#i-check"/></svg> <span>Job adverts, saved jobs and drafts stay on this device. Only your CV is kept in your account. <a href="privacy.html">Privacy notice</a> · <a href="terms.html">Terms</a></span></p>
                 </div>
 
                 <div class="cvt-preview">
@@ -222,7 +281,7 @@
                             <button type="button" class="btn btn-sun" data-act="print"><svg aria-hidden="true"><use href="#i-doc"/></svg> Print / save as PDF</button></span>
                         </div>
                         <p class="cvt-help cvt-print-tip">In the print window choose "Save as PDF", paper A4, margins Default, and turn off headers and footers.</p>
-                        <div class="cvt-stage" id="cvt-stage"><article class="cvt-paper" id="cvt-paper" data-no-i18n data-user="edisonochieng24" data-domain="gmail.com" lang="en"></article></div>
+                        <div class="cvt-stage" id="cvt-stage"><article class="cvt-paper" id="cvt-paper" data-no-i18n lang="en"></article></div>
                     </div>
                     <div class="cvt-panel" id="cvt-panel-letter" role="tabpanel" aria-labelledby="cvt-tab-letter" hidden>
                         <div class="cvt-toolbar">
@@ -279,6 +338,7 @@
                 <a href="../track/index.html">Track your project</a>
                 <a href="../verify/index.html">Verify a certificate</a>
                 <a href="../cv/index.html">Online CV</a>
+                <a href="../cv-tailor/index.html">Free CV tailor</a>
                 <a href="../index.html#faq">FAQ</a>
             </nav>
             <div class="footer-col">
@@ -300,9 +360,11 @@
 
     <a class="fab-wa" href="https://wa.me/254708639473" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"><svg aria-hidden="true"><use href="#i-whatsapp"/></svg></a>
 
-    <script defer src="../js/cv-master.js"></script>
-    <script defer src="../js/cv-tailor-core.js?v=2"></script>
-    <script defer src="../js/cv-tailor.js?v=2"></script>
+    <script defer src="../js/config.js?v=14"></script>
+    <script defer src="../js/cv-tailor-core.js?v=3"></script>
+    <script defer src="../js/cv-import.js?v=1"></script>
+    <script defer src="../js/cv-tailor.js?v=3"></script>
+    <script defer src="../js/cv-mycv.js?v=1"></script>
     <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=39" data-sw="../js/i18n-sw.js?v=36" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
     <script defer src="../js/pages.js?v=20"></script>
     <script defer src="../js/account.js?v=4" data-api="https://script.google.com/macros/s/AKfycbzhZ6fb-p7uUTFm7GCl3dvCEaiIM1p___NvuTYyAhejrTvfyUEGOq5fXxVbpROj9ok0/exec"></script>

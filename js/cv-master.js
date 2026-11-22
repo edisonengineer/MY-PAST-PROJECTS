@@ -9,12 +9,13 @@ window.CV_MASTER = {
   "tagline": "Founder of Nexus CAD Studio · Nairobi, Kenya",
   "location": "Nairobi, Kenya",
   "phone": "+254 708 639 473",
+  "email": "",
   "linkedin": "https://www.linkedin.com/in/edison-ochieng-870a37229/",
   "website": "https://edisonengineer.github.io/MY-PAST-PROJECTS/",
   "portfolio": "https://edisonengineer.github.io/"
  },
  "summary": {
-  "id": "summary-99c573",
+  "id": "summary-e488fa",
   "text": "Mechanical Engineering graduate from the University of Nairobi with hands-on CAD experience in SolidWorks, Autodesk Inventor and Fusion 360. I produce 3D models, assemblies and 2D technical drawings for industrial prototypes, and run Nexus CAD Studio, a CAD and graphic design studio that has trained over 100 people. My final-year project used coupled FE simulation of sheet metal forming, reflecting strong manufacturing and design fundamentals. I am eager to contribute to product development, prototyping and technical support."
  },
  "experience": [
@@ -26,15 +27,15 @@ window.CV_MASTER = {
    "year": 2026,
    "points": [
     {
-     "id": "exp-nexus-cad-studio-founder-c6e4ce",
+     "id": "exp-nexus-cad-studio-founder-7747c1",
      "text": "Founded a CAD and graphic design studio delivering services in Revit, Inventor Professional, Fusion 360, SolidWorks and AutoCAD."
     },
     {
-     "id": "exp-nexus-cad-studio-founder-d2af86",
+     "id": "exp-nexus-cad-studio-founder-6f443d",
      "text": "Built CAD training programmes that have upskilled over 100 professionals and students."
     },
     {
-     "id": "exp-nexus-cad-studio-founder-68022a",
+     "id": "exp-nexus-cad-studio-founder-889296",
      "text": "Delivered client projects including the design and thermal simulation of an EV battery cooling pack."
     }
    ]
@@ -47,23 +48,23 @@ window.CV_MASTER = {
    "year": 2025,
    "points": [
     {
-     "id": "exp-kirdi-industrial-att-3cc45b",
+     "id": "exp-kirdi-industrial-att-73d56a",
      "text": "Designed and fabricated jiko stove components from sheet metal, applying DFM principles and manufacturing tolerances."
     },
     {
-     "id": "exp-kirdi-industrial-att-edb491",
+     "id": "exp-kirdi-industrial-att-26b2f7",
      "text": "Operated laser cutting machines to produce sheet-metal components to precise dimensional tolerances."
     },
     {
-     "id": "exp-kirdi-industrial-att-1d2845",
+     "id": "exp-kirdi-industrial-att-7b5b8e",
      "text": "Created 3D models, assemblies and 2D technical drawings in SolidWorks, Inventor and Fusion 360 for industrial prototypes."
     },
     {
-     "id": "exp-kirdi-industrial-att-0bc567",
+     "id": "exp-kirdi-industrial-att-afa4dd",
      "text": "Contributed to the design and fabrication of a poultry de-feathering machine, from concept to mechanical assembly."
     },
     {
-     "id": "exp-kirdi-industrial-att-099246",
+     "id": "exp-kirdi-industrial-att-4412b3",
      "text": "Performed machine shop operations including shaft milling and lathe work."
     }
    ]
@@ -76,7 +77,7 @@ window.CV_MASTER = {
    "year": 2025,
    "points": [
     {
-     "id": "exp-knowledgepoint-lim-autodesk-fusio-be1f63",
+     "id": "exp-knowledgepoint-lim-autodesk-fusio-72ed2b",
      "text": "Autodesk Designathon 2025, Honorable Mention: designed a solar-powered sustainable outdoor hub for a university campus, validated with 3D modelling and structural simulation in Fusion 360."
     }
    ]
@@ -97,7 +98,7 @@ window.CV_MASTER = {
    "year": 2024,
    "points": [
     {
-     "id": "exp-unsa-academic-secre-95a1dc",
+     "id": "exp-unsa-academic-secre-c95302",
      "text": "Secretary General of the UNSA academic committee, overseeing student academic affairs."
     }
    ]
@@ -115,19 +116,19 @@ window.CV_MASTER = {
    "outcome": "Honorable Mention at the Autodesk Designathon 2025",
    "points": [
     {
-     "id": "prj-designathon-hub-72897a",
+     "id": "prj-designathon-hub-6cd778",
      "text": "9.5 m × 9.5 m structure supported on 3 m concrete pillars"
     },
     {
-     "id": "prj-designathon-hub-fcce5b",
+     "id": "prj-designathon-hub-f170e9",
      "text": "6 m radius recycled-polycarbonate roof with integrated solar panels"
     },
     {
-     "id": "prj-designathon-hub-b5c820",
+     "id": "prj-designathon-hub-f3f804",
      "text": "Ergonomic charging stations for students working outdoors"
     },
     {
-     "id": "prj-designathon-hub-4ff1f1",
+     "id": "prj-designathon-hub-2b8bd9",
      "text": "Validated through 3D modelling and structural simulation in Fusion 360"
     }
    ],
@@ -136,11 +137,7 @@ window.CV_MASTER = {
     "Sustainable design",
     "Structural simulation"
    ],
-   "deliverables": [
-    "Fusion 360 3D model",
-    "Structural simulation",
-    "Interactive 3D model"
-   ],
+   "deliverables": [],
    "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/projects/designathon-hub.html"
   },
   {
@@ -154,23 +151,23 @@ window.CV_MASTER = {
    "outcome": "Every brief requirement met within a 2 m × 2 m footprint",
    "points": [
     {
-     "id": "prj-designathon-2026-hygiene-stati-eb08ff",
+     "id": "prj-designathon-2026-hygiene-stati-fe989a",
      "text": "Header tank fed by nine inverted 19-litre carboys, the water containers most easily available after a disaster"
     },
     {
-     "id": "prj-designathon-2026-hygiene-stati-cf368a",
+     "id": "prj-designathon-2026-hygiene-stati-7beb94",
      "text": "Enclosed filtration chamber with three filter columns, visible through clear acrylic panels"
     },
     {
-     "id": "prj-designathon-2026-hygiene-stati-50c149",
+     "id": "prj-designathon-2026-hygiene-stati-d83348",
      "text": "Twin stainless-steel basins with taps on opposite sides, so two people can wash their hands at once"
     },
     {
-     "id": "prj-designathon-2026-hygiene-stati-22be3b",
+     "id": "prj-designathon-2026-hygiene-stati-1a8bf3",
      "text": "U-bend drains carry used water to a separate wastewater tank with a drain valve below"
     },
     {
-     "id": "prj-designathon-2026-hygiene-stati-67e976",
+     "id": "prj-designathon-2026-hygiene-stati-57b4af",
      "text": "Cross-braced steel frame and aluminium columns, with fasteners and realistic Fusion materials throughout"
     }
    ],
@@ -179,11 +176,7 @@ window.CV_MASTER = {
     "Humanitarian design",
     "Water filtration"
    ],
-   "deliverables": [
-    "Full Fusion 360 assembly",
-    "Interactive 3D model",
-    "Design write-up"
-   ],
+   "deliverables": [],
    "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/projects/designathon-2026-hygiene-station.html"
   },
   {
@@ -197,23 +190,23 @@ window.CV_MASTER = {
    "outcome": "Taken from concept to photorealistic render in Fusion 360",
    "points": [
     {
-     "id": "prj-coffee-machine-2327c4",
+     "id": "prj-coffee-machine-71a357",
      "text": "Twin inverted-bottle water reservoirs that feed the machine from the top"
     },
     {
-     "id": "prj-coffee-machine-a01940",
+     "id": "prj-coffee-machine-2cb169",
      "text": "Clear acrylic side panel that shows the twin filter cartridges and internal layout"
     },
     {
-     "id": "prj-coffee-machine-0fb60c",
+     "id": "prj-coffee-machine-334ebc",
      "text": "Group head with a wooden-handled portafilter over a perforated stainless drip tray"
     },
     {
-     "id": "prj-coffee-machine-62817b",
+     "id": "prj-coffee-machine-47fb9d",
      "text": "Material palette of dark bamboo trim, anodised aluminium, stainless steel and ABS"
     },
     {
-     "id": "prj-coffee-machine-0fc134",
+     "id": "prj-coffee-machine-f3a294",
      "text": "Full 3D assembly, section views and photorealistic rendering in Fusion 360"
     }
    ],
@@ -222,11 +215,7 @@ window.CV_MASTER = {
     "Product design",
     "Rendering"
    ],
-   "deliverables": [
-    "Full 3D assembly",
-    "Section views",
-    "Photorealistic renders"
-   ],
+   "deliverables": [],
    "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/projects/coffee-machine.html"
   },
   {
@@ -240,27 +229,27 @@ window.CV_MASTER = {
    "outcome": "A complete course project trainees build part by part in 10 sessions",
    "points": [
     {
-     "id": "prj-bench-vise-387fec",
+     "id": "prj-bench-vise-312bf1",
      "text": "10 parts: cast-iron jaw and bearing blocks, serrated jaw plates, guide rods, lead screw, handle, retaining pin and two sheet-metal plates"
     },
     {
-     "id": "prj-bench-vise-c6defd",
+     "id": "prj-bench-vise-95e3a7",
      "text": "M14 × 2.0 lead screw with a SolidWorks screw mate: one turn of the handle moves the jaw 2 mm"
     },
     {
-     "id": "prj-bench-vise-b2df6b",
+     "id": "prj-bench-vise-c374a4",
      "text": "100 mm jaws that open from 0 to 80 mm, set by distance-mate limits"
     },
     {
-     "id": "prj-bench-vise-6c2666",
+     "id": "prj-bench-vise-955199",
      "text": "3 mm sheet-metal base plate with stiffening flanges, four slotted mounting holes and a flat pattern"
     },
     {
-     "id": "prj-bench-vise-2615c5",
+     "id": "prj-bench-vise-bd5569",
      "text": "Serrated jaw plates: a 15-groove linear pattern with countersunk M5 holes"
     },
     {
-     "id": "prj-bench-vise-94cedb",
+     "id": "prj-bench-vise-1988f2",
      "text": "Design change with Global Variables: the jaw width goes from 100 to 120 mm and everything rebuilds"
     }
    ],
@@ -270,11 +259,7 @@ window.CV_MASTER = {
     "Assembly & mates",
     "Sheet metal"
    ],
-   "deliverables": [
-    "10-session course brief",
-    "Reference 3D assembly",
-    "Part-by-part specifications"
-   ],
+   "deliverables": [],
    "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/projects/bench-vise.html"
   },
   {
@@ -288,23 +273,23 @@ window.CV_MASTER = {
    "outcome": "Prototype parts fabricated to precise tolerances",
    "points": [
     {
-     "id": "prj-kirdi-fabrication-fdce44",
+     "id": "prj-kirdi-fabrication-4cdd97",
      "text": "Designed and fabricated jiko stove components from sheet metal, applying DFM principles and manufacturing tolerances"
     },
     {
-     "id": "prj-kirdi-fabrication-b5157a",
+     "id": "prj-kirdi-fabrication-66c0ca",
      "text": "Helped design and build a poultry de-feathering machine, from concept to component iteration and assembly"
     },
     {
-     "id": "prj-kirdi-fabrication-0da2ea",
+     "id": "prj-kirdi-fabrication-94900f",
      "text": "3D models, assemblies and 2D technical drawings in SolidWorks, Inventor and Fusion 360"
     },
     {
-     "id": "prj-kirdi-fabrication-fbcff8",
+     "id": "prj-kirdi-fabrication-faef4c",
      "text": "CNC laser cutting and bending of L-beams, car bumpers and machine casings to precise tolerances"
     },
     {
-     "id": "prj-kirdi-fabrication-4e67d4",
+     "id": "prj-kirdi-fabrication-148adc",
      "text": "Arc and TIG welding, shaft milling and lathe work"
     }
    ],
@@ -314,11 +299,7 @@ window.CV_MASTER = {
     "CNC laser cutting",
     "SolidWorks"
    ],
-   "deliverables": [
-    "3D models & 2D drawings",
-    "Sheet-metal parts",
-    "Machined components"
-   ],
+   "deliverables": [],
    "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/projects/kirdi-fabrication.html"
   },
   {
@@ -332,23 +313,23 @@ window.CV_MASTER = {
    "outcome": "Sheet-metal failure predicted before parts are made",
    "points": [
     {
-     "id": "prj-final-year-project-b93a43",
+     "id": "prj-final-year-project-413dd6",
      "text": "Coupled damage mechanics (GTN) with Hill’48 anisotropic plasticity"
     },
     {
-     "id": "prj-final-year-project-940647",
+     "id": "prj-final-year-project-75ff40",
      "text": "Heat-treated and tensile-tested AlSi10Mg specimens in the lab to calibrate the GTN–Hill’48 model"
     },
     {
-     "id": "prj-final-year-project-342f33",
+     "id": "prj-final-year-project-4ee780",
      "text": "Simulated the Nakajima stretch-forming test to build the forming limit curve"
     },
     {
-     "id": "prj-final-year-project-68a756",
+     "id": "prj-final-year-project-decbac",
      "text": "Practical failure prediction for sheet-metal parts before manufacture"
     },
     {
-     "id": "prj-final-year-project-9833d8",
+     "id": "prj-final-year-project-b8709a",
      "text": "Insight into material behaviour under forming, failure and process optimisation"
     }
    ],
@@ -358,11 +339,7 @@ window.CV_MASTER = {
     "Sheet metal forming",
     "Tensile testing"
    ],
-   "deliverables": [
-    "Calibrated GTN–Hill’48 FE model",
-    "Lab tensile test data",
-    "Forming limit curve"
-   ],
+   "deliverables": [],
    "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/projects/final-year-project.html"
   },
   {
@@ -376,19 +353,19 @@ window.CV_MASTER = {
    "outcome": "A complete design package delivered to the client",
    "points": [
     {
-     "id": "prj-ev-battery-cooling-fb138f",
+     "id": "prj-ev-battery-cooling-bdc3ca",
      "text": "Full 3D model and assembly of the battery cooling pack"
     },
     {
-     "id": "prj-ev-battery-cooling-cd1454",
+     "id": "prj-ev-battery-cooling-1fea7d",
      "text": "Thermal simulation to keep the battery cells within their required operating temperature range"
     },
     {
-     "id": "prj-ev-battery-cooling-5d4a03",
+     "id": "prj-ev-battery-cooling-f30370",
      "text": "Iterated the cooling geometry and layout based on the results"
     },
     {
-     "id": "prj-ev-battery-cooling-a55fd6",
+     "id": "prj-ev-battery-cooling-e6d04e",
      "text": "Delivered a complete design package: 3D models, assemblies and simulation results"
     }
    ],
@@ -397,11 +374,7 @@ window.CV_MASTER = {
     "Inventor",
     "Thermal simulation"
    ],
-   "deliverables": [
-    "3D models & assemblies",
-    "Thermal simulation results",
-    "Iterated cooling layout"
-   ],
+   "deliverables": [],
    "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/projects/ev-battery-cooling.html"
   },
   {
@@ -415,11 +388,11 @@ window.CV_MASTER = {
    "outcome": "One consistent design across the whole series",
    "points": [
     {
-     "id": "prj-camp-meeting-8bdefe",
+     "id": "prj-camp-meeting-ae1445",
      "text": "Consistent layout across the whole series, personalised per recipient"
     },
     {
-     "id": "prj-camp-meeting-0ed82b",
+     "id": "prj-camp-meeting-4715e3",
      "text": "Bold typography with a warm, celebratory colour palette"
     }
    ],
@@ -428,9 +401,7 @@ window.CV_MASTER = {
     "Certificates",
     "Print"
    ],
-   "deliverables": [
-    "Personalised certificate series"
-   ],
+   "deliverables": [],
    "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/projects/camp-meeting.html"
   },
   {
@@ -444,7 +415,7 @@ window.CV_MASTER = {
    "outcome": "",
    "points": [
     {
-     "id": "prj-mazingira-day-373efe",
+     "id": "prj-mazingira-day-f011d2",
      "text": "Poster series designed for print and social media"
     }
    ],
@@ -453,9 +424,7 @@ window.CV_MASTER = {
     "Campaign",
     "Illustrator"
    ],
-   "deliverables": [
-    "Poster series for print & social media"
-   ],
+   "deliverables": [],
    "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/projects/mazingira-day.html"
   },
   {
@@ -469,7 +438,7 @@ window.CV_MASTER = {
    "outcome": "",
    "points": [
     {
-     "id": "prj-evening-sermon-7ea6ca",
+     "id": "prj-evening-sermon-0a6c0b",
      "text": "Gradient headline typography paired with photography"
     }
    ],
@@ -478,9 +447,7 @@ window.CV_MASTER = {
     "Social media",
     "Event"
    ],
-   "deliverables": [
-    "Event graphic"
-   ],
+   "deliverables": [],
    "url": "https://edisonengineer.github.io/MY-PAST-PROJECTS/projects/evening-sermon.html"
   },
   {
@@ -494,19 +461,19 @@ window.CV_MASTER = {
    "outcome": "",
    "points": [
     {
-     "id": "prj-a-journal-of-becoming-mackrine-2bbb00",
+     "id": "prj-a-journal-of-becoming-mackrine-4dce72",
      "text": "120-page print-ready journal in Adobe InDesign"
     },
     {
-     "id": "prj-a-journal-of-becoming-mackrine-1743d3",
+     "id": "prj-a-journal-of-becoming-mackrine-42fee9",
      "text": "Three sections: About Me, Dreams & Visions, and The Woman Called Mackrine"
     },
     {
-     "id": "prj-a-journal-of-becoming-mackrine-a50551",
+     "id": "prj-a-journal-of-becoming-mackrine-e0c07b",
      "text": "Custom layouts for vision boards, travel plans and a dream-career page"
     },
     {
-     "id": "prj-a-journal-of-becoming-mackrine-ce190d",
+     "id": "prj-a-journal-of-becoming-mackrine-429da9",
      "text": "Cohesive Great Vibes, Cormorant Garamond and Montserrat typography"
     }
    ],
@@ -520,35 +487,35 @@ window.CV_MASTER = {
  ],
  "skills": [
   {
-   "id": "skill-72f113",
+   "id": "skill-3443c9",
    "text": "CAD & engineering design: SolidWorks, Inventor, Fusion 360, AutoCAD, Revit"
   },
   {
-   "id": "skill-4f1e59",
+   "id": "skill-8675a1",
    "text": "Manufacturing processes & DFM principles"
   },
   {
-   "id": "skill-539629",
+   "id": "skill-7ddd88",
    "text": "Simulation & FEA: SolidWorks Simulation, Abaqus"
   },
   {
-   "id": "skill-9019f5",
+   "id": "skill-9a0a67",
    "text": "Technical drawing & documentation"
   },
   {
-   "id": "skill-4f46e3",
+   "id": "skill-826b80",
    "text": "Prototype fabrication & lab testing"
   },
   {
-   "id": "skill-d8153a",
+   "id": "skill-0ccc06",
    "text": "Graphic design: Illustrator, Photoshop, InDesign, Premiere Pro"
   },
   {
-   "id": "skill-61de6b",
+   "id": "skill-53d7b6",
    "text": "CAD training & facilitation"
   },
   {
-   "id": "skill-59cc87",
+   "id": "skill-2f59a8",
    "text": "Leadership, collaboration & communication"
   }
  ],
@@ -570,49 +537,49 @@ window.CV_MASTER = {
  ],
  "certificates": [
   {
-   "id": "cert-certified-solidworks-a-62c5e1",
+   "id": "cert-certified-solidworks-a-b1d668",
    "title": "Certified SOLIDWORKS Associate (CSWA) Cert Prep",
    "issuer": "LinkedIn Learning",
    "kind": "course",
    "verify": "https://www.linkedin.com/learning/certificates/02dd967cc0613a683c80a08ea44bbfa46d1d73ca0be389a0979e2d0e829e80e2"
   },
   {
-   "id": "cert-cswa-exam-preparation-9034f3",
+   "id": "cert-cswa-exam-preparation-92b4f0",
    "title": "CSWA Exam Preparation (SOLIDWORKS)",
    "issuer": "Udemy",
    "kind": "course",
    "verify": "https://www.udemy.com/certificate/UC-09090316-a037-4c81-a287-30a8dc798a72/"
   },
   {
-   "id": "cert-autodesk-inventor-desi-463ba0",
+   "id": "cert-autodesk-inventor-desi-797cbd",
    "title": "Autodesk Inventor Design Certification",
    "issuer": "LinkedIn Learning",
    "kind": "certification",
    "verify": ""
   },
   {
-   "id": "cert-autodesk-designathon-2-b2f021",
+   "id": "cert-autodesk-designathon-2-799f08",
    "title": "Autodesk Designathon 2025, Honorable Mention",
    "issuer": "Autodesk",
    "kind": "award",
    "verify": ""
   },
   {
-   "id": "cert-autodesk-designathon-2-c4bb5b",
+   "id": "cert-autodesk-designathon-2-99a5a3",
    "title": "Autodesk Designathon 2026, Participant",
    "issuer": "Autodesk",
    "kind": "award",
    "verify": "https://drive.google.com/file/d/13w7VcMgF_2Go1iSWp1bjY7TX8tuv237x/view?usp=sharing"
   },
   {
-   "id": "cert-solidworks-2024-essent-5a3119",
+   "id": "cert-solidworks-2024-essent-115143",
    "title": "SOLIDWORKS 2024 Essential Training",
    "issuer": "LinkedIn Learning",
    "kind": "course",
    "verify": "https://www.linkedin.com/learning/certificates/02dd967cc0613a683c80a08ea44bbfa46d1d73ca0be389a0979e2d0e829e80e2"
   },
   {
-   "id": "cert-premiere-pro-essential-fec7f4",
+   "id": "cert-premiere-pro-essential-51b7e6",
    "title": "Premiere Pro Essential Training",
    "issuer": "LinkedIn Learning",
    "kind": "course",

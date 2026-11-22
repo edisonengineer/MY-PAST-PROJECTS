@@ -106,7 +106,7 @@ async function main() {
     } catch (e) { /* no sitemap: just crawl from the home page */ }
 
     // Pages that are deliberately not linked or in the sitemap (tools for Edison) are checked too
-    for (const extra of ['cv-tailor/', 'request-review/']) { const u = base + extra; if (!seen.has(u)) { seen.add(u); pages.push(u); } }
+    for (const extra of ['request-review/']) { const u = base + extra; if (!seen.has(u)) { seen.add(u); pages.push(u); } }
 
     const pending = [];                  // { url, from, optional, kind }
     for (let i = 0; i < pages.length; i++) {
@@ -154,7 +154,7 @@ async function main() {
     // Project photos and models listed in the data files (cards are built by JavaScript, so they aren't in the HTML above)
     try {
         const ctx = { window: {} };
-        const cvMaster = await get(base + 'js/cv-master.js');
+        const cvMaster = await get(base + 'js/cv-master.js');   // loaded by the CV tailor for Edison's own account
         if (!cvMaster.ok) problems.push('The CV tailor data (js/cv-master.js) does not load: run node tools/build-pages.js');
         for (const f of ['js/projects.js', 'js/sheet-works.js']) {
             const r = await get(base + f);

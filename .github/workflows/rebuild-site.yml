@@ -17,6 +17,9 @@ on:
       - 'js/config.js'
       - 'content/**'
       - 'tools/build-syllabus-pdfs.js'
+      - 'js/cv-tailor-core.js'
+      - 'js/cv-import.js'
+      - 'tools/google-sheet-script.gs'
       - 'images/engineering/**'
       - 'images/graphic/**'
       - 'index.html'
@@ -74,7 +77,7 @@ jobs:
         run: node tools/build-pages.js
 
       - name: Check the CV tailor (no hidden or made-up lines can reach a tailored CV)
-        run: node tools/test-cv-tailor.js
+        run: node tools/test-cv-tailor.js && node tools/test-cv-sheet.js
 
       - name: Save the rebuilt pages
         env:

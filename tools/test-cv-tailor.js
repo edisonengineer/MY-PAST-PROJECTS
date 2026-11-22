@@ -16,6 +16,9 @@
         certificates, and stays quiet on your own words.
      7. Old saved choices (lines you have since edited or deleted) don't
         break anything.
+     9. Clients' own CVs: pasted text, Word and PDF are sorted into the right
+        places, untrusted data is cleaned, and a client's letters and emails
+        contain only their own facts (never Edison's).
      8. Cover letters and application emails: every fact has a real source,
         only proven skills are named, nothing fails the fact check, gaps and
         prep courses are never claimed, and "Hiring Team" is the default.
@@ -237,5 +240,110 @@ test('tone comes from the prompt box', () => {
     assert.deepStrictEqual(C.tone('Formal. Not too short.'), { warm: false, concise: false });
 });
 
-console.log('\n' + passed + ' passed, ' + failures.length + ' failed.');
-if (failures.length) process.exit(1);
+console.log('Clients\' own CVs');
+const I = require(path.join(ROOT, 'js', 'cv-import.js'));
+const SAMPLE = [
+    'AMINA WANJIRU KAMAU', 'Mechanical Engineering Graduate', 'Nakuru, Kenya | +254 712 345 678 | amina.kamau@example.com | linkedin.com/in/amina-kamau-eng', '',
+    'PROFILE', 'Mechanical engineering graduate with hands-on experience in AutoCAD, SolidWorks and workshop fabrication.', '',
+    'WORK EXPERIENCE', 'Graduate Engineer Trainee | Rift Valley Machinery Ltd | Jan 2025 – Present',
+    '• Produced 2D workshop drawings in AutoCAD for maize sheller frames.', '• Supported welding and assembly of 40 sheller units per month.',
+    'Industrial Attachment, Kenya Power, Nakuru', 'May 2024 - Aug 2024', '- Inspected substation equipment with senior technicians.', '',
+    'PROJECTS', 'Solar Water Pump Mount (2024)', 'Final-year project: designed and tested a tilting mount for a 1 kW solar array.', '• Modelled the mount in SolidWorks and ran a static FEA study.', '',
+    'EDUCATION', 'BSc Mechanical Engineering, Egerton University, 2020 – 2024', 'Second Class Honours (Upper Division)', 'KCSE, Moi Forces Academy, 2016 – 2019', '',
+    'SKILLS', 'AutoCAD, SolidWorks, MS Excel', 'Welding and fabrication', '',
+    'CERTIFICATIONS', 'AutoCAD Essentials – Autodesk Design Academy, 2023', 'Certified SOLIDWORKS Associate (CSWA) – Dassault Systèmes, 2024', '',
+    'LANGUAGES', 'English, Kiswahili, Kikuyu', '', 'REFEREES', 'Available on request'
+].join('\n');
+test('pasted CV text is sorted into the right places', () => {
+    const { raw, warnings } = I.fromText(SAMPLE);
+    assert.deepStrictEqual(warnings, []);
+    assert.strictEqual(raw.person.name, 'Amina Wanjiru Kamau');
+    assert.strictEqual(raw.person.title, 'Mechanical Engineering Graduate');
+    assert.strictEqual(raw.person.location, 'Nakuru, Kenya');
+    assert.strictEqual(raw.person.email, 'amina.kamau@example.com');
+    assert.strictEqual(raw.person.phone, '+254 712 345 678');
+    assert.ok(/linkedin\.com\/in\/amina-kamau-eng$/.test(raw.person.linkedin));
+    assert.deepStrictEqual(raw.experience.map((x) => [x.role, x.org, x.dates, x.points.length]), [['Graduate Engineer Trainee', 'Rift Valley Machinery Ltd', 'Jan 2025 – Present', 2], ['Industrial Attachment', 'Kenya Power, Nakuru', 'May 2024 - Aug 2024', 1]]);
+    assert.strictEqual(raw.projects[0].title, 'Solar Water Pump Mount');
+    assert.strictEqual(raw.projects[0].year, '2024');
+    assert.deepStrictEqual(raw.education.map((e) => [e.title, e.org]), [['BSc Mechanical Engineering', 'Egerton University'], ['KCSE', 'Moi Forces Academy']]);
+    assert.deepStrictEqual(raw.languages, ['English', 'Kiswahili', 'Kikuyu']);
+    assert.ok(!JSON.stringify(raw).includes('Available on request'), 'referees section should be skipped');
+    const kinds = C.normalizeMaster(raw).certificates.map((c) => c.kind);
+    assert.deepStrictEqual(kinds, ['course', 'certification']);
+});
+test('a CV with no headings still loads, with a warning', () => {
+    const r = I.fromText('Jane Doe\nI fix machines and draw parts in AutoCAD for local workshops.');
+    assert.strictEqual(r.raw.person.name, 'Jane Doe');
+    assert.ok(r.warnings.length >= 1);
+});
+test('cleaning: anything goes in, a valid CV comes out', () => {
+    const r = C.sanitizeRaw({ person: { name: 'X'.repeat(500), linkedin: 'javascript:alert(1)', email: 'not an email', website: 'example.com/me' }, experience: [{ role: 'A', points: ['ok', 7, null, ''] }, 'junk', null], skills: 'not a list', certificates: [{ title: 'T', kind: 'hacked' }] });
+    assert.strictEqual(r.person.name.length, 100);
+    assert.strictEqual(r.person.linkedin, '');
+    assert.strictEqual(r.person.email, '');
+    assert.strictEqual(r.person.website, 'https://example.com/me');
+    assert.deepStrictEqual(r.experience, [{ role: 'A', org: '', dates: '', points: ['ok', '7'] }]);
+    assert.deepStrictEqual(r.skills, []);
+    assert.strictEqual(r.certificates[0].kind, 'certification');
+    assert.deepStrictEqual(C.sanitizeRaw(null), C.sanitizeRaw({}));
+});
+test('a client\'s CV goes through the same honesty rules', () => {
+    const m = C.normalizeMaster(I.fromText(SAMPLE).raw);
+    const jd = 'Requirements: SolidWorks, AutoCAD drawings, FEA, CSWA certification. Nice to have: ANSYS, Python.';
+    const target = { role: 'Design Engineer', company: 'Acme', jd };
+    const a = C.analyse(jd, m, 'cad', target);
+    assert.strictEqual(a.terms.find((t) => t.id === 'cswa').status, 'matched', 'a real CSWA certification counts');
+    assert.strictEqual(a.terms.find((t) => t.id === 'ansys').status, 'gap');
+    const r = C.compose(m, a, { length: 1 }, {});
+    assert.deepStrictEqual(C.grounded(r.cv, m), []);
+    const L = C.coverLetter(r.cv, a, m, target, ''), E = C.applicationEmail(r.cv, a, m, target, '');
+    const body = L.paragraphs.map((p) => p.map((x) => x.t).join('')).join('\n') + '\n' + E.body;
+    assert.ok(!/Edison|KIRDI|Nexus|undefined|null/.test(body + L.plain + E.subjects.join()), 'someone else\'s details or a gap in a client\'s letter');
+    assert.ok(!/^Portfolio:/m.test(E.body) && !/My portfolio is at/.test(L.plain), 'no portfolio link when the client has none');
+    assert.ok(E.body.includes('LinkedIn: https://linkedin.com/in/amina-kamau-eng'));
+    const own = body.split(target.role).join(' ').split(target.company).join(' ');   // the job title and company are what you typed, not claims
+    assert.deepStrictEqual(C.factCheck(own, m).filter((f) => f.kind !== 'name'), []);
+});
+test('an empty CV doesn\'t break anything', () => {
+    const m = C.normalizeMaster(C.emptyRaw());
+    const a = C.analyse(JDS.sheetmetal, m, 'auto', {});
+    const r = C.compose(m, a, { length: 1 }, {});
+    C.coverLetter(r.cv, a, m, {}, ''); C.applicationEmail(r.cv, a, m, {}, ''); C.prompt(r.cv, a, { jd: 'x' }, '', null);
+    assert.ok(C.rawStats(C.emptyRaw()).empty);
+});
+
+const asyncTests = [];
+const testAsync = (name, fn) => asyncTests.push([name, fn]);
+testAsync('Word (.docx): headings, bullets, tabs and text boxes are read in page order', async () => {
+    const makeDocx = require('./make-test-docx.js');
+    const buf = makeDocx(['> Brian Otieno Odhiambo', 'Design Engineer | Mombasa, Kenya | brian@example.com', '# Experience', 'Design Engineer\tCoast Marine Works Ltd\tMar 2023 – Present',
+        '- Drafted fabrication drawings in AutoCAD & Inventor.', '* Junior Draughtsman, Bamburi Fabricators', 'Jun 2021 – Feb 2023', '- Prepared cutting lists.', '# Skills', '- AutoCAD'].join('\n'));
+    const lines = I.docxLines(await I.unzipText(buf, 'word/document.xml'));
+    assert.strictEqual(lines[0].text, 'Brian Otieno Odhiambo', 'the text box should be read where it sits');
+    assert.ok(lines.find((l) => /Drafted/.test(l.text)).bullet);
+    assert.ok(lines.find((l) => l.text === 'Experience').heading);
+    const { raw } = I.parse(lines);
+    assert.strictEqual(raw.person.name, 'Brian Otieno Odhiambo');
+    assert.deepStrictEqual(raw.experience.map((x) => [x.role, x.org, x.dates]), [['Design Engineer', 'Coast Marine Works Ltd', 'Mar 2023 – Present'], ['Junior Draughtsman', 'Bamburi Fabricators', 'Jun 2021 – Feb 2023']]);
+    assert.strictEqual(raw.experience[0].points[0], 'Drafted fabrication drawings in AutoCAD & Inventor.');
+    await assert.rejects(I.unzipText(Buffer.from('not a zip at all'), 'word/document.xml'), /not-docx/);
+});
+testAsync('PDF text with positions becomes lines, a sidebar is read column by column', async () => {
+    const it = (s, x, y) => ({ s, x, y, w: s.length * 5, h: 10, bold: false });
+    const items = [];
+    for (let i = 0; i < 8; i++) { items.push(it('Side ' + i, 20, 800 - i * 20)); items.push(it('Main line ' + i, 250, 800 - i * 20)); }
+    const rows = I.rowsOf(items).map((r) => r.text);
+    assert.deepStrictEqual(rows.slice(0, 2), ['Side 0', 'Side 1'], 'two columns should not be mixed line by line');
+    assert.ok(rows.includes('Main line 0'));
+    const one = I.rowsOf([it('Hello', 10, 100), it('world', 42, 100)]).map((r) => r.text);
+    assert.deepStrictEqual(one, ['Hello world']);
+});
+
+(async () => {
+    for (const [name, fn] of asyncTests) {
+        try { await fn(); passed++; console.log('  ok  ' + name); } catch (e) { failures.push(name); console.log('  FAIL ' + name + '\n       ' + e.message.split('\n').join('\n       ')); }
+    }
+    console.log('\n' + passed + ' passed, ' + failures.length + ' failed.');
+    if (failures.length) process.exit(1);
+})();
