@@ -145,6 +145,39 @@
 .cvp-certs li strong { font-weight: 600; color: #0e1a3a; }
 .cvp-tags { margin-top: 0.8mm; font-size: 8.2pt; color: #646a82 !important; }
 
+/* Output tabs: Tailored CV · Cover Letter · Application Email */
+.cvt-tabs { display: flex; gap: 4px; padding: 4px; margin-bottom: 14px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); overflow-x: auto; }
+.cvt-tabs [role="tab"] { flex: 1 0 auto; min-height: 42px; padding: 0 14px; border: 0; border-radius: 10px; background: transparent; color: var(--text-soft); font: 700 0.9rem var(--sans); cursor: pointer; white-space: nowrap; }
+.cvt-tabs [role="tab"]:hover { color: var(--heading); background: var(--cream); }
+.cvt-tabs [role="tab"][aria-selected="true"] { background: var(--navy); color: #fff; }
+[data-theme="dark"] .cvt-tabs [role="tab"][aria-selected="true"] { background: var(--sun); color: var(--navy); }
+.cvt-tabs [role="tab"]:focus-visible { outline: 3px solid var(--blue); outline-offset: 1px; }
+.cvt-inline { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; color: var(--heading); margin-right: 6px; cursor: pointer; }
+
+/* Cover letter sheet */
+.cvt-letter { font-size: 10.6pt; line-height: 1.52; }
+.cvt-letter p { margin-top: 3.4mm; color: #222a40; }
+.cvl-head { padding-bottom: 3mm; border-bottom: 2px solid #0e1a3a; }
+.cvl-head h1 { font: 600 19pt/1.1 var(--serif); color: #0e1a3a; }
+.cvl-head p { margin-top: 1.4mm !important; font-size: 8.8pt; color: #4c5470 !important; }
+.cvl-date { margin-top: 6mm !important; }
+.cvl-re { margin-top: 5mm !important; }
+.cvl-sign { margin-top: 6mm !important; }
+.cvt-letter.show-sources .cvl-fact { background: #e6f7ee; box-shadow: inset 0 -1px 0 #1fae6a; border-radius: 2px; cursor: help; }
+
+/* Application email */
+.cvt-email .cvt-card { box-shadow: none; }
+.cvt-sub-h { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--coral-text); margin: 4px 0 10px; }
+.cvt-sub-h:not(:first-child) { margin-top: 20px; }
+.cvt-subjects { display: grid; gap: 8px; }
+.cvt-subjects li { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; }
+.cvt-subjects label { display: flex; gap: 10px; align-items: flex-start; font-size: 0.92rem; color: var(--heading); font-weight: 600; cursor: pointer; min-width: 0; overflow-wrap: anywhere; }
+.cvt-subjects input { margin-top: 4px; accent-color: var(--navy); }
+.cvt-subjects .btn { flex: 0 0 auto; min-height: 36px; padding: 0 14px; }
+.cvt-to { margin-top: 16px; }
+.cvt-email-body { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 14px; padding: 16px 18px; border-radius: 12px; background: var(--cream); border: 1px solid var(--line); color: var(--text); font: 0.93rem/1.6 var(--sans); }
+.cvt-mail-tip { margin: 12px 0 0; }
+
 @media (max-width: 1100px) {
     .cvt-app { grid-template-columns: 1fr; }
     .cvt-preview { position: static; }
@@ -160,7 +193,7 @@
     html { font-size: 16px; }
     body.cvt-body { background: #fff !important; }
     .cvt-body .site-header, .cvt-body .site-footer, .cvt-body .fab-wa, .cvt-body .scroll-progress, .cvt-body .skip-link, .cvt-body .page-hero, .cvt-body .newsletter-band,
-    .cvt-body .search-overlay, .cvt-ui, .cvt-toolbar, .cvt-print-tip, [class*="install"], .acct-btn, .acct-toast, .acct-doc-view { display: none !important; }
+    .cvt-body .search-overlay, .cvt-ui, .cvt-toolbar, .cvt-print-tip, .cvt-tabs, .cvt-panel[hidden], .cvt-mail-tip, [class*="install"], .acct-btn, .acct-toast, .acct-doc-view { display: none !important; }
     .cvt-wrap { padding: 0 !important; background: #fff !important; }
     .cvt-body .container { padding: 0 !important; max-width: none !important; }
     .cvt-app { display: block; }
@@ -169,4 +202,7 @@
     .cvt-paper { width: auto; min-height: 0; padding: 0; transform: none !important; background-image: none; }
     .cvt-paper h2 { break-after: avoid; page-break-after: avoid; }
     .cvt-paper a { color: #1f4fd1 !important; }
+    .cvt-letter { font-size: 10.6pt; }
+    .cvt-letter .cvl-fact { background: none !important; box-shadow: none !important; }
+    .cvt-email .cvt-card { border: 0; padding: 0; }
 }

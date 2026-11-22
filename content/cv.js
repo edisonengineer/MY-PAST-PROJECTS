@@ -15,6 +15,7 @@ window.CV = {
     phone: '+254 708 639 473',
     location: 'Nairobi, Kenya',
     linkedin: 'https://www.linkedin.com/in/edison-ochieng-870a37229/',
+    portfolio: 'https://edisonengineer.github.io/',   // job-application portfolio: linked in cover letters and application emails
     summary: 'Mechanical Engineering graduate from the University of Nairobi with hands-on CAD experience in SolidWorks, Autodesk Inventor and Fusion 360. I produce 3D models, assemblies and 2D technical drawings for industrial prototypes, and run Nexus CAD Studio, a CAD and graphic design studio that has trained over 100 people. My final-year project used coupled FE simulation of sheet metal forming, reflecting strong manufacturing and design fundamentals. I am eager to contribute to product development, prototyping and technical support.',
     skills: [
         'CAD & engineering design: SolidWorks, Inventor, Fusion 360, AutoCAD, Revit',

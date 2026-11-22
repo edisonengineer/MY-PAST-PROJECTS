@@ -1482,7 +1482,7 @@ function cvTailorPage() {
     const step = (n, title, body, id) => `<section class="cvt-card"${id ? ` id="${id}"` : ''}><h2 class="cvt-h"><span class="cvt-n">${n}</span> ${title}</h2>${body}</section>`;
     return head({ title: 'CV tailor | Edison Ochieng', description: 'Make a CV for one job from your real experience: match the job description, choose what goes in, print or hand off to an AI assistant.', url, image: SITE + 'og-image.jpg?v=2', type: 'website', jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: 'CV tailor', url } })
         .replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, nofollow">')
-        .replace('</head>', '    <link rel="stylesheet" href="../css/cv-tailor.css?v=1">\n</head>') + '\n' + header('').replace('<body class="subpage">', '<body class="subpage cvt-body">') + `
+        .replace('</head>', '    <link rel="stylesheet" href="../css/cv-tailor.css?v=2">\n</head>') + '\n' + header('').replace('<body class="subpage">', '<body class="subpage cvt-body">') + `
     <main id="main">
         <section class="page-hero theme-violet cvt-hero">
             <div class="container page-hero-inner">
@@ -1491,7 +1491,7 @@ function cvTailorPage() {
                 </nav>
                 <p class="page-kicker">For Edison</p>
                 <h1 class="page-title">Tailor your CV to one job.</h1>
-                <p class="page-lede">Paste a job description. See what it asks for and what your real experience covers, pick the most relevant lines, then print a clean PDF or hand a strict prompt to an AI assistant.</p>
+                <p class="page-lede">Paste a job description. See what it asks for and what your real experience covers, pick the most relevant lines, then print a clean CV and cover letter, send the application email, or hand a strict prompt to an AI assistant.</p>
                 <p class="cvt-truth">${icon('check')} <span>Built only from your master CV (content/cv.js, your projects and certificates). Nothing here can add a role, number, tool or certificate you don't have. Items marked "not for the job portfolio" are left out.</span></p>
             </div>
         </section>
@@ -1505,8 +1505,11 @@ function cvTailorPage() {
                         <div class="field"><label for="cvt-company">Company <small>(optional)</small></label><input id="cvt-company" type="text" autocomplete="off" placeholder="e.g. Acme Fabrication Ltd"></div>
                     </div>
                     <div class="field-grid">
+                        <div class="field"><label for="cvt-recipient">Hiring manager / recipient <small>(optional)</small></label><input id="cvt-recipient" type="text" autocomplete="off" placeholder="Hiring Team"></div>
                         <div class="field"><label for="cvt-focus">Focus area</label><select id="cvt-focus"></select></div>
-                        <div class="field"><label for="cvt-length">Length</label><select id="cvt-length"><option value="1">1 page</option><option value="2">2 pages</option></select></div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="field"><label for="cvt-length">CV length</label><select id="cvt-length"><option value="1">1 page</option><option value="2">2 pages</option></select></div>
                     </div>
                     <div class="field"><label for="cvt-jd">Job description</label><textarea id="cvt-jd" rows="12" spellcheck="false" placeholder="Paste the whole advert: responsibilities, requirements and nice-to-haves."></textarea></div>
                     <div class="cvt-actions">
@@ -1535,11 +1538,11 @@ function cvTailorPage() {
                         <div class="cvt-label-row"><label for="cvt-instructions">Your instructions: tone, length, emphasis</label>
                             <span><label class="sr-only" for="cvt-preset">Preset</label><select id="cvt-preset"></select> <button type="button" class="btn btn-outline cvt-sm" data-act="reset-prompt">Reset</button></span></div>
                         <textarea id="cvt-instructions" rows="5"></textarea>
-                        <small>Saved in this browser. The hard rules against invented facts are always added and can't be switched off.</small>
+                        <small>Saved in this browser. Also sets the cover letter and email tone: write "warm" or "friendly" for a warmer letter, "concise" or "short" for a shorter one (formal otherwise). The hard rules against invented facts are always added and can't be switched off.</small>
                     </div>
-                    <div class="field"><label for="cvt-prompt">Prompt to copy (rules + your instructions + job + your verified CV data)</label><textarea id="cvt-prompt" rows="10" readonly spellcheck="false"></textarea></div>
+                    <div class="field"><label for="cvt-prompt">Full prompt to copy (rules + your instructions + job + your verified CV data + cover letter and email drafts)</label><textarea id="cvt-prompt" rows="10" readonly spellcheck="false"></textarea></div>
                     <div class="cvt-actions">
-                        <button type="button" class="btn btn-navy" data-act="copy-prompt">Copy prompt</button>
+                        <button type="button" class="btn btn-navy" data-act="copy-prompt">Copy full AI prompt</button>
                         <button type="button" class="btn btn-outline" data-act="copy-md">Copy CV as Markdown</button>
                         <button type="button" class="btn btn-outline" data-act="copy-json">Copy JSON</button>
                         <button type="button" class="btn btn-outline" data-act="dl-md">Download .md</button>
@@ -1554,18 +1557,48 @@ function cvTailorPage() {
                 </div>
 
                 <div class="cvt-preview">
-                    <div class="cvt-toolbar">
-                        <p><strong>Tailored CV</strong> <span id="cvt-pages" class="cvt-pages"></span></p>
-                        <span class="cvt-tools"><button type="button" class="btn btn-outline" data-act="fit">Fit to length</button>
-                        <button type="button" class="btn btn-sun" data-act="print">${icon('doc')} Print / save as PDF</button></span>
+                    <div class="cvt-tabs" role="tablist" aria-label="Output">
+                        <button type="button" role="tab" id="cvt-tab-cv" aria-controls="cvt-panel-cv" aria-selected="true">Tailored CV</button>
+                        <button type="button" role="tab" id="cvt-tab-letter" aria-controls="cvt-panel-letter" aria-selected="false" tabindex="-1">Cover Letter</button>
+                        <button type="button" role="tab" id="cvt-tab-email" aria-controls="cvt-panel-email" aria-selected="false" tabindex="-1">Application Email</button>
                     </div>
-                    <p class="cvt-help cvt-print-tip">In the print window choose "Save as PDF", paper A4, margins Default, and turn off headers and footers.</p>
-                    <div class="cvt-stage" id="cvt-stage"><article class="cvt-paper" id="cvt-paper" data-no-i18n data-user="edisonochieng24" data-domain="gmail.com" lang="en"></article></div>
+                    <div class="cvt-panel" id="cvt-panel-cv" role="tabpanel" aria-labelledby="cvt-tab-cv">
+                        <div class="cvt-toolbar">
+                            <p><strong>Tailored CV</strong> <span id="cvt-pages" class="cvt-pages"></span></p>
+                            <span class="cvt-tools"><button type="button" class="btn btn-outline" data-act="fit">Fit to length</button>
+                            <button type="button" class="btn btn-sun" data-act="print">${icon('doc')} Print / save as PDF</button></span>
+                        </div>
+                        <p class="cvt-help cvt-print-tip">In the print window choose "Save as PDF", paper A4, margins Default, and turn off headers and footers.</p>
+                        <div class="cvt-stage" id="cvt-stage"><article class="cvt-paper" id="cvt-paper" data-no-i18n data-user="edisonochieng24" data-domain="gmail.com" lang="en"></article></div>
+                    </div>
+                    <div class="cvt-panel" id="cvt-panel-letter" role="tabpanel" aria-labelledby="cvt-tab-letter" hidden>
+                        <div class="cvt-toolbar">
+                            <p><strong>Cover letter</strong> <span id="cvt-letter-pages" class="cvt-pages"></span></p>
+                            <span class="cvt-tools"><button type="button" class="btn btn-outline" data-act="copy-letter">Copy Cover Letter</button>
+                            <button type="button" class="btn btn-sun" data-act="print">${icon('doc')} Print / save as PDF</button></span>
+                        </div>
+                        <p class="cvt-help cvt-print-tip"><label class="cvt-inline"><input type="checkbox" id="cvt-sources"> Show where each fact comes from</label> Every fact is copied from your master CV; the wording around it claims nothing new. <span id="cvt-letter-tone"></span></p>
+                        <div class="cvt-stage" id="cvt-letter-stage"><article class="cvt-paper cvt-letter" id="cvt-letter" data-no-i18n lang="en"></article></div>
+                    </div>
+                    <div class="cvt-panel cvt-email" id="cvt-panel-email" role="tabpanel" aria-labelledby="cvt-tab-email" hidden>
+                        <div class="cvt-card">
+                            <h3 class="cvt-sub-h">Subject line</h3>
+                            <ul class="cvt-subjects" id="cvt-subjects" data-no-i18n></ul>
+                            <div class="field cvt-to"><label for="cvt-to">Send to <small>(optional, filled in from the advert when it lists an email address)</small></label><input id="cvt-to" type="email" autocomplete="off" placeholder="e.g. careers@company.com"></div>
+                            <h3 class="cvt-sub-h">Email body</h3>
+                            <pre class="cvt-email-body" id="cvt-email-body" data-no-i18n lang="en"></pre>
+                            <div class="cvt-actions">
+                                <button type="button" class="btn btn-navy" data-act="copy-email">Copy Email</button>
+                                <a class="btn btn-sun" id="cvt-mailto" href="mailto:">${icon('mail')} Open in my email app</a>
+                            </div>
+                            <p class="cvt-help cvt-mail-tip">Your email app can't attach files from a link: attach the CV and cover letter PDFs you saved from the other two tabs before you send.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/cv-master.js"></script>\n    <script defer src="../js/cv-tailor-core.js?v=1"></script>\n    <script defer src="../js/cv-tailor.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/cv-master.js"></script>\n    <script defer src="../js/cv-tailor-core.js?v=2"></script>\n    <script defer src="../js/cv-tailor.js?v=2"></script>\n');
 }
 
 /* ---------- Review-request link maker (for Edison) ---------- */

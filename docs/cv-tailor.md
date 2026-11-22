@@ -17,6 +17,17 @@ Nothing you paste leaves your browser.
 5. **Hand off to an AI assistant (optional).** Write your tone, length and emphasis rules in the prompt box, or pick a preset. **Copy prompt** copies strict anti-invention rules, your instructions, the job description and your selected CV lines (with source ids). Markdown and JSON copies or downloads are there too.
 6. **Check text from an AI assistant.** Paste what it wrote. The checker lists numbers, tools, certifications, names and source ids that aren't in your data, such as "12 engineers" when your data only has "12 weeks". Remove those, or add them to your master CV first if they are true.
 
+### Cover letter and application email
+
+The output area has three tabs: **Tailored CV**, **Cover Letter** and **Application Email**. All three use the same job description, the same ticked lines and the same master data. Add the **hiring manager / recipient** in step 1 if you know it. If it's empty, the letter and email say *Dear Hiring Team*.
+
+- **Cover Letter** is a formal one-page letter: your headline and degree; your most relevant role, using its own bullets; your 2–3 most relevant projects (the ones you ticked first, and never the same work twice); only the skills the job asks for that your CV proves; real awards and certificates; and your portfolio link. Every fact is copied from your data. Tick *Show where each fact comes from* to see its source. The letter uses *Yours sincerely* with a named recipient and *Yours faithfully* with *Hiring Team*. Prep courses such as "CSWA Cert Prep" are never named in a letter: that's true, but easy to misread as the certification. **Copy Cover Letter** copies plain text, and **Print / save as PDF** prints just the letter.
+- **Tone** comes from your prompt box in step 4. "warm", "friendly" or "enthusiastic" give a warmer letter and email. "concise", "short" or "brief" give a shorter letter (2 projects, 1 bullet, no degree line). Otherwise the tone is formal.
+- **Application Email** gives 3 subject lines, each with its own **Copy** button; the one you select goes into the email-app link. A job reference in the advert (e.g. "Ref: MDE-2026-04") is added to the subject. The short body lists 2–3 lines of proof ("SolidWorks, Sheet metal and Fabrication: Sheet Metal Fabrication at KIRDI (2025)"), says your CV and cover letter are attached, and links your job portfolio and LinkedIn. **Copy Email** copies the body. **Open in my email app** opens it in your mail program, addressed to the email in the advert if it lists one (or whatever you type in *Send to*). Email links can't carry attachments, so attach the two PDFs yourself.
+- **Copy full AI prompt** (step 4) now also contains the cover letter and email drafts, with instructions to improve them under the same rules: no new facts, and nothing about the company that isn't in the advert.
+
+The job-portfolio link comes from `portfolio:` in `content/cv.js`.
+
 **Save job** keeps the job and your choices in this browser (up to 25). **Clear / new job** starts fresh. Saved jobs and your prompt are kept.
 
 ## Where the facts come from (the "master CV")
@@ -50,7 +61,7 @@ After editing locally: `node tools/build-pages.js && node tools/test-cv-tailor.j
 
 ## Checks
 
-- `node tools/test-cv-tailor.js` runs 85 checks. It confirms that hidden items never reach the master CV and that every tailored line is a master line, word for word, across 6 sample job adverts × every focus × both lengths. It also checks that prep courses never count as certifications, that the fact checker catches invented numbers, employers and tools, and that old saved choices don't break anything. GitHub runs it after every rebuild and sheet sync.
+- `node tools/test-cv-tailor.js` runs 179 checks. It confirms that hidden items never reach the master CV and that every tailored line is a master line, word for word, across 6 sample job adverts × every focus × both lengths. It also checks that prep courses never count as certifications, that the fact checker catches invented numbers, employers and tools, and that old saved choices don't break anything. For 90 combinations of job, focus and tone, it checks that every letter and email fact has a real source, that only proven skills are named, that nothing fails the fact check, and that "Hiring Team" is the default. GitHub runs it after every rebuild and sheet sync.
 - `node tools/check-site.js` also loads `cv-tailor/` and `js/cv-master.js`.
 
 Translations: the page's buttons and labels go to `js/i18n-wanted.json`, and the Google Sheet's hourly translation job fills in French and Kiswahili like the rest of the site. The CV sheet itself stays in English, like the online CV.

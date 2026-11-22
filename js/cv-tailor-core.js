@@ -202,7 +202,7 @@
         add('headline', 'headline', 'Your CV title', master.person.title + '. ' + master.person.tagline);
         add(master.summary.id, 'summary', 'Profile summary', master.summary.text);
         master.experience.forEach((x) => {
-            add(x.id, 'role', x.role + ' · ' + x.org, x.role + ' ' + x.org);
+            add(x.id, 'role', x.role + ' · ' + x.org, x.role + ' ' + x.org + ' (' + x.dates + ')');
             x.points.forEach((b) => add(b.id, 'bullet', x.org.split(',')[0] + ': ' + b.text.slice(0, 60) + (b.text.length > 60 ? '…' : ''), b.text, { parent: x.id }));
         });
         master.projects.forEach((p) => {
@@ -210,7 +210,7 @@
             p.points.forEach((b) => add(b.id, 'pbullet', p.title + ': ' + b.text.slice(0, 50) + (b.text.length > 50 ? '…' : ''), b.text, { parent: p.id, category: p.category }));
         });
         master.skills.forEach((s) => add(s.id, 'skill', 'Skill: ' + s.text.split(':')[0], s.text));
-        master.education.forEach((e) => add(e.id, 'education', e.title + ', ' + e.org, [e.title, e.org, e.note].join('. ')));
+        master.education.forEach((e) => add(e.id, 'education', e.title + ', ' + e.org, [e.title, e.org, e.dates, e.note].join('. ')));
         master.certificates.forEach((c) => add(c.id, 'cert', (c.kind === 'course' ? 'Course: ' : c.kind === 'award' ? 'Award: ' : 'Certificate: ') + c.title, c.title + ' ' + c.issuer, { certKind: c.kind }));
         (master.languages || []).forEach((l, i) => add('lang-' + i, 'language', 'Language: ' + l, l));
         (master.memberships || []).forEach((m, i) => add('member-' + i, 'membership', 'Membership: ' + m.split('(')[0].trim(), m));
@@ -482,7 +482,185 @@
         return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
     }
 
-    function payload(cv, analysis, target) {
+    /* ---------------- 3b. cover letter & application email ----------------
+       Built like the CV: every fact (role, organisation, dates, project, bullet, skill, certificate)
+       is copied from the master data and carries its source id; the words around them are fixed
+       phrases that claim nothing. Only "matched" terms (real evidence) are ever named.
+       Your prompt box sets the tone: words like "warm" / "friendly" / "enthusiastic" give a warmer
+       letter, "concise" / "short" / "brief" a shorter one; otherwise it is formal. */
+    function tone(instructions) {
+        const s = String(instructions || '').toLowerCase();
+        return { warm: /\b(warm|friendly|enthusias|personable|conversational)/.test(s), concise: /\b(concise|short|brief|tight|succinct)\b/.test(s) && !/\bnot (?:too )?(?:concise|short|brief)\b/.test(s) };
+    }
+    const recipientOf = (target) => String((target && target.recipient) || '').trim() || 'Hiring Team';
+    const roleOf = (target) => String((target && target.role) || '').trim();
+    const companyOf = (target) => String((target && target.company) || '').trim();
+    const firstSentence = (t) => { const m = String(t || '').match(/^.+?[.!?](?=\s+[A-Z(]|$)/); return (m ? m[0] : String(t || '')).trim(); };
+    const VERB = /^(?:[A-Z][a-z]+ed|Built|Led|Ran|Made|Won|Taught|Drew|Wrote|Set|Grew|Kept|Held|Gave|Took|Ran|Brought|Sold|Ran)\b/;
+    const LOWER_START = /^(?:A|An|The|This|These|Design|Designed|Forming|Built|Created|Modelled|Modeled|Simulated)\b/;
+    const lc1 = (t) => t.charAt(0).toLowerCase() + t.slice(1);
+    const dropStop = (t) => t.replace(/[.\s]+$/, '');
+    const dates = (d) => String(d || '').replace(/\s*\(([^)]*)\)/g, ', $1');            // "Jun – Aug 2025 (12 weeks)" → "Jun – Aug 2025, 12 weeks"
+    const abbrOf = (org) => (String(org).match(/\(([A-Z][A-Za-z0-9 .]{1,12})\)/) || [])[1] || '';
+    const shortOrg = (org) => abbrOf(org) || String(org).split(',')[0];
+    const theOrg = (org) => (/^(university|kenya|institute|department|ministry|council|association)\b/i.test(org) ? 'the ' : '') + org;
+    // Terms proven by real work (a role, a bullet, a project or a skill), not only by your own headline or summary
+    const proven = (t) => t.status === 'matched' && !['other', 'soft', 'lang'].includes(t.group) && t.evidence.some((e) => !['headline', 'summary', 'language', 'membership'].includes(e.kind));
+    // A project that is the same work as a role (e.g. "Sheet Metal Fabrication at KIRDI" and the KIRDI attachment)
+    function sameWork(master, a, b) {
+        const x = master.experience.find((e) => e.id === a || e.id === b), p = master.projects.find((q) => q.id === a || q.id === b);
+        if (!x || !p) return false;
+        const k = abbrOf(x.org) || x.org.split(',')[0];
+        return new RegExp('\\b' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(p.title + ' ' + p.subtitle + ' ' + p.summary);
+    }
+    function listJoin(a) { return a.length < 2 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+    function jobRef(jd) {
+        for (const m of String(jd || '').matchAll(/\b(?:ref(?:erence)?|job (?:id|code|ref)|req(?:uisition)?(?: id)?|vacancy (?:no|number|ref))\b\.?\s*(?:no\.?|number|#)?\s*[:#-]?\s*([A-Z0-9][A-Z0-9/_-]{2,24})\b/gi)) if (/\d/.test(m[1])) return m[1];
+        return '';
+    }
+    function jobEmail(jd) { const m = String(jd || '').match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/); return m ? m[0] : ''; }
+
+    // The strongest proof for the job: places (a role or a project) and the matched terms each one proves
+    function proofs(cv, analysis, master, n) {
+        const items = itemsOf(master);
+        const unitOf = (it) => it.kind === 'bullet' || it.kind === 'pbullet' ? it.parent : it.kind === 'role' || it.kind === 'project' ? it.id : null;
+        const picked = new Set(cv.experience.map((x) => x.id).concat(cv.projects.map((p) => p.id)));
+        const L = { required: 3, mentioned: 2, preferred: 1 };
+        const terms = analysis.terms.filter(proven);
+        const units = new Map();
+        terms.forEach((t) => t.evidence.forEach((e) => {
+            const it = items.find((x) => x.id === e.id);
+            const u = it && unitOf(it);
+            if (!u) return;
+            if (!units.has(u)) units.set(u, new Map());
+            units.get(u).set(t.id, t);
+        }));
+        const out = [], used = new Set();
+        for (let k = 0; k < n; k++) {
+            let best = null, bestScore = 0;
+            units.forEach((ts, u) => {
+                if (out.some((o) => o.unit === u || sameWork(master, o.unit, u))) return;
+                const fresh = [...ts.values()].filter((t) => !used.has(t.id));
+                const s = fresh.reduce((a, t) => a + L[t.level] * (t.focus ? 1.5 : 1), 0) * (picked.has(u) ? 1.5 : 1);
+                if (s > bestScore) { bestScore = s; best = { unit: u, terms: fresh.sort((a, b) => L[b.level] - L[a.level] || b.count - a.count).slice(0, 3) }; }
+            });
+            if (!best) break;
+            best.terms.forEach((t) => used.add(t.id));
+            const x = master.experience.find((e) => e.id === best.unit), p = master.projects.find((q) => q.id === best.unit);
+            best.label = x ? x.role + ', ' + shortOrg(x.org) + ' (' + dates(x.dates) + ')' : p.title + (p.year ? ' (' + p.year + ')' : '');
+            out.push(best);
+        }
+        return out;
+    }
+
+    function coverLetter(cv, analysis, master, target, instructions) {
+        const T = tone(instructions), ranking = rank(master, analysis), sc = ranking.score;
+        const role = roleOf(target), company = companyOf(target), who = recipientOf(target);
+        const P = [];   // paragraphs: arrays of parts { t, src? }
+        const f = (t, src) => ({ t, src }), s = (t) => ({ t });
+        const matched = analysis.terms.filter(proven);
+        const L = { required: 3, mentioned: 2, preferred: 1 };
+        const top = matched.slice().sort((a, b) => L[b.level] - L[a.level] || b.count - a.count);
+        // 1. Why I'm writing
+        const pos = role ? [s('the '), f(role, 'job'), s(' position')] : [s('the advertised position')];
+        const at = company ? [s(' at '), f(company, 'job')] : [];
+        const p1 = T.warm ? [s('I was pleased to see your advert for ')].concat(pos, at, [s(', and I would like to apply.')]) : [s('I am writing to apply for ')].concat(pos, at, [s('.')]);
+        p1.push(s(' I am a '), f(master.person.title, 'headline'));
+        const edu = cv.education[0] || master.education[0];
+        if (edu && !T.concise) p1.push(s(' and studied '), f(edu.title, edu.id), s(' at '), f(theOrg(edu.org), edu.id), s(' ('), f(edu.dates, edu.id), s(')'));
+        p1.push(s('.'));
+        if (top.length >= 2) p1.push(s(' The role\'s focus on '), f(listJoin(top.slice(0, 2).map((t) => t.label)), 'match'), s(' matches the work described below and in my attached CV.'));
+        P.push(p1);
+        // 2. The most relevant role, in its own words
+        const roles = cv.experience.filter((x) => x.points.length).sort((a, b) => (sc[b.id] || 0) - (sc[a.id] || 0));
+        if (roles.length) {
+            const x = roles[0];
+            const stint = /attachment|internship|placement|apprentice|volunteer/i.test(x.role);
+            const p2 = (stint ? [s('During my '), f(x.role, x.id)] : [s(T.warm ? 'I have most recently been working as ' : 'In my role as '), f(x.role, x.id)])
+                .concat([s(' at '), f(theOrg(x.org), x.id), s(' ('), f(dates(x.dates), x.id), s(')'), s(T.warm && !stint ? ', where ' : ', ')]);
+            x.points.slice(0, T.concise ? 1 : 2).forEach((b, i) => {
+                if (i) p2.push(s(i === 1 ? ' I also ' : ' '));
+                const txt = dropStop(b.text);
+                if (VERB.test(txt)) p2.push(...(i ? [] : [s('I ')]), f(i ? lc1(txt) : lc1(txt), b.id), s('.'));
+                else p2.push(...(i ? [s('worked on the following: ')] : [s('my work included the following: ')]), f(txt, b.id), s('.'));
+            });
+            P.push(p2);
+        }
+        // 3. Two or three matched projects
+        const want = T.concise ? 2 : 3, usedRole = roles.length ? roles[0].id : '';
+        const notDup = (p) => !usedRole || !sameWork(master, usedRole, p.id);
+        // Your ticked projects first (in your order), then other real projects that match this job
+        let projects = cv.projects.filter(notDup);
+        if (projects.length < 2) projects = projects.concat(master.projects.filter((p) => !projects.some((q) => q.id === p.id) && notDup(p) && (sc[p.id] || 0) > 1).sort((a, b) => sc[b.id] - sc[a.id]));
+        projects = projects.slice(0, want);
+        if (projects.length) {
+            const p3 = [s(projects.length > 1 ? (T.warm ? 'A few projects I am proud of are especially relevant here.' : 'Several of my projects are directly relevant to this role.') : 'One project is directly relevant to this role.')];
+            projects.forEach((pr) => {
+                const sum = dropStop(firstSentence(pr.summary));
+                p3.push(s(' '), f(pr.title, pr.id));
+                if (pr.subtitle) p3.push(s(' ('), f(pr.subtitle.replace(/\s*·\s*/g, ', '), pr.id), s(')'));
+                p3.push(s(': '), f(LOWER_START.test(sum) ? lc1(sum) : sum, pr.id), s('.'));
+            });
+            P.push(p3);
+        }
+        // 4. Skills with proof, and certificates / awards exactly as they are
+        const p4 = [];
+        const named = top.slice(0, T.concise ? 5 : 7).map((t) => t.label);
+        if (named.length) p4.push(s('My attached CV shows experience with '), f(listJoin(named), 'match'), s('.'));
+        const certs = cv.certificates.filter((c) => c.kind !== 'course').slice(0, 2);
+        // A prep course whose title names a certification (e.g. "CSWA Cert Prep") is left out of letters: true, but easy to misread
+        const course = cv.certificates.find((c) => c.kind === 'course' && !COMPILED.some((t) => t.group === 'cert' && has(t, c.title)));
+        certs.forEach((c, i) => {
+            p4.push(s(i ? ' I also ' : (p4.length ? ' ' : '') + 'I '), s(c.kind === 'award' ? 'received the ' : 'hold the '), f(c.title, c.id), s(' ('), f(c.issuer, c.id), s(').'));
+        });
+        if (course && !T.concise) p4.push(s((p4.length ? ' ' : '') + 'I have completed the '), f(course.title, course.id), s(' course ('), f(course.issuer, course.id), s(').'));
+        const langs = analysis.terms.filter((t) => t.group === 'lang' && t.status === 'matched').map((t) => master.languages.find((l) => has(TERM[t.id], l))).filter(Boolean);
+        if (langs.length) p4.push(s((p4.length ? ' ' : '') + 'I speak '), f(listJoin(langs), 'languages'), s('.'));
+        if (p4.length) P.push(p4);
+        // 5. Close
+        P.push([s(T.warm ? 'I would love the chance to talk about how I could contribute to ' : 'I would welcome the opportunity to discuss how my experience could contribute to ')].concat(company ? [f(company, 'job')] : [s('your team')],
+            [s('. My portfolio is at '), f(master.person.portfolio || master.person.website, 'person'), s('. Thank you for your time and consideration.')]));
+        const salutation = 'Dear ' + who + ',';
+        const signoff = who === 'Hiring Team' || /^(hiring|recruit|sir|madam|team)/i.test(who) ? 'Yours faithfully,' : 'Yours sincerely,';
+        const plainP = P.map((parts) => parts.map((x) => x.t).join('').replace(/\s+([.,])/g, '$1'));
+        const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        const head = [master.person.name, master.person.location, master.person.phone, master.person.linkedin].join('\n');
+        const to = [who === 'Hiring Team' ? 'Hiring Team' : who, company].filter(Boolean).join('\n');
+        const plain = [head, '', date, '', to, ''].concat(role ? ['Re: Application for ' + role, ''] : [], [salutation, '', plainP.join('\n\n'), '', signoff, master.person.name]).join('\n');
+        return { paragraphs: P, salutation, signoff, date, recipient: who, company, role, plain, words: plain.split(/\s+/).filter(Boolean).length, tone: T };
+    }
+
+    function applicationEmail(cv, analysis, master, target, instructions) {
+        const T = tone(instructions);
+        const role = roleOf(target), company = companyOf(target), who = recipientOf(target), name = master.person.name;
+        const ref = jobRef(target && target.jd);
+        const proof = proofs(cv, analysis, master, 3).filter((p) => p.terms.length);
+        const L = { required: 3, mentioned: 2, preferred: 1 };
+        const tops = analysis.terms.filter(proven).sort((a, b) => L[b.level] - L[a.level] || b.count - a.count).slice(0, 2).map((t) => t.label);
+        const r = role || master.person.title;
+        const subjects = [];
+        const add = (x) => { if (x && !subjects.includes(x)) subjects.push(x); };
+        add('Application: ' + r + (ref ? ' (Ref ' + ref + ')' : '') + ' – ' + name);
+        add(company ? 'Application for ' + r + ' at ' + company + ' – ' + name : r + ' application – ' + name + ', ' + master.person.title);
+        if (tops.length) add(name + ' – ' + r + ' (' + tops.join(', ') + ')');
+        const position = (role ? 'the ' + role + ' position' : 'the advertised position') + (company ? ' at ' + company : '') + (ref ? ' (Ref ' + ref + ')' : '');
+        const lines = [
+            'Dear ' + who + ',',
+            '',
+            (T.warm ? 'I would love to be considered for ' : 'I am applying for ') + position + '. Please find my CV and cover letter attached.',
+            ''
+        ];
+        if (proof.length) {
+            lines.push(proof.length > 1 ? 'Why I am a good fit:' : 'Why I am a good fit:');
+            proof.forEach((p) => lines.push('• ' + listJoin(p.terms.map((t) => t.label)) + ': ' + p.label));
+            lines.push('');
+        }
+        lines.push('Portfolio: ' + (master.person.portfolio || master.person.website), 'LinkedIn: ' + master.person.linkedin, '');
+        lines.push(T.warm ? 'Thank you for considering my application. I would be glad to talk at any time.' : 'Thank you for your time and consideration. I look forward to hearing from you.', '', 'Kind regards,', name, master.person.phone);
+        return { subjects, body: lines.join('\n'), to: jobEmail(target && target.jd), proofs: proof.map((p) => ({ source: p.unit, label: p.label, terms: p.terms.map((t) => t.label) })), ref };
+    }
+
+    function payload(cv, analysis, target, extras) {
         const t = (list) => list.map((x) => ({ term: x.label, level: x.level, evidence: x.evidence.map((e) => e.id) }));
         return {
             target: { role: target.role || '', company: target.company || '', focus: (FOCUS[analysis.focus] || FOCUS.auto).label, length: target.length === 2 ? '2 pages' : '1 page' },
@@ -504,7 +682,14 @@
                 certificates_and_training: cv.certificates.map((c) => ({ id: c.id, title: c.title, issuer: c.issuer, kind: c.kind, link: c.verify })),
                 languages: cv.languages,
                 memberships: cv.memberships
-            }
+            },
+            ...(extras ? { application_drafts: {
+                recipient: recipientOf(target), company: companyOf(target), role: roleOf(target),
+                cover_letter_draft: extras.letter ? extras.letter.plain : '',
+                email_subject_options: extras.email ? extras.email.subjects : [],
+                email_body_draft: extras.email ? extras.email.body : '',
+                note: 'These drafts were built only from verified_cv. Every fact in them is already in verified_cv.'
+            } } : {})
         };
     }
 
@@ -516,14 +701,16 @@
         'Do not claim anything listed under gaps_do_not_claim or course_only_do_not_claim. Do not add those words to the skills line.',
         'Keep job titles, organisation names, certificate titles and issuers exactly as written.',
         'If the job asks for something I don\'t have, leave it out of the CV and mention it only in the "Notes for me" section at the end.',
-        'Mirror the job description\'s wording only for skills that already appear in VERIFIED CV DATA.'
+        'Mirror the job description\'s wording only for skills that already appear in VERIFIED CV DATA.',
+        'In the cover letter and email, say nothing about the company except what the job description says, and use the recipient, company and role names exactly as given. The same rules apply to them as to the CV: no new facts, numbers or credentials.'
     ];
 
-    function prompt(cv, analysis, target, instructions) {
-        const data = payload(cv, analysis, target);
+    function prompt(cv, analysis, target, instructions, extras) {
+        const data = payload(cv, analysis, target, extras);
         const role = [target.role, target.company].filter(Boolean).join(' at ') || 'the job below';
+        const app = !!extras;
         return [
-            'I am applying for ' + role + '. Help me tailor my CV to this job description.',
+            'I am applying for ' + role + '. Help me tailor my CV' + (app ? ', cover letter and application email' : '') + ' to this job description.',
             '',
             'HARD RULES (these override any other instruction):',
             RULES.map((r, i) => (i + 1) + '. ' + r).join('\n'),
@@ -536,7 +723,11 @@
             '2. Experience: each role exactly as titled, with improved bullets and their [source ids].',
             '3. Selected projects with bullets and [source ids].',
             '4. A skills line using only skills with evidence.',
-            '5. "Notes for me": gaps, things you were unsure about, and anything I should check before sending. Do not put these in the CV.',
+            ...(app ? [
+                '5. A cover letter that fits one A4 page (at most about 350 words), addressed to "' + recipientOf(target) + '"' + (target.company ? ' at ' + String(target.company).trim() : '') + '. Start from cover_letter_draft in application_drafts: improve the flow and tone, mention my 2–3 most relevant projects and matched skills, and keep every fact traceable (list the source ids used below the letter, not inside it).',
+                '6. The application email: pick or improve one of email_subject_options (keep my name and the role in it), and a short email body (3–4 short lines or bullets about my fit) that says my CV and cover letter are attached and gives my portfolio link. Start from email_body_draft.',
+                '7. "Notes for me": gaps, things you were unsure about, and anything I should check before sending. Do not put these in the CV, letter or email.'
+            ] : ['5. "Notes for me": gaps, things you were unsure about, and anything I should check before sending. Do not put these in the CV.']),
             '',
             'JOB DESCRIPTION:',
             '"""',
@@ -551,14 +742,14 @@
     /* ---------------- 4. fact check for text written by an AI assistant ---------------- */
     function factCheck(text, master) {
         const items = itemsOf(master);
-        const corpus = ' ' + items.map((it) => it.text.toLowerCase()).join(' \n ') + ' ' + [master.person.name, master.person.title, master.person.tagline, master.person.location].join(' ').toLowerCase() + ' ';
+        const corpus = ' ' + items.map((it) => it.text.toLowerCase()).join(' \n ') + ' ' + [master.person.name, master.person.title, master.person.tagline, master.person.location, master.person.phone].join(' ').toLowerCase() + ' ';
         const flags = [];
         const t = norm(text);
         if (!t) return flags;
         // Numbers: every number must already be in your data (source ids in [brackets] are skipped)
-        const body = t.replace(/\[[^\]]*\]/g, ' ');
+        const body = t.replace(/\[[^\]]*\]/g, ' ').replace(/(?:https?:\/\/|www\.)\S+/gi, ' ');
         const seenNum = new Set();
-        const rawLines = String(text).replace(/\[[^\]]*\]/g, ' ').split(/\n+/);
+        const rawLines = String(text).replace(/\[[^\]]*\]/g, ' ').replace(/(?:https?:\/\/|www\.)\S+/gi, ' ').split(/\n+/);
         for (const m of rawLines.flatMap((ln) => [...norm(ln).matchAll(/([A-Za-z][A-Za-z-]*\s)?(\d+(?:[.,]\d+)?)\s?(%)?[ \t]*([A-Za-z][a-z-]*)?/g)])) {
             const prev = (m[1] || '').trim().toLowerCase(), plain = m[2], pct = !!m[3], next = (m[4] || '').toLowerCase();
             if (prev && corpus.includes(' ' + prev + ' ' + plain)) continue;   // part of a name you have, e.g. "Fusion 360"
@@ -601,9 +792,9 @@
         [...names].slice(0, 15).forEach((n) => flags.push({ kind: 'name', text: n, note: 'A name that does not appear in your data: check it is real and yours.' }));
         return flags;
     }
-    const COMMON_CAPS = new Set('profile summary experience projects project education skills skill certifications certification languages memberships notes for me selected relevant tools the a an and of in at i my with to on by key core technical professional bsc mechanical engineering engineer design designer graphic june july august december april november jan feb mar apr may jun jul aug sep sept oct nov dec january february march september october present cad 3d 2d kenya nairobi university'.split(' '));
+    const COMMON_CAPS = new Set('profile summary experience projects project education skills skill certifications certification languages memberships notes for me selected relevant tools the a an and of in at i my with to on by key core technical professional bsc mechanical engineering engineer design designer graphic june july august december april november jan feb mar apr may jun jul aug sep sept oct nov dec january february march september october present cad 3d 2d kenya nairobi university dear yours sincerely faithfully kind regards thank thanks please why portfolio linkedin hiring team re application during several finally one in my most i\'m i\'ve as'.split(' '));
 
-    const API = { TERMS, GROUPS, FOCUS, LIMITS, PRESETS, RULES, itemsOf, analyse, rank, defaults, compose, trimOrder, grounded, markdown, payload, prompt, factCheck, norm };
+    const API = { TERMS, GROUPS, FOCUS, LIMITS, PRESETS, RULES, itemsOf, analyse, rank, defaults, compose, trimOrder, grounded, markdown, payload, prompt, factCheck, norm, tone, coverLetter, applicationEmail, jobRef, jobEmail, proofs };
     if (typeof module === 'object' && module.exports) module.exports = API;
     root.CVTailor = API;
 })(typeof window !== 'undefined' ? window : globalThis);

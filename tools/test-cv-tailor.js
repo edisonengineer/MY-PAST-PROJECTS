@@ -16,6 +16,9 @@
         certificates, and stays quiet on your own words.
      7. Old saved choices (lines you have since edited or deleted) don't
         break anything.
+     8. Cover letters and application emails: every fact has a real source,
+        only proven skills are named, nothing fails the fact check, gaps and
+        prep courses are never claimed, and "Hiring Team" is the default.
 
    Run:  node tools/test-cv-tailor.js
    ========================================================================= */
@@ -168,6 +171,70 @@ test('unticking and reordering are respected', () => {
     const r = C.compose(master, a, { length: 2 }, { include: { [drop]: false }, order: { experience: order } });
     assert.ok(!r.cv.projects.some((p) => p.id === drop));
     assert.deepStrictEqual(r.cv.experience.map((x) => x.id), order.filter((id) => r.included(id)));
+});
+
+console.log('Cover letter & application email');
+const SPECIAL = new Set(['job', 'match', 'person', 'headline', 'languages']);
+const masterIds = new Set(C.itemsOf(master).map((x) => x.id));
+const TONES = { formal: '', warm: 'Warm and friendly tone.', concise: 'Keep it concise.' };
+for (const [name, jd] of Object.entries(JDS)) {
+    for (const focus of ['auto', 'cad', 'fea', 'dfm', 'web']) {
+        for (const [toneName, ins] of Object.entries(TONES)) {
+            test('letter + email: ' + name + ' / ' + focus + ' / ' + toneName, () => {
+                const target = { role: 'Mechanical Design Engineer', company: 'Acme Fabrication Ltd', recipient: toneName === 'warm' ? 'Jane Wanjiku' : '', jd, length: 1 };
+                const a = C.analyse(jd, master, focus, target);
+                const r = C.compose(master, a, { length: 1 }, {});
+                const L = C.coverLetter(r.cv, a, master, target, ins);
+                const E = C.applicationEmail(r.cv, a, master, target, ins);
+                // Every fact points at a real source
+                L.paragraphs.flat().filter((x) => x.src).forEach((x) => assert.ok(SPECIAL.has(x.src) || masterIds.has(x.src), 'unknown source ' + x.src));
+                // Named skills are proven ones only
+                const proven = new Set(a.terms.filter((t) => t.status === 'matched').map((t) => t.label));
+                L.paragraphs.flat().filter((x) => x.src === 'match').forEach((x) => x.t.split(/, | and /).forEach((lab) => assert.ok(proven.has(lab), 'unproven skill in letter: ' + lab)));
+                E.proofs.forEach((p) => p.terms.forEach((lab) => assert.ok(proven.has(lab), 'unproven skill in email: ' + lab)));
+                // Nothing the fact check can't find in your data (company / recipient names are yours to type)
+                const body = L.paragraphs.map((p) => p.map((x) => x.t).join('')).join('\n') + '\n' + E.body;
+                const flags = C.factCheck(body, master).filter((f) => f.kind !== 'name');
+                assert.deepStrictEqual(flags, [], 'fact check: ' + JSON.stringify(flags));
+                // Gaps and course-only terms are never named
+                a.terms.filter((t) => t.status !== 'matched' && t.group !== 'other').forEach((t) => assert.ok(!L.plain.includes(t.label) && !E.body.includes(t.label), 'claims ' + t.label));
+                // Recipient, length, references
+                assert.ok(L.salutation === (target.recipient ? 'Dear Jane Wanjiku,' : 'Dear Hiring Team,'));
+                assert.ok(L.signoff === (target.recipient ? 'Yours sincerely,' : 'Yours faithfully,'));
+                assert.ok(L.words <= 420, 'letter too long for one page: ' + L.words + ' words');
+                assert.ok(E.subjects.length >= 2 && E.subjects.length <= 3 && E.subjects.every((x) => x.includes(master.person.name)));
+                assert.ok(/CV and cover letter attached/.test(E.body) && E.body.includes(master.person.portfolio));
+                assert.ok(E.body.startsWith(target.recipient ? 'Dear Jane Wanjiku,' : 'Dear Hiring Team,'));
+                const p = C.prompt(r.cv, a, target, ins, { letter: L, email: E });
+                assert.ok(p.includes('cover_letter_draft') && p.includes('email_subject_options') && /cover letter/i.test(p));
+            });
+        }
+    }
+}
+test('no recipient / role / company: clean defaults', () => {
+    const a = C.analyse(JDS.fea, master, 'fea', {});
+    const r = C.compose(master, a, { length: 1 }, {});
+    const L = C.coverLetter(r.cv, a, master, { jd: JDS.fea }, '');
+    const E = C.applicationEmail(r.cv, a, master, { jd: JDS.fea }, '');
+    assert.ok(L.plain.includes('Dear Hiring Team,') && L.plain.includes('the advertised position') && !/undefined|null/.test(L.plain + E.body + E.subjects.join()));
+});
+test('a CSWA prep course is never named in a letter (true, but easy to misread)', () => {
+    const a = C.analyse(JDS.sheetmetal, master, 'cad', {});
+    const r = C.compose(master, a, { length: 2 }, {});
+    const L = C.coverLetter(r.cv, a, master, { jd: JDS.sheetmetal }, '');
+    assert.ok(!/CSWA|Certified SOLIDWORKS Associate/i.test(L.plain));
+});
+test('job reference and email address from the advert', () => {
+    assert.strictEqual(C.jobRef('Requirements:\n- x\nRef: MDE-2026-04'), 'MDE-2026-04');
+    assert.strictEqual(C.jobRef('Job ID #45821'), '45821');
+    assert.strictEqual(C.jobRef('Requirements and references'), '');
+    assert.strictEqual(C.jobEmail('Send your CV to careers@acme.co.ke.'), 'careers@acme.co.ke');
+    const E = C.applicationEmail({ experience: [], projects: [] }, C.analyse('Ref: AB-123', master, 'auto', {}), master, { role: 'Engineer', jd: 'Ref: AB-123' }, '');
+    assert.ok(E.subjects[0].includes('Ref AB-123'));
+});
+test('tone comes from the prompt box', () => {
+    assert.deepStrictEqual(C.tone('Warm, friendly and concise'), { warm: true, concise: true });
+    assert.deepStrictEqual(C.tone('Formal. Not too short.'), { warm: false, concise: false });
 });
 
 console.log('\n' + passed + ' passed, ' + failures.length + ' failed.');

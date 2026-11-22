@@ -10,7 +10,8 @@ window.CV_MASTER = {
   "location": "Nairobi, Kenya",
   "phone": "+254 708 639 473",
   "linkedin": "https://www.linkedin.com/in/edison-ochieng-870a37229/",
-  "website": "https://edisonengineer.github.io/MY-PAST-PROJECTS/"
+  "website": "https://edisonengineer.github.io/MY-PAST-PROJECTS/",
+  "portfolio": "https://edisonengineer.github.io/"
  },
  "summary": {
   "id": "summary-99c573",

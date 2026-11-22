@@ -28,7 +28,7 @@
     };
     const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
-    const blank = () => ({ jd: '', role: '', company: '', focus: 'auto', length: 1, include: {}, order: {}, photo: false, email: true });
+    const blank = () => ({ jd: '', role: '', company: '', recipient: '', to: '', subject: 0, focus: 'auto', length: 1, include: {}, order: {}, photo: false, email: true, sources: false, tab: 'cv' });
     let state = Object.assign(blank(), store.get(KEY.draft, {}));
     let analysis = null, result = null;
 
@@ -37,8 +37,12 @@
         photo: $('cvt-photo'), email: $('cvt-email'), status: $('cvt-status'),
         match: $('cvt-match'), pick: $('cvt-pick'), paper: $('cvt-paper'), stage: $('cvt-stage'), pages: $('cvt-pages'),
         instructions: $('cvt-instructions'), preset: $('cvt-preset'), prompt: $('cvt-prompt'),
-        jobs: $('cvt-jobs'), check: $('cvt-check-text'), checkOut: $('cvt-check-out')
+        jobs: $('cvt-jobs'), check: $('cvt-check-text'), checkOut: $('cvt-check-out'),
+        recipient: $('cvt-recipient'), letter: $('cvt-letter'), letterStage: $('cvt-letter-stage'), letterPages: $('cvt-letter-pages'), letterTone: $('cvt-letter-tone'),
+        sources: $('cvt-sources'), subjects: $('cvt-subjects'), to: $('cvt-to'), body: $('cvt-email-body'), mailto: $('cvt-mailto')
     };
+    const TABS = ['cv', 'letter', 'email'];
+    let letter = null, mail = null;
 
     /* ---------- form <-> state ---------- */
     Object.keys(C.FOCUS).forEach((k) => el.focus.insertAdjacentHTML('beforeend', '<option value="' + k + '">' + esc(C.FOCUS[k].label) + '</option>'));
@@ -47,6 +51,7 @@
         el.jd.value = state.jd; el.role.value = state.role; el.company.value = state.company;
         el.focus.value = C.FOCUS[state.focus] ? state.focus : 'auto'; el.length.value = String(state.length === 2 ? 2 : 1);
         el.photo.checked = !!state.photo; el.email.checked = state.email !== false;
+        el.recipient.value = state.recipient || ''; el.to.value = state.to || ''; el.sources.checked = !!state.sources;
     }
     const save = debounce(() => store.set(KEY.draft, state), 250);
     function say(msg) { el.status.textContent = msg; clearTimeout(say.t); say.t = setTimeout(() => { el.status.textContent = ''; }, 4000); }
@@ -160,25 +165,32 @@
         fitPaper();
     }
     // Shrink the A4 sheet to fit the column on screen (printing always uses the real size)
-    function fitPaper() {
-        const w = el.stage.clientWidth;
-        const pw = el.paper.offsetWidth;
+    function fitSheet(stage, paper, label, max, extra) {
+        if (!stage.offsetParent) return fitSheet.last[paper.id] || 0;   // hidden tab: measured when it is shown
+        const w = stage.clientWidth;
+        const pw = paper.offsetWidth;
         const s = pw ? Math.min(1, w / pw) : 1;
-        el.paper.style.transform = s < 1 ? 'scale(' + s + ')' : '';
-        el.stage.style.height = Math.ceil(el.paper.offsetHeight * s) + 'px';
+        paper.style.transform = s < 1 ? 'scale(' + s + ')' : '';
+        stage.style.height = Math.ceil(paper.offsetHeight * s) + 'px';
         // Printed: A4 with 12 mm top/bottom margins (css/cv-tailor.css @page), so 273 mm of text per page
-        const mm = el.paper.offsetWidth / 210, cs = getComputedStyle(el.paper);
-        const last = el.paper.lastElementChild;
+        const mm = paper.offsetWidth / 210, cs = getComputedStyle(paper);
+        const last = paper.lastElementChild;
         const content = last ? last.offsetTop + last.offsetHeight - parseFloat(cs.paddingTop) : 0;   // the sheet has a min-height, so measure the text
         const pages = content / (273 * mm);
-        el.pages.textContent = '≈ ' + (Math.ceil(pages * 10) / 10).toFixed(1) + ' page' + (pages > 1.05 ? 's' : '') + ' (A4)';
-        el.pages.classList.toggle('is-over', pages > (state.length === 2 ? 2.02 : 1.02));
+        label.textContent = (extra || '') + '≈ ' + (Math.ceil(pages * 10) / 10).toFixed(1) + ' page' + (pages > 1.05 ? 's' : '') + ' (A4)';
+        label.classList.toggle('is-over', pages > max + 0.02);
+        fitSheet.last[paper.id] = pages;
         return pages;
     }
+    fitSheet.last = {};
+    const fitPaper = () => fitSheet(el.stage, el.paper, el.pages, state.length === 2 ? 2 : 1);
+    const fitLetter = () => fitSheet(el.letterStage, el.letter, el.letterPages, 1, letter ? letter.words + ' words · ' : '');
+    const fitAll = () => { fitPaper(); fitLetter(); };
     // Untick the least relevant lines, one at a time, until the CV fits the chosen length
     function fitToLength() {
         const max = state.length === 2 ? 2 : 1;
         let removed = 0;
+        if (!el.stage.offsetParent) return 0;   // the CV tab is hidden: nothing to measure
         for (let guard = 0; guard < 40 && fitPaper() > max + 0.005; guard++) {
             const id = C.trimOrder(result).find((x) => result.included(x));
             if (!id) break;
@@ -187,14 +199,75 @@
             result = C.compose(M, analysis, { length: state.length }, state);
             renderPaper();
         }
-        renderPick(); renderPrompt(); save();
+        renderPick(); renderApplication(); save();
         return removed;
     }
 
+    /* ---------- cover letter & application email (facts from the master CV only) ---------- */
+    function renderApplication() {
+        const ins = el.instructions.value;
+        letter = C.coverLetter(result.cv, analysis, M, target(), ins);
+        mail = C.applicationEmail(result.cv, analysis, M, target(), ins);
+        const part = (x) => x.src ? '<span class="cvl-fact" data-src="' + esc(x.src) + '" title="From: ' + esc(srcLabel(x.src)) + '">' + esc(x.t) + '</span>' : esc(x.t);
+        const p = M.person;
+        el.letter.classList.toggle('show-sources', !!state.sources);
+        el.letter.innerHTML = '<header class="cvl-head"><h1>' + esc(p.name) + '</h1><p>' + [p.location, p.phone, el.paper.dataset.user && state.email !== false ? el.paper.dataset.user + '@' + el.paper.dataset.domain : '', p.linkedin.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, '')].filter(Boolean).map(esc).join(' · ') + '</p></header>' +
+            '<p class="cvl-date">' + esc(letter.date) + '</p>' +
+            '<p class="cvl-to">' + esc(letter.recipient) + (letter.company ? '<br>' + esc(letter.company) : '') + '</p>' +
+            (letter.role ? '<p class="cvl-re"><strong>Re: Application for ' + esc(letter.role) + '</strong></p>' : '') +
+            '<p>' + esc(letter.salutation) + '</p>' +
+            letter.paragraphs.map((ps) => '<p>' + ps.map(part).join('').replace(/\s+([.,])/g, '$1') + '</p>').join('') +
+            '<p class="cvl-sign">' + esc(letter.signoff) + '<br><br>' + esc(p.name) + '</p>';
+        el.letterTone.textContent = 'Tone: ' + (letter.tone.warm ? 'warm' : 'formal') + (letter.tone.concise ? ', concise' : '') + ' (from your instructions in step 4).';
+        fitLetter();
+        // Email
+        if (!(state.subject < mail.subjects.length)) state.subject = 0;
+        el.subjects.innerHTML = mail.subjects.map((sub, i) => '<li><label><input type="radio" name="cvt-subject" value="' + i + '"' + (i === state.subject ? ' checked' : '') + '> <span>' + esc(sub) + '</span></label>' +
+            '<button type="button" class="btn btn-outline cvt-sm" data-act="copy-subject" data-i="' + i + '">Copy</button></li>').join('');
+        if (!el.to.value && !state.to && mail.to) el.to.placeholder = mail.to;
+        el.body.textContent = mail.body;
+        updateMailto();
+        renderPrompt();
+    }
+    function srcLabel(id) {
+        if (id === 'job') return 'what you typed in step 1';
+        if (id === 'match') return 'skills the job asks for that your CV proves (step 2)';
+        if (id === 'headline') return 'your CV title';
+        if (id === 'person' || id === 'languages') return 'your contact details / languages';
+        const it = C.itemsOf(M).find((x) => x.id === id);
+        return it ? it.label : id;
+    }
+    function mailTo() { return (el.to.value || state.to || mail.to || '').trim(); }
+    function updateMailto() {
+        const q = 'subject=' + encodeURIComponent(mail.subjects[state.subject] || '') + '&body=' + encodeURIComponent(mail.body.replace(/\n/g, '\r\n'));
+        el.mailto.href = 'mailto:' + encodeURIComponent(mailTo()).replace(/%40/g, '@') + '?' + q;
+    }
+
+    /* ---------- output tabs ---------- */
+    function showTab(tab, focus) {
+        state.tab = TABS.includes(tab) ? tab : 'cv';
+        TABS.forEach((t) => {
+            const on = t === state.tab, b = $('cvt-tab-' + t);
+            b.setAttribute('aria-selected', on ? 'true' : 'false');
+            b.tabIndex = on ? 0 : -1;
+            $('cvt-panel-' + t).hidden = !on;
+            if (on && focus) b.focus();
+        });
+        document.body.dataset.cvtTab = state.tab;
+        fitAll(); save();
+    }
+    app.querySelector('.cvt-tabs').addEventListener('keydown', (e) => {
+        const i = TABS.indexOf(state.tab);
+        const j = e.key === 'ArrowRight' ? (i + 1) % 3 : e.key === 'ArrowLeft' ? (i + 2) % 3 : e.key === 'Home' ? 0 : e.key === 'End' ? 2 : -1;
+        if (j < 0) return;
+        e.preventDefault(); showTab(TABS[j], true);
+    });
+
     /* ---------- 4. AI hand-off ---------- */
-    const target = () => ({ role: state.role.trim(), company: state.company.trim(), jd: state.jd, length: state.length });
+    const target = () => ({ role: state.role.trim(), company: state.company.trim(), recipient: (state.recipient || '').trim(), jd: state.jd, length: state.length });
+    const extras = () => ({ letter, email: mail });
     function renderPrompt() {
-        el.prompt.value = state.jd.trim() ? C.prompt(result.cv, analysis, target(), el.instructions.value) : 'Paste a job description first: the prompt is built from it and from the lines you ticked.';
+        el.prompt.value = state.jd.trim() ? C.prompt(result.cv, analysis, target(), el.instructions.value, extras()) : 'Paste a job description first: the prompt is built from it and from the lines you ticked.';
     }
 
     function refresh(full) {
@@ -203,8 +276,9 @@
         if (full) renderMatch();
         renderPick();
         renderPaper();
-        renderPrompt();
+        renderApplication();
     }
+    const renderApplicationSoon = debounce(() => renderApplication(), 250);
     const refreshSoon = debounce(() => {
         refresh(true);
         if (state.jd.trim() && !Object.keys(state.include).length && !Object.keys(state.order).length) {
@@ -219,26 +293,33 @@
         if (t === el.jd || t === el.role || t === el.company) {
             state[t === el.jd ? 'jd' : t === el.role ? 'role' : 'company'] = t.value;
             save(); refreshSoon();
+        } else if (t === el.recipient) {
+            state.recipient = t.value; save(); renderApplicationSoon();
+        } else if (t === el.to) {
+            state.to = t.value; save(); updateMailto();
         } else if (t === el.instructions) {
-            store.set(KEY.prompt, t.value); renderPrompt();
+            store.set(KEY.prompt, t.value); renderApplicationSoon();
         }
     });
     app.addEventListener('change', (e) => {
         const t = e.target;
         if (t === el.focus) { state.focus = t.value; save(); refresh(true); }
         else if (t === el.length) { state.length = t.value === '2' ? 2 : 1; save(); refresh(false); if (fitPaper() > state.length + 0.02) say('Over ' + state.length + ' page(s): use "Fit to length" or untick lines in step 3.'); }
-        else if (t === el.photo || t === el.email) { state[t === el.photo ? 'photo' : 'email'] = t.checked; save(); renderPaper(); }
+        else if (t === el.photo || t === el.email) { state[t === el.photo ? 'photo' : 'email'] = t.checked; save(); renderPaper(); renderApplication(); }
+        else if (t === el.sources) { state.sources = t.checked; save(); el.letter.classList.toggle('show-sources', t.checked); }
+        else if (t.name === 'cvt-subject') { state.subject = Number(t.value) || 0; save(); updateMailto(); }
         else if (t.dataset.inc) { state.include[t.dataset.inc] = t.checked; save(); refresh(false); }
         else if (t === el.preset) {
             const p = C.PRESETS[t.value];
             if (!p) return;
             if (el.instructions.value.trim() && el.instructions.value !== (C.PRESETS[store.get(KEY.preset, 'balanced')] || {}).text && !confirm('Replace your prompt with the "' + p.label + '" preset?')) { t.value = store.get(KEY.preset, 'balanced'); return; }
-            el.instructions.value = p.text; store.set(KEY.prompt, p.text); store.set(KEY.preset, t.value); renderPrompt();
+            el.instructions.value = p.text; store.set(KEY.prompt, p.text); store.set(KEY.preset, t.value); renderApplication();
         }
     });
     app.addEventListener('click', (e) => {
         const b = e.target.closest('button');
         if (!b) return;
+        if (b.getAttribute('role') === 'tab') { showTab(b.id.replace('cvt-tab-', '')); return; }
         if (b.dataset.move) {
             const key = b.dataset.move, ids = order(key), i = ids.indexOf(b.dataset.id), j = i + Number(b.dataset.dir);
             if (i < 0 || j < 0 || j >= ids.length) return;
@@ -256,7 +337,7 @@
         else if (act === 'reset-choices') { state.include = {}; state.order = {}; save(); refresh(false); say('Choices reset to the job\'s ranking.'); }
         else if (act === 'new') {
             if ((state.jd.trim() || Object.keys(state.include).length) && !confirm('Clear this job and start a new one? Saved jobs and your prompt are kept.')) return;
-            state = Object.assign(blank(), { photo: state.photo, email: state.email, focus: state.focus, length: state.length });
+            state = Object.assign(blank(), { photo: state.photo, email: state.email, focus: state.focus, length: state.length, tab: state.tab, sources: state.sources });
             store.set(KEY.draft, state); fillForm(); refresh(true); el.jd.focus(); say('Cleared. Paste the next job description.');
         } else if (act === 'save-job') {
             const jobs = store.get(KEY.jobs, []);
@@ -274,24 +355,27 @@
             if (!v || !confirm('Delete the saved job "' + v + '"?')) return;
             store.set(KEY.jobs, store.get(KEY.jobs, []).filter((x) => x.label !== v)); renderJobs(); say('Deleted.');
         } else if (act === 'reset-prompt') {
-            el.instructions.value = C.PRESETS.balanced.text; el.preset.value = 'balanced'; store.del(KEY.prompt); store.set(KEY.preset, 'balanced'); renderPrompt(); say('Prompt reset to the default.');
-        } else if (act === 'copy-prompt') copy(el.prompt.value, 'Prompt copied. Check every line the AI gives you against this CV.');
+            el.instructions.value = C.PRESETS.balanced.text; el.preset.value = 'balanced'; store.del(KEY.prompt); store.set(KEY.preset, 'balanced'); renderApplication(); say('Prompt reset to the default.');
+        } else if (act === 'copy-prompt') copy(el.prompt.value, 'Full prompt copied (CV, cover letter and email). Check every line the AI gives you against this page.');
+        else if (act === 'copy-letter') copy(letter.plain, 'Cover letter copied.');
+        else if (act === 'copy-email') copy(mail.body, 'Email copied. Attach your CV and cover letter PDFs before sending.');
+        else if (act === 'copy-subject') copy(mail.subjects[Number(b.dataset.i)] || '', 'Subject line copied.');
         else if (act === 'copy-md') copy(C.markdown(result.cv, target()), 'Markdown CV copied.');
-        else if (act === 'copy-json') copy(JSON.stringify(C.payload(result.cv, analysis, target()), null, 2), 'JSON copied.');
+        else if (act === 'copy-json') copy(JSON.stringify(C.payload(result.cv, analysis, target(), extras()), null, 2), 'JSON copied.');
         else if (act === 'dl-md') download(name() + '.md', C.markdown(result.cv, target()), 'text/markdown');
-        else if (act === 'dl-json') download(name() + '.json', JSON.stringify(Object.assign({ job_description: state.jd }, C.payload(result.cv, analysis, target())), null, 2), 'application/json');
+        else if (act === 'dl-json') download(name() + '.json', JSON.stringify(Object.assign({ job_description: state.jd }, C.payload(result.cv, analysis, target(), extras())), null, 2), 'application/json');
         else if (act === 'print') {
             const before = document.title;
-            document.title = [M.person.name, 'CV', state.company, state.role].filter(Boolean).join(' - ');
+            document.title = [M.person.name, state.tab === 'letter' ? 'Cover Letter' : 'CV', state.company, state.role].filter(Boolean).join(' - ');
             const back = () => { document.title = before; window.removeEventListener('afterprint', back); };
             window.addEventListener('afterprint', back);
             window.print();
             setTimeout(back, 1500);
         } else if (act === 'check') renderCheck();
     });
-    window.addEventListener('resize', debounce(fitPaper, 120));
-    window.addEventListener('beforeprint', () => { el.paper.style.transform = ''; });
-    window.addEventListener('afterprint', fitPaper);
+    window.addEventListener('resize', debounce(fitAll, 120));
+    window.addEventListener('beforeprint', () => { el.paper.style.transform = ''; el.letter.style.transform = ''; });
+    window.addEventListener('afterprint', fitAll);
 
     function renderJobs(selected) {
         const jobs = store.get(KEY.jobs, []);
@@ -337,5 +421,6 @@
     fillForm();
     renderJobs();
     refresh(true);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPaper);
+    showTab(state.tab);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
 })();
