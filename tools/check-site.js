@@ -6,6 +6,9 @@
      node tools/check-site.js                       checks the files in this folder
      node tools/check-site.js https://edisonengineer.github.io/MY-PAST-PROJECTS/
      node tools/check-site.js <url> --no-sheet      skip the Google Sheet check
+     node tools/check-site.js <url> --portfolio     the job portfolio: skips the Google Sheet
+                                                    and this site's own tools (request-review/,
+                                                    js/cv-master.js), which it doesn't have
 
    PROBLEMS (exit code 1, so the weekly GitHub check emails you):
      - a page, file or internal link that doesn't load
@@ -25,7 +28,8 @@ const vm = require('vm');
 const ROOT = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const target = args.find((a) => /^https?:\/\//.test(a));
-const checkSheet = !args.includes('--no-sheet');
+const portfolio = args.includes('--portfolio');           // the job portfolio is a separate site without this site's tools
+const checkSheet = !portfolio && !args.includes('--no-sheet');
 const problems = [];
 const warnings = [];
 
@@ -106,7 +110,7 @@ async function main() {
     } catch (e) { /* no sitemap: just crawl from the home page */ }
 
     // Pages that are deliberately not linked or in the sitemap (tools for Edison) are checked too
-    for (const extra of ['request-review/']) { const u = base + extra; if (!seen.has(u)) { seen.add(u); pages.push(u); } }
+    for (const extra of portfolio ? [] : ['request-review/']) { const u = base + extra; if (!seen.has(u)) { seen.add(u); pages.push(u); } }
 
     const pending = [];                  // { url, from, optional, kind }
     for (let i = 0; i < pages.length; i++) {
@@ -154,7 +158,7 @@ async function main() {
     // Project photos and models listed in the data files (cards are built by JavaScript, so they aren't in the HTML above)
     try {
         const ctx = { window: {} };
-        const cvMaster = await get(base + 'js/cv-master.js');   // loaded by the CV tailor for Edison's own account
+        const cvMaster = portfolio ? { ok: true } : await get(base + 'js/cv-master.js');   // loaded by the CV tailor for Edison's own account
         if (!cvMaster.ok) problems.push('The CV tailor data (js/cv-master.js) does not load: run node tools/build-pages.js');
         for (const f of ['js/projects.js', 'js/sheet-works.js']) {
             const r = await get(base + f);

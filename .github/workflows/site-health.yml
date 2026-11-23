@@ -25,4 +25,4 @@ jobs:
         run: node tools/check-site.js https://edisonengineer.github.io/MY-PAST-PROJECTS/
       - name: Job portfolio
         if: always()
-        run: node tools/check-site.js https://edisonengineer.github.io/ --no-sheet
+        run: node tools/check-site.js https://edisonengineer.github.io/ --portfolio
