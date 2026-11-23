@@ -410,6 +410,7 @@ function footer(extraScripts = '') {
                 <a href="https://www.linkedin.com/in/edison-ochieng-870a37229/" target="_blank" rel="noopener">LinkedIn</a>
                 <a href="https://edisonengineer.github.io/" target="_blank" rel="noopener" class="footer-recruit">Job portfolio (for recruiters)</a>
                 <a href="https://www.instagram.com/e_d_i_s_o_n_engineer/" target="_blank" rel="noopener">Instagram</a>
+                <a href="https://maps.app.goo.gl/zQxnkEdhVsguUnKh7" target="_blank" rel="noopener">Google Maps</a>
             </div>
         </div>
         <div class="container footer-bottom">
@@ -422,7 +423,7 @@ function footer(extraScripts = '') {
 
     <a class="fab-wa" href="https://wa.me/${WHATSAPP}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">${icon('whatsapp')}</a>
 
-${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=39" data-sw="../js/i18n-sw.js?v=36" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
+${extraScripts}    <script defer src="../js/i18n.js?v=6" data-fr="../js/i18n-fr.js?v=40" data-sw="../js/i18n-sw.js?v=37" data-fr-sheet="../js/i18n-sheet-fr.js" data-sw-sheet="../js/i18n-sheet-sw.js"></script>
     <script defer src="../js/pages.js?v=20"></script>
     <script defer src="../js/account.js?v=4" data-api="${esc(CFG.trackerApi || CFG.reviewsApi || '')}"></script>${CFG.goatcounter ? `\n    <script defer src="../js/analytics.js?v=3" data-code="${esc(CFG.goatcounter)}"></script>` : ''}
     <script defer src="../js/search.js?v=1"></script>
@@ -1826,7 +1827,7 @@ function reviewLinkPage() {
             </div>
         </section>
     </main>
-` + footer('    <script defer src="../js/review-link.js?v=1"></script>\n');
+` + footer('    <script defer src="../js/review-link.js?v=2"></script>\n');
 }
 
 /* ---------- Client project tracker ---------- */

@@ -10,7 +10,7 @@
    deleted when the new worker takes over. Don't edit between the markers.
    ========================================================================= */
 /* PRECACHE:START */
-const VERSION = '65eaf9c266';
+const VERSION = '82c3eb873d';
 const PRECACHE = [
     "./",
     "index.html",
@@ -30,8 +30,8 @@ const PRECACHE = [
     "js/sheet-data.js",
     "js/rates.js?v=2",
     "js/i18n.js?v=6",
-    "js/i18n-fr.js?v=39",
-    "js/i18n-sw.js?v=36",
+    "js/i18n-fr.js?v=40",
+    "js/i18n-sw.js?v=37",
     "js/i18n-sheet-fr.js",
     "js/i18n-sheet-sw.js",
     "js/main.js?v=11",
