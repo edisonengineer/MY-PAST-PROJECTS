@@ -25,7 +25,8 @@
         const first = form.client.value.trim().split(/\s+/)[0];
         const project = form.project.value.trim();
         return 'Hi' + (first ? ' ' + first : '') + ', thank you for working with me' + (project ? ' on ' + project : '') +
-            '! If you have a minute, I would really appreciate a short review. It helps other clients find me: ' + link;
+            '! If you have a minute, I would really appreciate a short review. It helps other clients find me: ' + link +
+            '\n\nYou can also review me on Google: https://g.page/r/CXpn6IWY52T2EBI/review';
     }
     function update() {
         const link = build();
