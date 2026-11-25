@@ -486,6 +486,7 @@ window.I18N_SW_SHEET = {
   "Get it done, or learn to do it": "Fanya, au jifunze kuifanya",
   "Going for the CSWA certificate?": "Unataka cheti cha CSWA?",
   "Good results depend on good inputs. Have these ready, even as rough estimates:": "Matokeo mazuri hutegemea pembejeo nzuri. Tayarisha hizi, hata kama makadirio ya awali:",
+  "Google Maps": "Ramani za Google",
   "Graphic design": "Ubunifu wa picha",
   "Graphic design · 2026": "Ubunifu wa picha · 2026",
   "Graphic design:": "Ubunifu wa picha:",
